@@ -8,3 +8,4 @@ bin/terraform-*
 /use-gpgv
 .*.swp
 .idea
+.misc
