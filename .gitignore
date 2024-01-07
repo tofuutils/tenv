@@ -1,0 +1,10 @@
+versions/
+version
+.opentofu-version
+.terraform-version
+bin/tofu-*
+bin/terraform-*
+/use-gnupg
+/use-gpgv
+.*.swp
+.idea
