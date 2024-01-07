@@ -4,7 +4,7 @@
 
 ## Support
 
-Currently tenv supports the following operating systems:
+Currently, tenv supports the following operating systems:
 
 - macOS
   - 64bit
