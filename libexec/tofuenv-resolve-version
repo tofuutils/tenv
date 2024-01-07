@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# Usage: tofuenv resolve-version [<version>]
+# Summary: Resolve the version to action based on the environment and optional input token
+
+set -uo pipefail;
+
+####################################
+# Ensure we can execute standalone #
+####################################
+
+function early_death() {
+  echo "[FATAL] ${0}: ${1}" >&2;
+  exit 1;
+};
+
+if [ -z "${TOFUENV_ROOT:-""}" ]; then
+  # http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
+  readlink_f() {
+    local target_file="${1}";
+    local file_name;
+
+    while [ "${target_file}" != "" ]; do
+      cd "$(dirname ${target_file})" || early_death "Failed to 'cd \$(dirname ${target_file})' while trying to determine TOFUENV_ROOT";
+      file_name="$(basename "${target_file}")" || early_death "Failed to 'basename \"${target_file}\"' while trying to determine TOFUENV_ROOT";
+      target_file="$(readlink "${file_name}")";
+    done;
+
+    echo "$(pwd -P)/${file_name}";
+  };
+
+  TOFUENV_ROOT="$(cd "$(dirname "$(readlink_f "${0}")")/.." && pwd)";
+  [ -n "${TOFUENV_ROOT}" ] || early_death "Failed to 'cd \"\$(dirname \"\$(readlink_f \"${0}\")\")/..\" && pwd' while trying to determine TOFUENV_ROOT";
+else
+  TOFUENV_ROOT="${TOFUENV_ROOT%/}";
+fi;
+export TOFUENV_ROOT;
+
+if [ -n "${TOFUENV_HELPERS:-""}" ]; then
+  log 'debug' 'TOFUENV_HELPERS is set, not sourcing helpers again';
+else
+  [ "${TOFUENV_DEBUG:-0}" -gt 0 ] && echo "[DEBUG] Sourcing helpers from ${TOFUENV_ROOT}/lib/tofuenv-helpers.sh";
+  if source "${TOFUENV_ROOT}/lib/tofuenv-helpers.sh"; then
+    log 'debug' 'Helpers sourced successfully';
+  else
+    early_death "Failed to source helpers from ${TOFUENV_ROOT}/lib/tofuenv-helpers.sh";
+  fi;
+fi;
+
+# Ensure libexec and bin are in $PATH
+for dir in libexec bin; do
+  case ":${PATH}:" in
+    *:${TOFUENV_ROOT}/${dir}:*) log 'debug' "\$PATH already contains '${TOFUENV_ROOT}/${dir}', not adding it again";;
+    *)
+      log 'debug' "\$PATH does not contain '${TOFUENV_ROOT}/${dir}', prepending and exporting it now";
+      export PATH="${TOFUENV_ROOT}/${dir}:${PATH}";
+      ;;
+  esac;
+done;
+
+# If on MacOS with Homebrew, use GNU grep
+# This allows keybase login detection to work on Mac,
+# and is required to be able to detect tofu version
+# from "required_version" setting in "*.tf" files
+check_dependencies;
+
+#####################
+# Begin Script Body #
+#####################
+
+declare version_requested version regex min_required version_file;
+
+declare arg="${1:-""}";
+
+if [ -z "${arg}" -a -z "${TOFUENV_TOFU_VERSION:-""}" ]; then
+  version_file="$(tofuenv-version-file)";
+  log 'debug' "Version File: ${version_file}";
+
+  if [ "${version_file}" != "${TOFUENV_CONFIG_DIR}/version" ]; then
+    log 'debug' "Version File (${version_file}) is not the default \${TOFUENV_CONFIG_DIR}/version (${TOFUENV_CONFIG_DIR}/version)";
+    version_requested="$(cat "${version_file}")" \
+      || log 'error' "Failed to open ${version_file}";
+
+  elif [ -f "${version_file}" ]; then
+    log 'debug' "Version File is the default \${TOFUENV_CONFIG_DIR}/version (${TOFUENV_CONFIG_DIR}/version)";
+    version_requested="$(cat "${version_file}")" \
+      || log 'error' "Failed to open ${version_file}";
+
+    # Absolute fallback
+    if [ -z "${version_requested}" ]; then
+      log 'debug' 'Version file had no content. Falling back to "latest"';
+      version_requested='latest';
+    fi;
+
+  else 
+    log 'debug' "Version File is the default \${TOFUENV_CONFIG_DIR}/version (${TOFUENV_CONFIG_DIR}/version) but it doesn't exist";
+    log 'debug' 'No version requested on the command line or in the version file search path. Installing "latest"';
+    version_requested='latest';
+  fi;
+elif [ -n "${TOFUENV_TOFU_VERSION:-""}" ]; then
+  version_requested="${TOFUENV_TOFU_VERSION}";
+  log 'debug' "TOFUENV_TOFU_VERSION is set: ${TOFUENV_TOFU_VERSION}";
+else
+  version_requested="${arg}";
+fi;
+
+[[ -n "${version_requested:-""}" ]] \
+  && log 'debug' "Version Requested: ${version_requested}" \
+  || log 'error' 'Version could not be resolved!';
+
+# Accept a v-prefixed version, but strip the v.
+if [[ "${version_requested}" =~ ^v.*$ ]]; then
+  log 'debug' "Version Requested is prefixed with a v. Stripping the v.";
+  version_requested="${version_requested#v*}";
+fi;
+
+if [[ "${version_requested}" =~ ^min-required$ ]]; then
+  log 'debug' 'Detecting minimum required version...';
+  min_required="$(tofuenv-min-required)" \
+    || log 'error' 'tofuenv-min-required failed';
+
+  if [ -z "${min_required}" ]; then
+    log 'debug' 'It was not possible to detect a minimum-required version. Do you have a required_version line present?';
+    exit;
+  fi;
+
+  log 'debug' "Minimum required version detected: ${min_required}";
+  version_requested="${min_required}";
+fi;
+
+if [[ "${version_requested}" =~ ^latest-allowed$ ]]; then
+  log 'debug' 'Detecting latest allowable version...';
+  version_spec="$(grep -h required_version "${TOFUENV_DIR:-$(pwd)}"/{*.tf,*.tf.json} 2>/dev/null | { IFS='"' read -r _ ver _; echo "${ver%%,*}"; })";
+  version_num="$(echo "${version_spec}" | sed -E 's/[^0-9.]+//')";
+  log 'debug' "Using ${version_num} from version spec: ${version_spec}";
+
+  case "${version_spec}" in
+    '>'*)
+      version_requested=latest;
+      ;;
+    '<='*)
+      version_requested="${version_num}";
+      ;;
+    '~>'*)
+      version_without_rightmost="${version_num%.*}";
+      version_requested="latest:^${version_without_rightmost}";
+      ;;
+    *)
+      log 'error' "Unsupported version spec: '${version_spec}', only >, >=, <=, and ~> are supported.";
+      ;;
+  esac;
+  log 'debug' "Determined the requested version to be: ${version_requested}";
+fi;
+
+if [[ "${version_requested}" =~ ^latest\:.*$ ]]; then
+  version="${version_requested%%\:*}";
+  regex="${version_requested##*\:}";
+  log 'debug' "Version uses latest keyword with regex: ${regex}";
+elif [[ "${version_requested}" =~ ^latest$ ]]; then
+  version="${version_requested}";
+  regex="^[0-9]\+\.[0-9]\+\.[0-9]\+$";
+  log 'debug' "Version uses latest keyword alone. Forcing regex to match stable versions only: ${regex}";
+else
+  version="${version_requested}";
+  regex="^${version_requested}$";
+  log 'debug' "Version is explicit: ${version}. Regex enforces the version: ${regex}";
+fi;
+
+echo "${version}:${regex}";

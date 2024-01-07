@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+#
+# Summary: TODO
+#
+# Usage: tenv exec <command> [arg1 arg2...]
+#
+# Runs an executable by first preparing PATH so that the selected OpenTofu
+# version's `bin' directory is at the front.
+#
+# For example, if the currently selected OpenTofu version is 1.6.0:
+#   tofuenv exec plan
+#
+# is equivalent to:
+#   PATH="$TENV_ROOT/versions/1.6.0/bin:$PATH" tofu plan
+
+set -uo pipefail;
+
+####################################
+# Ensure we can execute standalone #
+####################################
+
+function early_death() {
+  echo "[FATAL] ${0}: ${1}" >&2;
+  exit 1;
+};
+
+if [ -z "${TENV_ROOT:-""}" ]; then
+  # http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
+  readlink_f() {
+    local target_file="${1}";
+    local file_name;
+
+    while [ "${target_file}" != "" ]; do
+      cd "$(dirname ${target_file})" || early_death "Failed to 'cd \$(dirname ${target_file})' while trying to determine TENV_ROOT";
+      file_name="$(basename "${target_file}")" || early_death "Failed to 'basename \"${target_file}\"' while trying to determine TENV_ROOT";
+      target_file="$(readlink "${file_name}")";
+    done;
+
+    echo "$(pwd -P)/${file_name}";
+  };
+
+  TENV_ROOT="$(cd "$(dirname "$(readlink_f "${0}")")/.." && pwd)";
+  [ -n "${TENV_ROOT}" ] || early_death "Failed to 'cd \"\$(dirname \"\$(readlink_f \"${0}\")\")/..\" && pwd' while trying to determine TENV_ROOT";
+else
+  TENV_ROOT="${TENV_ROOT%/}";
+fi;
+export TENV_ROOT;
+
+if [ -n "${TOFUENV_HELPERS:-""}" ]; then
+  log 'debug' 'TOFUENV_HELPERS is set, not sourcing helpers again';
+else
+  [ "${TOFUENV_DEBUG:-0}" -gt 0 ] && echo "[DEBUG] Sourcing helpers from ${TENV_ROOT}/lib/tenv-helpers.sh";
+  if source "${TENV_ROOT}/lib/tenv-helpers.sh"; then
+    log 'debug' 'Helpers sourced successfully';
+  else
+    early_death "Failed to source helpers from ${TENV_ROOT}/lib/tenv-helpers.sh";
+  fi;
+fi;
+
+# Ensure libexec and bin are in $PATH
+for dir in libexec bin; do
+  case ":${PATH}:" in
+    *:${TENV_ROOT}/${dir}:*) log 'debug' "\$PATH already contains '${TENV_ROOT}/${dir}', not adding it again";;
+    *)
+      log 'debug' "\$PATH does not contain '${TENV_ROOT}/${dir}', prepending and exporting it now";
+      export PATH="${TENV_ROOT}/${dir}:${PATH}";
+      ;;
+  esac;
+done;
+
+#####################
+# Begin Script Body #
+#####################
+
+tenv-exec "$@";

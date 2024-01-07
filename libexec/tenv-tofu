@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Usage: tofuenv version-file
+# Summary: Detect the file that sets the current tofuenv version
+
+set -uo pipefail;
