@@ -13,8 +13,12 @@ import (
 
 var (
 	version string = "v0.1"
-	build   string = "0"
-	commit  string = "sha"
+
+	//nolint:stylecheck
+	build string = "0"
+
+	//nolint:stylecheck
+	commit string = "sha"
 )
 
 // rootCmd represents the base command when called without any subcommands
