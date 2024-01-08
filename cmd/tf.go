@@ -6,6 +6,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"github.com/opentofuutils/tenv/pkg/consts/text"
 	"github.com/opentofuutils/tenv/pkg/misc"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -15,13 +16,8 @@ import (
 // tfCmd represents the tf command
 var tfCmd = &cobra.Command{
 	Use:   "tf",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Use tfenv wrapper to manager Terraform versions",
+	Long:  text.TfCmdLongText + text.SubCmdHelpText,
 	Run: func(cmd *cobra.Command, args []string) {
 		if !misc.CheckToolInstalled("tfenv") {
 			log.Error("tfenv is not installed. Please, execute 'tenv upgrade-deps' to use 'tenv tf' commands")

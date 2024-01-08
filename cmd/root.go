@@ -4,25 +4,30 @@ Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <san
 package cmd
 
 import (
+	"fmt"
+	"github.com/opentofuutils/tenv/pkg/consts/text"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
+var (
+	version string = "v0.1"
+	build   string = "0"
+	commit  string = "sha"
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "tenv",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "TENV CLI version " + version,
+	Long:  text.RootLongText,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
-	Version: `abc`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Fprintln(os.Stderr, text.AdditionalText)
+		os.Exit(1)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
