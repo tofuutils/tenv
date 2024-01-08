@@ -46,7 +46,6 @@ const (
 type Config struct {
 	AutoInstall  bool
 	RemoteUrl    string
-	RootFile     string
 	RootPath     string
 	Token        string
 	UserHomeFile string
@@ -93,7 +92,6 @@ func InitConfig() (Config, error) {
 	return Config{
 		AutoInstall:  autoInstall,
 		RemoteUrl:    remoteUrl,
-		RootFile:     path.Join(rootPath, versionFileName),
 		RootPath:     rootPath,
 		Token:        os.Getenv(tokenEnvName),
 		UserHomeFile: path.Join(userHome, versionFileName),
@@ -102,7 +100,7 @@ func InitConfig() (Config, error) {
 	}, nil
 }
 
-// lazy method (not always useful)
+// (made lazy method : not always useful and allows flag override)
 func (c *Config) ResolveVersion() string {
 	if c.Version != "" {
 		return c.Version
@@ -118,9 +116,22 @@ func (c *Config) ResolveVersion() string {
 		return string(data)
 	}
 
-	data, err = os.ReadFile(c.RootFile)
+	data, err = os.ReadFile(c.RootFile())
 	if err == nil {
 		return string(data)
 	}
 	return defaultVersion
+}
+
+// (made lazy method : not always useful and allows flag override)
+func (c *Config) RootFile() string {
+	return path.Join(c.RootPath, versionFileName)
+}
+
+// try to ensure the directory exists with a MkdirAll call.
+// (made lazy method : not always useful and allows flag override)
+func (c *Config) InstallDir() string {
+	dir := path.Join(c.RootPath, "opentofu")
+	os.MkdirAll(dir, 0755)
+	return dir
 }
