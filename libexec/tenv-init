@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-[ -n "${TENV_DEBUG}" ] && set -x;
-
-export PATH="${TENV_ROOT}/bin:${PATH}";
