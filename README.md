@@ -1,0 +1,2 @@
+# gotofuenv
+OpenTofu version manager
