@@ -68,12 +68,11 @@ func newInstallCmd(conf *config.Config) *cobra.Command {
 	installCmd := &cobra.Command{
 		Use:   "install [version]",
 		Short: "Install a specific version of OpenTofu.",
-		Long: `Install a specific version of OpenTofu.
+		Long: `Install a specific version of OpenTofu (into GOTOFUENV_ROOT directory from GOTOFUENV_REMOTE url).
 
 Without parameter the version to use is resolved automatically via GOTOFUENV_TOFU_VERSION or .opentofu-version files
 (searched in working directory, user home directory and GOTOFUENV_ROOT directory).
-Use "latest" when none are found.
-`,
+Use "latest" when none are found.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
@@ -102,7 +101,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 
 			for _, version := range versions {
 				if version.Used {
-					fmt.Println("*", version, "(set by", conf.RootFile, ")")
+					fmt.Println("*", version, "(set by", conf.RootFile(), ")")
 				} else {
 					fmt.Println(" ", version)
 				}
@@ -138,7 +137,7 @@ func newUninstallCmd(conf *config.Config) *cobra.Command {
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
 		Short: "Uninstall a specific version of OpenTofu.",
-		Long:  "Uninstall a specific version of OpenTofu.",
+		Long:  "Uninstall a specific version of OpenTofu (remove it from GOTOFUENV_ROOT directory).",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return tofuversion.Uninstall(args[0], conf)
@@ -151,7 +150,7 @@ func newUseCmd(conf *config.Config) *cobra.Command {
 	useCmd := &cobra.Command{
 		Use:   "use version",
 		Short: "Switch the default OpenTofu version to use.",
-		Long:  "Switch the default OpenTofu version to use.",
+		Long:  "Switch the default OpenTofu version to use (set in .opentofu-version file in GOTOFUENV_ROOT).",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return tofuversion.Use(args[0], conf)

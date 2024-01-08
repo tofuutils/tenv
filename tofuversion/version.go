@@ -18,7 +18,15 @@
 
 package tofuversion
 
-import "github.com/dvaumoron/gotofuenv/config"
+import (
+	"fmt"
+	"os"
+	"slices"
+	"strings"
+
+	"github.com/dvaumoron/gotofuenv/config"
+	"golang.org/x/mod/semver"
+)
 
 type Version struct {
 	Name string
@@ -31,8 +39,32 @@ func Install(requestedVersion string, conf *config.Config) error {
 }
 
 func List(conf *config.Config) ([]Version, error) {
-	// TODO
-	return nil, nil
+	entries, err := os.ReadDir(conf.InstallDir())
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(conf.RootFile())
+	if err != nil && conf.Verbose {
+		fmt.Println("Can not read used version :", err)
+	}
+	usedVersion := strings.TrimSpace(string(data))
+
+	versions := make([]Version, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			name := entry.Name()
+			versions = append(versions, Version{
+				Name: name,
+				Used: usedVersion == name,
+			})
+		}
+	}
+
+	slices.SortFunc(versions, func(a Version, b Version) int {
+		return semver.Compare(cleanVersion(a.Name), cleanVersion(b.Name))
+	})
+	return versions, nil
 }
 
 func ListRemote(conf *config.Config) ([]string, error) {
@@ -48,4 +80,11 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 func Use(requestedVersion string, conf *config.Config) error {
 	// TODO
 	return nil
+}
+
+func cleanVersion(version string) string {
+	if version == "" || version[0] == 'v' {
+		return version
+	}
+	return "v" + version
 }
