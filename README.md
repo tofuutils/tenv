@@ -17,6 +17,12 @@ Currently, tenv supports the following operating systems:
 ## Installation
 WIP
 
+## Environment variables
+TENV_ROOT_PATH
+
+TENV_TOFUENV_VERSION
+TENV_TFENV_VERSION
+
 ## LICENSE
 - [tenv inself](https://github.com/tofuutils/tenv/blob/main/LICENSE)
 - [tofuenv](https://github.com/tofuutils/tofuenv/blob/main/LICENSE)

@@ -14,7 +14,7 @@ import (
 // upgradeDepsCmd represents the upgradeDeps command
 var upgradeDepsCmd = &cobra.Command{
 	Use:   "upgradeDeps",
-	Short: "Upgrade github dependencies (tfenv and tofuenv)",
+	Short: "Upgrade tenv dependencies (tfenv and tofuenv)",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
