@@ -19,5 +19,7 @@
 package main
 
 func main() {
+	// TODO detect needed version
+	// TODO optional installation of compatible version
 	// TODO proxy to right version
 }
