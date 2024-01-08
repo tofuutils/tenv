@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func UnTarGz(source, destination string) error {
+func ExtractTarGz(source, destination string) error {
 	// Open the source file
 	file, err := os.Open(source)
 	if err != nil {
@@ -27,6 +27,9 @@ func UnTarGz(source, destination string) error {
 	// Create a tar reader
 	tarReader := tar.NewReader(gzipReader)
 
+	// Track the top-level directory name
+	var topLevelDir string
+
 	// Iterate through the tar archive and extract files
 	for {
 		header, err := tarReader.Next()
@@ -40,8 +43,13 @@ func UnTarGz(source, destination string) error {
 			return err
 		}
 
+		// If this is the first entry, capture the top-level directory name
+		if topLevelDir == "" && header.Name != "pax_global_header" {
+			topLevelDir = filepath.Base(header.Name)
+		}
+
 		// Construct the destination path for the current file without the top-level directory
-		target := filepath.Join(destination, strings.TrimPrefix(header.Name, filepath.Base(source)+"/"))
+		target := filepath.Join(destination, strings.TrimPrefix(header.Name, topLevelDir+"/"))
 
 		switch header.Typeflag {
 		case tar.TypeDir:
