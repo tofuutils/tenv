@@ -12,12 +12,14 @@ const (
 )
 
 const (
-	autoInstallEnvName = "GOTOFUENV_AUTO_INSTALL"
-	debugLevelEnvName  = "GOTOFUENV_DEBUG"
-	remoteUrlEnvName   = "GOTOFUENV_REMOTE"
-	rootPathEnvName    = "GOTOFUENV_ROOT"
-	tokenEnvName       = "GOTOFUENV_GITHUB_TOKEN"
-	versionEnvName     = "GOTOFUENV_TOFU_VERSION"
+	envPrefix = "GOTOFUENV_"
+
+	autoInstallEnvName = envPrefix + "AUTO_INSTALL"
+	debugLevelEnvName  = envPrefix + "DEBUG"
+	remoteUrlEnvName   = envPrefix + "REMOTE"
+	rootPathEnvName    = envPrefix + "ROOT"
+	tokenEnvName       = envPrefix + "GITHUB_TOKEN"
+	versionEnvName     = envPrefix + "TOFU_VERSION"
 )
 
 type Config struct {
