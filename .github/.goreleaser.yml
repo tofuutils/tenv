@@ -1,0 +1,12 @@
+version: 1
+
+builds:
+  - skip: true
+    env:
+      - CGO_ENABLED=0
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^test:'
