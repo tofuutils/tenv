@@ -5,6 +5,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/opentofuutils/tenv/pkg/misc"
+	log "github.com/sirupsen/logrus"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -12,7 +15,7 @@ import (
 // uninstallDepsCmd represents the uninstallDeps command
 var uninstallDepsCmd = &cobra.Command{
 	Use:   "uninstallDeps",
-	Short: "Uninstall utils dependencies (tfenv and tofuenv)",
+	Short: "Uninstall tenv dependencies (tfenv and tofuenv)",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -20,7 +23,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("uninstallDeps called")
+		log.Info("Starting to uninstall tenv tools")
+
+		rootDir := misc.GetEnv(misc.RootEnv, "")
+		binDir := fmt.Sprintf("%s/bin", rootDir)
+
+		err := os.RemoveAll(binDir)
+		if err != nil {
+			log.Error("Error removing bin directory:", err)
+		}
+
+		log.Info("tenv tools uninstalled successfully")
 	},
 }
 

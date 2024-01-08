@@ -28,3 +28,7 @@ bin/terraform-*
 
 .idea
 .DS_Store
+./main
+./bin
+./root
+main

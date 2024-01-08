@@ -1,6 +1,9 @@
-package main
+package misc
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 func CreateFolder(name string) error {
 	// Check if the destination folder exists, create it if not
@@ -10,5 +13,15 @@ func CreateFolder(name string) error {
 		}
 	}
 
+	return nil
+}
+
+func DeleteFolder(path string) error {
+	err := os.RemoveAll(path)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Deleted folder: %s\n", path)
 	return nil
 }
