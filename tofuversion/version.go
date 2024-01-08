@@ -19,14 +19,17 @@
 package tofuversion
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"slices"
 	"strings"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/dvaumoron/gotofuenv/config"
-	"golang.org/x/mod/semver"
 )
+
+var errNoCompatibleFound = errors.New("no constraint compatible version found")
 
 type Version struct {
 	Name string
@@ -34,6 +37,42 @@ type Version struct {
 }
 
 func Install(requestedVersion string, conf *config.Config) error {
+	_, err := semver.NewVersion(requestedVersion)
+	if err == nil {
+		return innerInstall(requestedVersion, conf)
+	}
+
+	predicate, reverseOrder, err := parsePredicate(requestedVersion)
+	if err != nil {
+		return err
+	}
+
+	versions, err := ListRemote(conf)
+	if err != nil {
+		return err
+	}
+
+	if reverseOrder {
+		// reverse order, start with latest
+		for i := len(versions) - 1; i >= 0; i-- {
+			version := versions[i]
+			if predicate(version) {
+				return innerInstall(version, conf)
+			}
+		}
+	} else {
+		// start with oldest
+		for _, version := range versions {
+			if predicate(version) {
+				return innerInstall(version, conf)
+			}
+		}
+	}
+	return errNoCompatibleFound
+}
+
+// requestedVersion should be a specific one
+func innerInstall(requestedVersion string, conf *config.Config) error {
 	// TODO
 	return nil
 }
@@ -61,9 +100,7 @@ func List(conf *config.Config) ([]Version, error) {
 		}
 	}
 
-	slices.SortFunc(versions, func(a Version, b Version) int {
-		return semver.Compare(cleanVersion(a.Name), cleanVersion(b.Name))
-	})
+	slices.SortFunc(versions, cmpVersion)
 	return versions, nil
 }
 
@@ -78,13 +115,45 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 }
 
 func Use(requestedVersion string, conf *config.Config) error {
-	// TODO
-	return nil
+	_, err := semver.NewVersion(requestedVersion)
+	if err == nil {
+		return innerUse(requestedVersion, conf)
+	}
+
+	predicate, reverseOrder, err := parsePredicate(requestedVersion)
+	if err != nil {
+		return err
+	}
+
+	versions, err := List(conf)
+	if err != nil {
+		return err
+	}
+
+	if reverseOrder {
+		// reverse order, start with latest
+		for i := len(versions) - 1; i >= 0; i-- {
+			version := versions[i]
+			if predicate(version.Name) {
+				return innerUse(version.Name, conf)
+			}
+		}
+	} else {
+		// start with oldest
+		for _, version := range versions {
+			if predicate(version.Name) {
+				return innerUse(version.Name, conf)
+			}
+		}
+	}
+	return errNoCompatibleFound
 }
 
-func cleanVersion(version string) string {
-	if version == "" || version[0] == 'v' {
-		return version
+// requestedVersion should be a specific one
+func innerUse(requestedVersion string, conf *config.Config) error {
+	err := os.WriteFile(conf.RootFile(), []byte(requestedVersion), 0644)
+	if err != nil || !conf.AutoInstall {
+		return err
 	}
-	return "v" + version
+	return innerInstall(requestedVersion, conf)
 }
