@@ -24,47 +24,47 @@ import (
 	"strconv"
 )
 
+const versionFileName = ".opentofu-version"
+
 const (
 	defaultAutoInstall = true
 	defaultRemoteUrl   = "https://github.com/opentofu/opentofu/releases"
+	defaultVersion     = "latest"
 )
 
 const (
 	envPrefix = "GOTOFUENV_"
 
 	autoInstallEnvName = envPrefix + "AUTO_INSTALL"
-	debugLevelEnvName  = envPrefix + "DEBUG"
 	remoteUrlEnvName   = envPrefix + "REMOTE"
 	rootPathEnvName    = envPrefix + "ROOT"
 	tokenEnvName       = envPrefix + "GITHUB_TOKEN"
+	verboseEnvName     = envPrefix + "VERBOSE"
 	versionEnvName     = envPrefix + "TOFU_VERSION"
 )
 
 type Config struct {
-	AutoInstall bool
-	DebugLevel  int
-	RemoteUrl   string
-	RootPath    string
-	Token       string
-	Version     string
+	AutoInstall  bool
+	RemoteUrl    string
+	RootFile     string
+	RootPath     string
+	Token        string
+	UserHomeFile string
+	Verbose      bool
+	Version      string
 }
 
 func InitConfig() (Config, error) {
+	userHome, err := os.UserHomeDir()
+	if err != nil {
+		return Config{}, err
+	}
+
 	autoInstall := defaultAutoInstall
 	autoInstallStr := os.Getenv(autoInstallEnvName)
 	if autoInstallStr != "" {
 		var err error
 		autoInstall, err = strconv.ParseBool(autoInstallStr)
-		if err != nil {
-			return Config{}, err
-		}
-	}
-
-	debugLevel := 0
-	debugLevelStr := os.Getenv(debugLevelEnvName)
-	if debugLevelStr != "" {
-		var err error
-		debugLevel, err = strconv.Atoi(debugLevelStr)
 		if err != nil {
 			return Config{}, err
 		}
@@ -77,19 +77,50 @@ func InitConfig() (Config, error) {
 
 	rootPath := os.Getenv(rootPathEnvName)
 	if rootPath == "" {
-		userHome, err := os.UserHomeDir()
-		if err != nil {
-			return Config{}, err
-		}
 		rootPath = path.Join(userHome, ".gotofuenv")
 	}
 
+	verbose := false
+	verboseStr := os.Getenv(verboseEnvName)
+	if verboseStr != "" {
+		var err error
+		verbose, err = strconv.ParseBool(verboseStr)
+		if err != nil {
+			return Config{}, err
+		}
+	}
+
 	return Config{
-		AutoInstall: autoInstall,
-		DebugLevel:  debugLevel,
-		RemoteUrl:   remoteUrl,
-		RootPath:    rootPath,
-		Token:       os.Getenv(tokenEnvName),
-		Version:     os.Getenv(versionEnvName),
+		AutoInstall:  autoInstall,
+		RemoteUrl:    remoteUrl,
+		RootFile:     path.Join(rootPath, versionFileName),
+		RootPath:     rootPath,
+		Token:        os.Getenv(tokenEnvName),
+		UserHomeFile: path.Join(userHome, versionFileName),
+		Verbose:      verbose,
+		Version:      os.Getenv(versionEnvName),
 	}, nil
+}
+
+// lazy method (not always useful)
+func (c *Config) ResolveVersion() string {
+	if c.Version != "" {
+		return c.Version
+	}
+
+	data, err := os.ReadFile(versionFileName)
+	if err == nil {
+		return string(data)
+	}
+
+	data, err = os.ReadFile(c.UserHomeFile)
+	if err == nil {
+		return string(data)
+	}
+
+	data, err = os.ReadFile(c.RootFile)
+	if err == nil {
+		return string(data)
+	}
+	return defaultVersion
 }
