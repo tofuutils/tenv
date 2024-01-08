@@ -22,11 +22,16 @@ var rootCmd = &cobra.Command{
 	Use:   "tenv",
 	Short: "TENV CLI version " + version,
 	Long:  text.RootLongText,
+
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Fprintln(os.Stderr, text.AdditionalText)
-		os.Exit(1)
+		if len(args) == 0 {
+			fmt.Println(text.EmptyArgsText)
+			os.Exit(1)
+		} else {
+			fmt.Fprintln(os.Stderr, text.AdditionalText)
+		}
 	},
 }
 
@@ -48,5 +53,6 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -1,7 +1,7 @@
 /*
 Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <sanduku.default@gmail.com>, Anastasiia Kozlova <anastasiia.kozlova245@gmail.com>
 */
-package misc
+package fs
 
 import (
 	log "github.com/sirupsen/logrus"

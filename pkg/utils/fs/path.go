@@ -1,12 +1,13 @@
-package misc
+package fs
 
 import (
 	"fmt"
+	"github.com/opentofuutils/tenv/pkg/utils/env"
 	log "github.com/sirupsen/logrus"
 )
 
 func GetPath(name string) string {
-	rootDir := GetEnv(RootEnv, "")
+	rootDir := env.GetEnv(env.RootEnv, "")
 
 	switch name {
 	case "root_dir":

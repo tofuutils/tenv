@@ -3,18 +3,18 @@ package text
 const RootLongText = `A compact CLI that manages OpenTofu / Terraform version via tfenv/tofuenv wrappers
 
 Authors:  Alexander Sharov (kvendingoldo@gmail.com), Nikolai Mishin (sanduku.default@gmail.com), Anastasiia Kozlova (anastasiia.kozlova245@gmail.com)
-Contributed at https://github.com/tfutils/tfenv
+Contributed at https://github.com/tofuutils/tenv
 `
 const EmptyArgsText = `Error: please use --help|-h to explore tenv commands`
 
 const AdditionalText = `A compact CLI that manages OpenTofu / Terraform version via tfenv/tofuenv wrappers
 
-Authors:  Alexander Sharov (kvendingoldo@gmail.com), Nikolai Mishin (sanduku.default@gmail.com(, Anastasiia Kozlova (anastasiia.kozlova245@gmail.com)
+Authors:  Alexander Sharov (kvendingoldo@gmail.com), Nikolai Mishin (sanduku.default@gmail.com), Anastasiia Kozlova (anastasiia.kozlova245@gmail.com)
 Contributed at https://github.com/tfutils/tfenv
 
 Usages:
-	tenv TODO
-	tenv TODO
+	tenv tf <tfenv command>
+	tenv init
 
 Flags:
 	--help	display command help & instructions`
@@ -37,11 +37,11 @@ const TofuCmdLongText = `This command let you manage OpenTofu version via tofuen
 Usages:
 	tenv tofu list-remote
 `
-const UninstallDepsCmdLongText = `This command uninstall all tenv dependencies
+const UninstallDepsCmdLongText = `This command uninstall all tenv dependencies (tfenv and tofuenv)
 Usages:
 	tenv uninstallDeps
 `
-const UpgradeDepsCmdLongText = `This command upgrade all tenv dependencies
+const UpgradeDepsCmdLongText = `This command upgrade all tenv dependencies: download tfenv, tofuenv and configure their environment variables
 Usages:
 	tenv upgradeDeps
 `

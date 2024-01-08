@@ -30,10 +30,10 @@ func DownloadLatestRelease(owner, repo, destPath string) error {
 		return err
 	}
 
-	zipball_url := releaseInfo["tarball_url"].(string)
+	tarball_url := releaseInfo["tarball_url"].(string)
 
 	// Download the latest release zip file
-	if err := DownloadFile(zipball_url, destPath); err != nil {
+	if err := DownloadFile(tarball_url, destPath); err != nil {
 		return err
 	}
 
