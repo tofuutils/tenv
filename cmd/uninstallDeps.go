@@ -1,14 +1,11 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <sanduku.default@gmail.com>, Anastasiia Kozlova <anastasiia.kozlova245@gmail.com>
 */
 package cmd
 
 import (
-	"fmt"
 	"github.com/opentofuutils/tenv/pkg/misc"
 	log "github.com/sirupsen/logrus"
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
@@ -25,15 +22,12 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Starting to uninstall tenv tools")
 
-		rootDir := misc.GetEnv(misc.RootEnv, "")
-		binDir := fmt.Sprintf("%s/bin", rootDir)
-
-		err := os.RemoveAll(binDir)
+		err := misc.DeleteFolder(misc.GetPath("bin_dir"))
 		if err != nil {
-			log.Error("Error removing bin directory:", err)
+			log.Error("Error removing dependencies directory:", err)
 		}
 
-		log.Info("tenv tools uninstalled successfully")
+		log.Info("tenv dependencies have been uninstalled successfully")
 	},
 }
 

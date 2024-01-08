@@ -1,7 +1,10 @@
+/*
+Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <sanduku.default@gmail.com>, Anastasiia Kozlova <anastasiia.kozlova245@gmail.com>
+*/
 package misc
 
 import (
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -22,6 +25,6 @@ func DeleteFolder(path string) error {
 		return err
 	}
 
-	fmt.Printf("Deleted folder: %s\n", path)
+	log.Debug("Deleted folder: %s\n", path)
 	return nil
 }
