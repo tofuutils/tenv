@@ -51,6 +51,7 @@ func initCmds(conf *config.Config) *cobra.Command {
 	}
 
 	flags := rootCmd.PersistentFlags()
+	flags.BoolVarP(&conf.AutoInstall, "auto-install", "a", conf.AutoInstall, "auto install missing version")
 	flags.StringVarP(&conf.RemoteUrl, "remote-url", "u", conf.RemoteUrl, "remote url to install from")
 	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install OpenTofu versions")
 	flags.StringVarP(&conf.Token, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
@@ -72,7 +73,14 @@ func newInstallCmd(conf *config.Config) *cobra.Command {
 
 Without parameter the version to use is resolved automatically via GOTOFUENV_TOFU_VERSION or .opentofu-version files
 (searched in working directory, user home directory and GOTOFUENV_ROOT directory).
-Use "latest" when none are found.`,
+Use "latest" when none are found.
+
+If a parameter is passed, available options:
+- an exact Semver 2.0.0 version string to install
+- a Semver 2.0.0 constraint string (checked against available at GOTOFUENV_REMOTE url)
+- latest (checked against available at GOTOFUENV_REMOTE url)
+- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
+- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
@@ -150,8 +158,15 @@ func newUseCmd(conf *config.Config) *cobra.Command {
 	useCmd := &cobra.Command{
 		Use:   "use version",
 		Short: "Switch the default OpenTofu version to use.",
-		Long:  "Switch the default OpenTofu version to use (set in .opentofu-version file in GOTOFUENV_ROOT).",
-		Args:  cobra.ExactArgs(1),
+		Long: `Switch the default OpenTofu version to use (set in .opentofu-version file in GOTOFUENV_ROOT)
+
+Available parameter options:
+- an exact Semver 2.0.0 version string to use
+- a Semver 2.0.0 constraint string (checked against available in GOTOFUENV_ROOT directory)
+- latest (checked against available in GOTOFUENV_ROOT directory)
+- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
+- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return tofuversion.Use(args[0], conf)
 		},
