@@ -25,9 +25,9 @@ func PrepareTool(owner, repo, rootDir string) error {
 	if err != nil {
 		return err
 	}
+
 	defer func() {
-		// Clean up: Remove the temporary directory when done
-		err := os.RemoveAll(miscDir)
+		err = DeleteFolder(miscDir)
 		if err != nil {
 			log.Error("Error removing temporary directory:", err)
 		}

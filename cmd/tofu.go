@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <sanduku.default@gmail.com>, Anastasiia Kozlova <anastasiia.kozlova245@gmail.com>
 */
 package cmd
 
@@ -23,19 +23,14 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		if !misc.CheckToolInstalled("tofuenv") {
 			log.Error("tofuenv is not installed. Please, execute 'tenv upgrade-deps' to use 'tenv tofu' commands")
 			return
 		}
 
-		//fmt.Println("tofu called")
+		toolExec := misc.GetPath("tofuenv_exec")
 
-		tofuExec := misc.GetPath("tofuenv_exec")
-		fmt.Println(tofuExec)
-		//fmt.Println(tofuExec)
-
-		exec := exec.Command(tofuExec, args...)
+		exec := exec.Command(toolExec, args...)
 		var out bytes.Buffer
 		var stderr bytes.Buffer
 		exec.Stdout = &out
@@ -46,14 +41,7 @@ to quickly create a Cobra application.`,
 			fmt.Println(stderr.String())
 			return
 		}
-		fmt.Println("Result: " + out.String())
-
-		//out, _ := exec.Command(tofuExec, args...).Output()
-		////if err != nil {
-		////	fmt.Println(err)
-		////}
-		//fmt.Println(string(out))
-
+		fmt.Println(out.String())
 	},
 }
 

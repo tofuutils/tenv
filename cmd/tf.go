@@ -1,12 +1,15 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <sanduku.default@gmail.com>, Anastasiia Kozlova <anastasiia.kozlova245@gmail.com>
 */
 package cmd
 
 import (
+	"bytes"
 	"fmt"
-
+	"github.com/opentofuutils/tenv/pkg/misc"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"os/exec"
 )
 
 // tfCmd represents the tf command
@@ -20,7 +23,25 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("tf called")
+		if !misc.CheckToolInstalled("tfenv") {
+			log.Error("tfenv is not installed. Please, execute 'tenv upgrade-deps' to use 'tenv tf' commands")
+			return
+		}
+
+		toolExec := misc.GetPath("tfenv_exec")
+
+		exec := exec.Command(toolExec, args...)
+		var out bytes.Buffer
+		var stderr bytes.Buffer
+		exec.Stdout = &out
+		exec.Stderr = &stderr
+		err := exec.Run()
+
+		if err != nil {
+			fmt.Println(stderr.String())
+			return
+		}
+		fmt.Println(out.String())
 	},
 }
 
