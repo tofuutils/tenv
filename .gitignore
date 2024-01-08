@@ -31,4 +31,5 @@ bin/terraform-*
 ./main
 ./bin
 ./root
+root/
 main

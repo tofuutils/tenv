@@ -4,12 +4,21 @@ import (
 	"fmt"
 	"github.com/opentofuutils/tenv/pkg/github"
 	log "github.com/sirupsen/logrus"
+
 	"os"
 )
 
+func CheckToolInstalled(name string) bool {
+
+	path := GetPath("tofuenv_exec")
+	_, err := os.Stat(path)
+
+	return !os.IsExist(err)
+}
+
 func PrepareTool(owner, repo, rootDir string) error {
-	binDir := fmt.Sprintf("%s/bin", rootDir)
-	miscDir := fmt.Sprintf("%s/misc", rootDir)
+	binDir := GetPath("bin_dir")
+	miscDir := GetPath("misc_dir")
 
 	// Create temporary directory where tarballs will be stored
 	err := CreateFolder(miscDir)
@@ -31,7 +40,7 @@ func PrepareTool(owner, repo, rootDir string) error {
 	}
 	log.Info(fmt.Sprintf("Latest %s release owned by %s downloaded successfully", repo, owner))
 
-	err = UnTarGz(tarballPath, fmt.Sprintf("%s/%s", binDir, repo))
+	err = ExtractTarGz(tarballPath, fmt.Sprintf("%s/%s", binDir, repo))
 	if err != nil {
 		log.Warn("Error:", err)
 	} else {

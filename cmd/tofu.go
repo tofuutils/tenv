@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/opentofuutils/tenv/pkg/misc"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os/exec"
 )
@@ -22,12 +23,16 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		if !misc.CheckToolInstalled("tofuenv") {
+			log.Error("tofuenv is not installed. Please, execute 'tenv upgrade-deps' to use 'tenv tofu' commands")
+			return
+		}
+
 		//fmt.Println("tofu called")
 
-		rootDir := misc.GetEnv(misc.RootEnv, "")
-		binDir := fmt.Sprintf("%s/bin", rootDir)
-		tofuExec := fmt.Sprintf("%s/tofu/bin/tofuenv", binDir)
-		tofuExec = "/Users/asharov/go/src/github.com/opentofuutils/tenv/root/bin/tofuenv/tofuutils-tofuenv-e0bec88/bin/tofuenv"
+		tofuExec := misc.GetPath("tofuenv_exec")
+		fmt.Println(tofuExec)
 		//fmt.Println(tofuExec)
 
 		exec := exec.Command(tofuExec, args...)
