@@ -21,13 +21,11 @@ package main
 import "github.com/spf13/cobra"
 
 func main() {
-
 	initCmd()
-
 }
 
 func initCmd() *cobra.Command {
 	cmd := &cobra.Command{}
-	// TODO
+	// TODO install, list, list-remote, uninstall, use
 	return cmd
 }
