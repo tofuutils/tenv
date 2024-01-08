@@ -7,7 +7,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/opentofuutils/tenv/pkg/consts/text"
-	"github.com/opentofuutils/tenv/pkg/misc"
+	"github.com/opentofuutils/tenv/pkg/tool"
+	"github.com/opentofuutils/tenv/pkg/utils/fs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os/exec"
@@ -19,12 +20,12 @@ var tfCmd = &cobra.Command{
 	Short: "Use tfenv wrapper to manager Terraform versions",
 	Long:  text.TfCmdLongText + text.SubCmdHelpText,
 	Run: func(cmd *cobra.Command, args []string) {
-		if !misc.CheckToolInstalled("tfenv") {
+		if !tool.CheckToolInstalled("tfenv") {
 			log.Error("tfenv is not installed. Please, execute 'tenv upgrade-deps' to use 'tenv tf' commands")
 			return
 		}
 
-		toolExec := misc.GetPath("tfenv_exec")
+		toolExec := fs.GetPath("tfenv_exec")
 
 		exec := exec.Command(toolExec, args...)
 		var out bytes.Buffer

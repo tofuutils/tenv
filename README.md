@@ -19,7 +19,6 @@ WIP
 
 ## Environment variables
 TENV_ROOT_PATH
-
 TENV_TOFUENV_VERSION
 TENV_TFENV_VERSION
 

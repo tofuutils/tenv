@@ -5,7 +5,8 @@ package cmd
 
 import (
 	"github.com/opentofuutils/tenv/pkg/consts/text"
-	"github.com/opentofuutils/tenv/pkg/misc"
+	"github.com/opentofuutils/tenv/pkg/tool"
+	"github.com/opentofuutils/tenv/pkg/utils/env"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -20,14 +21,14 @@ var upgradeDepsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Starting to upgrade tenv tools")
 
-		rootDir := misc.GetEnv(misc.RootEnv, "")
+		rootDir := env.GetEnv(env.RootEnv, "")
 
-		err := misc.PrepareTool("tfutils", "tfenv", rootDir)
+		err := tool.PrepareTool("tfutils", "tfenv", rootDir)
 		if err != nil {
 			return
 		}
 
-		err = misc.PrepareTool("opentofuutils", "tofuenv", rootDir)
+		err = tool.PrepareTool("opentofuutils", "tofuenv", rootDir)
 		if err != nil {
 			return
 		}

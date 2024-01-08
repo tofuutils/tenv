@@ -8,11 +8,11 @@ on:
 
 env:
   registry_url: "registry.hub.docker.com"
-  image_repo: "kvendingoldo/aws-cognito-backup-lambda"
+  image_repo: "tofuutils/tenv"
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       version: ${{ steps.set_version.outputs.safe_version }}
     steps:

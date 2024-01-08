@@ -4,9 +4,8 @@ Copyright © 2024 Alexander Sharov <kvendingoldo@gmail.com>, Nikolai Mishin <san
 package cmd
 
 import (
-	"fmt"
 	"github.com/opentofuutils/tenv/pkg/consts/text"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +15,7 @@ var initCmd = &cobra.Command{
 	Short: "Update environment to use tenv correctly",
 	Long:  text.InitCmdLongText + text.SubCmdHelpText,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		log.Info("Starting to init tenv")
 		//export PATH="${TOFUENV_ROOT}/bin:${PATH}";
 	},
 }

@@ -7,7 +7,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/opentofuutils/tenv/pkg/consts/text"
-	"github.com/opentofuutils/tenv/pkg/misc"
+	"github.com/opentofuutils/tenv/pkg/tool"
+	"github.com/opentofuutils/tenv/pkg/utils/fs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os/exec"
@@ -19,12 +20,12 @@ var tofuCmd = &cobra.Command{
 	Short: "Use tofuenv wrapper to manager OpenTofu versions",
 	Long:  text.TofuCmdLongText + text.SubCmdHelpText,
 	Run: func(cmd *cobra.Command, args []string) {
-		if !misc.CheckToolInstalled("tofuenv") {
+		if !tool.CheckToolInstalled("tofuenv") {
 			log.Error("tofuenv is not installed. Please, execute 'tenv upgrade-deps' to use 'tenv tofu' commands")
 			return
 		}
 
-		toolExec := misc.GetPath("tofuenv_exec")
+		toolExec := fs.GetPath("tofuenv_exec")
 
 		exec := exec.Command(toolExec, args...)
 		var out bytes.Buffer

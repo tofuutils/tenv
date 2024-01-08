@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"github.com/opentofuutils/tenv/pkg/consts/text"
-	"github.com/opentofuutils/tenv/pkg/misc"
+	"github.com/opentofuutils/tenv/pkg/utils/fs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -18,7 +18,7 @@ var uninstallDepsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Starting to uninstall tenv tools")
 
-		err := misc.DeleteFolder(misc.GetPath("bin_dir"))
+		err := fs.DeleteFolder(fs.GetPath("bin_dir"))
 		if err != nil {
 			log.Error("Error removing dependencies directory:", err)
 		}
