@@ -17,3 +17,7 @@
  */
 
 package main
+
+func main() {
+	// TODO proxy to right version
+}
