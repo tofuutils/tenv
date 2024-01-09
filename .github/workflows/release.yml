@@ -28,25 +28,3 @@ jobs:
           args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.TOFUENV_GITHUB_TOKEN }}
-      - name: Download artifacts
-        uses: robinraju/release-downloader@v1.8
-        with:
-          tag: ${{ github.ref_name }}
-          tarBall: true
-          zipBall: true
-      - name: Check contents
-        run: ls -la
-      - name: Generate checksum
-        uses: jmgilman/actions-generate-checksum@v1
-        with:
-          patterns: |
-            *.zip
-            *.tar.gz
-          method: sha256
-          output: checksums_${{ github.ref_name }}.txt
-      - name: Upload checksum to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.TOFUENV_GITHUB_TOKEN }}
-          file: checksums_${{ github.ref_name }}.txt
-          tag: ${{ github.ref_name }}
