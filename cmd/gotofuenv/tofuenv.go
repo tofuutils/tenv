@@ -139,8 +139,13 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 				return err
 			}
 
+			localSet := tofuversion.LocalSet(conf)
 			for _, version := range versions {
-				fmt.Println(version)
+				if _, installed := localSet[version]; installed {
+					fmt.Println(version, "(installed)")
+				} else {
+					fmt.Println(version)
+				}
 			}
 			return err
 		},

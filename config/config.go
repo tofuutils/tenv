@@ -27,7 +27,7 @@ import (
 const VersionFileName = ".opentofu-version"
 
 const (
-	defaultRemoteUrl = "https://github.com/opentofu/opentofu/releases"
+	defaultRemoteUrl = "https://api.github.com/repos/opentofu/opentofu/releases"
 	defaultVersion   = "latest"
 )
 
@@ -82,7 +82,6 @@ func InitConfig() (Config, error) {
 	verbose := false
 	verboseStr := os.Getenv(verboseEnvName)
 	if verboseStr != "" {
-		var err error
 		verbose, err = strconv.ParseBool(verboseStr)
 		if err != nil {
 			return Config{}, err
@@ -131,7 +130,7 @@ func (c *Config) RootFile() string {
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override)
 func (c *Config) InstallDir() string {
-	dir := path.Join(c.RootPath, "opentofu")
+	dir := path.Join(c.RootPath, "OpenTofu")
 	os.MkdirAll(dir, 0755)
 	return dir
 }

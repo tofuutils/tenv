@@ -21,7 +21,9 @@ package tofuversion
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
+	"path"
 	"slices"
 
 	"github.com/Masterminds/semver/v3"
@@ -31,9 +33,17 @@ import (
 var errNoCompatibleFound = errors.New("no compatible version found")
 
 func Install(requestedVersion string, conf *config.Config) error {
-	_, err := semver.NewVersion(requestedVersion)
+	parsedVersion, err := semver.NewVersion(requestedVersion)
 	if err == nil {
-		return innerInstall(requestedVersion, conf)
+		return innerInstall(parsedVersion.String(), conf)
+	}
+
+	if requestedVersion == "latest" {
+		latestVersion, err := githubLatestRelease(conf)
+		if err != nil {
+			return err
+		}
+		return innerInstall(latestVersion, conf)
 	}
 
 	predicate, reverseOrder, err := parsePredicate(requestedVersion)
@@ -65,7 +75,7 @@ func searchRemote(predicate func(string) bool, reverseOrder bool, conf *config.C
 	return "", errNoCompatibleFound
 }
 
-// version should be a specific one
+// version should be a specific one (without starting 'v')
 func innerInstall(version string, conf *config.Config) error {
 	entries, err := os.ReadDir(conf.InstallDir())
 	if err != nil {
@@ -83,6 +93,16 @@ func innerInstall(version string, conf *config.Config) error {
 
 	if conf.Verbose {
 		fmt.Println("Installation of OpenTofu", version)
+	}
+
+	downloadUrl, err := githubDownloadUrl(version, conf)
+	if err != nil {
+		return err
+	}
+
+	response, err := http.Get(downloadUrl)
+	if err != nil {
+		return err
 	}
 
 	// TODO
@@ -107,25 +127,55 @@ func ListLocal(conf *config.Config) ([]string, error) {
 }
 
 func ListRemote(conf *config.Config) ([]string, error) {
-	versions := make([]string, 0 /*, len(entries)*/)
-	// TODO
+	versions, err := githubListReleases(conf)
+	if err != nil {
+		return nil, err
+	}
+
 	slices.SortFunc(versions, cmpVersion)
 	return versions, nil
 }
 
 func Uninstall(requestedVersion string, conf *config.Config) error {
-	// TODO
-	return nil
+	parsedVersion, err := semver.NewVersion(requestedVersion)
+	if err != nil {
+		return err
+	}
+
+	cleanedVersion := parsedVersion.String()
+	if conf.Verbose {
+		fmt.Println("Uninstallation of OpenTofu", cleanedVersion)
+	}
+	return os.RemoveAll(path.Join(conf.InstallDir(), cleanedVersion))
+}
+
+func LocalSet(conf *config.Config) map[string]struct{} {
+	entries, err := os.ReadDir(conf.InstallDir())
+	if err != nil {
+		if conf.Verbose {
+			fmt.Println("Can not read installed versions :", err)
+		}
+		return nil
+	}
+
+	versionSet := make(map[string]struct{}, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			versionSet[entry.Name()] = struct{}{}
+		}
+	}
+	return versionSet
 }
 
 func Use(requestedVersion string, conf *config.Config) error {
-	_, err := semver.NewVersion(requestedVersion)
+	parsedVersion, err := semver.NewVersion(requestedVersion)
 	if err == nil {
-		err = writeVersionFile(requestedVersion, conf)
+		cleanedVersion := parsedVersion.String()
+		err = writeVersionFile(cleanedVersion, conf)
 		if err != nil || conf.NoInstall {
 			return err
 		}
-		return innerInstall(requestedVersion, conf)
+		return innerInstall(cleanedVersion, conf)
 	}
 
 	predicate, reverseOrder, err := parsePredicate(requestedVersion)
@@ -153,9 +203,19 @@ func Use(requestedVersion string, conf *config.Config) error {
 		fmt.Println("No compatible version found locally, search a remote one...")
 	}
 
-	version, err := searchRemote(predicate, reverseOrder, conf)
-	if err != nil {
-		return err
+	version := ""
+	if requestedVersion == "latest" {
+		latestVersion, err := githubLatestRelease(conf)
+		if err != nil {
+			return err
+		}
+		version = latestVersion
+	} else {
+		remoteVersion, err := searchRemote(predicate, reverseOrder, conf)
+		if err != nil {
+			return err
+		}
+		version = remoteVersion
 	}
 
 	if err = writeVersionFile(version, conf); err != nil {
