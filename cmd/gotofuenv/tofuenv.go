@@ -21,6 +21,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/tofuversion"
@@ -106,14 +107,21 @@ func newListCmd(conf *config.Config) *cobra.Command {
 				return err
 			}
 
+			filePath := conf.RootFile()
+			data, err := os.ReadFile(filePath)
+			if err != nil && conf.Verbose {
+				fmt.Println("Can not read used version :", err)
+			}
+			usedVersion := strings.TrimSpace(string(data))
+
 			for _, version := range versions {
-				if version.Used {
-					fmt.Println("*", version, "(set by", conf.RootFile(), ")")
+				if usedVersion == version {
+					fmt.Println("*", version, "(set by", filePath, ")")
 				} else {
 					fmt.Println(" ", version)
 				}
 			}
-			return err
+			return nil
 		},
 	}
 	return listCmd
