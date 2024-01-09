@@ -77,7 +77,8 @@ func searchRemote(predicate func(string) bool, reverseOrder bool, conf *config.C
 
 // version should be a specific one (without starting 'v')
 func innerInstall(version string, conf *config.Config) error {
-	entries, err := os.ReadDir(conf.InstallDir())
+	installDir := conf.InstallDir()
+	entries, err := os.ReadDir(installDir)
 	if err != nil {
 		return err
 	}
@@ -104,9 +105,14 @@ func innerInstall(version string, conf *config.Config) error {
 	if err != nil {
 		return err
 	}
+	defer response.Body.Close()
 
-	// TODO
-	return nil
+	targetDir := path.Join(installDir, version)
+	err = os.MkdirAll(targetDir, 0755)
+	if err != nil {
+		return err
+	}
+	return unzipToDir(response.Body, targetDir)
 }
 
 func ListLocal(conf *config.Config) ([]string, error) {
