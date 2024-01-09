@@ -18,11 +18,14 @@
 
 package tofuversion
 
-import "github.com/Masterminds/semver/v3"
+import (
+	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/hashicorp/go-version"
+)
 
-func cmpVersion(a string, b string) int {
-	v1, err1 := semver.NewVersion(a)
-	v2, err2 := semver.NewVersion(b)
+func cmpVersion(v1Str string, v2Str string) int {
+	v1, err1 := version.NewVersion(v1Str)
+	v2, err2 := version.NewVersion(v2Str)
 
 	if hasErr1, hasErr2 := err1 != nil, err2 != nil; hasErr1 {
 		if hasErr2 {
@@ -32,11 +35,10 @@ func cmpVersion(a string, b string) int {
 	} else if hasErr2 {
 		return 1
 	}
-
 	return v1.Compare(v2)
 }
 
-func parsePredicate(requestedVersion string) (func(string) bool, bool, error) {
+func parsePredicate(requestedVersion string, conf *config.Config) (func(string) bool, bool, error) {
 	predicate := alwaysTrue
 	reverseOrder := true
 	switch requestedVersion {
@@ -44,26 +46,42 @@ func parsePredicate(requestedVersion string) (func(string) bool, bool, error) {
 		reverseOrder = false // start with older
 		fallthrough          // same predicate retrieving
 	case "latest-allowed":
-		// TODO predicate from HCL parsing
-	case "latest":
-		// nothing todo (alwaysTrue and reverseOrder will work)
-	default:
-		constraint, err := semver.NewConstraint(requestedVersion)
+		requireds, err := gatherRequiredVersion(conf)
 		if err != nil {
 			return nil, false, err
 		}
 
-		predicate = func(version string) bool {
-			v, err := semver.NewVersion(version)
+		var constraint version.Constraints
+		for _, required := range requireds {
+			temp, err := version.NewConstraint(required)
 			if err != nil {
-				return false
+				return nil, false, err
 			}
-
-			ok, _ := constraint.Validate(v)
-			return ok
+			constraint = append(constraint, temp...)
 		}
+		if len(constraint) != 0 {
+			predicate = predicateFromConstraint(constraint)
+		}
+	case "latest":
+		// nothing todo (alwaysTrue and reverseOrder will work)
+	default:
+		constraint, err := version.NewConstraint(requestedVersion)
+		if err != nil {
+			return nil, false, err
+		}
+		predicate = predicateFromConstraint(constraint)
 	}
 	return predicate, reverseOrder, nil
+}
+
+func predicateFromConstraint(constraint version.Constraints) func(string) bool {
+	return func(versionStr string) bool {
+		v, err := version.NewVersion(versionStr)
+		if err != nil {
+			return false
+		}
+		return constraint.Check(v)
+	}
 }
 
 func alwaysTrue(string) bool {

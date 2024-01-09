@@ -26,14 +26,14 @@ import (
 	"path"
 	"slices"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/hashicorp/go-version"
 )
 
 var errNoCompatibleFound = errors.New("no compatible version found")
 
 func Install(requestedVersion string, conf *config.Config) error {
-	parsedVersion, err := semver.NewVersion(requestedVersion)
+	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		return innerInstall(parsedVersion.String(), conf)
 	}
@@ -46,7 +46,7 @@ func Install(requestedVersion string, conf *config.Config) error {
 		return innerInstall(latestVersion, conf)
 	}
 
-	predicate, reverseOrder, err := parsePredicate(requestedVersion)
+	predicate, reverseOrder, err := parsePredicate(requestedVersion, conf)
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func ListRemote(conf *config.Config) ([]string, error) {
 }
 
 func Uninstall(requestedVersion string, conf *config.Config) error {
-	parsedVersion, err := semver.NewVersion(requestedVersion)
+	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func LocalSet(conf *config.Config) map[string]struct{} {
 }
 
 func Use(requestedVersion string, conf *config.Config) error {
-	parsedVersion, err := semver.NewVersion(requestedVersion)
+	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String()
 		err = writeVersionFile(cleanedVersion, conf)
@@ -184,7 +184,7 @@ func Use(requestedVersion string, conf *config.Config) error {
 		return innerInstall(cleanedVersion, conf)
 	}
 
-	predicate, reverseOrder, err := parsePredicate(requestedVersion)
+	predicate, reverseOrder, err := parsePredicate(requestedVersion, conf)
 	if err != nil {
 		return err
 	}
