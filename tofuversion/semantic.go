@@ -20,9 +20,9 @@ package tofuversion
 
 import "github.com/Masterminds/semver/v3"
 
-func cmpVersion(a Version, b Version) int {
-	v1, err1 := semver.NewVersion(a.Name)
-	v2, err2 := semver.NewVersion(b.Name)
+func cmpVersion(a string, b string) int {
+	v1, err1 := semver.NewVersion(a)
+	v2, err2 := semver.NewVersion(b)
 
 	if hasErr1, hasErr2 := err1 != nil, err2 != nil; hasErr1 {
 		if hasErr2 {

@@ -23,18 +23,12 @@ import (
 	"fmt"
 	"os"
 	"slices"
-	"strings"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/dvaumoron/gotofuenv/config"
 )
 
 var errNoCompatibleFound = errors.New("no compatible version found")
-
-type Version struct {
-	Name string
-	Used bool
-}
 
 func Install(requestedVersion string, conf *config.Config) error {
 	_, err := semver.NewVersion(requestedVersion)
@@ -71,32 +65,40 @@ func searchRemote(predicate func(string) bool, reverseOrder bool, conf *config.C
 	return "", errNoCompatibleFound
 }
 
-// requestedVersion should be a specific one
-func innerInstall(requestedVersion string, conf *config.Config) error {
+// version should be a specific one
+func innerInstall(version string, conf *config.Config) error {
+	entries, err := os.ReadDir(conf.InstallDir())
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() && version == entry.Name() {
+			if conf.Verbose {
+				fmt.Println("OpenTofu", version, "already installed")
+			}
+			return nil
+		}
+	}
+
+	if conf.Verbose {
+		fmt.Println("Installation of OpenTofu", version)
+	}
+
 	// TODO
 	return nil
 }
 
-func ListLocal(conf *config.Config) ([]Version, error) {
+func ListLocal(conf *config.Config) ([]string, error) {
 	entries, err := os.ReadDir(conf.InstallDir())
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := os.ReadFile(conf.RootFile())
-	if err != nil && conf.Verbose {
-		fmt.Println("Can not read used version :", err)
-	}
-	usedVersion := strings.TrimSpace(string(data))
-
-	versions := make([]Version, 0, len(entries))
+	versions := make([]string, 0, len(entries))
 	for _, entry := range entries {
 		if entry.IsDir() {
-			name := entry.Name()
-			versions = append(versions, Version{
-				Name: name,
-				Used: usedVersion == name,
-			})
+			versions = append(versions, entry.Name())
 		}
 	}
 
@@ -105,8 +107,10 @@ func ListLocal(conf *config.Config) ([]Version, error) {
 }
 
 func ListRemote(conf *config.Config) ([]string, error) {
+	versions := make([]string, 0 /*, len(entries)*/)
 	// TODO
-	return nil, nil
+	slices.SortFunc(versions, cmpVersion)
+	return versions, nil
 }
 
 func Uninstall(requestedVersion string, conf *config.Config) error {
@@ -138,8 +142,8 @@ func Use(requestedVersion string, conf *config.Config) error {
 	defer done()
 
 	for version := range versionReceiver {
-		if predicate(version.Name) {
-			return writeVersionFile(version.Name, conf)
+		if predicate(version) {
+			return writeVersionFile(version, conf)
 		}
 	}
 
