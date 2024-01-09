@@ -63,7 +63,7 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 			predicate = predicateFromConstraint(constraint)
 		}
 	case "latest":
-		// nothing todo (alwaysTrue and reverseOrder will work)
+		// nothing to do (alwaysTrue and reverseOrder will work)
 	default:
 		constraint, err := version.NewConstraint(requestedVersion)
 		if err != nil {
