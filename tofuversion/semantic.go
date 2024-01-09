@@ -37,16 +37,16 @@ func cmpVersion(a Version, b Version) int {
 }
 
 func parsePredicate(requestedVersion string) (func(string) bool, bool, error) {
-	predicate := noFilter
+	predicate := alwaysTrue
 	reverseOrder := true
 	switch requestedVersion {
 	case "min-required":
-		reverseOrder = false
-		fallthrough // same predicate retrieving
+		reverseOrder = false // start with older
+		fallthrough          // same predicate retrieving
 	case "latest-allowed":
 		// TODO predicate from HCL parsing
 	case "latest":
-		// nothing todo (noFilter and reverseOrder will work)
+		// nothing todo (alwaysTrue and reverseOrder will work)
 	default:
 		constraint, err := semver.NewConstraint(requestedVersion)
 		if err != nil {
@@ -66,6 +66,6 @@ func parsePredicate(requestedVersion string) (func(string) bool, bool, error) {
 	return predicate, reverseOrder, nil
 }
 
-func noFilter(string) bool {
+func alwaysTrue(string) bool {
 	return true
 }

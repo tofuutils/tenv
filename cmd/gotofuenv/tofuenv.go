@@ -51,7 +51,6 @@ func initCmds(conf *config.Config) *cobra.Command {
 	}
 
 	flags := rootCmd.PersistentFlags()
-	flags.BoolVarP(&conf.AutoInstall, "auto-install", "a", conf.AutoInstall, "auto install missing version")
 	flags.StringVarP(&conf.RemoteUrl, "remote-url", "u", conf.RemoteUrl, "remote url to install from")
 	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install OpenTofu versions")
 	flags.StringVarP(&conf.Token, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
@@ -102,7 +101,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 		Long:  "List installed OpenTofu versions (located in GOTOFUENV_ROOT directory).",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			versions, err := tofuversion.List(conf)
+			versions, err := tofuversion.ListLocal(conf)
 			if err != nil {
 				return err
 			}
@@ -171,5 +170,10 @@ Available parameter options:
 			return tofuversion.Use(args[0], conf)
 		},
 	}
+
+	flags := useCmd.Flags()
+	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
+	flags.BoolVarP(&conf.WorkingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
+
 	return useCmd
 }

@@ -24,12 +24,11 @@ import (
 	"strconv"
 )
 
-const versionFileName = ".opentofu-version"
+const VersionFileName = ".opentofu-version"
 
 const (
-	defaultAutoInstall = true
-	defaultRemoteUrl   = "https://github.com/opentofu/opentofu/releases"
-	defaultVersion     = "latest"
+	defaultRemoteUrl = "https://github.com/opentofu/opentofu/releases"
+	defaultVersion   = "latest"
 )
 
 const (
@@ -44,13 +43,14 @@ const (
 )
 
 type Config struct {
-	AutoInstall  bool
+	NoInstall    bool
 	RemoteUrl    string
 	RootPath     string
 	Token        string
 	UserHomeFile string
 	Verbose      bool
 	Version      string
+	WorkingDir   bool
 }
 
 func InitConfig() (Config, error) {
@@ -59,7 +59,7 @@ func InitConfig() (Config, error) {
 		return Config{}, err
 	}
 
-	autoInstall := defaultAutoInstall
+	autoInstall := true
 	autoInstallStr := os.Getenv(autoInstallEnvName)
 	if autoInstallStr != "" {
 		var err error
@@ -90,11 +90,11 @@ func InitConfig() (Config, error) {
 	}
 
 	return Config{
-		AutoInstall:  autoInstall,
+		NoInstall:    !autoInstall,
 		RemoteUrl:    remoteUrl,
 		RootPath:     rootPath,
 		Token:        os.Getenv(tokenEnvName),
-		UserHomeFile: path.Join(userHome, versionFileName),
+		UserHomeFile: path.Join(userHome, VersionFileName),
 		Verbose:      verbose,
 		Version:      os.Getenv(versionEnvName),
 	}, nil
@@ -106,7 +106,7 @@ func (c *Config) ResolveVersion() string {
 		return c.Version
 	}
 
-	data, err := os.ReadFile(versionFileName)
+	data, err := os.ReadFile(VersionFileName)
 	if err == nil {
 		return string(data)
 	}
@@ -125,7 +125,7 @@ func (c *Config) ResolveVersion() string {
 
 // (made lazy method : not always useful and allows flag override)
 func (c *Config) RootFile() string {
-	return path.Join(c.RootPath, versionFileName)
+	return path.Join(c.RootPath, VersionFileName)
 }
 
 // try to ensure the directory exists with a MkdirAll call.
