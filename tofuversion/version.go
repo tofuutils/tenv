@@ -29,7 +29,7 @@ import (
 	"github.com/dvaumoron/gotofuenv/config"
 )
 
-var errNoCompatibleFound = errors.New("no constraint compatible version found")
+var errNoCompatibleFound = errors.New("no compatible version found")
 
 type Version struct {
 	Name string
@@ -47,28 +47,28 @@ func Install(requestedVersion string, conf *config.Config) error {
 		return err
 	}
 
-	versions, err := ListRemote(conf)
+	version, err := searchRemote(predicate, reverseOrder, conf)
 	if err != nil {
 		return err
 	}
+	return innerInstall(version, conf)
+}
 
-	if reverseOrder {
-		// reverse order, start with latest
-		for i := len(versions) - 1; i >= 0; i-- {
-			version := versions[i]
-			if predicate(version) {
-				return innerInstall(version, conf)
-			}
-		}
-	} else {
-		// start with oldest
-		for _, version := range versions {
-			if predicate(version) {
-				return innerInstall(version, conf)
-			}
+func searchRemote(predicate func(string) bool, reverseOrder bool, conf *config.Config) (string, error) {
+	versions, err := ListRemote(conf)
+	if err != nil {
+		return "", err
+	}
+
+	versionReceiver, done := iterate(versions, reverseOrder)
+	defer done()
+
+	for version := range versionReceiver {
+		if predicate(version) {
+			return version, nil
 		}
 	}
-	return errNoCompatibleFound
+	return "", errNoCompatibleFound
 }
 
 // requestedVersion should be a specific one
@@ -77,7 +77,7 @@ func innerInstall(requestedVersion string, conf *config.Config) error {
 	return nil
 }
 
-func List(conf *config.Config) ([]Version, error) {
+func ListLocal(conf *config.Config) ([]Version, error) {
 	entries, err := os.ReadDir(conf.InstallDir())
 	if err != nil {
 		return nil, err
@@ -117,7 +117,11 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 func Use(requestedVersion string, conf *config.Config) error {
 	_, err := semver.NewVersion(requestedVersion)
 	if err == nil {
-		return innerUse(requestedVersion, conf)
+		err = writeVersionFile(requestedVersion, conf)
+		if err != nil || conf.NoInstall {
+			return err
+		}
+		return innerInstall(requestedVersion, conf)
 	}
 
 	predicate, reverseOrder, err := parsePredicate(requestedVersion)
@@ -125,35 +129,45 @@ func Use(requestedVersion string, conf *config.Config) error {
 		return err
 	}
 
-	versions, err := List(conf)
+	versions, err := ListLocal(conf)
 	if err != nil {
 		return err
 	}
 
-	if reverseOrder {
-		// reverse order, start with latest
-		for i := len(versions) - 1; i >= 0; i-- {
-			version := versions[i]
-			if predicate(version.Name) {
-				return innerUse(version.Name, conf)
-			}
-		}
-	} else {
-		// start with oldest
-		for _, version := range versions {
-			if predicate(version.Name) {
-				return innerUse(version.Name, conf)
-			}
+	versionReceiver, done := iterate(versions, reverseOrder)
+	defer done()
+
+	for version := range versionReceiver {
+		if predicate(version.Name) {
+			return writeVersionFile(version.Name, conf)
 		}
 	}
-	return errNoCompatibleFound
-}
 
-// requestedVersion should be a specific one
-func innerUse(requestedVersion string, conf *config.Config) error {
-	err := os.WriteFile(conf.RootFile(), []byte(requestedVersion), 0644)
-	if err != nil || !conf.AutoInstall {
+	if conf.NoInstall {
+		return errNoCompatibleFound
+	} else if conf.Verbose {
+		fmt.Println("No compatible version found locally, search a remote one...")
+	}
+
+	version, err := searchRemote(predicate, reverseOrder, conf)
+	if err != nil {
 		return err
 	}
-	return innerInstall(requestedVersion, conf)
+
+	if err = writeVersionFile(version, conf); err != nil {
+		return err
+	}
+	return innerInstall(version, conf)
+
+}
+
+func writeVersionFile(version string, conf *config.Config) error {
+	targetPath := conf.RootFile()
+	if conf.WorkingDir {
+		targetPath = config.VersionFileName
+	}
+	if conf.Verbose {
+		fmt.Println("Write", version, "in", targetPath)
+	}
+	return os.WriteFile(targetPath, []byte(version), 0644)
 }
