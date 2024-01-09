@@ -19,6 +19,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"strconv"
@@ -131,6 +132,8 @@ func (c *Config) RootFile() string {
 // (made lazy method : not always useful and allows flag override)
 func (c *Config) InstallDir() string {
 	dir := path.Join(c.RootPath, "OpenTofu")
-	os.MkdirAll(dir, 0755)
+	if err := os.MkdirAll(dir, 0755); err != nil && c.Verbose {
+		fmt.Println("Can not create installation directory :", err)
+	}
 	return dir
 }

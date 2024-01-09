@@ -109,7 +109,7 @@ func githubListReleases(conf *config.Config) ([]string, error) {
 	authorizationHeader := buildAuthorizationHeader(conf.Token)
 
 	page := 1
-	releases := []string{}
+	var releases []string
 	for {
 		pageUrl := basePageUrl + strconv.Itoa(page)
 		value, err := githubApiGetRequest(pageUrl, authorizationHeader)
