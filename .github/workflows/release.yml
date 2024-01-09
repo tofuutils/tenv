@@ -27,4 +27,4 @@ jobs:
           version: latest
           args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }}
         env:
-          GITHUB_TOKEN: ${{ secrets.TOFUENV_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
