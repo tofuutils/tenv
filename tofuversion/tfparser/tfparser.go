@@ -16,7 +16,7 @@
  *
  */
 
-package tofuversion
+package tfparser
 
 import (
 	"fmt"
@@ -53,7 +53,7 @@ func init() {
 	}
 }
 
-func gatherRequiredVersion(conf *config.Config) ([]string, error) {
+func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 	var requireds []string
 	verbose := conf.Verbose
 	parser := hclparse.NewParser()
