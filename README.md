@@ -27,7 +27,7 @@ For the .zip case, the unzipped folder must be added to your PATH.
 
 This project version of `tofu` command is a proxy to OpenTofu `tofu` command  managed by `gotofuenv`.
 
-Support same [environment variables](#Environment Variables) as `gotofuenv`.
+Support same environment variables than `gotofuenv`.
 
 ### gotofuenv install [version]
 
