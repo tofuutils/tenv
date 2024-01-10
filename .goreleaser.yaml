@@ -1,0 +1,60 @@
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 1
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: gotofuenv
+    env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/gotofuenv
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+  - id: tofu
+    env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/tofu
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+
+release:
+  name_template: "Release {{.Tag}}"
+
+archives:
+  - format: zip
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+changelog:
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
