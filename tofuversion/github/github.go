@@ -32,13 +32,22 @@ import (
 )
 
 var (
-	ErrCast          = errors.New("value returned by API has not the expected type")
-	ErrAssetNotFound = errors.New("asset not found for current platform")
+	errNoAsset      = errors.New("asset not found for current platform")
+	errCast         = errors.New("value returned by API has not the expected type")
+	errEmptyVersion = errors.New("empty version")
 )
 
-// version must not start with a 'v'
 func DownloadUrl(version string, conf *config.Config) (string, error) {
-	releaseUrl, err := url.JoinPath(conf.RemoteUrl, "tags", "v"+version)
+	if version == "" {
+		return "", errEmptyVersion
+	}
+
+	// assume that opentofu tags start with a 'v'
+	if version[0] != 'v' {
+		version = "v" + version
+	}
+
+	releaseUrl, err := url.JoinPath(conf.RemoteUrl, "tags", version)
 	if err != nil {
 		return "", err
 	}
@@ -52,7 +61,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 	object, _ := value.(map[string]any)
 	assetsUrl, ok := object["assets_url"].(string)
 	if !ok {
-		return "", ErrCast
+		return "", errCast
 	}
 
 	value, err = apiGetRequest(assetsUrl, authorizationHeader)
@@ -62,7 +71,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 
 	values, ok := value.([]any)
 	if !ok {
-		return "", ErrCast
+		return "", errCast
 	}
 
 	searchedAssetName := buildAssetName(version)
@@ -70,7 +79,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 		object, _ = value.(map[string]any)
 		assetName, ok := object["name"].(string)
 		if !ok {
-			return "", ErrCast
+			return "", errCast
 		}
 
 		if assetName != searchedAssetName {
@@ -79,11 +88,11 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 
 		downloadUrl, ok := object["browser_download_url"].(string)
 		if !ok {
-			return "", ErrCast
+			return "", errCast
 		}
 		return downloadUrl, nil
 	}
-	return "", ErrAssetNotFound
+	return "", errNoAsset
 }
 
 func LatestRelease(conf *config.Config) (string, error) {
@@ -97,9 +106,9 @@ func LatestRelease(conf *config.Config) (string, error) {
 		return "", err
 	}
 
-	version, ok := extractCleanVersion(value)
+	version, ok := extractVersion(value)
 	if !ok {
-		return "", ErrCast
+		return "", errCast
 	}
 	return version, nil
 }
@@ -119,7 +128,7 @@ func ListReleases(conf *config.Config) ([]string, error) {
 
 		values, ok := value.([]any)
 		if !ok {
-			return nil, ErrCast
+			return nil, errCast
 		}
 
 		if len(values) == 0 {
@@ -127,9 +136,9 @@ func ListReleases(conf *config.Config) ([]string, error) {
 		}
 
 		for _, value := range values {
-			version, ok := extractCleanVersion(value)
+			version, ok := extractVersion(value)
 			if !ok {
-				return nil, ErrCast
+				return nil, errCast
 			}
 			releases = append(releases, version)
 		}
@@ -189,13 +198,14 @@ func buildAuthorizationHeader(token string) string {
 	return authorizationBuilder.String()
 }
 
-func extractCleanVersion(value any) (string, bool) {
+func extractVersion(value any) (string, bool) {
 	object, _ := value.(map[string]any)
 	tagName, _ := object["tag_name"].(string)
 	if tagName == "" {
 		return "", false
 	}
 
+	// assume that opentofu tags start with a 'v'
 	if tagName[0] == 'v' {
 		tagName = tagName[1:]
 	}
