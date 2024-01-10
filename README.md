@@ -23,7 +23,7 @@ For the .zip case, the unzipped folder must be added to your PATH.
 
 ## Usage
 
-### tofu 
+### tofu
 
 This project version of `tofu` command is a proxy to OpenTofu `tofu` command  managed by `gotofuenv`.
 
@@ -89,14 +89,6 @@ Search asset tofu_1.6.0-rc1_linux_amd64.zip for release v1.6.0-rc1
 Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
 ```
 
-#### GOTOFUENV_VERBOSE
-
-String (Default: false)
-
-Active the verbose display of gotofuenv.
-
-`gotofuenv` support a `-v` flag version.
-
 #### GOTOFUENV_REMOTE
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
@@ -131,6 +123,14 @@ $ GOTOFUENV_TOFU_VERSION=1.6.0-rc1 tofu version
 OpenTofu v1.6.0-rc1
 on linux_amd64
 ```
+
+#### GOTOFUENV_VERBOSE
+
+String (Default: false)
+
+Active the verbose display of gotofuenv.
+
+`gotofuenv` support a `-v` flag version.
 
 ### gotofuenv use version
 
@@ -196,7 +196,7 @@ $ gotofuenv list-remote
 If you put a `.opentofu-version` file  in working directory, user home directory or GOTOFUENV_ROOT directory, gotofuenv detects it and uses the version written in it.
 Note, that GOTOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
 
-Available value recognized (same as `gotofuenv use` command) :
+Recognized value (same as `gotofuenv use` command) :
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
 - a Semver constraint string (checked against available in GOTOFUENV_ROOT directory)
