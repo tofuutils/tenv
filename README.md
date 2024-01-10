@@ -33,7 +33,7 @@ Support same [environment variables](#Environment Variables) as `gotofuenv`.
 
 Install a requested version of OpenTofu (into GOTOFUENV_ROOT directory from GOTOFUENV_REMOTE url).
 
-Without parameter the version to use is resolved automatically via GOTOFUENV_TOFU_VERSION or [`.opentofu-version`](#.opentofu-version file) files
+Without parameter the version to use is resolved automatically via GOTOFUENV_TOFU_VERSION or `.opentofu-version` files
 (searched in working directory, user home directory and GOTOFUENV_ROOT directory).
 Use "latest" when none are found.
 
@@ -69,7 +69,7 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 
 String (Default: true)
 
-If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#.opentofu-version file) files are found).
+If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no `.opentofu-version` files are found).
 
 `gotofuenv use` support a `-n` disabling flag version.
 
@@ -113,7 +113,7 @@ The path to a directory where the local tofu versions and configuration files ex
 
 String (Default: "")
 
-If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#.opentofu-version file) files.
+If not empty string, this variable overrides OpenTofu version, specified in `.opentofu-version` files.
 `gotofuenv install` command also respects this variable.
 
 e.g. with :
@@ -134,9 +134,9 @@ on linux_amd64
 
 ### gotofuenv use version
 
-Switch the default OpenTofu version to use (set in [`.opentofu-version`](#.opentofu-version file) file in GOTOFUENV_ROOT).
+Switch the default OpenTofu version to use (set in `.opentofu-version` file in GOTOFUENV_ROOT).
 
-`gotofuenv use` has a `-w` flag to write [`.opentofu-version`](#.opentofu-version file) file in working directory.
+`gotofuenv use` has a `-w` flag to write `.opentofu-version` file in working directory.
 
 Available parameter options:
 
