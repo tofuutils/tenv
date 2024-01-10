@@ -57,14 +57,6 @@ $ gotofuenv install min-required
 
 Both command support the following environment variables.
 
-#### GOTOFUENV_GITHUB_TOKEN
-
-String (Default: "")
-
-Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu binares are downloaded from the OpenTofu GitHub repository.
-
-`gotofuenv` support a `-t` flag version.
-
 #### GOTOFUENV_AUTO_INSTALL
 
 String (Default: true)
@@ -88,6 +80,14 @@ Installation of OpenTofu 1.6.0-rc1
 Search asset tofu_1.6.0-rc1_linux_amd64.zip for release v1.6.0-rc1
 Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
 ```
+
+#### GOTOFUENV_GITHUB_TOKEN
+
+String (Default: "")
+
+Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu binares are downloaded from the OpenTofu GitHub repository.
+
+`gotofuenv` support a `-t` flag version.
 
 #### GOTOFUENV_REMOTE
 
