@@ -20,7 +20,7 @@ package iterate
 
 import "sync"
 
-// the second returned value is a "done" func to defer (to avoid goroutine leak)
+// the second returned value is a "done" func to defer (avoid goroutine leak)
 func Iterate[T any](values []T, reverseOrder bool) (<-chan T, func()) {
 	valueChan := make(chan T)
 	doneChan := make(chan struct{})
