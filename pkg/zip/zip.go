@@ -26,7 +26,13 @@ import (
 	"path"
 )
 
+// ensure the directory exists with a MkdirAll call.
 func UnzipToDir(zipBodyReader io.Reader, dirPath string) error {
+	err := os.MkdirAll(dirPath, 0755)
+	if err != nil {
+		return err
+	}
+
 	zipBody, err := io.ReadAll(zipBodyReader)
 	if err != nil {
 		return err

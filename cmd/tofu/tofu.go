@@ -46,7 +46,7 @@ func main() {
 	execName := os.Args[0]
 	cmdArgs := os.Args[1:]
 	// proxy to selected version
-	cmd := exec.Command(path.Join(conf.InstallDir(), detectedVersion, execName), cmdArgs...)
+	cmd := exec.Command(path.Join(conf.InstallPath(), detectedVersion, execName), cmdArgs...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
