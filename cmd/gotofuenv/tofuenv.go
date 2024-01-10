@@ -99,7 +99,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List installed OpenTofu versions.",
-		Long:  "List installed OpenTofu versions (located in GOTOFUENV_ROOT directory).",
+		Long:  "List installed OpenTofu versions (located in GOTOFUENV_ROOT directory), sorted in ascending version order.",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			versions, err := tofuversion.ListLocal(conf)
@@ -131,7 +131,7 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 	listRemoteCmd := &cobra.Command{
 		Use:   "list-remote",
 		Short: "List installable OpenTofu versions.",
-		Long:  "List installable OpenTofu versions (from GOTOFUENV_REMOTE url).",
+		Long:  "List installable OpenTofu versions (from GOTOFUENV_REMOTE url), sorted in ascending version order.",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			versions, err := tofuversion.ListRemote(conf)

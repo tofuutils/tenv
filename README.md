@@ -147,30 +147,28 @@ Available parameter options:
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
 
 ```console
-$ tofuenv use min-required
-$ tofuenv use v1.6.0-beta5
-$ tofuenv use latest
-$ tofuenv use latest-allowed
+$ gotofuenv use min-required
+$ gotofuenv use v1.6.0-beta5
+$ gotofuenv use latest
+$ gotofuenv use latest-allowed
 ```
 
-### tofuenv uninstall version
+### gotofuenv uninstall version
 
 Uninstall a specific version of OpenTofu (remove it from GOTOFUENV_ROOT directory without interpretation).
 
 ```console
-$ tofuenv uninstall 0.7.0
-$ tofuenv uninstall latest
-$ tofuenv uninstall latest:^0.8
+$ gotofuenv uninstall v1.6.0-alpha4
 ```
 
-### tofuenv list
+### gotofuenv list
 
-List installed versions
+List installed OpenTofu versions (located in GOTOFUENV_ROOT directory), sorted in ascending version order.
 
 ```console
-$ tofuenv list
-  1.6.0-alpha5
-* 1.6.0-rc1 (set by /opt/.tofuenv/version)
+$ gotofuenv list
+  1.6.0-rc1 
+* 1.6.0 (set by /home/dvaumoron/.gotofuenv/.opentofu-version )
 ```
 
 ### gotofuenv list-remote
