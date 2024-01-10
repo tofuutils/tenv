@@ -16,7 +16,7 @@
  *
  */
 
-package tofuversion
+package zip
 
 import (
 	"archive/zip"
@@ -26,7 +26,7 @@ import (
 	"path"
 )
 
-func unzipToDir(zipBodyReader io.Reader, dirPath string) error {
+func UnzipToDir(zipBodyReader io.Reader, dirPath string) error {
 	zipBody, err := io.ReadAll(zipBodyReader)
 	if err != nil {
 		return err
