@@ -39,7 +39,7 @@ func UnzipToDir(zipBodyReader io.Reader, dirPath string) error {
 	}
 
 	for _, file := range zipReader.File {
-		if err = copyUnzipToDir(file, dirPath); err != nil {
+		if err = copyZipFileToDir(file, dirPath); err != nil {
 			return err
 		}
 	}
@@ -47,7 +47,13 @@ func UnzipToDir(zipBodyReader io.Reader, dirPath string) error {
 }
 
 // a separate function allows deferred Close to execute earlier
-func copyUnzipToDir(zipFile *zip.File, dirPath string) error {
+func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
+	destPath := path.Join(dirPath, zipFile.Name)
+	if destPath[len(destPath)-1] == '/' {
+		// trailing slash indicates a directory
+		return os.MkdirAll(destPath, 0755)
+	}
+
 	reader, err := zipFile.Open()
 	if err != nil {
 		return err
@@ -58,5 +64,5 @@ func copyUnzipToDir(zipFile *zip.File, dirPath string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path.Join(dirPath, zipFile.Name), data, 0644)
+	return os.WriteFile(destPath, data, 0644)
 }
