@@ -27,6 +27,9 @@ import (
 	"slices"
 
 	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/dvaumoron/gotofuenv/pkg/iterate"
+	"github.com/dvaumoron/gotofuenv/pkg/zip"
+	"github.com/dvaumoron/gotofuenv/tofuversion/github"
 	"github.com/hashicorp/go-version"
 )
 
@@ -39,7 +42,7 @@ func Install(requestedVersion string, conf *config.Config) error {
 	}
 
 	if requestedVersion == "latest" {
-		latestVersion, err := githubLatestRelease(conf)
+		latestVersion, err := github.LatestRelease(conf)
 		if err != nil {
 			return err
 		}
@@ -64,7 +67,7 @@ func searchRemote(predicate func(string) bool, reverseOrder bool, conf *config.C
 		return "", err
 	}
 
-	versionReceiver, done := iterate(versions, reverseOrder)
+	versionReceiver, done := iterate.Iterate(versions, reverseOrder)
 	defer done()
 
 	for version := range versionReceiver {
@@ -96,7 +99,7 @@ func innerInstall(version string, conf *config.Config) error {
 		fmt.Println("Installation of OpenTofu", version)
 	}
 
-	downloadUrl, err := githubDownloadUrl(version, conf)
+	downloadUrl, err := github.DownloadUrl(version, conf)
 	if err != nil {
 		return err
 	}
@@ -112,7 +115,7 @@ func innerInstall(version string, conf *config.Config) error {
 	if err != nil {
 		return err
 	}
-	return unzipToDir(response.Body, targetDir)
+	return zip.UnzipToDir(response.Body, targetDir)
 }
 
 func ListLocal(conf *config.Config) ([]string, error) {
@@ -133,7 +136,7 @@ func ListLocal(conf *config.Config) ([]string, error) {
 }
 
 func ListRemote(conf *config.Config) ([]string, error) {
-	versions, err := githubListReleases(conf)
+	versions, err := github.ListReleases(conf)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +197,7 @@ func Use(requestedVersion string, conf *config.Config) error {
 		return err
 	}
 
-	versionReceiver, done := iterate(versions, reverseOrder)
+	versionReceiver, done := iterate.Iterate(versions, reverseOrder)
 	defer done()
 
 	for version := range versionReceiver {
@@ -211,7 +214,7 @@ func Use(requestedVersion string, conf *config.Config) error {
 
 	version := ""
 	if requestedVersion == "latest" {
-		latestVersion, err := githubLatestRelease(conf)
+		latestVersion, err := github.LatestRelease(conf)
 		if err != nil {
 			return err
 		}

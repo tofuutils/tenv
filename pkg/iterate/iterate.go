@@ -16,11 +16,11 @@
  *
  */
 
-package tofuversion
+package iterate
 
 import "sync"
 
-func iterate[T any](values []T, reverseOrder bool) (<-chan T, func()) {
+func Iterate[T any](values []T, reverseOrder bool) (<-chan T, func()) {
 	valueChan := make(chan T)
 	doneChan := make(chan struct{})
 	if reverseOrder {

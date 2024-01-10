@@ -16,7 +16,7 @@
  *
  */
 
-package tofuversion
+package github
 
 import (
 	"encoding/json"
@@ -32,19 +32,19 @@ import (
 )
 
 var (
-	errCast          = errors.New("value returned by API has not the expected type")
-	errAssetNotFound = errors.New("asset not found for current platform")
+	ErrCast          = errors.New("value returned by API has not the expected type")
+	ErrAssetNotFound = errors.New("asset not found for current platform")
 )
 
 // version must not start with a 'v'
-func githubDownloadUrl(version string, conf *config.Config) (string, error) {
+func DownloadUrl(version string, conf *config.Config) (string, error) {
 	releaseUrl, err := url.JoinPath(conf.RemoteUrl, "tags", "v"+version)
 	if err != nil {
 		return "", err
 	}
 
 	authorizationHeader := buildAuthorizationHeader(conf.Token)
-	value, err := githubApiGetRequest(releaseUrl, authorizationHeader)
+	value, err := apiGetRequest(releaseUrl, authorizationHeader)
 	if err != nil {
 		return "", err
 	}
@@ -52,17 +52,17 @@ func githubDownloadUrl(version string, conf *config.Config) (string, error) {
 	object, _ := value.(map[string]any)
 	assetsUrl, ok := object["assets_url"].(string)
 	if !ok {
-		return "", errCast
+		return "", ErrCast
 	}
 
-	value, err = githubApiGetRequest(assetsUrl, authorizationHeader)
+	value, err = apiGetRequest(assetsUrl, authorizationHeader)
 	if err != nil {
 		return "", err
 	}
 
 	values, ok := value.([]any)
 	if !ok {
-		return "", errCast
+		return "", ErrCast
 	}
 
 	searchedAssetName := buildAssetName(version)
@@ -70,7 +70,7 @@ func githubDownloadUrl(version string, conf *config.Config) (string, error) {
 		object, _ = value.(map[string]any)
 		assetName, ok := object["name"].(string)
 		if !ok {
-			return "", errCast
+			return "", ErrCast
 		}
 
 		if assetName != searchedAssetName {
@@ -79,32 +79,32 @@ func githubDownloadUrl(version string, conf *config.Config) (string, error) {
 
 		downloadUrl, ok := object["browser_download_url"].(string)
 		if !ok {
-			return "", errCast
+			return "", ErrCast
 		}
 		return downloadUrl, nil
 	}
-	return "", errAssetNotFound
+	return "", ErrAssetNotFound
 }
 
-func githubLatestRelease(conf *config.Config) (string, error) {
+func LatestRelease(conf *config.Config) (string, error) {
 	latestUrl, err := url.JoinPath(conf.RemoteUrl, "latest")
 	if err != nil {
 		return "", err
 	}
 
-	value, err := githubApiGetRequest(latestUrl, buildAuthorizationHeader(conf.Token))
+	value, err := apiGetRequest(latestUrl, buildAuthorizationHeader(conf.Token))
 	if err != nil {
 		return "", err
 	}
 
 	version, ok := extractCleanVersion(value)
 	if !ok {
-		return "", errCast
+		return "", ErrCast
 	}
 	return version, nil
 }
 
-func githubListReleases(conf *config.Config) ([]string, error) {
+func ListReleases(conf *config.Config) ([]string, error) {
 	basePageUrl := conf.RemoteUrl + "?page="
 	authorizationHeader := buildAuthorizationHeader(conf.Token)
 
@@ -112,14 +112,14 @@ func githubListReleases(conf *config.Config) ([]string, error) {
 	var releases []string
 	for {
 		pageUrl := basePageUrl + strconv.Itoa(page)
-		value, err := githubApiGetRequest(pageUrl, authorizationHeader)
+		value, err := apiGetRequest(pageUrl, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
 
 		values, ok := value.([]any)
 		if !ok {
-			return nil, errCast
+			return nil, ErrCast
 		}
 
 		if len(values) == 0 {
@@ -129,7 +129,7 @@ func githubListReleases(conf *config.Config) ([]string, error) {
 		for _, value := range values {
 			version, ok := extractCleanVersion(value)
 			if !ok {
-				return nil, errCast
+				return nil, ErrCast
 			}
 			releases = append(releases, version)
 		}
@@ -138,7 +138,7 @@ func githubListReleases(conf *config.Config) ([]string, error) {
 	return releases, nil
 }
 
-func githubApiGetRequest(callUrl string, authorizationHeader string) (any, error) {
+func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
 	request, err := http.NewRequest(http.MethodGet, callUrl, nil)
 	if err != nil {
 		return nil, err
