@@ -19,9 +19,16 @@
 package tofuversion
 
 import (
+	"fmt"
+
 	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/dvaumoron/gotofuenv/tofuversion/tfparser"
 	"github.com/hashicorp/go-version"
 )
+
+func alwaysTrue(string) bool {
+	return true
+}
 
 func cmpVersion(v1Str string, v2Str string) int {
 	v1, err1 := version.NewVersion(v1Str)
@@ -42,11 +49,11 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 	predicate := alwaysTrue
 	reverseOrder := true
 	switch requestedVersion {
-	case "min-required":
+	case config.MinRequiredKey:
 		reverseOrder = false // start with older
 		fallthrough          // same predicate retrieving
-	case "latest-allowed":
-		requireds, err := gatherRequiredVersion(conf)
+	case config.LatestAllowedKey:
+		requireds, err := tfparser.GatherRequiredVersion(conf)
 		if err != nil {
 			return nil, false, err
 		}
@@ -59,10 +66,15 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 			}
 			constraint = append(constraint, temp...)
 		}
-		if len(constraint) != 0 {
+		if len(constraint) == 0 {
+			reverseOrder = true // erase min-required case
+			if conf.Verbose {
+				fmt.Println("No OpenTofu version requirement found in files, fallback to latest")
+			}
+		} else {
 			predicate = predicateFromConstraint(constraint)
 		}
-	case "latest":
+	case config.LatestKey:
 		// nothing to do (alwaysTrue and reverseOrder will work)
 	default:
 		constraint, err := version.NewConstraint(requestedVersion)
@@ -82,8 +94,4 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 		}
 		return constraint.Check(v)
 	}
-}
-
-func alwaysTrue(string) bool {
-	return true
 }

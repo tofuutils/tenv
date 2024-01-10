@@ -18,8 +18,42 @@
 
 package main
 
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path"
+
+	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/dvaumoron/gotofuenv/tofuversion"
+)
+
 func main() {
-	// TODO detect needed version
-	// TODO optional installation of compatible version
-	// TODO proxy to right version
+	conf, err := config.InitConfigFromEnv()
+	if err != nil {
+		fmt.Println("Configuration error :", err)
+		os.Exit(1)
+	}
+
+	// detect version (can install depending on GOTOFUENV_AUTO_INSTALL)
+	configVersion := conf.ResolveVersion(config.LatestAllowedKey)
+	detectedVersion, err := tofuversion.Detect(configVersion, &conf)
+	if err != nil {
+		fmt.Println("Failed to detect an OpenTofu version :", err)
+		os.Exit(1)
+	}
+
+	execName := os.Args[0]
+	cmdArgs := os.Args[1:]
+	// proxy to selected version
+	cmd := exec.Command(path.Join(conf.InstallDir(), detectedVersion, execName), cmdArgs...)
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	if err = cmd.Run(); err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			os.Exit(exitError.ExitCode())
+		}
+		fmt.Println("Failure during tofu call :", err)
+	}
 }

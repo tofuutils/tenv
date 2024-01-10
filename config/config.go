@@ -25,14 +25,17 @@ import (
 	"strconv"
 )
 
-const VersionFileName = ".opentofu-version"
-
 const (
-	defaultRemoteUrl = "https://api.github.com/repos/opentofu/opentofu/releases"
-	defaultVersion   = "latest"
+	LatestAllowedKey = "latest-allowed"
+	LatestKey        = "latest"
+	MinRequiredKey   = "min-required"
+
+	VersionFileName = ".opentofu-version"
 )
 
 const (
+	defaultRemoteUrl = "https://api.github.com/repos/opentofu/opentofu/releases"
+
 	envPrefix = "GOTOFUENV_"
 
 	autoInstallEnvName = envPrefix + "AUTO_INSTALL"
@@ -54,7 +57,7 @@ type Config struct {
 	WorkingDir   bool
 }
 
-func InitConfig() (Config, error) {
+func InitConfigFromEnv() (Config, error) {
 	userHome, err := os.UserHomeDir()
 	if err != nil {
 		return Config{}, err
@@ -101,7 +104,7 @@ func InitConfig() (Config, error) {
 }
 
 // (made lazy method : not always useful and allows flag override)
-func (c *Config) ResolveVersion() string {
+func (c *Config) ResolveVersion(defaultVersion string) string {
 	if c.Version != "" {
 		return c.Version
 	}

@@ -37,7 +37,7 @@ var (
 	errReturn       = errors.New("unexpected value returned by API")
 )
 
-func DownloadUrl(version string, conf *config.Config) (string, error) {
+func DownloadAssetUrl(version string, conf *config.Config) (string, error) {
 	if version == "" {
 		return "", errEmptyVersion
 	}

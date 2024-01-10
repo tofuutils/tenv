@@ -32,7 +32,7 @@ import (
 var version = "dev"
 
 func main() {
-	conf, err := config.InitConfig()
+	conf, err := config.InitConfigFromEnv()
 	if err != nil {
 		fmt.Println("Configuration error :", err)
 		os.Exit(1)
@@ -85,7 +85,7 @@ If a parameter is passed, available options:
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
 			if len(args) == 0 {
-				requestedVersion = conf.ResolveVersion()
+				requestedVersion = conf.ResolveVersion(config.LatestKey)
 			} else {
 				requestedVersion = args[0]
 			}
