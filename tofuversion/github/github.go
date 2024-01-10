@@ -32,9 +32,9 @@ import (
 )
 
 var (
-	errNoAsset      = errors.New("asset not found for current platform")
-	errCast         = errors.New("value returned by API has not the expected type")
 	errEmptyVersion = errors.New("empty version")
+	errNoAsset      = errors.New("asset not found for current platform")
+	errReturn       = errors.New("unexpected value returned by API")
 )
 
 func DownloadUrl(version string, conf *config.Config) (string, error) {
@@ -61,7 +61,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 	object, _ := value.(map[string]any)
 	assetsUrl, ok := object["assets_url"].(string)
 	if !ok {
-		return "", errCast
+		return "", errReturn
 	}
 
 	value, err = apiGetRequest(assetsUrl, authorizationHeader)
@@ -71,7 +71,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 
 	values, ok := value.([]any)
 	if !ok {
-		return "", errCast
+		return "", errReturn
 	}
 
 	searchedAssetName := buildAssetName(version)
@@ -79,7 +79,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 		object, _ = value.(map[string]any)
 		assetName, ok := object["name"].(string)
 		if !ok {
-			return "", errCast
+			return "", errReturn
 		}
 
 		if assetName != searchedAssetName {
@@ -88,7 +88,7 @@ func DownloadUrl(version string, conf *config.Config) (string, error) {
 
 		downloadUrl, ok := object["browser_download_url"].(string)
 		if !ok {
-			return "", errCast
+			return "", errReturn
 		}
 		return downloadUrl, nil
 	}
@@ -108,7 +108,7 @@ func LatestRelease(conf *config.Config) (string, error) {
 
 	version, ok := extractVersion(value)
 	if !ok {
-		return "", errCast
+		return "", errReturn
 	}
 	return version, nil
 }
@@ -128,7 +128,7 @@ func ListReleases(conf *config.Config) ([]string, error) {
 
 		values, ok := value.([]any)
 		if !ok {
-			return nil, errCast
+			return nil, errReturn
 		}
 
 		if len(values) == 0 {
@@ -138,7 +138,7 @@ func ListReleases(conf *config.Config) ([]string, error) {
 		for _, value := range values {
 			version, ok := extractVersion(value)
 			if !ok {
-				return nil, errCast
+				return nil, errReturn
 			}
 			releases = append(releases, version)
 		}
