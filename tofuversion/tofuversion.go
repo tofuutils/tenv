@@ -96,7 +96,7 @@ func Install(requestedVersion string, conf *config.Config) error {
 }
 
 func ListLocal(conf *config.Config) ([]string, error) {
-	entries, err := os.ReadDir(conf.InstallDir())
+	entries, err := os.ReadDir(conf.InstallPath())
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func ListRemote(conf *config.Config) ([]string, error) {
 }
 
 func LocalSet(conf *config.Config) map[string]struct{} {
-	entries, err := os.ReadDir(conf.InstallDir())
+	entries, err := os.ReadDir(conf.InstallPath())
 	if err != nil {
 		if conf.Verbose {
 			fmt.Println("Can not read installed versions :", err)
@@ -150,7 +150,7 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 	if conf.Verbose {
 		fmt.Println("Uninstallation of OpenTofu", cleanedVersion)
 	}
-	return os.RemoveAll(path.Join(conf.InstallDir(), cleanedVersion))
+	return os.RemoveAll(path.Join(conf.InstallPath(), cleanedVersion))
 }
 
 func Use(requestedVersion string, conf *config.Config) error {
@@ -159,14 +159,14 @@ func Use(requestedVersion string, conf *config.Config) error {
 		return err
 	}
 
-	targetPath := conf.RootFile()
-	if conf.WorkingDir {
-		targetPath = config.VersionFileName
+	targetFilePath := config.VersionFileName
+	if !conf.WorkingDir {
+		targetFilePath = conf.RootVersionFilePath()
 	}
 	if conf.Verbose {
-		fmt.Println("Write", detectedVersion, "in", targetPath)
+		fmt.Println("Write", detectedVersion, "in", targetFilePath)
 	}
-	return os.WriteFile(targetPath, []byte(detectedVersion), 0644)
+	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
 }
 
 func installLatest(conf *config.Config) (string, error) {
@@ -178,8 +178,8 @@ func installLatest(conf *config.Config) (string, error) {
 }
 
 func installSpecificVersion(version string, conf *config.Config) error {
-	installDir := conf.InstallDir()
-	entries, err := os.ReadDir(installDir)
+	installPath := conf.InstallPath()
+	entries, err := os.ReadDir(installPath)
 	if err != nil {
 		return err
 	}
@@ -208,11 +208,8 @@ func installSpecificVersion(version string, conf *config.Config) error {
 	}
 	defer response.Body.Close()
 
-	targetDir := path.Join(installDir, version)
-	if err = os.MkdirAll(targetDir, 0755); err != nil {
-		return err
-	}
-	return zip.UnzipToDir(response.Body, targetDir)
+	targetPath := path.Join(installPath, version)
+	return zip.UnzipToDir(response.Body, targetPath)
 }
 
 func searchInstallRemote(predicate func(string) bool, reverseOrder bool, conf *config.Config) (string, error) {

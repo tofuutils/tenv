@@ -119,7 +119,7 @@ func (c *Config) ResolveVersion(defaultVersion string) string {
 		return string(data)
 	}
 
-	data, err = os.ReadFile(c.RootFile())
+	data, err = os.ReadFile(c.RootVersionFilePath())
 	if err == nil {
 		return string(data)
 	}
@@ -127,13 +127,13 @@ func (c *Config) ResolveVersion(defaultVersion string) string {
 }
 
 // (made lazy method : not always useful and allows flag override)
-func (c *Config) RootFile() string {
+func (c *Config) RootVersionFilePath() string {
 	return path.Join(c.RootPath, VersionFileName)
 }
 
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override)
-func (c *Config) InstallDir() string {
+func (c *Config) InstallPath() string {
 	dir := path.Join(c.RootPath, "OpenTofu")
 	if err := os.MkdirAll(dir, 0755); err != nil && c.Verbose {
 		fmt.Println("Can not create installation directory :", err)

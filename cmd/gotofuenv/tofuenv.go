@@ -107,7 +107,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 				return err
 			}
 
-			filePath := conf.RootFile()
+			filePath := conf.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
 			if err != nil && conf.Verbose {
 				fmt.Println("Can not read used version :", err)
