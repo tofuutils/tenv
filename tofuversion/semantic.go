@@ -45,7 +45,7 @@ func cmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-// the boolean second returned value indicates reverse ordering for filtering
+// the boolean returned as second value indicates to reverse order for filtering
 func parsePredicate(requestedVersion string, conf *config.Config) (func(string) bool, bool, error) {
 	predicate := alwaysTrue
 	reverseOrder := true
