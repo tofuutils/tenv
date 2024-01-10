@@ -107,7 +107,7 @@ To install from a remote other than the default (must comply with [github REST A
 
 Path (Default: `$HOME/.gotofuenv`)
 
-The path to a directory where the local tofu versions and configuration files exist.
+The path to a directory where the local OpenTofu versions and GoTofuEnv configuration files exist.
 
 #### GOTOFUENV_TOFU_VERSION
 
