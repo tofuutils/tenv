@@ -21,6 +21,7 @@ package github
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -42,12 +43,16 @@ func DownloadAssetUrl(version string, conf *config.Config) (string, error) {
 		return "", errEmptyVersion
 	}
 
+	tag := version
 	// assume that opentofu tags start with a 'v'
-	if version[0] != 'v' {
-		version = "v" + version
+	// and version in asset name does not
+	if tag[0] == 'v' {
+		version = version[1:]
+	} else {
+		tag = "v" + version
 	}
 
-	releaseUrl, err := url.JoinPath(conf.RemoteUrl, "tags", version)
+	releaseUrl, err := url.JoinPath(conf.RemoteUrl, "tags", tag)
 	if err != nil {
 		return "", err
 	}
@@ -59,40 +64,52 @@ func DownloadAssetUrl(version string, conf *config.Config) (string, error) {
 	}
 
 	object, _ := value.(map[string]any)
-	assetsUrl, ok := object["assets_url"].(string)
+	baseAssetsUrl, ok := object["assets_url"].(string)
 	if !ok {
 		return "", errReturn
 	}
 
-	value, err = apiGetRequest(assetsUrl, authorizationHeader)
-	if err != nil {
-		return "", err
-	}
-
-	values, ok := value.([]any)
-	if !ok {
-		return "", errReturn
-	}
-
+	page := 1
+	baseAssetsUrl += "?page="
 	searchedAssetName := buildAssetName(version)
-	for _, value := range values {
-		object, _ = value.(map[string]any)
-		assetName, ok := object["name"].(string)
-		if !ok {
-			return "", errReturn
-		}
-
-		if assetName != searchedAssetName {
-			continue
-		}
-
-		downloadUrl, ok := object["browser_download_url"].(string)
-		if !ok {
-			return "", errReturn
-		}
-		return downloadUrl, nil
+	if conf.Verbose {
+		fmt.Println("Search asset", searchedAssetName, "for release", tag)
 	}
-	return "", errNoAsset
+	for {
+		assetsUrl := baseAssetsUrl + strconv.Itoa(page)
+		value, err = apiGetRequest(assetsUrl, authorizationHeader)
+		if err != nil {
+			return "", err
+		}
+
+		values, ok := value.([]any)
+		if !ok {
+			return "", errReturn
+		}
+
+		if len(values) == 0 {
+			return "", errNoAsset
+		}
+
+		for _, value := range values {
+			object, _ = value.(map[string]any)
+			assetName, ok := object["name"].(string)
+			if !ok {
+				return "", errReturn
+			}
+
+			if assetName != searchedAssetName {
+				continue
+			}
+
+			downloadUrl, ok := object["browser_download_url"].(string)
+			if !ok {
+				return "", errReturn
+			}
+			return downloadUrl, nil
+		}
+		page++
+	}
 }
 
 func LatestRelease(conf *config.Config) (string, error) {
@@ -132,7 +149,7 @@ func ListReleases(conf *config.Config) ([]string, error) {
 		}
 
 		if len(values) == 0 {
-			break
+			return releases, nil
 		}
 
 		for _, value := range values {
@@ -144,7 +161,6 @@ func ListReleases(conf *config.Config) ([]string, error) {
 		}
 		page++
 	}
-	return releases, nil
 }
 
 func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
@@ -200,14 +216,14 @@ func buildAuthorizationHeader(token string) string {
 
 func extractVersion(value any) (string, bool) {
 	object, _ := value.(map[string]any)
-	tagName, _ := object["tag_name"].(string)
-	if tagName == "" {
+	version, _ := object["tag_name"].(string)
+	if version == "" {
 		return "", false
 	}
 
-	// assume that opentofu tags start with a 'v'
-	if tagName[0] == 'v' {
-		tagName = tagName[1:]
+	// version returned without starting 'v'
+	if version[0] == 'v' {
+		version = version[1:]
 	}
-	return tagName, true
+	return version, true
 }
