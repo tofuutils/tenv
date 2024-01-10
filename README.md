@@ -8,7 +8,7 @@ Handle [Semver 2.0.0](https://semver.org/) with [go-version](https://github.com/
 
 ### Automatic
 
-Install via Homebrew
+Install via [Homebrew](https://brew.sh/)
 
 ```console
 $ brew tap dvaumoron/tap
