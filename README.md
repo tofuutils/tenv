@@ -101,7 +101,7 @@ Active the verbose display of gotofuenv.
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
-To install from a remote other than the default (must comply with github REST API)
+To install from a remote other than the default (must comply with [github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
 #### GOTOFUENV_ROOT
 
