@@ -175,6 +175,8 @@ $ gotofuenv uninstall v1.6.0-alpha4
 
 List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in ascending version order.
 
+`gotofuenv list` has a `--descending`, `-d` flag to sort in descending order.
+
 ```console
 $ gotofuenv list
   1.6.0-rc1 
@@ -184,6 +186,9 @@ $ gotofuenv list
 ### gotofuenv list-remote
 
 List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.
+
+`gotofuenv list-remote` has a `--descending`, `-d` flag to sort in descending order.
+`gotofuenv list-remote` has a `--stable`, `-s` flag to display only stable version.
 
 ```console
 $ gotofuenv list-remote

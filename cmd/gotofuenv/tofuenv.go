@@ -132,7 +132,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 		},
 	}
 
-	listCmd.Flags().BoolVarP(&reverseOrder, "reverse-order", "o", false, "display list in descending version order")
+	listCmd.Flags().BoolVarP(&reverseOrder, "descending", "d", false, "display list in descending version order")
 
 	return listCmd
 }
@@ -172,8 +172,8 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 	}
 
 	flags := listRemoteCmd.Flags()
-	flags.BoolVarP(&filterStable, "filter-stable", "f", false, "only display stable version")
-	flags.BoolVarP(&reverseOrder, "reverse-order", "o", false, "display list in descending version order")
+	flags.BoolVarP(&reverseOrder, "descending", "d", false, "display list in descending version order")
+	flags.BoolVarP(&filterStable, "stable", "s", false, "display only stable version")
 
 	return listRemoteCmd
 }
