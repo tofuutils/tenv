@@ -47,7 +47,7 @@ func cmpVersion(v1Str string, v2Str string) int {
 
 // the boolean returned as second value indicates to reverse order for filtering
 func parsePredicate(requestedVersion string, conf *config.Config) (func(string) bool, bool, error) {
-	predicate := stableVersion
+	predicate := StableVersion
 	reverseOrder := true
 	switch requestedVersion {
 	case config.MinRequiredKey:
@@ -96,7 +96,7 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func stableVersion(versionStr string) bool {
+func StableVersion(versionStr string) bool {
 	v, err := version.NewVersion(versionStr)
 	return err == nil && v.Prerelease() == "" && v.Metadata() == ""
 }

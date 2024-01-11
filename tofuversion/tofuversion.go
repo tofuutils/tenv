@@ -157,14 +157,14 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 	return os.RemoveAll(path.Join(conf.InstallPath(), cleanedVersion))
 }
 
-func Use(requestedVersion string, conf *config.Config) error {
+func Use(requestedVersion string, workingDir bool, conf *config.Config) error {
 	detectedVersion, err := Detect(requestedVersion, conf)
 	if err != nil {
 		return err
 	}
 
 	targetFilePath := config.VersionFileName
-	if !conf.WorkingDir {
+	if !workingDir {
 		targetFilePath = conf.RootVersionFilePath()
 	}
 	if conf.Verbose {
