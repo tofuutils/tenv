@@ -191,6 +191,7 @@ $ gotofuenv list
 List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.
 
 `gotofuenv list-remote` has a `--descending`, `-d` flag to sort in descending order.
+
 `gotofuenv list-remote` has a `--stable`, `-s` flag to display only stable version.
 
 ```console
