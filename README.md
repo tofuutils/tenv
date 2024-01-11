@@ -158,7 +158,7 @@ $ gotofuenv use latest
 $ gotofuenv use latest-allowed
 ```
 
-### gotofuenv uninstall version
+### gotofuenv reset
 
 Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
 
