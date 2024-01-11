@@ -18,7 +18,7 @@
 package main
 
 import (
-	"github.com/opentofuutils/tenv/pkg/tf"
+	"github.com/opentofuutils/tenv/tfenv"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ var tfInstallCmd = &cobra.Command{
 	Short: "Install a specific version of Terraform",
 	Long:  "Install a specific version of Terraform",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := tf.InstallSpecificVersion("1.6.6")
+		err := tfenv.InstallSpecificVersion("1.6.6")
 		if err != nil {
 		}
 	},

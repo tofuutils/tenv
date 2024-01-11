@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"context"
@@ -22,4 +22,25 @@ func ListRemote(owner, repo string) ([]string, error) {
 	}
 
 	return releases, nil
+}
+
+func List() {
+}
+
+func Use() {
+}
+
+func Install() {
+}
+
+func Uninstall() {
+}
+
+func VersionName() {
+}
+
+func Init() {
+}
+
+func Pin() {
 }

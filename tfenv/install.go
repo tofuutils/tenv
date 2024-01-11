@@ -1,4 +1,4 @@
-package tf
+package tfenv
 
 import (
 	"fmt"
@@ -23,7 +23,6 @@ func InstallSpecificVersion(version string) error {
 	}
 
 	url := fmt.Sprintf("https://releases.hashicorp.com/terraform/%s/terraform_%s_%s_%s.zip", version, version, runtime.GOOS, runtime.GOARCH)
-	fmt.Println(url)
 
 	response, err := http.Get(url)
 	if err != nil {

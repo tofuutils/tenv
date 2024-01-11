@@ -1,4 +1,4 @@
-package tofu
+package tofuenv
 
 import (
 	"context"
