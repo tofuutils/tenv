@@ -47,7 +47,7 @@ func cmpVersion(v1Str string, v2Str string) int {
 
 // the boolean returned as second value indicates to reverse order for filtering
 func parsePredicate(requestedVersion string, conf *config.Config) (func(string) bool, bool, error) {
-	predicate := alwaysTrue
+	predicate := stableVersion
 	reverseOrder := true
 	switch requestedVersion {
 	case config.MinRequiredKey:
@@ -70,15 +70,15 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 		if len(constraint) == 0 {
 			reverseOrder = true // erase min-required case
 			if conf.Verbose {
-				fmt.Println("No OpenTofu version requirement found in files, fallback to latest")
+				fmt.Println("No OpenTofu version requirement found in files, fallback to latest-stable")
 			}
 		} else {
 			predicate = predicateFromConstraint(constraint)
 		}
 	case config.LatestStableKey:
-		predicate = stableVersion
+		// nothing to do (stableVersion and reverseOrder will work)
 	case config.LatestKey:
-		// nothing to do (alwaysTrue and reverseOrder will work)
+		predicate = alwaysTrue
 	default:
 		constraint, err := version.NewConstraint(requestedVersion)
 		if err != nil {
