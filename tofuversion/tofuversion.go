@@ -36,44 +36,7 @@ import (
 var errNoCompatible = errors.New("no compatible version found")
 
 func Detect(requestedVersion string, conf *config.Config) (string, error) {
-	parsedVersion, err := version.NewVersion(requestedVersion)
-	if err == nil {
-		cleanedVersion := parsedVersion.String()
-		if conf.NoInstall {
-			return cleanedVersion, nil
-		}
-		return cleanedVersion, installSpecificVersion(cleanedVersion, conf)
-	}
-
-	predicate, reverseOrder, err := parsePredicate(requestedVersion, conf)
-	if err != nil {
-		return "", err
-	}
-
-	versions, err := ListLocal(conf)
-	if err != nil {
-		return "", err
-	}
-
-	versionReceiver, done := iterate.Iterate(versions, reverseOrder)
-	defer done()
-
-	for version := range versionReceiver {
-		if predicate(version) {
-			return version, nil
-		}
-	}
-
-	if conf.NoInstall {
-		return "", errNoCompatible
-	} else if conf.Verbose {
-		fmt.Println("No compatible version found locally, search a remote one...")
-	}
-
-	if requestedVersion == config.LatestKey {
-		return installLatest(conf)
-	}
-	return searchInstallRemote(predicate, reverseOrder, conf)
+	return detect(requestedVersion, true, conf)
 }
 
 func Install(requestedVersion string, conf *config.Config) error {
@@ -91,7 +54,8 @@ func Install(requestedVersion string, conf *config.Config) error {
 	if err != nil {
 		return err
 	}
-	_, err = searchInstallRemote(predicate, reverseOrder, conf)
+	// noInstall is set to false to force install regardless of conf
+	_, err = searchInstallRemote(predicate, false, reverseOrder, conf)
 	return err
 }
 
@@ -162,8 +126,8 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 	return os.RemoveAll(targetPath)
 }
 
-func Use(requestedVersion string, workingDir bool, conf *config.Config) error {
-	detectedVersion, err := Detect(requestedVersion, conf)
+func Use(requestedVersion string, forceRemote bool, workingDir bool, conf *config.Config) error {
+	detectedVersion, err := detect(requestedVersion, !forceRemote, conf)
 	if err != nil {
 		return err
 	}
@@ -176,6 +140,52 @@ func Use(requestedVersion string, workingDir bool, conf *config.Config) error {
 		fmt.Println("Write", detectedVersion, "in", targetFilePath)
 	}
 	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
+}
+
+func detect(requestedVersion string, localCheck bool, conf *config.Config) (string, error) {
+	parsedVersion, err := version.NewVersion(requestedVersion)
+	if err == nil {
+		cleanedVersion := parsedVersion.String()
+		if conf.NoInstall {
+			return cleanedVersion, nil
+		}
+		return cleanedVersion, installSpecificVersion(cleanedVersion, conf)
+	}
+
+	predicate, reverseOrder, err := parsePredicate(requestedVersion, conf)
+	if err != nil {
+		return "", err
+	}
+
+	if localCheck {
+		versions, err := ListLocal(conf)
+		if err != nil {
+			return "", err
+		}
+
+		versionReceiver, done := iterate.Iterate(versions, reverseOrder)
+		defer done()
+
+		for version := range versionReceiver {
+			if predicate(version) {
+				return version, nil
+			}
+		}
+
+		if conf.NoInstall {
+			return "", errNoCompatible
+		} else if conf.Verbose {
+			fmt.Println("No compatible version found locally, search a remote one...")
+		}
+	}
+
+	if requestedVersion == config.LatestKey {
+		if conf.NoInstall {
+			return github.LatestRelease(conf)
+		}
+		return installLatest(conf)
+	}
+	return searchInstallRemote(predicate, conf.NoInstall, reverseOrder, conf)
 }
 
 func installLatest(conf *config.Config) (string, error) {
@@ -221,7 +231,7 @@ func installSpecificVersion(version string, conf *config.Config) error {
 	return zip.UnzipToDir(response.Body, targetPath)
 }
 
-func searchInstallRemote(predicate func(string) bool, reverseOrder bool, conf *config.Config) (string, error) {
+func searchInstallRemote(predicate func(string) bool, noInstall bool, reverseOrder bool, conf *config.Config) (string, error) {
 	versions, err := ListRemote(conf)
 	if err != nil {
 		return "", err
@@ -232,6 +242,9 @@ func searchInstallRemote(predicate func(string) bool, reverseOrder bool, conf *c
 
 	for version := range versionReceiver {
 		if predicate(version) {
+			if noInstall {
+				return version, nil
+			}
 			return version, installSpecificVersion(version, conf)
 		}
 	}
