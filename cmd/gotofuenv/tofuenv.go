@@ -74,7 +74,7 @@ func newInstallCmd(conf *config.Config) *cobra.Command {
 
 Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or .opentofu-version files
 (searched in working directory, user home directory and TOFUENV_ROOT directory).
-Use "latest" when none are found.
+Use "latest-stable" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
@@ -86,7 +86,7 @@ If a parameter is passed, available options:
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
 			if len(args) == 0 {
-				requestedVersion = conf.ResolveVersion(config.LatestKey)
+				requestedVersion = conf.ResolveVersion(config.LatestStableKey)
 			} else {
 				requestedVersion = args[0]
 			}
