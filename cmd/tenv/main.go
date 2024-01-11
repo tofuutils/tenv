@@ -18,9 +18,18 @@
 package main
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
+)
+
+var (
+	version string = "v0.1"
+
+	//nolint:stylecheck
+	build string = "0"
+
+	//nolint:stylecheck
+	commit string = "sha"
 )
 
 func init() {
@@ -60,7 +69,6 @@ func init() {
 }
 
 func main() {
-	fmt.Println("test")
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)

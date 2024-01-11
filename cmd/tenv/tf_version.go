@@ -18,34 +18,29 @@
 package main
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
-	"os"
 )
 
-// tfInitCmd represents the tfInit command
-var tfCmd = &cobra.Command{
-	Use:   "tf",
-	Short: "Subcommand that manages Terraform binaries",
-	Long:  `Subcommand that manages Terraform binaries`,
-
+var tfVersionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print current version Terraform",
+	Long:  "Print current version Terraform",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			cmd.Help()
-			os.Exit(0)
-		}
+		fmt.Println("tfVersionCmd called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(tfCmd)
+	tfCmd.AddCommand(tfVersionCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// tfInitCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// tofuInstallCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// tfInitCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	tofuInstallCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

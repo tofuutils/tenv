@@ -23,10 +23,10 @@ import (
 )
 
 // tfInitCmd represents the tfInit command
-var tfCmd = &cobra.Command{
-	Use:   "tf",
-	Short: "Subcommand that manages Terraform binaries",
-	Long:  `Subcommand that manages Terraform binaries`,
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print tenv current version",
+	Long:  `Print tenv current version`,
 
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
@@ -37,7 +37,7 @@ var tfCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(tfCmd)
+	rootCmd.AddCommand(versionCmd)
 
 	// Here you will define your flags and configuration settings.
 
