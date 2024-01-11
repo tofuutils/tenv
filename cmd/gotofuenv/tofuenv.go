@@ -123,7 +123,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 
 			for version := range versionReceiver {
 				if usedVersion == version {
-					fmt.Println("*", version, "(set by", filePath, ")")
+					fmt.Println("*", version, "(set by", filePath+")")
 				} else {
 					fmt.Println(" ", version)
 				}
