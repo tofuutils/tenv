@@ -157,7 +157,7 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 	cleanedVersion := parsedVersion.String()
 	targetPath := path.Join(conf.InstallPath(), cleanedVersion)
 	if conf.Verbose {
-		fmt.Println("Uninstallation of OpenTofu", cleanedVersion, "(Remove directory", targetPath, ")")
+		fmt.Println("Uninstallation of OpenTofu", cleanedVersion, "(Remove directory", targetPath+")")
 	}
 	return os.RemoveAll(targetPath)
 }
