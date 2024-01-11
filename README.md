@@ -33,15 +33,14 @@ Install a requested version of OpenTofu (into TOFUENV_ROOT directory from TOFUEN
 
 Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or `.opentofu-version` files
 (searched in working directory, user home directory and TOFUENV_ROOT directory).
-Use "latest" when none are found.
+Use "latest-stable" when none are found.
 
 If a parameter is passed, available options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to install
 - a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available at TOFUENV_REMOTE url)
-- latest (checked against available at TOFUENV_REMOTE url)
-- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
-- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
+- latest or latest-stable (checked against available at TOFUENV_REMOTE url)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
 See [required_version](https://opentofu.org/docs/language/settings/) docs.
 
@@ -146,9 +145,8 @@ Available parameter options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
 - a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available in TOFUENV_ROOT directory)
-- latest (checked against available in TOFUENV_ROOT directory)
-- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
-- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
+- latest or latest-stable (checked against available in TOFUENV_ROOT directory)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
 ```console
 $ gotofuenv use min-required
@@ -212,9 +210,8 @@ Recognized value (same as `gotofuenv use` command) :
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
 - a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available in TOFUENV_ROOT directory)
-- latest (checked against available in TOFUENV_ROOT directory)
-- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
-- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
+- latest or latest-stable (checked against available in TOFUENV_ROOT directory)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
 ## LICENSE
 
