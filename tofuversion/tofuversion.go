@@ -141,7 +141,11 @@ func LocalSet(conf *config.Config) map[string]struct{} {
 }
 
 func Reset(conf *config.Config) error {
-	return os.Remove(conf.RootVersionFilePath())
+	versionFilePath := conf.RootVersionFilePath()
+	if conf.Verbose {
+		fmt.Println("Remove", versionFilePath)
+	}
+	return os.Remove(versionFilePath)
 }
 
 func Uninstall(requestedVersion string, conf *config.Config) error {
@@ -151,10 +155,11 @@ func Uninstall(requestedVersion string, conf *config.Config) error {
 	}
 
 	cleanedVersion := parsedVersion.String()
+	targetPath := path.Join(conf.InstallPath(), cleanedVersion)
 	if conf.Verbose {
-		fmt.Println("Uninstallation of OpenTofu", cleanedVersion)
+		fmt.Println("Uninstallation of OpenTofu", cleanedVersion, "(Remove directory", targetPath, ")")
 	}
-	return os.RemoveAll(path.Join(conf.InstallPath(), cleanedVersion))
+	return os.RemoveAll(targetPath)
 }
 
 func Use(requestedVersion string, workingDir bool, conf *config.Config) error {
