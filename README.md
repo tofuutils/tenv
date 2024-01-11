@@ -210,9 +210,26 @@ $ gotofuenv list-remote
 1.6.0 (installed)
 ```
 
-### gotofuenv help
+### gotofuenv help [command]
 
-Help about any command
+Help about any command.
+
+```console
+$ gotofuenv help reset
+Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
+
+Usage:
+  gotofuenv reset [flags]
+
+Flags:
+  -h, --help   help for reset
+
+Global Flags:
+  -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
+  -u, --remote-url string     remote url to install from (default "https://api.github.com/repos/opentofu/opentofu/releases")
+  -r, --root-path string      local path to install OpenTofu versions (default "/home/dvaumoron/.gotofuenv")
+  -v, --verbose               verbose output
+```
 
 ## .opentofu-version file
 
