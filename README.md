@@ -63,7 +63,7 @@ String (Default: true)
 
 If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
 
-`gotofuenv use` support a `-n` disabling flag version.
+`gotofuenv use` support a `--no-install`, `-n` disabling flag version.
 
 Example: use 1.6.0-rc1 version that is not installed, and auto installation is disabled. (-v flag is equivalent to `TOFUENV_VERBOSE=true`)
 
@@ -87,7 +87,7 @@ String (Default: "")
 
 Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu binares are downloaded from the OpenTofu GitHub repository.
 
-`gotofuenv` support a `-t` flag version.
+`gotofuenv` support a `--github-token`, `-t` flag version.
 
 #### TOFUENV_REMOTE
 
@@ -95,7 +95,7 @@ String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
 To install from a remote other than the default (must comply with [github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
-`gotofuenv` support a `-u` flag version.
+`gotofuenv` support a `--remote-url`, `-u` flag version.
 
 #### TOFUENV_ROOT
 
@@ -103,7 +103,7 @@ Path (Default: `$HOME/.gotofuenv`)
 
 The path to a directory where the local OpenTofu versions and GoTofuEnv configuration files exist.
 
-`gotofuenv` support a `-r` flag version.
+`gotofuenv` support a `--root-path`, `-r` flag version.
 
 #### TOFUENV_TOFU_VERSION
 
@@ -134,7 +134,7 @@ String (Default: false)
 
 Active the verbose display of gotofuenv.
 
-`gotofuenv` support a `-v` flag version.
+`gotofuenv` support a `--verbose`, `-v` flag version.
 
 ### gotofuenv use version
 
@@ -209,6 +209,10 @@ $ gotofuenv list-remote
 1.6.0-rc1 (installed)
 1.6.0 (installed)
 ```
+
+### gotofuenv help
+
+Help about any command
 
 ## .opentofu-version file
 
