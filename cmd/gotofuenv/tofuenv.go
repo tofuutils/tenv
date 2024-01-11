@@ -60,6 +60,7 @@ func initCmds(conf *config.Config) *cobra.Command {
 	rootCmd.AddCommand(newInstallCmd(conf))
 	rootCmd.AddCommand(newListCmd(conf))
 	rootCmd.AddCommand(newListRemoteCmd(conf))
+	rootCmd.AddCommand(newResetCmd(conf))
 	rootCmd.AddCommand(newUninstallCmd(conf))
 	rootCmd.AddCommand(newUseCmd(conf))
 	return rootCmd
@@ -151,6 +152,19 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 		},
 	}
 	return listRemoteCmd
+}
+
+func newResetCmd(conf *config.Config) *cobra.Command {
+	resetCmd := &cobra.Command{
+		Use:   "reset",
+		Short: "Reset used version of OpenTofu.",
+		Long:  "Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			return tofuversion.Reset(conf)
+		},
+	}
+	return resetCmd
 }
 
 func newUninstallCmd(conf *config.Config) *cobra.Command {
