@@ -79,8 +79,8 @@ Use "latest-stable" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
-- a version constraint string (checked against available at TOFUENV_REMOTE url)
-- latest (checked against available at TOFUENV_REMOTE url)
+- a version constraint string (checked against version available at TOFUENV_REMOTE url)
+- latest (checked against version available at TOFUENV_REMOTE url)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.MaximumNArgs(1),
@@ -215,8 +215,8 @@ func newUseCmd(conf *config.Config) *cobra.Command {
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against available in TOFUENV_ROOT directory)
-- latest (checked against available in TOFUENV_ROOT directory)
+- a version constraint string (checked against version available in TOFUENV_ROOT directory)
+- latest (checked against version available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.ExactArgs(1),
@@ -226,7 +226,7 @@ Available parameter options:
 	}
 
 	flags := useCmd.Flags()
-	flags.BoolVarP(&forceRemote, "force-remote", "f", false, "checked against available in TOFUENV_REMOTE url")
+	flags.BoolVarP(&forceRemote, "force-remote", "f", false, "force search version available at TOFUENV_REMOTE url")
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
 
