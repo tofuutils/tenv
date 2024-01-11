@@ -55,7 +55,6 @@ type Config struct {
 	UserHomeFile string
 	Verbose      bool
 	Version      string
-	WorkingDir   bool
 }
 
 func InitConfigFromEnv() (Config, error) {

@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/dvaumoron/gotofuenv/pkg/iterate"
 	"github.com/dvaumoron/gotofuenv/tofuversion"
 	"github.com/spf13/cobra"
 )
@@ -97,6 +98,8 @@ If a parameter is passed, available options:
 }
 
 func newListCmd(conf *config.Config) *cobra.Command {
+	reverseOrder := false
+
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List installed OpenTofu versions.",
@@ -115,7 +118,10 @@ func newListCmd(conf *config.Config) *cobra.Command {
 			}
 			usedVersion := strings.TrimSpace(string(data))
 
-			for _, version := range versions {
+			versionReceiver, done := iterate.Iterate(versions, reverseOrder)
+			defer done()
+
+			for version := range versionReceiver {
 				if usedVersion == version {
 					fmt.Println("*", version, "(set by", filePath, ")")
 				} else {
@@ -125,10 +131,16 @@ func newListCmd(conf *config.Config) *cobra.Command {
 			return nil
 		},
 	}
+
+	listCmd.Flags().BoolVarP(&reverseOrder, "reverse-order", "o", false, "display list in descending version order")
+
 	return listCmd
 }
 
 func newListRemoteCmd(conf *config.Config) *cobra.Command {
+	filterStable := false
+	reverseOrder := false
+
 	listRemoteCmd := &cobra.Command{
 		Use:   "list-remote",
 		Short: "List installable OpenTofu versions.",
@@ -140,8 +152,15 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 				return err
 			}
 
+			versionReceiver, done := iterate.Iterate(versions, reverseOrder)
+			defer done()
+
 			localSet := tofuversion.LocalSet(conf)
-			for _, version := range versions {
+			for version := range versionReceiver {
+				if filterStable && !tofuversion.StableVersion(version) {
+					continue
+				}
+
 				if _, installed := localSet[version]; installed {
 					fmt.Println(version, "(installed)")
 				} else {
@@ -151,6 +170,11 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 			return err
 		},
 	}
+
+	flags := listRemoteCmd.Flags()
+	flags.BoolVarP(&filterStable, "filter-stable", "f", false, "only display stable version")
+	flags.BoolVarP(&reverseOrder, "reverse-order", "o", false, "display list in descending version order")
+
 	return listRemoteCmd
 }
 
@@ -181,6 +205,8 @@ func newUninstallCmd(conf *config.Config) *cobra.Command {
 }
 
 func newUseCmd(conf *config.Config) *cobra.Command {
+	workingDir := false
+
 	useCmd := &cobra.Command{
 		Use:   "use version",
 		Short: "Switch the default OpenTofu version to use.",
@@ -194,13 +220,13 @@ Available parameter options:
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			return tofuversion.Use(args[0], conf)
+			return tofuversion.Use(args[0], workingDir, conf)
 		},
 	}
 
 	flags := useCmd.Flags()
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
-	flags.BoolVarP(&conf.WorkingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
+	flags.BoolVarP(&workingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
 
 	return useCmd
 }
