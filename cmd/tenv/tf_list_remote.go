@@ -19,6 +19,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/opentofuutils/tenv/pkg/common"
+	"github.com/opentofuutils/tenv/pkg/github"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +30,17 @@ var tfListRemoteCmd = &cobra.Command{
 	Short: "List all installable Terraform versions.",
 	Long:  "List all installable Terraform versions, sorted in ascending version order.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("tfList called")
+		client, err := github.GetClient()
+		if err != nil {
+		}
+
+		versions, err := common.ListRemote(client, "hashicorp", "terraform")
+		if err != nil {
+		}
+
+		for _, version := range versions {
+			fmt.Println(version)
+		}
 	},
 }
 

@@ -19,6 +19,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/opentofuutils/tenv/pkg/common"
+	"github.com/opentofuutils/tenv/pkg/github"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +30,17 @@ var tofuListRemoteCmd = &cobra.Command{
 	Short: "List all installable OpenTofu versions.",
 	Long:  "List all installable OpenTofu versions, sorted in ascending version order.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("tofuList called")
+		client, err := github.GetClient()
+		if err != nil {
+		}
+
+		versions, err := common.ListRemote(client, "opentofu", "opentofu")
+		if err != nil {
+		}
+
+		for _, version := range versions {
+			fmt.Println(version)
+		}
 	},
 }
 
