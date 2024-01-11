@@ -36,7 +36,7 @@ const (
 const (
 	defaultRemoteUrl = "https://api.github.com/repos/opentofu/opentofu/releases"
 
-	envPrefix = "GOTOFUENV_"
+	envPrefix = "TOFUENV_"
 
 	autoInstallEnvName = envPrefix + "AUTO_INSTALL"
 	remoteUrlEnvName   = envPrefix + "REMOTE"
