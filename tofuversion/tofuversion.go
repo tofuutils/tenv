@@ -140,6 +140,10 @@ func LocalSet(conf *config.Config) map[string]struct{} {
 	return versionSet
 }
 
+func Reset(conf *config.Config) error {
+	return os.Remove(conf.RootVersionFilePath())
+}
+
 func Uninstall(requestedVersion string, conf *config.Config) error {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err != nil {
