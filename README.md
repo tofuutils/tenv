@@ -12,7 +12,7 @@ Install via [Homebrew](https://brew.sh/)
 
 ```console
 $ brew tap dvaumoron/tap
-$ brew install tofuenv
+$ brew install gotofuenv
 ```
 
 ### Manual
