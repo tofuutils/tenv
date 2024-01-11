@@ -19,7 +19,7 @@ package main
 
 import (
 	"github.com/opentofuutils/tenv/pkg/github"
-	"github.com/opentofuutils/tenv/pkg/tofu"
+	main2 "github.com/opentofuutils/tenv/tofuenv"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +33,7 @@ var tofuInstallCmd = &cobra.Command{
 		if err != nil {
 		}
 
-		err = tofu.InstallSpecificVersion(
+		err = main2.InstallSpecificVersion(
 			client, "opentofu", "opentofu", "1.6.0",
 		)
 		if err != nil {
