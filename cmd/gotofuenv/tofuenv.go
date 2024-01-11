@@ -205,6 +205,7 @@ func newUninstallCmd(conf *config.Config) *cobra.Command {
 }
 
 func newUseCmd(conf *config.Config) *cobra.Command {
+	forceRemote := false
 	workingDir := false
 
 	useCmd := &cobra.Command{
@@ -220,11 +221,12 @@ Available parameter options:
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			return tofuversion.Use(args[0], workingDir, conf)
+			return tofuversion.Use(args[0], forceRemote, workingDir, conf)
 		},
 	}
 
 	flags := useCmd.Flags()
+	flags.BoolVarP(&forceRemote, "force-remote", "f", false, "checked against available in TOFUENV_REMOTE url")
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
 
