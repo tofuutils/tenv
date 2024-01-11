@@ -80,9 +80,8 @@ Use "latest-stable" when none are found.
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
 - a version constraint string (checked against version available at TOFUENV_REMOTE url)
-- latest (checked against version available at TOFUENV_REMOTE url)
-- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
-- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
+- latest or latest-stable (checked against version available at TOFUENV_REMOTE url)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
@@ -216,9 +215,8 @@ func newUseCmd(conf *config.Config) *cobra.Command {
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
 - a version constraint string (checked against version available in TOFUENV_ROOT directory)
-- latest (checked against version available in TOFUENV_ROOT directory)
-- latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
-- min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
+- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return tofuversion.Use(args[0], forceRemote, workingDir, conf)
