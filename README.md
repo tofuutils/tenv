@@ -140,7 +140,9 @@ Active the verbose display of gotofuenv.
 
 Switch the default OpenTofu version to use (set in [`.opentofu-version`](#opentofu-version-file) file in TOFUENV_ROOT).
 
-`gotofuenv use` has a `-w` flag to write [`.opentofu-version`](#opentofu-version-file) file in working directory.
+`gotofuenv use` has a `--force-remote`, `-f` flag to force remote search.
+
+`gotofuenv use` has a `--working-dir`, `-w` flag to write [`.opentofu-version`](#opentofu-version-file) file in working directory.
 
 Available parameter options:
 
