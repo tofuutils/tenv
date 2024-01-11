@@ -69,16 +69,16 @@ func newInstallCmd(conf *config.Config) *cobra.Command {
 	installCmd := &cobra.Command{
 		Use:   "install [version]",
 		Short: "Install a specific version of OpenTofu.",
-		Long: `Install a specific version of OpenTofu (into GOTOFUENV_ROOT directory from GOTOFUENV_REMOTE url).
+		Long: `Install a specific version of OpenTofu (into TOFUENV_ROOT directory from TOFUENV_REMOTE url).
 
-Without parameter the version to use is resolved automatically via GOTOFUENV_TOFU_VERSION or .opentofu-version files
-(searched in working directory, user home directory and GOTOFUENV_ROOT directory).
+Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or .opentofu-version files
+(searched in working directory, user home directory and TOFUENV_ROOT directory).
 Use "latest" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
-- a Semver constraint string (checked against available at GOTOFUENV_REMOTE url)
-- latest (checked against available at GOTOFUENV_REMOTE url)
+- a Semver constraint string (checked against available at TOFUENV_REMOTE url)
+- latest (checked against available at TOFUENV_REMOTE url)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.MaximumNArgs(1),
@@ -99,7 +99,7 @@ func newListCmd(conf *config.Config) *cobra.Command {
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "List installed OpenTofu versions.",
-		Long:  "List installed OpenTofu versions (located in GOTOFUENV_ROOT directory), sorted in ascending version order.",
+		Long:  "List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in ascending version order.",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			versions, err := tofuversion.ListLocal(conf)
@@ -131,7 +131,7 @@ func newListRemoteCmd(conf *config.Config) *cobra.Command {
 	listRemoteCmd := &cobra.Command{
 		Use:   "list-remote",
 		Short: "List installable OpenTofu versions.",
-		Long:  "List installable OpenTofu versions (from GOTOFUENV_REMOTE url), sorted in ascending version order.",
+		Long:  "List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			versions, err := tofuversion.ListRemote(conf)
@@ -157,7 +157,7 @@ func newUninstallCmd(conf *config.Config) *cobra.Command {
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
 		Short: "Uninstall a specific version of OpenTofu.",
-		Long:  "Uninstall a specific version of OpenTofu (remove it from GOTOFUENV_ROOT directory).",
+		Long:  "Uninstall a specific version of OpenTofu (remove it from TOFUENV_ROOT directory).",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return tofuversion.Uninstall(args[0], conf)
@@ -170,12 +170,12 @@ func newUseCmd(conf *config.Config) *cobra.Command {
 	useCmd := &cobra.Command{
 		Use:   "use version",
 		Short: "Switch the default OpenTofu version to use.",
-		Long: `Switch the default OpenTofu version to use (set in .opentofu-version file in GOTOFUENV_ROOT)
+		Long: `Switch the default OpenTofu version to use (set in .opentofu-version file in TOFUENV_ROOT)
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a Semver constraint string (checked against available in GOTOFUENV_ROOT directory)
-- latest (checked against available in GOTOFUENV_ROOT directory)
+- a Semver constraint string (checked against available in TOFUENV_ROOT directory)
+- latest (checked against available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
 		Args: cobra.ExactArgs(1),

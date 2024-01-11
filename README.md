@@ -29,17 +29,17 @@ This project version of `tofu` command is a proxy to OpenTofu `tofu` command  ma
 
 ### gotofuenv install [version]
 
-Install a requested version of OpenTofu (into GOTOFUENV_ROOT directory from GOTOFUENV_REMOTE url).
+Install a requested version of OpenTofu (into TOFUENV_ROOT directory from TOFUENV_REMOTE url).
 
-Without parameter the version to use is resolved automatically via GOTOFUENV_TOFU_VERSION or `.opentofu-version` files
-(searched in working directory, user home directory and GOTOFUENV_ROOT directory).
+Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or `.opentofu-version` files
+(searched in working directory, user home directory and TOFUENV_ROOT directory).
 Use "latest" when none are found.
 
 If a parameter is passed, available options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to install
-- a Semver constraint string (checked against available at GOTOFUENV_REMOTE url)
-- latest (checked against available at GOTOFUENV_REMOTE url)
+- a Semver constraint string (checked against available at TOFUENV_REMOTE url)
+- latest (checked against available at TOFUENV_REMOTE url)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
 
@@ -57,7 +57,7 @@ $ gotofuenv install min-required
 
 Both command support the following environment variables.
 
-#### GOTOFUENV_AUTO_INSTALL
+#### TOFUENV_AUTO_INSTALL
 
 String (Default: true)
 
@@ -65,10 +65,10 @@ If set to true gotofuenv will automatically install missing OpenTofu version nee
 
 `gotofuenv use` support a `-n` disabling flag version.
 
-Example: use 1.6.0-rc1 version that is not installed, and auto installation is disabled. (-v flag is equivalent to `GOTOFUENV_VERBOSE=true`)
+Example: use 1.6.0-rc1 version that is not installed, and auto installation is disabled. (-v flag is equivalent to `TOFUENV_VERBOSE=true`)
 
 ```console
-$ GOTOFUENV_AUTO_INSTALL=false gotofuenv use -v 1.6.0-rc1
+$ TOFUENV_AUTO_INSTALL=false gotofuenv use -v 1.6.0-rc1
 Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
 ```
 
@@ -81,7 +81,7 @@ Search asset tofu_1.6.0-rc1_linux_amd64.zip for release v1.6.0-rc1
 Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
 ```
 
-#### GOTOFUENV_GITHUB_TOKEN
+#### TOFUENV_GITHUB_TOKEN
 
 String (Default: "")
 
@@ -89,19 +89,19 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 
 `gotofuenv` support a `-t` flag version.
 
-#### GOTOFUENV_REMOTE
+#### TOFUENV_REMOTE
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
 To install from a remote other than the default (must comply with [github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
-#### GOTOFUENV_ROOT
+#### TOFUENV_ROOT
 
 Path (Default: `$HOME/.gotofuenv`)
 
 The path to a directory where the local OpenTofu versions and GoTofuEnv configuration files exist.
 
-#### GOTOFUENV_TOFU_VERSION
+#### TOFUENV_TOFU_VERSION
 
 String (Default: "")
 
@@ -119,12 +119,12 @@ on linux_amd64
 then :
 
 ```console
-$ GOTOFUENV_TOFU_VERSION=1.6.0-rc1 tofu version
+$ TOFUENV_TOFU_VERSION=1.6.0-rc1 tofu version
 OpenTofu v1.6.0-rc1
 on linux_amd64
 ```
 
-#### GOTOFUENV_VERBOSE
+#### TOFUENV_VERBOSE
 
 String (Default: false)
 
@@ -134,15 +134,15 @@ Active the verbose display of gotofuenv.
 
 ### gotofuenv use version
 
-Switch the default OpenTofu version to use (set in `.opentofu-version` file in GOTOFUENV_ROOT).
+Switch the default OpenTofu version to use (set in `.opentofu-version` file in TOFUENV_ROOT).
 
 `gotofuenv use` has a `-w` flag to write `.opentofu-version` file in working directory.
 
 Available parameter options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a Semver constraint string (checked against available in GOTOFUENV_ROOT directory)
-- latest (checked against available in GOTOFUENV_ROOT directory)
+- a Semver constraint string (checked against available in TOFUENV_ROOT directory)
+- latest (checked against available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
 
@@ -155,7 +155,7 @@ $ gotofuenv use latest-allowed
 
 ### gotofuenv uninstall version
 
-Uninstall a specific version of OpenTofu (remove it from GOTOFUENV_ROOT directory without interpretation).
+Uninstall a specific version of OpenTofu (remove it from TOFUENV_ROOT directory without interpretation).
 
 ```console
 $ gotofuenv uninstall v1.6.0-alpha4
@@ -163,7 +163,7 @@ $ gotofuenv uninstall v1.6.0-alpha4
 
 ### gotofuenv list
 
-List installed OpenTofu versions (located in GOTOFUENV_ROOT directory), sorted in ascending version order.
+List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in ascending version order.
 
 ```console
 $ gotofuenv list
@@ -173,7 +173,7 @@ $ gotofuenv list
 
 ### gotofuenv list-remote
 
-List installable OpenTofu versions (from GOTOFUENV_REMOTE url), sorted in ascending version order.
+List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.
 
 ```console
 $ gotofuenv list-remote
@@ -193,14 +193,14 @@ $ gotofuenv list-remote
 
 ## .opentofu-version file
 
-If you put a `.opentofu-version` file  in working directory, user home directory or GOTOFUENV_ROOT directory, gotofuenv detects it and uses the version written in it.
-Note, that GOTOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
+If you put a `.opentofu-version` file  in working directory, user home directory or TOFUENV_ROOT directory, gotofuenv detects it and uses the version written in it.
+Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
 
 Recognized value (same as `gotofuenv use` command) :
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a Semver constraint string (checked against available in GOTOFUENV_ROOT directory)
-- latest (checked against available in GOTOFUENV_ROOT directory)
+- a Semver constraint string (checked against available in TOFUENV_ROOT directory)
+- latest (checked against available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
 
