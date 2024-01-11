@@ -18,7 +18,8 @@
 package main
 
 import (
-	"fmt"
+	"github.com/opentofuutils/tenv/pkg/github"
+	"github.com/opentofuutils/tenv/pkg/tofu"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +29,15 @@ var tofuInstallCmd = &cobra.Command{
 	Short: "Install a specific version of OpenTofu",
 	Long:  "Install a specific version of OpenTofu",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("tofuList called")
+		client, err := github.GetClient()
+		if err != nil {
+		}
+
+		err = tofu.InstallSpecificVersion(
+			client, "opentofu", "opentofu", "1.6.0",
+		)
+		if err != nil {
+		}
 	},
 }
 
