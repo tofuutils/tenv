@@ -145,7 +145,7 @@ func Reset(conf *config.Config) error {
 	if conf.Verbose {
 		fmt.Println("Remove", versionFilePath)
 	}
-	return os.Remove(versionFilePath)
+	return os.RemoveAll(versionFilePath)
 }
 
 func Uninstall(requestedVersion string, conf *config.Config) error {
