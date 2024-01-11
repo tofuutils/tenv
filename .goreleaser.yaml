@@ -54,6 +54,9 @@ builds:
 release:
   name_template: "Release {{.Tag}}"
 
+changelog:
+  use: github-native
+
 archives:
   - format: zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{- .Os }}_{{- .Arch }}"
@@ -83,5 +86,12 @@ nfpms:
       signature:
         key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
 
-changelog:
-  use: github-native
+brews:
+  - repository:
+      owner: dvaumoron
+      name: homebrew-tap
+    folder: Formula
+    homepage: https://github.com/dvaumoron/gotofuenv
+    description: OpenTofu version manager (inspired by tofuenv, written in Go)
+    license: "Apache-2.0"
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
