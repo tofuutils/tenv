@@ -31,7 +31,7 @@ This project version of `tofu` command is a proxy to OpenTofu `tofu` command  ma
 
 Install a requested version of OpenTofu (into TOFUENV_ROOT directory from TOFUENV_REMOTE url).
 
-Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or `.opentofu-version` files
+Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or [`.opentofu-version`](#opentofu-version-file) files
 (searched in working directory, user home directory and TOFUENV_ROOT directory).
 Use "latest-stable" when none are found.
 
@@ -48,6 +48,7 @@ See [required_version](https://opentofu.org/docs/language/settings/) docs.
 $ gotofuenv install 1.6.0-beta5
 $ gotofuenv install "~> 1.6.0"
 $ gotofuenv install latest
+$ gotofuenv install latest-stable
 $ gotofuenv install latest-allowed
 $ gotofuenv install min-required
 ```
@@ -60,7 +61,7 @@ Both command support the following environment variables.
 
 String (Default: true)
 
-If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no `.opentofu-version` files are found).
+If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
 
 `gotofuenv use` support a `-n` disabling flag version.
 
@@ -108,7 +109,7 @@ The path to a directory where the local OpenTofu versions and GoTofuEnv configur
 
 String (Default: "")
 
-If not empty string, this variable overrides OpenTofu version, specified in `.opentofu-version` files.
+If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#opentofu-version-file) files.
 `gotofuenv install` command also respects this variable.
 
 e.g. with :
@@ -137,9 +138,9 @@ Active the verbose display of gotofuenv.
 
 ### gotofuenv use version
 
-Switch the default OpenTofu version to use (set in `.opentofu-version` file in TOFUENV_ROOT).
+Switch the default OpenTofu version to use (set in [`.opentofu-version`](#opentofu-version-file) file in TOFUENV_ROOT).
 
-`gotofuenv use` has a `-w` flag to write `.opentofu-version` file in working directory.
+`gotofuenv use` has a `-w` flag to write [`.opentofu-version`](#opentofu-version-file) file in working directory.
 
 Available parameter options:
 
