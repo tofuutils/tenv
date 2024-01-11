@@ -95,11 +95,15 @@ String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
 To install from a remote other than the default (must comply with [github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
+`gotofuenv` support a `-u` flag version.
+
 #### TOFUENV_ROOT
 
 Path (Default: `$HOME/.gotofuenv`)
 
 The path to a directory where the local OpenTofu versions and GoTofuEnv configuration files exist.
+
+`gotofuenv` support a `-r` flag version.
 
 #### TOFUENV_TOFU_VERSION
 
@@ -151,6 +155,14 @@ $ gotofuenv use min-required
 $ gotofuenv use v1.6.0-beta5
 $ gotofuenv use latest
 $ gotofuenv use latest-allowed
+```
+
+### gotofuenv uninstall version
+
+Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
+
+```console
+$ gotofuenv reset
 ```
 
 ### gotofuenv uninstall version
