@@ -38,7 +38,7 @@ Use "latest" when none are found.
 If a parameter is passed, available options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to install
-- a Semver constraint string (checked against available at TOFUENV_REMOTE url)
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available at TOFUENV_REMOTE url)
 - latest (checked against available at TOFUENV_REMOTE url)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
@@ -47,7 +47,7 @@ See [required_version](https://opentofu.org/docs/language/settings/) docs.
 
 ```console
 $ gotofuenv install 1.6.0-beta5
-$ gotofuenv install ">= 1.6.0-rc1" 
+$ gotofuenv install "~> 1.6.0"
 $ gotofuenv install latest
 $ gotofuenv install latest-allowed
 $ gotofuenv install min-required
@@ -145,7 +145,7 @@ Switch the default OpenTofu version to use (set in `.opentofu-version` file in T
 Available parameter options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a Semver constraint string (checked against available in TOFUENV_ROOT directory)
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available in TOFUENV_ROOT directory)
 - latest (checked against available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
@@ -211,7 +211,7 @@ Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.o
 Recognized value (same as `gotofuenv use` command) :
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a Semver constraint string (checked against available in TOFUENV_ROOT directory)
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available in TOFUENV_ROOT directory)
 - latest (checked against available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.
