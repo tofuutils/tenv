@@ -27,6 +27,7 @@ import (
 
 const (
 	LatestAllowedKey = "latest-allowed"
+	LatestStableKey  = "latest-stable"
 	LatestKey        = "latest"
 	MinRequiredKey   = "min-required"
 

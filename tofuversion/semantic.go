@@ -75,6 +75,8 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 		} else {
 			predicate = predicateFromConstraint(constraint)
 		}
+	case config.LatestStableKey:
+		predicate = stableVersion
 	case config.LatestKey:
 		// nothing to do (alwaysTrue and reverseOrder will work)
 	default:
@@ -90,9 +92,11 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	return func(versionStr string) bool {
 		v, err := version.NewVersion(versionStr)
-		if err != nil {
-			return false
-		}
-		return constraint.Check(v)
+		return err == nil && constraint.Check(v)
 	}
+}
+
+func stableVersion(versionStr string) bool {
+	v, err := version.NewVersion(versionStr)
+	return err == nil && v.Prerelease() == "" && v.Metadata() == ""
 }
