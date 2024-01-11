@@ -78,7 +78,7 @@ Use "latest" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
-- a Semver constraint string (checked against available at TOFUENV_REMOTE url)
+- a version constraint string (checked against available at TOFUENV_REMOTE url)
 - latest (checked against available at TOFUENV_REMOTE url)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
@@ -188,7 +188,7 @@ func newUseCmd(conf *config.Config) *cobra.Command {
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a Semver constraint string (checked against available in TOFUENV_ROOT directory)
+- a version constraint string (checked against available in TOFUENV_ROOT directory)
 - latest (checked against available in TOFUENV_ROOT directory)
 - latest-allowed is a syntax to scan your OpenTofu files to detect which version is maximally allowed.
 - min-required is a syntax to scan your OpenTofu files to detect which version is minimally required.`,
