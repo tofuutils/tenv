@@ -42,7 +42,7 @@ If a parameter is passed, available options:
 - latest or latest-stable (checked against available at TOFUENV_REMOTE url)
 - latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
-See [required_version](https://opentofu.org/docs/language/settings/) docs.
+See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
 ```console
 $ gotofuenv install 1.6.0-beta5
@@ -149,6 +149,8 @@ Available parameter options:
 - latest or latest-stable (checked against available in TOFUENV_ROOT directory)
 - latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
+See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
+
 ```console
 $ gotofuenv use min-required
 $ gotofuenv use v1.6.0-beta5
@@ -218,6 +220,8 @@ Recognized value (same as `gotofuenv use` command) :
 - a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available in TOFUENV_ROOT directory)
 - latest or latest-stable (checked against available in TOFUENV_ROOT directory)
 - latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
+
+See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
 ## LICENSE
 
