@@ -98,5 +98,5 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 
 func StableVersion(versionStr string) bool {
 	v, err := version.NewVersion(versionStr)
-	return err == nil && v.Prerelease() == "" && v.Metadata() == ""
+	return err == nil && v.Prerelease() == ""
 }
