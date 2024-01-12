@@ -93,7 +93,7 @@ String (Default: "")
 
 Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu binares are downloaded from the OpenTofu GitHub repository.
 
-`gotofuenv` subcommands `install`, `list-remote` and `use` support a `--github-token`, `-t` flag version.
+`gotofuenv` subcommands `detect`, `install`, `list-remote` and `use` support a `--github-token`, `-t` flag version.
 
 #### TOFUENV_REMOTE
 
@@ -147,6 +147,7 @@ on linux_amd64
 String (Default: "")
 
 If not empty string, this variable overrides Terraform version, specified in `.terraform-version` files.
+
 `gotofuenv tf` subcommands `install` and `detect` also respects this variable.
 
 #### TOFUENV_VERBOSE (or alias TFENV_VERBOSE)
