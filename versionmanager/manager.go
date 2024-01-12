@@ -46,14 +46,14 @@ type ReleaseInfoRetriever interface {
 
 type VersionManager struct {
 	conf            *config.Config
-	envVersion      string
-	folderName      string
+	FolderName      string
 	retriever       ReleaseInfoRetriever
-	versionFileName string
+	VersionEnvName  string
+	VersionFileName string
 }
 
-func MakeVersionManager(conf *config.Config, envVersion string, folderName string, retriever ReleaseInfoRetriever, versionFileName string) VersionManager {
-	return VersionManager{conf: conf, envVersion: envVersion, folderName: folderName, retriever: retriever, versionFileName: versionFileName}
+func MakeVersionManager(conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
 }
 
 func (m VersionManager) Detect(requestedVersion string) (string, error) {
@@ -81,9 +81,9 @@ func (m VersionManager) Install(requestedVersion string) error {
 }
 
 // try to ensure the directory exists with a MkdirAll call.
-// (made lazy method : not always useful and allows flag override)
+// (made lazy method : not always useful and allows flag override for root path)
 func (m VersionManager) InstallPath() string {
-	dir := path.Join(m.conf.RootPath, m.folderName)
+	dir := path.Join(m.conf.RootPath, m.FolderName)
 	if err := os.MkdirAll(dir, 0755); err != nil && m.conf.Verbose {
 		fmt.Println("Can not create installation directory :", err)
 	}
@@ -143,18 +143,18 @@ func (m VersionManager) Reset() error {
 	return os.RemoveAll(versionFilePath)
 }
 
-// (made lazy method : not always useful and allows flag override)
+// (made lazy method : not always useful and allows flag override for root path)
 func (m VersionManager) Resolve(defaultVersion string) string {
-	if m.envVersion != "" {
-		return m.envVersion
+	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
+		return forcedVersion
 	}
 
-	data, err := os.ReadFile(m.versionFileName)
+	data, err := os.ReadFile(m.VersionFileName)
 	if err == nil {
 		return string(bytes.TrimSpace(data))
 	}
 
-	data, err = os.ReadFile(path.Join(m.conf.UserPath, m.versionFileName))
+	data, err = os.ReadFile(path.Join(m.conf.UserPath, m.VersionFileName))
 	if err == nil {
 		return string(bytes.TrimSpace(data))
 	}
@@ -166,9 +166,9 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 	return defaultVersion
 }
 
-// (made lazy method : not always useful and allows flag override)
+// (made lazy method : not always useful and allows flag override for root path)
 func (m VersionManager) RootVersionFilePath() string {
-	return path.Join(m.conf.RootPath, m.versionFileName)
+	return path.Join(m.conf.RootPath, m.VersionFileName)
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
@@ -191,7 +191,7 @@ func (m VersionManager) Use(requestedVersion string, forceRemote bool, workingDi
 		return err
 	}
 
-	targetFilePath := m.versionFileName
+	targetFilePath := m.VersionFileName
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}

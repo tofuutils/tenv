@@ -19,6 +19,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -30,22 +31,34 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, pRemote *string) *cobra.Command {
-	installCmd := &cobra.Command{
-		Use:   "install [version]",
-		Short: "Install a specific version of OpenTofu.",
-		Long: `Install a specific version of OpenTofu (into TOFUENV_ROOT directory from TOFUENV_REMOTE url).
+func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("Install a specific version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	shortMsg := descBuilder.String() + "."
 
-Without parameter the version to use is resolved automatically via TOFUENV_TOFU_VERSION or .opentofu-version files
-(searched in working directory, user home directory and TOFUENV_ROOT directory).
+	descBuilder.WriteString(" (into TOFUENV_ROOT directory from ")
+	descBuilder.WriteString(remoteEnvName)
+	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
+	descBuilder.WriteString(versionManager.VersionEnvName)
+	descBuilder.WriteString(" or ")
+	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(`(searched in working directory, user home directory and TOFUENV_ROOT directory).")
 Use "latest-stable" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
-- a version constraint string (checked against version available at TOFUENV_REMOTE url)
-- latest or latest-stable (checked against version available at TOFUENV_REMOTE url)
-- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`,
-		Args: cobra.MaximumNArgs(1),
+- a version constraint string (checked against version available at `)
+	descBuilder.WriteString(remoteEnvName)
+	descBuilder.WriteString(" url)\n- latest or latest-stable (checked against version available at ")
+	descBuilder.WriteString(remoteEnvName)
+	descBuilder.WriteString(" url)\n- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.")
+
+	installCmd := &cobra.Command{
+		Use:   "install [version]",
+		Short: shortMsg,
+		Long:  descBuilder.String(),
+		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
 			if len(args) == 0 {
@@ -63,12 +76,20 @@ If a parameter is passed, available options:
 }
 
 func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("List installed ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString("versions")
+	shortMsg := descBuilder.String() + "."
+
+	descBuilder.WriteString(" (located in TOFUENV_ROOT directory), sorted in ascending version order.")
+
 	reverseOrder := false
 
 	listCmd := &cobra.Command{
 		Use:   "list",
-		Short: "List installed OpenTofu versions.",
-		Long:  "List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in ascending version order.",
+		Short: shortMsg,
+		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			versions, err := versionManager.ListLocal()
@@ -81,7 +102,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			if err != nil && conf.Verbose {
 				fmt.Println("Can not read used version :", err)
 			}
-			usedVersion := strings.TrimSpace(string(data))
+			usedVersion := string(bytes.TrimSpace(data))
 
 			versionReceiver, done := iterate.Iterate(versions, reverseOrder)
 			defer done()
@@ -102,14 +123,24 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	return listCmd
 }
 
-func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, pRemote *string) *cobra.Command {
+func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("List installable ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString("versions")
+	shortMsg := descBuilder.String() + "."
+
+	descBuilder.WriteString(" (from ")
+	descBuilder.WriteString(remoteEnvName)
+	descBuilder.WriteString("url), sorted in ascending version order.")
+
 	filterStable := false
 	reverseOrder := false
 
 	listRemoteCmd := &cobra.Command{
 		Use:   "list-remote",
-		Short: "List installable OpenTofu versions.",
-		Long:  "List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.",
+		Short: shortMsg,
+		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			versions, err := versionManager.ListRemote()
@@ -145,10 +176,19 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 }
 
 func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("Reset used version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	shortMsg := descBuilder.String() + "."
+
+	descBuilder.WriteString(" (remove ")
+	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(" file from TOFUENV_ROOT).")
+
 	resetCmd := &cobra.Command{
 		Use:   "reset",
-		Short: "Reset used version of OpenTofu.",
-		Long:  "Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).",
+		Short: shortMsg,
+		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			return versionManager.Reset()
@@ -158,10 +198,17 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 }
 
 func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("Uninstall a specific version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	shortMsg := descBuilder.String() + "."
+
+	descBuilder.WriteString("(remove it from TOFUENV_ROOT directory).")
+
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
-		Short: "Uninstall a specific version of OpenTofu.",
-		Long:  "Uninstall a specific version of OpenTofu (remove it from TOFUENV_ROOT directory).",
+		Short: shortMsg,
+		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return versionManager.Uninstall(args[0])
@@ -170,21 +217,31 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 	return uninstallCmd
 }
 
-func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, pRemote *string) *cobra.Command {
+func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("Switch the default  ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString("version to use")
+	shortMsg := descBuilder.String() + "."
+
+	descBuilder.WriteString(" (set in ")
+	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(` file in TOFUENV_ROOT)
+
+	Available parameter options:
+	- an exact Semver 2.0.0 version string to use
+	- a version constraint string (checked against version available in TOFUENV_ROOT directory)
+	- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+	- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`)
+
 	forceRemote := false
 	workingDir := false
 
 	useCmd := &cobra.Command{
 		Use:   "use version",
-		Short: "Switch the default OpenTofu version to use.",
-		Long: `Switch the default OpenTofu version to use (set in .opentofu-version file in TOFUENV_ROOT)
-
-Available parameter options:
-- an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against version available in TOFUENV_ROOT directory)
-- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
-- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`,
-		Args: cobra.ExactArgs(1),
+		Short: shortMsg,
+		Long:  descBuilder.String(),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			return versionManager.Use(args[0], forceRemote, workingDir)
 		},

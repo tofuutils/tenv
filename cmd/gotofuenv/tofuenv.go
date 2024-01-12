@@ -56,25 +56,25 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
 
-	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf))
+	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
 
 	tfCmd := &cobra.Command{
 		Use:  "tf",
 		Long: "subcommands that help manage several version of Terraform (https://www.terraform.io).",
 	}
 
-	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf))
+	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), config.TfRemoteUrlEnvName, &conf.TfRemoteUrl)
 
 	rootCmd.AddCommand(tfCmd)
 
 	return rootCmd
 }
 
-func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager) {
-	cmd.AddCommand(newInstallCmd(conf, versionManager))
+func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) {
+	cmd.AddCommand(newInstallCmd(conf, versionManager, remoteEnvName, pRemote))
 	cmd.AddCommand(newListCmd(conf, versionManager))
-	cmd.AddCommand(newListRemoteCmd(conf, versionManager))
+	cmd.AddCommand(newListRemoteCmd(conf, versionManager, remoteEnvName, pRemote))
 	cmd.AddCommand(newResetCmd(conf, versionManager))
 	cmd.AddCommand(newUninstallCmd(conf, versionManager))
-	cmd.AddCommand(newUseCmd(conf, versionManager))
+	cmd.AddCommand(newUseCmd(conf, versionManager, remoteEnvName, pRemote))
 }
