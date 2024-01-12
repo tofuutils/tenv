@@ -51,6 +51,27 @@ builds:
       - arm
       - arm64
 
+  - id: terraform
+    binary: terraform
+    main: ./cmd/terraform
+
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
 release:
   name_template: "Release {{.Tag}}"
 
