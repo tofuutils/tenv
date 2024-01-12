@@ -27,6 +27,7 @@ import (
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/pkg/iterate"
 	"github.com/dvaumoron/gotofuenv/versionmanager"
+	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -153,7 +154,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 			localSet := versionManager.LocalSet()
 			for version := range versionReceiver {
-				if filterStable && !versionmanager.StableVersion(version) {
+				if filterStable && !semantic.StableVersion(version) {
 					continue
 				}
 

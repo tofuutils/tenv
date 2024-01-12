@@ -20,20 +20,16 @@ package github
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
 )
 
 const pageQuery = "?page="
-
-var (
-	errNoAsset = errors.New("asset not found for current platform")
-	errReturn  = errors.New("unexpected value returned by API")
-)
 
 func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl string, githubToken string) (string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag)
@@ -50,7 +46,7 @@ func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl str
 	object, _ := value.(map[string]any)
 	baseAssetsUrl, ok := object["assets_url"].(string)
 	if !ok {
-		return "", errReturn
+		return "", apierrors.ErrReturn
 	}
 
 	page := 1
@@ -64,18 +60,18 @@ func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl str
 
 		values, ok := value.([]any)
 		if !ok {
-			return "", errReturn
+			return "", apierrors.ErrReturn
 		}
 
 		if len(values) == 0 {
-			return "", errNoAsset
+			return "", apierrors.ErrNoAsset
 		}
 
 		for _, value := range values {
 			object, _ = value.(map[string]any)
 			assetName, ok := object["name"].(string)
 			if !ok {
-				return "", errReturn
+				return "", apierrors.ErrReturn
 			}
 
 			if assetName != searchedAssetName {
@@ -84,7 +80,7 @@ func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl str
 
 			downloadUrl, ok := object["browser_download_url"].(string)
 			if !ok {
-				return "", errReturn
+				return "", apierrors.ErrReturn
 			}
 			return downloadUrl, nil
 		}
@@ -106,7 +102,7 @@ func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) 
 
 	version, ok := extractVersion(value)
 	if !ok {
-		return "", errReturn
+		return "", apierrors.ErrReturn
 	}
 	return version, nil
 }
@@ -126,7 +122,7 @@ func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error)
 
 		values, ok := value.([]any)
 		if !ok {
-			return nil, errReturn
+			return nil, apierrors.ErrReturn
 		}
 
 		if len(values) == 0 {
@@ -136,7 +132,7 @@ func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error)
 		for _, value := range values {
 			version, ok := extractVersion(value)
 			if !ok {
-				return nil, errReturn
+				return nil, apierrors.ErrReturn
 			}
 			releases = append(releases, version)
 		}

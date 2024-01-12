@@ -30,6 +30,7 @@ import (
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/pkg/iterate"
 	"github.com/dvaumoron/gotofuenv/pkg/zip"
+	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 	"github.com/hashicorp/go-version"
 )
 
@@ -71,7 +72,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 		return err
 	}
 
-	predicate, reverseOrder, err := parsePredicate(requestedVersion, m.conf.Verbose)
+	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -103,7 +104,7 @@ func (m VersionManager) ListLocal() ([]string, error) {
 		}
 	}
 
-	slices.SortFunc(versions, cmpVersion)
+	slices.SortFunc(versions, semantic.CmpVersion)
 	return versions, nil
 }
 
@@ -113,7 +114,7 @@ func (m VersionManager) ListRemote() ([]string, error) {
 		return nil, err
 	}
 
-	slices.SortFunc(versions, cmpVersion)
+	slices.SortFunc(versions, semantic.CmpVersion)
 	return versions, nil
 }
 
@@ -211,7 +212,7 @@ func (m VersionManager) detect(requestedVersion string, localCheck bool) (string
 		return cleanedVersion, m.installSpecificVersion(cleanedVersion)
 	}
 
-	predicate, reverseOrder, err := parsePredicate(requestedVersion, m.conf.Verbose)
+	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.conf.Verbose)
 	if err != nil {
 		return "", err
 	}

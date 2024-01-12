@@ -16,7 +16,7 @@
  *
  */
 
-package versionmanager
+package semantic
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ func alwaysTrue(string) bool {
 	return true
 }
 
-func cmpVersion(v1Str string, v2Str string) int {
+func CmpVersion(v1Str string, v2Str string) int {
 	v1, err1 := version.NewVersion(v1Str)
 	v2, err2 := version.NewVersion(v2Str)
 
@@ -46,7 +46,7 @@ func cmpVersion(v1Str string, v2Str string) int {
 }
 
 // the boolean returned as second value indicates to reverse order for filtering
-func parsePredicate(requestedVersion string, verbose bool) (func(string) bool, bool, error) {
+func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, bool, error) {
 	predicate := StableVersion
 	reverseOrder := true
 	switch requestedVersion {
