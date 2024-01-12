@@ -28,6 +28,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const tfHelp = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
+
 // can be overridden with ldflags
 var version = "dev"
 
@@ -59,8 +61,9 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
 
 	tfCmd := &cobra.Command{
-		Use:  "tf",
-		Long: "subcommands that help manage several version of Terraform (https://www.terraform.io).",
+		Use:   "tf",
+		Short: tfHelp,
+		Long:  tfHelp,
 	}
 
 	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), config.TfRemoteUrlEnvName, &conf.TfRemoteUrl)

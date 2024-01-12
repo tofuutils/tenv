@@ -80,7 +80,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString("versions")
+	descBuilder.WriteString(" versions")
 	shortMsg := descBuilder.String() + "."
 
 	descBuilder.WriteString(" (located in TOFUENV_ROOT directory), sorted in ascending version order.")
@@ -128,7 +128,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString("versions")
+	descBuilder.WriteString(" versions")
 	shortMsg := descBuilder.String() + "."
 
 	descBuilder.WriteString(" (from ")
@@ -222,7 +222,7 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Switch the default  ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString("version to use")
+	descBuilder.WriteString(" version to use")
 	shortMsg := descBuilder.String() + "."
 
 	descBuilder.WriteString(" (set in ")
