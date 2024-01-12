@@ -278,12 +278,18 @@ Available parameter options:
 	descBuilder.WriteString("force search version available at ")
 	descBuilder.WriteString(remoteEnvName)
 	descBuilder.WriteString(" url")
+	forceRemoteUsage := descBuilder.String()
+
+	descBuilder.Reset()
+	descBuilder.WriteString("create ")
+	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(" file in working directory")
 
 	flags := useCmd.Flags()
-	flags.BoolVarP(&forceRemote, "force-remote", "f", false, descBuilder.String())
+	flags.BoolVarP(&forceRemote, "force-remote", "f", false, forceRemoteUsage)
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 	addRemoteUrlFlag(flags, pRemote)
-	flags.BoolVarP(&workingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
+	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
 }
