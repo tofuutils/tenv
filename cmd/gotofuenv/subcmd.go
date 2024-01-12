@@ -32,14 +32,14 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func newDetectCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" current version.")
 	detectHelp := descBuilder.String()
 
-	return &cobra.Command{
+	detectCmd := &cobra.Command{
 		Use:   "detect",
 		Short: detectHelp,
 		Long:  detectHelp,
@@ -53,6 +53,10 @@ func newDetectCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 			return nil
 		},
 	}
+
+	addRemoteUrlFlag(detectCmd.Flags(), conf, pRemote)
+
+	return detectCmd
 }
 
 func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
@@ -95,7 +99,7 @@ If a parameter is passed, available options:
 		},
 	}
 
-	addRemoteUrlFlag(installCmd.Flags(), &conf.GithubToken, pRemote)
+	addRemoteUrlFlag(installCmd.Flags(), conf, pRemote)
 
 	return installCmd
 }
@@ -196,7 +200,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 	flags := listRemoteCmd.Flags()
 	addDescendingFlag(flags, &reverseOrder)
-	addRemoteUrlFlag(flags, &conf.GithubToken, pRemote)
+	addRemoteUrlFlag(flags, conf, pRemote)
 	flags.BoolVarP(&filterStable, "stable", "s", false, "display only stable version")
 
 	return listRemoteCmd
@@ -288,7 +292,7 @@ Available parameter options:
 	flags := useCmd.Flags()
 	flags.BoolVarP(&forceRemote, "force-remote", "f", false, forceRemoteUsage)
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
-	addRemoteUrlFlag(flags, &conf.GithubToken, pRemote)
+	addRemoteUrlFlag(flags, conf, pRemote)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
@@ -298,7 +302,7 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 	flags.BoolVarP(pReverseOrder, "descending", "d", false, "display list in descending version order")
 }
 
-func addRemoteUrlFlag(flags *pflag.FlagSet, pToken *string, pRemote *string) {
-	flags.StringVarP(pToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
+func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, pRemote *string) {
+	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.StringVarP(pRemote, "remote-url", "u", *pRemote, "remote url to install from")
 }
