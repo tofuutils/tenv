@@ -95,7 +95,7 @@ If a parameter is passed, available options:
 		},
 	}
 
-	addRemoteUrlFlag(installCmd.Flags(), pRemote)
+	addRemoteUrlFlag(installCmd.Flags(), &conf.GithubToken, pRemote)
 
 	return installCmd
 }
@@ -196,7 +196,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 	flags := listRemoteCmd.Flags()
 	addDescendingFlag(flags, &reverseOrder)
-	addRemoteUrlFlag(flags, pRemote)
+	addRemoteUrlFlag(flags, &conf.GithubToken, pRemote)
 	flags.BoolVarP(&filterStable, "stable", "s", false, "display only stable version")
 
 	return listRemoteCmd
@@ -288,7 +288,7 @@ Available parameter options:
 	flags := useCmd.Flags()
 	flags.BoolVarP(&forceRemote, "force-remote", "f", false, forceRemoteUsage)
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
-	addRemoteUrlFlag(flags, pRemote)
+	addRemoteUrlFlag(flags, &conf.GithubToken, pRemote)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
@@ -298,6 +298,7 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 	flags.BoolVarP(pReverseOrder, "descending", "d", false, "display list in descending version order")
 }
 
-func addRemoteUrlFlag(flags *pflag.FlagSet, pRemote *string) {
+func addRemoteUrlFlag(flags *pflag.FlagSet, pToken *string, pRemote *string) {
+	flags.StringVarP(pToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.StringVarP(pRemote, "remote-url", "u", *pRemote, "remote url to install from")
 }
