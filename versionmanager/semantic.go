@@ -16,13 +16,13 @@
  *
  */
 
-package tofuversion
+package versionmanager
 
 import (
 	"fmt"
 
 	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/tofuversion/tfparser"
+	"github.com/dvaumoron/gotofuenv/versionmanager/tfparser"
 	"github.com/hashicorp/go-version"
 )
 
@@ -46,7 +46,7 @@ func cmpVersion(v1Str string, v2Str string) int {
 }
 
 // the boolean returned as second value indicates to reverse order for filtering
-func parsePredicate(requestedVersion string, conf *config.Config) (func(string) bool, bool, error) {
+func parsePredicate(requestedVersion string, verbose bool) (func(string) bool, bool, error) {
 	predicate := StableVersion
 	reverseOrder := true
 	switch requestedVersion {
@@ -54,7 +54,7 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 		reverseOrder = false // start with older
 		fallthrough          // same predicate retrieving
 	case config.LatestAllowedKey:
-		requireds, err := tfparser.GatherRequiredVersion(conf)
+		requireds, err := tfparser.GatherRequiredVersion(verbose)
 		if err != nil {
 			return nil, false, err
 		}
@@ -69,7 +69,7 @@ func parsePredicate(requestedVersion string, conf *config.Config) (func(string) 
 		}
 		if len(constraint) == 0 {
 			reverseOrder = true // erase min-required case
-			if conf.Verbose {
+			if verbose {
 				fmt.Println("No OpenTofu version requirement found in files, fallback to latest-stable")
 			}
 		} else {

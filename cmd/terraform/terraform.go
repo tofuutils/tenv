@@ -24,5 +24,5 @@ import (
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTofuManager, "tofu")
+	proxy.ExecProxy(builder.BuildTfManager, "terraform")
 }

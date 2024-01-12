@@ -23,7 +23,6 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
@@ -53,9 +52,8 @@ func init() {
 	}
 }
 
-func GatherRequiredVersion(conf *config.Config) ([]string, error) {
+func GatherRequiredVersion(verbose bool) ([]string, error) {
 	var requireds []string
-	verbose := conf.Verbose
 	parser := hclparse.NewParser()
 	err := filepath.WalkDir(".", func(path string, entry fs.DirEntry, err error) error {
 		if err != nil || entry.IsDir() {

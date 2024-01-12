@@ -19,7 +19,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"strconv"
@@ -31,40 +30,58 @@ const (
 	LatestKey        = "latest"
 	MinRequiredKey   = "min-required"
 
-	VersionFileName = ".opentofu-version"
+	TfFolderName      = "Terraform"
+	TfVersionFileName = ".terraform-version"
+
+	TofuFolderName      = "OpenTofu"
+	TofuVersionFileName = ".opentofu-version"
 )
 
 const (
-	defaultRemoteUrl = "https://api.github.com/repos/opentofu/opentofu/releases"
+	defaultTfHashicorpUrl = "https://releases.hashicorp.com/terraform/index.json"
+	defaultTofuGithubUrl  = "https://api.github.com/repos/opentofu/opentofu/releases"
 
-	envPrefix = "TOFUENV_"
+	autoInstallEnvName = "AUTO_INSTALL"
+	remoteUrlEnvName   = "REMOTE"
+	rootPathEnvName    = "ROOT"
+	verboseEnvName     = "VERBOSE"
 
-	autoInstallEnvName = envPrefix + "AUTO_INSTALL"
-	remoteUrlEnvName   = envPrefix + "REMOTE"
-	rootPathEnvName    = envPrefix + "ROOT"
-	tokenEnvName       = envPrefix + "GITHUB_TOKEN"
-	verboseEnvName     = envPrefix + "VERBOSE"
-	versionEnvName     = envPrefix + "TOFU_VERSION"
+	tfenvPrefix          = "TFENV_"
+	tfAutoInstallEnvName = tfenvPrefix + autoInstallEnvName
+	tfRemoteUrlEnvName   = tfenvPrefix + remoteUrlEnvName
+	tfRootPathEnvName    = tfenvPrefix + rootPathEnvName
+	tfVerboseEnvName     = tfenvPrefix + verboseEnvName
+	tfVersionEnvName     = tfenvPrefix + "TERRAFORM_VERSION"
+
+	tofuenvPrefix          = "TOFUENV_"
+	tofuAutoInstallEnvName = tofuenvPrefix + autoInstallEnvName
+	tofuRemoteUrlEnvName   = tofuenvPrefix + remoteUrlEnvName
+	tofuRootPathEnvName    = tofuenvPrefix + rootPathEnvName
+	tofuTokenEnvName       = tofuenvPrefix + "GITHUB_TOKEN"
+	tofuVerboseEnvName     = tofuenvPrefix + verboseEnvName
+	tofuVersionEnvName     = tofuenvPrefix + "TOFU_VERSION"
 )
 
 type Config struct {
-	NoInstall    bool
-	RemoteUrl    string
-	RootPath     string
-	Token        string
-	UserHomeFile string
-	Verbose      bool
-	Version      string
+	NoInstall     bool
+	TfRemoteUrl   string
+	TofuRemoteUrl string
+	RootPath      string
+	TfVersion     string
+	TofuVersion   string
+	GithubToken   string
+	UserPath      string
+	Verbose       bool
 }
 
 func InitConfigFromEnv() (Config, error) {
-	userHome, err := os.UserHomeDir()
+	userPath, err := os.UserHomeDir()
 	if err != nil {
 		return Config{}, err
 	}
 
 	autoInstall := true
-	autoInstallStr := os.Getenv(autoInstallEnvName)
+	autoInstallStr := getenv(tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if autoInstallStr != "" {
 		var err error
 		autoInstall, err = strconv.ParseBool(autoInstallStr)
@@ -73,18 +90,23 @@ func InitConfigFromEnv() (Config, error) {
 		}
 	}
 
-	remoteUrl := os.Getenv(remoteUrlEnvName)
-	if remoteUrl == "" {
-		remoteUrl = defaultRemoteUrl
+	tfRemoteUrl := os.Getenv(tfRemoteUrlEnvName)
+	if tfRemoteUrl == "" {
+		tfRemoteUrl = defaultTfHashicorpUrl
 	}
 
-	rootPath := os.Getenv(rootPathEnvName)
+	tofuRemoteUrl := os.Getenv(tofuRemoteUrlEnvName)
+	if tofuRemoteUrl == "" {
+		tofuRemoteUrl = defaultTofuGithubUrl
+	}
+
+	rootPath := getenv(tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
-		rootPath = path.Join(userHome, ".gotofuenv")
+		rootPath = path.Join(userPath, ".gotofuenv")
 	}
 
 	verbose := false
-	verboseStr := os.Getenv(verboseEnvName)
+	verboseStr := getenv(tofuVerboseEnvName, tfVerboseEnvName)
 	if verboseStr != "" {
 		verbose, err = strconv.ParseBool(verboseStr)
 		if err != nil {
@@ -93,50 +115,23 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	return Config{
-		NoInstall:    !autoInstall,
-		RemoteUrl:    remoteUrl,
-		RootPath:     rootPath,
-		Token:        os.Getenv(tokenEnvName),
-		UserHomeFile: path.Join(userHome, VersionFileName),
-		Verbose:      verbose,
-		Version:      os.Getenv(versionEnvName),
+		NoInstall:     !autoInstall,
+		TfRemoteUrl:   tfRemoteUrl,
+		TofuRemoteUrl: tofuRemoteUrl,
+		RootPath:      rootPath,
+		TfVersion:     os.Getenv(tfVersionEnvName),
+		TofuVersion:   os.Getenv(tofuVersionEnvName),
+		GithubToken:   os.Getenv(tofuTokenEnvName),
+		UserPath:      userPath,
+		Verbose:       verbose,
 	}, nil
 }
 
-// (made lazy method : not always useful and allows flag override)
-func (c *Config) ResolveVersion(defaultVersion string) string {
-	if c.Version != "" {
-		return c.Version
+func getenv(keys ...string) string {
+	for _, key := range keys {
+		if value := os.Getenv(key); value != "" {
+			return value
+		}
 	}
-
-	data, err := os.ReadFile(VersionFileName)
-	if err == nil {
-		return string(data)
-	}
-
-	data, err = os.ReadFile(c.UserHomeFile)
-	if err == nil {
-		return string(data)
-	}
-
-	data, err = os.ReadFile(c.RootVersionFilePath())
-	if err == nil {
-		return string(data)
-	}
-	return defaultVersion
-}
-
-// (made lazy method : not always useful and allows flag override)
-func (c *Config) RootVersionFilePath() string {
-	return path.Join(c.RootPath, VersionFileName)
-}
-
-// try to ensure the directory exists with a MkdirAll call.
-// (made lazy method : not always useful and allows flag override)
-func (c *Config) InstallPath() string {
-	dir := path.Join(c.RootPath, "OpenTofu")
-	if err := os.MkdirAll(dir, 0755); err != nil && c.Verbose {
-		fmt.Println("Can not create installation directory :", err)
-	}
-	return dir
+	return ""
 }
