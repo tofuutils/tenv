@@ -123,19 +123,18 @@ func (v TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	values, ok := value.([]any)
+	object, ok := value.(map[string]any)
+	if !ok {
+		return nil, apierrors.ErrReturn
+	}
+
+	object, ok = object["versions"].(map[string]any)
 	if !ok {
 		return nil, apierrors.ErrReturn
 	}
 
 	var releases []string
-	for _, value := range values {
-		object, _ := value.(map[string]any)
-		version, ok := object["version"].(string)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
+	for version := range object {
 		releases = append(releases, version)
 	}
 	return releases, nil
