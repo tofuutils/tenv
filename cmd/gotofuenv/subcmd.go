@@ -139,6 +139,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 					fmt.Println(" ", version)
 				}
 			}
+			fmt.Println("found", len(versions), "managed by gotofuenv.")
 			return nil
 		},
 	}
@@ -188,6 +189,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 					fmt.Println(version)
 				}
 			}
+			fmt.Println("found", len(versions), "(on", *pRemote+").")
 			return err
 		},
 	}
