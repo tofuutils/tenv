@@ -54,6 +54,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		},
 	}
 
+	// TODO force-remote and no-install flags
 	addRemoteUrlFlag(detectCmd.Flags(), conf, pRemote)
 
 	return detectCmd
@@ -303,6 +304,7 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 }
 
 func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, pRemote *string) {
+	// TODO dont add github-token flag for tf subcommands
 	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.StringVarP(pRemote, "remote-url", "u", *pRemote, "remote url to install from")
 }
