@@ -158,7 +158,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 	descBuilder.WriteString(" (from ")
 	descBuilder.WriteString(remoteEnvName)
-	descBuilder.WriteString("url), sorted in ascending version order.")
+	descBuilder.WriteString(" url), sorted in ascending version order.")
 
 	filterStable := false
 	reverseOrder := false
