@@ -229,11 +229,11 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 	descBuilder.WriteString(versionManager.VersionFileName)
 	descBuilder.WriteString(` file in TOFUENV_ROOT)
 
-	Available parameter options:
-	- an exact Semver 2.0.0 version string to use
-	- a version constraint string (checked against version available in TOFUENV_ROOT directory)
-	- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
-	- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`)
+Available parameter options:
+- an exact Semver 2.0.0 version string to use
+- a version constraint string (checked against version available in TOFUENV_ROOT directory)
+- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`)
 
 	forceRemote := false
 	workingDir := false
