@@ -18,7 +18,20 @@
 
 package terraformretriever
 
-import "github.com/dvaumoron/gotofuenv/config"
+import (
+	"encoding/json"
+	"io"
+	"net/http"
+	"net/url"
+	"runtime"
+	"slices"
+
+	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
+	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
+)
+
+const indexJson = "index.json"
 
 type TerraformRetriever struct {
 	conf *config.Config
@@ -29,16 +42,118 @@ func MakeTerraformRetriever(conf *config.Config) TerraformRetriever {
 }
 
 func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {
-	// TODO call hashicorp release api
-	return "", nil
+	// assume that terraform version do not start with a 'v'
+	if version[0] == 'v' {
+		version = version[1:]
+	}
+
+	versionUrl, err := url.JoinPath(v.conf.TfRemoteUrl, version, indexJson)
+	if err != nil {
+		return "", err
+	}
+
+	value, err := apiGetRequest(versionUrl)
+	if err != nil {
+		return "", err
+	}
+
+	object, _ := value.(map[string]any)
+	builds, ok := object["builds"].([]any)
+	if !ok {
+		return "", apierrors.ErrReturn
+	}
+
+	for _, build := range builds {
+		object, ok = build.(map[string]any)
+		if !ok {
+			return "", apierrors.ErrReturn
+		}
+
+		osStr, ok := object["os"].(string)
+		if !ok {
+			return "", apierrors.ErrReturn
+		}
+
+		if osStr != runtime.GOOS {
+			continue
+		}
+
+		archStr, ok := object["arch"].(string)
+		if !ok {
+			return "", apierrors.ErrReturn
+		}
+
+		if archStr != runtime.GOARCH {
+			continue
+		}
+
+		downloadUrl, ok := object["url"].(string)
+		if !ok {
+			return "", apierrors.ErrReturn
+		}
+		return downloadUrl, nil
+	}
+	return "", apierrors.ErrNoAsset
 }
 
 func (v TerraformRetriever) LatestRelease() (string, error) {
-	// TODO call hashicorp release api
-	return "", nil
+	// hashicorp release api does not seem to have a shortcut
+	versions, err := v.ListReleases()
+	if err != nil {
+		return "", err
+	}
+
+	versionLen := len(versions)
+	if versionLen == 0 {
+		return "", apierrors.ErrReturn
+	}
+
+	slices.SortFunc(versions, semantic.CmpVersion)
+	return versions[versionLen-1], nil
 }
 
 func (v TerraformRetriever) ListReleases() ([]string, error) {
-	// TODO call hashicorp release api
-	return nil, nil
+	releaseUrl, err := url.JoinPath(v.conf.TfRemoteUrl, indexJson)
+	if err != nil {
+		return nil, err
+	}
+
+	value, err := apiGetRequest(releaseUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	values, ok := value.([]any)
+	if !ok {
+		return nil, apierrors.ErrReturn
+	}
+
+	var releases []string
+	for _, value := range values {
+		object, _ := value.(map[string]any)
+		version, ok := object["version"].(string)
+		if !ok {
+			return nil, apierrors.ErrReturn
+		}
+
+		releases = append(releases, version)
+	}
+	return releases, nil
+}
+
+func apiGetRequest(callUrl string) (any, error) {
+	response, err := http.Get(callUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var value any
+	err = json.Unmarshal(data, &value)
+	return value, err
 }
