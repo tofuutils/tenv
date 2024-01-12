@@ -58,7 +58,6 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 	flags := rootCmd.PersistentFlags()
 	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu and Terraform")
-	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
 
 	rootCmd.AddCommand(newVersionCmd())
