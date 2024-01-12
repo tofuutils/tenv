@@ -2,6 +2,8 @@
 
 [OpenTofu](https://opentofu.org) version manager (inspired by [tofuenv](https://github.com/tofuutils/tofuenv), written in Go)
 
+Work for [Terraform](https://www.terraform.io/) too (see [here](#terraform-support)).
+
 Handle [Semver 2.0.0](https://semver.org/) with [go-version](https://github.com/hashicorp/go-version) and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu files.
 
 ## Installation
@@ -26,6 +28,10 @@ For the .zip case, the unzipped folder must be added to your PATH.
 ### tofu
 
 This project version of `tofu` command is a proxy to OpenTofu `tofu` command  managed by `gotofuenv`.
+
+### terraform
+
+This project version of `terraform` command is a proxy to Hashicorp `terraform` command  managed by `gotofuenv`.
 
 ### gotofuenv install [version]
 
@@ -57,7 +63,7 @@ $ gotofuenv install min-required
 
 Both command support the following environment variables.
 
-#### TOFUENV_AUTO_INSTALL
+#### TOFUENV_AUTO_INSTALL (or alias TFENV_AUTO_INSTALL)
 
 String (Default: true)
 
@@ -87,17 +93,25 @@ String (Default: "")
 
 Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu binares are downloaded from the OpenTofu GitHub repository.
 
-`gotofuenv` support a `--github-token`, `-t` flag version.
+`gotofuenv` subcommands `install`, `list-remote` and `use` support a `--github-token`, `-t` flag version.
 
 #### TOFUENV_REMOTE
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
-To install from a remote other than the default (must comply with [github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
+To install OpenTofu from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
-`gotofuenv` support a `--remote-url`, `-u` flag version.
+`gotofuenv` subcommands `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
-#### TOFUENV_ROOT
+#### TFENV_REMOTE
+
+String (Default: https://releases.hashicorp.com/terraform)
+
+To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
+
+`gotofuenv tf` subcommands `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+#### TOFUENV_ROOT (or alias TFENV_ROOT)
 
 Path (Default: `$HOME/.gotofuenv`)
 
@@ -110,7 +124,7 @@ The path to a directory where the local OpenTofu versions and GoTofuEnv configur
 String (Default: "")
 
 If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#opentofu-version-file) files.
-`gotofuenv install` command also respects this variable.
+`gotofuenv` subcommands `install` and `detect` also respects this variable.
 
 e.g. with :
 
@@ -128,7 +142,14 @@ OpenTofu v1.6.0-rc1
 on linux_amd64
 ```
 
-#### TOFUENV_VERBOSE
+#### TFENV_TERRAFORM_VERSION
+
+String (Default: "")
+
+If not empty string, this variable overrides Terraform version, specified in `.terraform-version` files.
+`gotofuenv tf` subcommands `install` and `detect` also respects this variable.
+
+#### TOFUENV_VERBOSE (or alias TFENV_VERBOSE)
 
 String (Default: false)
 
@@ -158,6 +179,15 @@ $ gotofuenv use min-required
 $ gotofuenv use v1.6.0-beta5
 $ gotofuenv use latest
 $ gotofuenv use latest-allowed
+```
+
+### gotofuenv detect
+
+Detect the used version of OpenTofu for the working directory.
+
+```console
+$ gotofuenv detect
+OpenTofu 1.6.0 will be run from this directory.
 ```
 
 ### gotofuenv reset
@@ -217,20 +247,20 @@ $ gotofuenv list-remote
 Help about any command.
 
 ```console
-$ gotofuenv help reset
-Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
+$ gotofuenv help tf detect
+Display Terraform current version.
 
 Usage:
-  gotofuenv reset [flags]
+  gotofuenv tf detect [flags]
 
 Flags:
-  -h, --help   help for reset
+  -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
+  -h, --help                  help for detect
+  -u, --remote-url string     remote url to install from (default "https://releases.hashicorp.com/terraform")
 
 Global Flags:
-  -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
-  -u, --remote-url string     remote url to install from (default "https://api.github.com/repos/opentofu/opentofu/releases")
-  -r, --root-path string      local path to install OpenTofu versions (default "/home/dvaumoron/.gotofuenv")
-  -v, --verbose               verbose output
+  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.gotofuenv")
+  -v, --verbose            verbose output
 ```
 
 ## .opentofu-version file
@@ -246,6 +276,12 @@ Recognized value (same as `gotofuenv use` command) :
 - latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
+
+## Terraform support
+
+GoTofuEnv rely on `.terraform-version` files, [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
+
+`gotofuenv tf` have the same managing subcommands for Terraform versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
 
 ## LICENSE
 
