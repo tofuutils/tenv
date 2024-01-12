@@ -45,7 +45,7 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	descBuilder.WriteString(" or ")
 	descBuilder.WriteString(versionManager.VersionFileName)
 	descBuilder.WriteString(` files
-(searched in working directory, user home directory and TOFUENV_ROOT directory).")
+(searched in working directory, user home directory and TOFUENV_ROOT directory).
 Use "latest-stable" when none are found.
 
 If a parameter is passed, available options:
