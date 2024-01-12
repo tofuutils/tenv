@@ -32,6 +32,29 @@ import (
 	"github.com/spf13/pflag"
 )
 
+func newDetectCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("Display ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" current version.")
+	detectHelp := descBuilder.String()
+
+	return &cobra.Command{
+		Use:   "detect",
+		Short: detectHelp,
+		Long:  detectHelp,
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			detectedVersion, err := versionManager.Detect()
+			if err != nil {
+				return err
+			}
+			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.")
+			return nil
+		},
+	}
+}
+
 func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Install a specific version of ")
@@ -261,29 +284,6 @@ Available parameter options:
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
 
 	return useCmd
-}
-
-func newVersionCmd(versionManager versionmanager.VersionManager) *cobra.Command {
-	var descBuilder strings.Builder
-	descBuilder.WriteString("Display ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" current version.")
-	versionHelp := descBuilder.String()
-
-	return &cobra.Command{
-		Use:   "version",
-		Short: versionHelp,
-		Long:  versionHelp,
-		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
-			detectedVersion, err := versionManager.Detect()
-			if err != nil {
-				return err
-			}
-			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.")
-			return nil
-		},
-	}
 }
 
 func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {

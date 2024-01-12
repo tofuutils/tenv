@@ -61,7 +61,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
 
-	rootCmd.AddCommand(newRootVersionCmd())
+	rootCmd.AddCommand(newVersionCmd())
 	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
 
 	tfCmd := &cobra.Command{
@@ -77,7 +77,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	return rootCmd
 }
 
-func newRootVersionCmd() *cobra.Command {
+func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
 		Short: rootVersionHelp,
@@ -90,11 +90,11 @@ func newRootVersionCmd() *cobra.Command {
 }
 
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) {
+	cmd.AddCommand(newDetectCmd(versionManager))
 	cmd.AddCommand(newInstallCmd(conf, versionManager, remoteEnvName, pRemote))
 	cmd.AddCommand(newListCmd(conf, versionManager))
 	cmd.AddCommand(newListRemoteCmd(conf, versionManager, remoteEnvName, pRemote))
 	cmd.AddCommand(newResetCmd(conf, versionManager))
 	cmd.AddCommand(newUninstallCmd(conf, versionManager))
 	cmd.AddCommand(newUseCmd(conf, versionManager, remoteEnvName, pRemote))
-	cmd.AddCommand(newVersionCmd(versionManager))
 }
