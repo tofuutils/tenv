@@ -44,7 +44,8 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	descBuilder.WriteString(versionManager.VersionEnvName)
 	descBuilder.WriteString(" or ")
 	descBuilder.WriteString(versionManager.VersionFileName)
-	descBuilder.WriteString(`(searched in working directory, user home directory and TOFUENV_ROOT directory).")
+	descBuilder.WriteString(` files
+(searched in working directory, user home directory and TOFUENV_ROOT directory).")
 Use "latest-stable" when none are found.
 
 If a parameter is passed, available options:
@@ -220,7 +221,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 
 func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Switch the default  ")
+	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" version to use")
 	shortMsg := descBuilder.String() + "."
@@ -248,13 +249,41 @@ Available parameter options:
 		},
 	}
 
+	descBuilder.Reset()
+	descBuilder.WriteString("force search version available at ")
+	descBuilder.WriteString(remoteEnvName)
+	descBuilder.WriteString(" url")
+
 	flags := useCmd.Flags()
-	flags.BoolVarP(&forceRemote, "force-remote", "f", false, "force search version available at TOFUENV_REMOTE url")
+	flags.BoolVarP(&forceRemote, "force-remote", "f", false, descBuilder.String())
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 	addRemoteUrlFlag(flags, pRemote)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, "create .opentofu-version file in working directory")
 
 	return useCmd
+}
+
+func newVersionCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("Display ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" current version.")
+	versionHelp := descBuilder.String()
+
+	return &cobra.Command{
+		Use:   "version",
+		Short: versionHelp,
+		Long:  versionHelp,
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			detectedVersion, err := versionManager.Detect()
+			if err != nil {
+				return err
+			}
+			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.")
+			return nil
+		},
+	}
 }
 
 func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {

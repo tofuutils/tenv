@@ -28,7 +28,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const tfHelp = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
+const (
+	rootVersionHelp = "Display gotofuenv current version."
+	tfHelp          = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
+)
 
 // can be overridden with ldflags
 var version = "dev"
@@ -54,10 +57,11 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	}
 
 	flags := rootCmd.PersistentFlags()
-	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install OpenTofu versions")
+	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu and Terraform")
 	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
 	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
 
+	rootCmd.AddCommand(newRootVersionCmd())
 	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
 
 	tfCmd := &cobra.Command{
@@ -73,6 +77,18 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	return rootCmd
 }
 
+func newRootVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: rootVersionHelp,
+		Long:  rootVersionHelp,
+		Args:  cobra.NoArgs,
+		Run: func(_ *cobra.Command, _ []string) {
+			fmt.Println("gotofuenv", version)
+		},
+	}
+}
+
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) {
 	cmd.AddCommand(newInstallCmd(conf, versionManager, remoteEnvName, pRemote))
 	cmd.AddCommand(newListCmd(conf, versionManager))
@@ -80,4 +96,5 @@ func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager version
 	cmd.AddCommand(newResetCmd(conf, versionManager))
 	cmd.AddCommand(newUninstallCmd(conf, versionManager))
 	cmd.AddCommand(newUseCmd(conf, versionManager, remoteEnvName, pRemote))
+	cmd.AddCommand(newVersionCmd(versionManager))
 }
