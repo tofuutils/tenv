@@ -89,7 +89,7 @@ func newVersionCmd() *cobra.Command {
 }
 
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) {
-	cmd.AddCommand(newDetectCmd(versionManager))
+	cmd.AddCommand(newDetectCmd(conf, versionManager, pRemote))
 	cmd.AddCommand(newInstallCmd(conf, versionManager, remoteEnvName, pRemote))
 	cmd.AddCommand(newListCmd(conf, versionManager))
 	cmd.AddCommand(newListRemoteCmd(conf, versionManager, remoteEnvName, pRemote))
