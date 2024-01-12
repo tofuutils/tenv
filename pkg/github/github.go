@@ -35,12 +35,13 @@ var (
 	errReturn  = errors.New("unexpected value returned by API")
 )
 
-func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl string, authorizationHeader string) (string, error) {
+func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl string, githubToken string) (string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag)
 	if err != nil {
 		return "", err
 	}
 
+	authorizationHeader := buildAuthorizationHeader(githubToken)
 	value, err := apiGetRequest(releaseUrl, authorizationHeader)
 	if err != nil {
 		return "", err
@@ -91,12 +92,13 @@ func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl str
 	}
 }
 
-func LatestRelease(githubReleaseUrl string, authorizationHeader string) (string, error) {
+func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) {
 	latestUrl, err := url.JoinPath(githubReleaseUrl, "latest")
 	if err != nil {
 		return "", err
 	}
 
+	authorizationHeader := buildAuthorizationHeader(githubToken)
 	value, err := apiGetRequest(latestUrl, authorizationHeader)
 	if err != nil {
 		return "", err
@@ -109,8 +111,9 @@ func LatestRelease(githubReleaseUrl string, authorizationHeader string) (string,
 	return version, nil
 }
 
-func ListReleases(githubReleaseUrl string, authorizationHeader string) ([]string, error) {
+func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error) {
 	basePageUrl := githubReleaseUrl + pageQuery
+	authorizationHeader := buildAuthorizationHeader(githubToken)
 
 	page := 1
 	var releases []string
@@ -169,7 +172,7 @@ func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
 	return value, err
 }
 
-func BuildAuthorizationHeader(token string) string {
+func buildAuthorizationHeader(token string) string {
 	if token == "" {
 		return ""
 	}

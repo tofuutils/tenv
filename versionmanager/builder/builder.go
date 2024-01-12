@@ -26,11 +26,11 @@ import (
 )
 
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {
-	tfRetriever := terraformretriever.MakeTerraformRetriever(conf.TfRemoteUrl)
-	return versionmanager.MakeVersionManager(conf, conf.TfVersion, config.TfFolderName, tfRetriever, config.TfVersionFileName)
+	tfRetriever := terraformretriever.MakeTerraformRetriever(conf)
+	return versionmanager.MakeVersionManager(conf, config.TfFolderName, tfRetriever, config.TfVersionEnvName, config.TfVersionFileName)
 }
 
 func BuildTofuManager(conf *config.Config) versionmanager.VersionManager {
-	tofuRetriever := tofuretriever.MakeTofuRetriever(conf.TofuRemoteUrl, conf.GithubToken)
-	return versionmanager.MakeVersionManager(conf, conf.TofuVersion, config.TofuFolderName, tofuRetriever, config.TofuVersionFileName)
+	tofuRetriever := tofuretriever.MakeTofuRetriever(conf)
+	return versionmanager.MakeVersionManager(conf, config.TofuFolderName, tofuRetriever, config.TofuVersionEnvName, config.TofuVersionFileName)
 }

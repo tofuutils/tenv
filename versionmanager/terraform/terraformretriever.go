@@ -18,12 +18,14 @@
 
 package terraformretriever
 
+import "github.com/dvaumoron/gotofuenv/config"
+
 type TerraformRetriever struct {
-	releaseUrl string
+	conf *config.Config
 }
 
-func MakeTerraformRetriever(releaseUrl string) TerraformRetriever {
-	return TerraformRetriever{releaseUrl: releaseUrl}
+func MakeTerraformRetriever(conf *config.Config) TerraformRetriever {
+	return TerraformRetriever{conf: conf}
 }
 
 func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {

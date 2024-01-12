@@ -22,19 +22,16 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/pkg/github"
 )
 
 type TofuRetriever struct {
-	authorizationHeader string
-	githubReleaseUrl    string
+	conf *config.Config
 }
 
-func MakeTofuRetriever(githubReleaseUrl string, githubToken string) TofuRetriever {
-	return TofuRetriever{
-		authorizationHeader: github.BuildAuthorizationHeader(githubToken),
-		githubReleaseUrl:    githubReleaseUrl,
-	}
+func MakeTofuRetriever(conf *config.Config) TofuRetriever {
+	return TofuRetriever{conf: conf}
 }
 
 func (v TofuRetriever) DownloadAssetUrl(version string) (string, error) {
@@ -46,15 +43,15 @@ func (v TofuRetriever) DownloadAssetUrl(version string) (string, error) {
 	} else {
 		tag = "v" + version
 	}
-	return github.DownloadAssetUrl(tag, buildAssetName(version), v.githubReleaseUrl, v.authorizationHeader)
+	return github.DownloadAssetUrl(tag, buildAssetName(version), v.conf.TofuRemoteUrl, v.conf.GithubToken)
 }
 
 func (v TofuRetriever) LatestRelease() (string, error) {
-	return github.LatestRelease(v.githubReleaseUrl, v.authorizationHeader)
+	return github.LatestRelease(v.conf.TofuRemoteUrl, v.conf.GithubToken)
 }
 
 func (v TofuRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(v.githubReleaseUrl, v.authorizationHeader)
+	return github.ListReleases(v.conf.TofuRemoteUrl, v.conf.GithubToken)
 }
 
 func buildAssetName(version string) string {

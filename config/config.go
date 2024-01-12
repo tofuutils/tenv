@@ -38,7 +38,7 @@ const (
 )
 
 const (
-	defaultTfHashicorpUrl = "https://releases.hashicorp.com/terraform/index.json"
+	defaultTfHashicorpUrl = "https://releases.hashicorp.com/terraform"
 	defaultTofuGithubUrl  = "https://api.github.com/repos/opentofu/opentofu/releases"
 
 	autoInstallEnvName = "AUTO_INSTALL"
@@ -48,18 +48,18 @@ const (
 
 	tfenvPrefix          = "TFENV_"
 	tfAutoInstallEnvName = tfenvPrefix + autoInstallEnvName
-	tfRemoteUrlEnvName   = tfenvPrefix + remoteUrlEnvName
+	TfRemoteUrlEnvName   = tfenvPrefix + remoteUrlEnvName
 	tfRootPathEnvName    = tfenvPrefix + rootPathEnvName
 	tfVerboseEnvName     = tfenvPrefix + verboseEnvName
-	tfVersionEnvName     = tfenvPrefix + "TERRAFORM_VERSION"
+	TfVersionEnvName     = tfenvPrefix + "TERRAFORM_VERSION"
 
 	tofuenvPrefix          = "TOFUENV_"
 	tofuAutoInstallEnvName = tofuenvPrefix + autoInstallEnvName
-	tofuRemoteUrlEnvName   = tofuenvPrefix + remoteUrlEnvName
+	TofuRemoteUrlEnvName   = tofuenvPrefix + remoteUrlEnvName
 	tofuRootPathEnvName    = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName       = tofuenvPrefix + "GITHUB_TOKEN"
 	tofuVerboseEnvName     = tofuenvPrefix + verboseEnvName
-	tofuVersionEnvName     = tofuenvPrefix + "TOFU_VERSION"
+	TofuVersionEnvName     = tofuenvPrefix + "TOFU_VERSION"
 )
 
 type Config struct {
@@ -67,8 +67,6 @@ type Config struct {
 	TfRemoteUrl   string
 	TofuRemoteUrl string
 	RootPath      string
-	TfVersion     string
-	TofuVersion   string
 	GithubToken   string
 	UserPath      string
 	Verbose       bool
@@ -90,12 +88,12 @@ func InitConfigFromEnv() (Config, error) {
 		}
 	}
 
-	tfRemoteUrl := os.Getenv(tfRemoteUrlEnvName)
+	tfRemoteUrl := os.Getenv(TfRemoteUrlEnvName)
 	if tfRemoteUrl == "" {
 		tfRemoteUrl = defaultTfHashicorpUrl
 	}
 
-	tofuRemoteUrl := os.Getenv(tofuRemoteUrlEnvName)
+	tofuRemoteUrl := os.Getenv(TofuRemoteUrlEnvName)
 	if tofuRemoteUrl == "" {
 		tofuRemoteUrl = defaultTofuGithubUrl
 	}
@@ -119,8 +117,6 @@ func InitConfigFromEnv() (Config, error) {
 		TfRemoteUrl:   tfRemoteUrl,
 		TofuRemoteUrl: tofuRemoteUrl,
 		RootPath:      rootPath,
-		TfVersion:     os.Getenv(tfVersionEnvName),
-		TofuVersion:   os.Getenv(tofuVersionEnvName),
 		GithubToken:   os.Getenv(tofuTokenEnvName),
 		UserPath:      userPath,
 		Verbose:       verbose,
