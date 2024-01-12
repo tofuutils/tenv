@@ -21,43 +21,26 @@ package github
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"runtime"
 	"strconv"
 	"strings"
-
-	"github.com/dvaumoron/gotofuenv/config"
 )
+
+const pageQuery = "?page="
 
 var (
-	errEmptyVersion = errors.New("empty version")
-	errNoAsset      = errors.New("asset not found for current platform")
-	errReturn       = errors.New("unexpected value returned by API")
+	errNoAsset = errors.New("asset not found for current platform")
+	errReturn  = errors.New("unexpected value returned by API")
 )
 
-func DownloadAssetUrl(version string, conf *config.Config) (string, error) {
-	if version == "" {
-		return "", errEmptyVersion
-	}
-
-	tag := version
-	// assume that opentofu tags start with a 'v'
-	// and version in asset name does not
-	if tag[0] == 'v' {
-		version = version[1:]
-	} else {
-		tag = "v" + version
-	}
-
-	releaseUrl, err := url.JoinPath(conf.RemoteUrl, "tags", tag)
+func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl string, authorizationHeader string) (string, error) {
+	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag)
 	if err != nil {
 		return "", err
 	}
 
-	authorizationHeader := buildAuthorizationHeader(conf.Token)
 	value, err := apiGetRequest(releaseUrl, authorizationHeader)
 	if err != nil {
 		return "", err
@@ -70,11 +53,7 @@ func DownloadAssetUrl(version string, conf *config.Config) (string, error) {
 	}
 
 	page := 1
-	baseAssetsUrl += "?page="
-	searchedAssetName := buildAssetName(version)
-	if conf.Verbose {
-		fmt.Println("Search asset", searchedAssetName, "for release", tag)
-	}
+	baseAssetsUrl += pageQuery
 	for {
 		assetsUrl := baseAssetsUrl + strconv.Itoa(page)
 		value, err = apiGetRequest(assetsUrl, authorizationHeader)
@@ -112,13 +91,13 @@ func DownloadAssetUrl(version string, conf *config.Config) (string, error) {
 	}
 }
 
-func LatestRelease(conf *config.Config) (string, error) {
-	latestUrl, err := url.JoinPath(conf.RemoteUrl, "latest")
+func LatestRelease(githubReleaseUrl string, authorizationHeader string) (string, error) {
+	latestUrl, err := url.JoinPath(githubReleaseUrl, "latest")
 	if err != nil {
 		return "", err
 	}
 
-	value, err := apiGetRequest(latestUrl, buildAuthorizationHeader(conf.Token))
+	value, err := apiGetRequest(latestUrl, authorizationHeader)
 	if err != nil {
 		return "", err
 	}
@@ -130,9 +109,8 @@ func LatestRelease(conf *config.Config) (string, error) {
 	return version, nil
 }
 
-func ListReleases(conf *config.Config) ([]string, error) {
-	basePageUrl := conf.RemoteUrl + "?page="
-	authorizationHeader := buildAuthorizationHeader(conf.Token)
+func ListReleases(githubReleaseUrl string, authorizationHeader string) ([]string, error) {
+	basePageUrl := githubReleaseUrl + pageQuery
 
 	page := 1
 	var releases []string
@@ -191,19 +169,7 @@ func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
 	return value, err
 }
 
-func buildAssetName(version string) string {
-	var nameBuilder strings.Builder
-	nameBuilder.WriteString("tofu_")
-	nameBuilder.WriteString(version)
-	nameBuilder.WriteByte('_')
-	nameBuilder.WriteString(runtime.GOOS)
-	nameBuilder.WriteByte('_')
-	nameBuilder.WriteString(runtime.GOARCH)
-	nameBuilder.WriteString(".zip")
-	return nameBuilder.String()
-}
-
-func buildAuthorizationHeader(token string) string {
+func BuildAuthorizationHeader(token string) string {
 	if token == "" {
 		return ""
 	}

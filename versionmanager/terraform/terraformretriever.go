@@ -16,13 +16,27 @@
  *
  */
 
-package main
+package terraformretriever
 
-import (
-	"github.com/dvaumoron/gotofuenv/versionmanager/builder"
-	"github.com/dvaumoron/gotofuenv/versionmanager/proxy"
-)
+type TerraformRetriever struct {
+	releaseUrl string
+}
 
-func main() {
-	proxy.ExecProxy(builder.BuildTofuManager, "tofu")
+func MakeTerraformRetriever(releaseUrl string) TerraformRetriever {
+	return TerraformRetriever{releaseUrl: releaseUrl}
+}
+
+func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {
+	// TODO call hashicorp release api
+	return "", nil
+}
+
+func (v TerraformRetriever) LatestRelease() (string, error) {
+	// TODO call hashicorp release api
+	return "", nil
+}
+
+func (v TerraformRetriever) ListReleases() ([]string, error) {
+	// TODO call hashicorp release api
+	return nil, nil
 }
