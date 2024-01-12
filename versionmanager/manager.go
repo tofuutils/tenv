@@ -57,8 +57,10 @@ func MakeVersionManager(conf *config.Config, folderName string, retriever Releas
 	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
 }
 
-func (m VersionManager) Detect(requestedVersion string) (string, error) {
-	return m.detect(requestedVersion, true)
+// detect version (can install depending on auto install env var)
+func (m VersionManager) Detect() (string, error) {
+	configVersion := m.Resolve(config.LatestAllowedKey)
+	return m.detect(configVersion, true)
 }
 
 func (m VersionManager) Install(requestedVersion string) error {

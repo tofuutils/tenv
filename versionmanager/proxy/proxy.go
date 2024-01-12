@@ -36,10 +36,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 	}
 
 	versionManager := builderFunc(&conf)
-
-	// detect version (can install depending on auto install env var)
-	configVersion := versionManager.Resolve(config.LatestAllowedKey)
-	detectedVersion, err := versionManager.Detect(configVersion)
+	detectedVersion, err := versionManager.Detect()
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err)
 		os.Exit(1)
