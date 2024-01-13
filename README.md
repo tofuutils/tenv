@@ -1,11 +1,8 @@
 <p align="center">
-  <img alt="golangci-lint logo" src="assets/logo.jpeg" height="150" />
+  <img alt="golangci-lint logo" src="assets/logo.png" height="150" />
   <h3 align="center">tenv</h3>
-  <p align="center">Terraform/OpenTofu version manager</p>
+  <p align="center">Terraform and OpenTofu version manager version written in Go.</p>
 </p>
-
-
-[tenv](https://github.com/tofuutils/tenv) version manager that build on top of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv) and manages [Terraform](https://www.terraform.io/) and [OpenTofu](https://opentofu.org/) binaries
 
 ## Support
 
