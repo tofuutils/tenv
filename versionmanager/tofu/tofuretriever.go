@@ -24,14 +24,24 @@ import (
 
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/pkg/github"
+	"github.com/dvaumoron/gotofuenv/pkg/sha256check"
 )
 
 type TofuRetriever struct {
-	conf *config.Config
+	assetNames []string
+	conf       *config.Config
 }
 
-func MakeTofuRetriever(conf *config.Config) TofuRetriever {
-	return TofuRetriever{conf: conf}
+func NewTofuRetriever(conf *config.Config) *TofuRetriever {
+	return &TofuRetriever{conf: conf}
+}
+
+func (v TofuRetriever) Check(data []byte, dataSigs []byte) error {
+	dataSig, err := sha256check.Extract(dataSigs, v.assetNames[0])
+	if err != nil {
+		return err
+	}
+	return sha256check.Check(data, dataSig)
 }
 
 func (v TofuRetriever) DownloadAssetsUrl(version string) (string, string, error) {
@@ -44,14 +54,14 @@ func (v TofuRetriever) DownloadAssetsUrl(version string) (string, string, error)
 		tag = "v" + version
 	}
 
-	assetNames := buildAssetNames(version)
-	assets, err := github.DownloadAssetUrl(tag, assetNames, v.conf.TofuRemoteUrl, v.conf.GithubToken)
+	v.assetNames = buildAssetNames(version)
+	assets, err := github.DownloadAssetUrl(tag, v.assetNames, v.conf.TofuRemoteUrl, v.conf.GithubToken)
 	if err != nil {
 		return "", "", nil
 	}
 
 	// should be safe here (an error would have been returned if one was not found)
-	return assets[assetNames[0]], assets[assetNames[1]], nil
+	return assets[v.assetNames[0]], assets[v.assetNames[1]], nil
 }
 
 func (v TofuRetriever) LatestRelease() (string, error) {
@@ -73,6 +83,9 @@ func buildAssetNames(version string) []string {
 	nameBuilder.WriteString(".zip")
 	zipAssetName := nameBuilder.String()
 
-	nameBuilder.WriteString(".gpgsig")
+	nameBuilder.Reset()
+	nameBuilder.WriteString("tofu_")
+	nameBuilder.WriteString(version)
+	nameBuilder.WriteString("_SHA256SUMS")
 	return []string{zipAssetName, nameBuilder.String()}
 }

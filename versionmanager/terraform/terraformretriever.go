@@ -28,26 +28,36 @@ import (
 
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
+	"github.com/dvaumoron/gotofuenv/pkg/sha256check"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 )
 
 const indexJson = "index.json"
 
 type TerraformRetriever struct {
-	conf *config.Config
+	conf     *config.Config
+	fileName string
 }
 
-func MakeTerraformRetriever(conf *config.Config) TerraformRetriever {
-	return TerraformRetriever{conf: conf}
+func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
+	return &TerraformRetriever{conf: conf}
 }
 
-func (v TerraformRetriever) DownloadAssetsUrl(version string) (string, string, error) {
+func (r *TerraformRetriever) Check(data []byte, dataSigs []byte) error {
+	dataSig, err := sha256check.Extract(dataSigs, r.fileName)
+	if err != nil {
+		return err
+	}
+	return sha256check.Check(data, dataSig)
+}
+
+func (r *TerraformRetriever) DownloadAssetsUrl(version string) (string, string, error) {
 	// assume that terraform version do not start with a 'v'
 	if version[0] == 'v' {
 		version = version[1:]
 	}
 
-	versionUrl, err := url.JoinPath(v.conf.TfRemoteUrl, version, indexJson)
+	versionUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version, indexJson)
 	if err != nil {
 		return "", "", err
 	}
@@ -61,6 +71,16 @@ func (v TerraformRetriever) DownloadAssetsUrl(version string) (string, string, e
 	builds, ok := object["builds"].([]any)
 	if !ok {
 		return "", "", apierrors.ErrReturn
+	}
+
+	shaFileName, ok := object["shasums"].(string)
+	if !ok {
+		return "", "", apierrors.ErrReturn
+	}
+
+	downloadSigUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version, shaFileName)
+	if err != nil {
+		return "", "", err
 	}
 
 	for _, build := range builds {
@@ -91,14 +111,21 @@ func (v TerraformRetriever) DownloadAssetsUrl(version string) (string, string, e
 		if !ok {
 			return "", "", apierrors.ErrReturn
 		}
-		return downloadUrl, "todo", nil
+
+		fileName, ok := object["filename"].(string)
+		if !ok {
+			return "", "", apierrors.ErrReturn
+		}
+
+		r.fileName = fileName
+		return downloadUrl, downloadSigUrl, nil
 	}
 	return "", "", apierrors.ErrNoAsset
 }
 
-func (v TerraformRetriever) LatestRelease() (string, error) {
+func (r *TerraformRetriever) LatestRelease() (string, error) {
 	// hashicorp release api does not seem to have a shortcut
-	versions, err := v.ListReleases()
+	versions, err := r.ListReleases()
 	if err != nil {
 		return "", err
 	}
@@ -112,8 +139,8 @@ func (v TerraformRetriever) LatestRelease() (string, error) {
 	return versions[versionLen-1], nil
 }
 
-func (v TerraformRetriever) ListReleases() ([]string, error) {
-	releaseUrl, err := url.JoinPath(v.conf.TfRemoteUrl, indexJson)
+func (r *TerraformRetriever) ListReleases() ([]string, error) {
+	releaseUrl, err := url.JoinPath(r.conf.TfRemoteUrl, indexJson)
 	if err != nil {
 		return nil, err
 	}

@@ -58,8 +58,8 @@ type VersionManager struct {
 	VersionFileName string
 }
 
-func MakeVersionManager(conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
+func MakeVersionManager(checker SignatureChecker, conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string) VersionManager {
+	return VersionManager{checker: checker, conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
 }
 
 // detect version (can install depending on auto install env var)
