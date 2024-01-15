@@ -36,15 +36,15 @@ func NewTofuRetriever(conf *config.Config) *TofuRetriever {
 	return &TofuRetriever{conf: conf}
 }
 
-func (v TofuRetriever) Check(data []byte, dataSigs []byte) error {
-	dataSig, err := sha256check.Extract(dataSigs, v.assetNames[0])
+func (r *TofuRetriever) Check(data []byte, dataSigs []byte) error {
+	dataSig, err := sha256check.Extract(dataSigs, r.assetNames[0])
 	if err != nil {
 		return err
 	}
 	return sha256check.Check(data, dataSig)
 }
 
-func (v TofuRetriever) DownloadAssetsUrl(version string) (string, string, error) {
+func (r *TofuRetriever) DownloadAssetsUrl(version string) (string, string, error) {
 	tag := version
 	// assume that opentofu tags start with a 'v'
 	// and version in asset name does not
@@ -54,22 +54,22 @@ func (v TofuRetriever) DownloadAssetsUrl(version string) (string, string, error)
 		tag = "v" + version
 	}
 
-	v.assetNames = buildAssetNames(version)
-	assets, err := github.DownloadAssetUrl(tag, v.assetNames, v.conf.TofuRemoteUrl, v.conf.GithubToken)
+	r.assetNames = buildAssetNames(version)
+	assets, err := github.DownloadAssetUrl(tag, r.assetNames, r.conf.TofuRemoteUrl, r.conf.GithubToken)
 	if err != nil {
 		return "", "", nil
 	}
 
 	// should be safe here (an error would have been returned if one was not found)
-	return assets[v.assetNames[0]], assets[v.assetNames[1]], nil
+	return assets[r.assetNames[0]], assets[r.assetNames[1]], nil
 }
 
-func (v TofuRetriever) LatestRelease() (string, error) {
-	return github.LatestRelease(v.conf.TofuRemoteUrl, v.conf.GithubToken)
+func (r *TofuRetriever) LatestRelease() (string, error) {
+	return github.LatestRelease(r.conf.TofuRemoteUrl, r.conf.GithubToken)
 }
 
-func (v TofuRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(v.conf.TofuRemoteUrl, v.conf.GithubToken)
+func (r *TofuRetriever) ListReleases() ([]string, error) {
+	return github.ListReleases(r.conf.TofuRemoteUrl, r.conf.GithubToken)
 }
 
 func buildAssetNames(version string) []string {
