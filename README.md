@@ -2,7 +2,7 @@
 
 [OpenTofu](https://opentofu.org) version manager (inspired by [tofuenv](https://github.com/tofuutils/tofuenv), written in Go)
 
-Work for [Terraform](https://www.terraform.io/) too (see [here](#terraform-support)).
+Support [Terraform](https://www.terraform.io/) too (see [here](#terraform-support)).
 
 Handle [Semver 2.0.0](https://semver.org/) with [go-version](https://github.com/hashicorp/go-version) and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu files.
 
@@ -63,13 +63,13 @@ $ gotofuenv install min-required
 
 Both command support the following environment variables.
 
-#### TOFUENV_AUTO_INSTALL (or alias TFENV_AUTO_INSTALL)
+#### TOFUENV_AUTO_INSTALL (alias TFENV_AUTO_INSTALL)
 
 String (Default: true)
 
 If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
 
-`gotofuenv use` support a `--no-install`, `-n` disabling flag version.
+`gotofuenv` subcommands `detect` and `use` support a `--no-install`, `-n` disabling flag version.
 
 Example: use 1.6.0-rc1 version that is not installed, and auto installation is disabled. (-v flag is equivalent to `TOFUENV_VERBOSE=true`)
 
@@ -83,9 +83,16 @@ Example: use 1.6.0-rc1 version that is not installed, and auto installation stay
 ```console
 $ gotofuenv use -v 1.6.0-rc1
 Installation of OpenTofu 1.6.0-rc1
-Search asset tofu_1.6.0-rc1_linux_amd64.zip for release v1.6.0-rc1
 Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
 ```
+
+#### TOFUENV_FORCE_REMOTE (alias TFENV_FORCE_REMOTE)
+
+String (Default: false)
+
+If set to true gotofuenv detection of needed version will skip local check and verify compatibiliy on remote list.
+
+`gotofuenv` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
 
 #### TOFUENV_GITHUB_TOKEN
 
@@ -101,7 +108,7 @@ String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
 To install OpenTofu from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
-`gotofuenv` subcommands `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+`gotofuenv` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
 #### TFENV_REMOTE
 
@@ -109,9 +116,9 @@ String (Default: https://releases.hashicorp.com/terraform)
 
 To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
 
-`gotofuenv tf` subcommands `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+`gotofuenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
-#### TOFUENV_ROOT (or alias TFENV_ROOT)
+#### TOFUENV_ROOT (alias TFENV_ROOT)
 
 Path (Default: `$HOME/.gotofuenv`)
 
@@ -150,7 +157,7 @@ If not empty string, this variable overrides Terraform version, specified in `.t
 
 `gotofuenv tf` subcommands `install` and `detect` also respects this variable.
 
-#### TOFUENV_VERBOSE (or alias TFENV_VERBOSE)
+#### TOFUENV_VERBOSE (alias TFENV_VERBOSE)
 
 String (Default: false)
 
@@ -161,8 +168,6 @@ Active the verbose display of gotofuenv.
 ### gotofuenv use version
 
 Switch the default OpenTofu version to use (set in [`.opentofu-version`](#opentofu-version-file) file in TOFUENV_ROOT).
-
-`gotofuenv use` has a `--force-remote`, `-f` flag to force remote search.
 
 `gotofuenv use` has a `--working-dir`, `-w` flag to write [`.opentofu-version`](#opentofu-version-file) file in working directory.
 
@@ -216,7 +221,7 @@ List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in 
 ```console
 $ gotofuenv list
   1.6.0-rc1 
-* 1.6.0 (set by /home/dvaumoron/.gotofuenv/.opentofu-version )
+* 1.6.0 (set by /home/dvaumoron/.gotofuenv/.opentofu-version)
 ```
 
 ### gotofuenv list-remote
@@ -247,6 +252,8 @@ $ gotofuenv list-remote
 
 Help about any command.
 
+You can use `--help` `-h` flag instead.
+
 ```console
 $ gotofuenv help tf detect
 Display Terraform current version.
@@ -255,9 +262,36 @@ Usage:
   gotofuenv tf detect [flags]
 
 Flags:
+  -f, --force-remote        force search version available at TFENV_REMOTE url
+  -h, --help                help for detect
+  -n, --no-install          disable installation of missing version
+  -u, --remote-url string   remote url to install from (default "https://releases.hashicorp.com/terraform")
+
+Global Flags:
+  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.gotofuenv")
+  -v, --verbose            verbose output
+```
+
+```console
+$ gotofuenv use -h
+Switch the default OpenTofu version to use (set in .opentofu-version file in TOFUENV_ROOT)
+
+Available parameter options:
+- an exact Semver 2.0.0 version string to use
+- a version constraint string (checked against version available in TOFUENV_ROOT directory)
+- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
+
+Usage:
+  gotofuenv use version [flags]
+
+Flags:
+  -f, --force-remote          force search version available at TOFUENV_REMOTE url
   -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
-  -h, --help                  help for detect
-  -u, --remote-url string     remote url to install from (default "https://releases.hashicorp.com/terraform")
+  -h, --help                  help for use
+  -n, --no-install            disable installation of missing version
+  -u, --remote-url string     remote url to install from (default "https://api.github.com/repos/opentofu/opentofu/releases")
+  -w, --working-dir           create .opentofu-version file in working directory
 
 Global Flags:
   -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.gotofuenv")
