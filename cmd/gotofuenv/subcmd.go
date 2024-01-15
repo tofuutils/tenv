@@ -145,7 +145,9 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 					fmt.Println(" ", version)
 				}
 			}
-			fmt.Println("found", len(versions), "version(s) managed by gotofuenv.")
+			if conf.Verbose {
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by gotofuenv.")
+			}
 			return nil
 		},
 	}
@@ -183,9 +185,11 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 			versionReceiver, done := iterate.Iterate(versions, reverseOrder)
 			defer done()
 
+			countSkipped := 0
 			localSet := versionManager.LocalSet()
 			for version := range versionReceiver {
 				if filterStable && !semantic.StableVersion(version) {
+					countSkipped++
 					continue
 				}
 
@@ -195,7 +199,12 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 					fmt.Println(version)
 				}
 			}
-			fmt.Println("found", len(versions), "version(s) (on", *pRemote+").")
+			if conf.Verbose {
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *pRemote+").")
+				if filterStable {
+					fmt.Println(countSkipped, "result(s) hidden (version not stable).")
+				}
+			}
 			return err
 		},
 	}
