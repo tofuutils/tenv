@@ -60,7 +60,7 @@ func MakeVersionManager(conf *config.Config, folderName string, retriever Releas
 // detect version (can install depending on auto install env var)
 func (m VersionManager) Detect() (string, error) {
 	configVersion := m.Resolve(config.LatestAllowedKey)
-	return m.detect(configVersion, true)
+	return m.detect(configVersion)
 }
 
 func (m VersionManager) Install(requestedVersion string) error {
@@ -188,8 +188,8 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	return os.RemoveAll(targetPath)
 }
 
-func (m VersionManager) Use(requestedVersion string, forceRemote bool, workingDir bool) error {
-	detectedVersion, err := m.detect(requestedVersion, !forceRemote)
+func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
+	detectedVersion, err := m.detect(requestedVersion)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (m VersionManager) Use(requestedVersion string, forceRemote bool, workingDi
 	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
 }
 
-func (m VersionManager) detect(requestedVersion string, localCheck bool) (string, error) {
+func (m VersionManager) detect(requestedVersion string) (string, error) {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String()
@@ -219,7 +219,7 @@ func (m VersionManager) detect(requestedVersion string, localCheck bool) (string
 		return "", err
 	}
 
-	if localCheck {
+	if !m.conf.ForceRemote {
 		versions, err := m.ListLocal()
 		if err != nil {
 			return "", err

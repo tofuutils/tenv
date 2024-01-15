@@ -42,12 +42,14 @@ const (
 	defaultTofuGithubUrl  = "https://api.github.com/repos/opentofu/opentofu/releases"
 
 	autoInstallEnvName = "AUTO_INSTALL"
+	forceRemoteEnvName = "FORCE_REMOTE"
 	remoteUrlEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
 	verboseEnvName     = "VERBOSE"
 
 	tfenvPrefix          = "TFENV_"
 	tfAutoInstallEnvName = tfenvPrefix + autoInstallEnvName
+	tfForceRemoteEnvName = tfenvPrefix + forceRemoteEnvName
 	TfRemoteUrlEnvName   = tfenvPrefix + remoteUrlEnvName
 	tfRootPathEnvName    = tfenvPrefix + rootPathEnvName
 	tfVerboseEnvName     = tfenvPrefix + verboseEnvName
@@ -55,6 +57,7 @@ const (
 
 	tofuenvPrefix          = "TOFUENV_"
 	tofuAutoInstallEnvName = tofuenvPrefix + autoInstallEnvName
+	tofuForceRemoteEnvName = tofuenvPrefix + forceRemoteEnvName
 	TofuRemoteUrlEnvName   = tofuenvPrefix + remoteUrlEnvName
 	tofuRootPathEnvName    = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName       = tofuenvPrefix + "GITHUB_TOKEN"
@@ -63,11 +66,12 @@ const (
 )
 
 type Config struct {
+	ForceRemote   bool
+	GithubToken   string
 	NoInstall     bool
+	RootPath      string
 	TfRemoteUrl   string
 	TofuRemoteUrl string
-	RootPath      string
-	GithubToken   string
 	UserPath      string
 	Verbose       bool
 }
@@ -79,10 +83,18 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	autoInstall := true
-	autoInstallStr := getenv(tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	autoInstallStr := getenvFallback(tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if autoInstallStr != "" {
-		var err error
 		autoInstall, err = strconv.ParseBool(autoInstallStr)
+		if err != nil {
+			return Config{}, err
+		}
+	}
+
+	forceRemote := false
+	forceRemoteStr := getenvFallback(tofuForceRemoteEnvName, tfForceRemoteEnvName)
+	if forceRemoteStr != "" {
+		forceRemote, err = strconv.ParseBool(forceRemoteStr)
 		if err != nil {
 			return Config{}, err
 		}
@@ -98,13 +110,13 @@ func InitConfigFromEnv() (Config, error) {
 		tofuRemoteUrl = defaultTofuGithubUrl
 	}
 
-	rootPath := getenv(tofuRootPathEnvName, tfRootPathEnvName)
+	rootPath := getenvFallback(tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
 		rootPath = path.Join(userPath, ".gotofuenv")
 	}
 
 	verbose := false
-	verboseStr := getenv(tofuVerboseEnvName, tfVerboseEnvName)
+	verboseStr := getenvFallback(tofuVerboseEnvName, tfVerboseEnvName)
 	if verboseStr != "" {
 		verbose, err = strconv.ParseBool(verboseStr)
 		if err != nil {
@@ -113,17 +125,18 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	return Config{
+		ForceRemote:   forceRemote,
+		GithubToken:   os.Getenv(tofuTokenEnvName),
 		NoInstall:     !autoInstall,
+		RootPath:      rootPath,
 		TfRemoteUrl:   tfRemoteUrl,
 		TofuRemoteUrl: tofuRemoteUrl,
-		RootPath:      rootPath,
-		GithubToken:   os.Getenv(tofuTokenEnvName),
 		UserPath:      userPath,
 		Verbose:       verbose,
 	}, nil
 }
 
-func getenv(keys ...string) string {
+func getenvFallback(keys ...string) string {
 	for _, key := range keys {
 		if value := os.Getenv(key); value != "" {
 			return value

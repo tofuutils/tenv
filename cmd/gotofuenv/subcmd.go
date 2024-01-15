@@ -32,7 +32,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, pRemote *string) *cobra.Command {
+func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, needToken bool, remoteEnvName string, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -54,13 +54,14 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		},
 	}
 
-	// TODO force-remote and no-install flags
-	addRemoteUrlFlag(detectCmd.Flags(), conf, pRemote)
+	flags := detectCmd.Flags()
+	addForceRemoteAndNoInstallFlags(flags, conf, remoteEnvName)
+	addRemoteUrlFlag(flags, needToken, conf, pRemote)
 
 	return detectCmd
 }
 
-func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
+func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, needToken bool, remoteEnvName string, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -100,7 +101,7 @@ If a parameter is passed, available options:
 		},
 	}
 
-	addRemoteUrlFlag(installCmd.Flags(), conf, pRemote)
+	addRemoteUrlFlag(installCmd.Flags(), needToken, conf, pRemote)
 
 	return installCmd
 }
@@ -154,7 +155,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	return listCmd
 }
 
-func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
+func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, needToken bool, remoteEnvName string, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -201,7 +202,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 	flags := listRemoteCmd.Flags()
 	addDescendingFlag(flags, &reverseOrder)
-	addRemoteUrlFlag(flags, conf, pRemote)
+	addRemoteUrlFlag(flags, needToken, conf, pRemote)
 	flags.BoolVarP(&filterStable, "stable", "s", false, "display only stable version")
 
 	return listRemoteCmd
@@ -249,7 +250,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 	return uninstallCmd
 }
 
-func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) *cobra.Command {
+func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, needToken bool, remoteEnvName string, pRemote *string) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -266,7 +267,6 @@ Available parameter options:
 - latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
 - latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`)
 
-	forceRemote := false
 	workingDir := false
 
 	useCmd := &cobra.Command{
@@ -275,15 +275,9 @@ Available parameter options:
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			return versionManager.Use(args[0], forceRemote, workingDir)
+			return versionManager.Use(args[0], workingDir)
 		},
 	}
-
-	descBuilder.Reset()
-	descBuilder.WriteString("force search version available at ")
-	descBuilder.WriteString(remoteEnvName)
-	descBuilder.WriteString(" url")
-	forceRemoteUsage := descBuilder.String()
 
 	descBuilder.Reset()
 	descBuilder.WriteString("create ")
@@ -291,9 +285,8 @@ Available parameter options:
 	descBuilder.WriteString(" file in working directory")
 
 	flags := useCmd.Flags()
-	flags.BoolVarP(&forceRemote, "force-remote", "f", false, forceRemoteUsage)
-	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
-	addRemoteUrlFlag(flags, conf, pRemote)
+	addForceRemoteAndNoInstallFlags(flags, conf, remoteEnvName)
+	addRemoteUrlFlag(flags, needToken, conf, pRemote)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
@@ -303,8 +296,19 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 	flags.BoolVarP(pReverseOrder, "descending", "d", false, "display list in descending version order")
 }
 
-func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, pRemote *string) {
-	// TODO dont add github-token flag for tf subcommands
-	flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
+func addForceRemoteAndNoInstallFlags(flags *pflag.FlagSet, conf *config.Config, remoteEnvName string) {
+	var descBuilder strings.Builder
+	descBuilder.WriteString("force search version available at ")
+	descBuilder.WriteString(remoteEnvName)
+	descBuilder.WriteString(" url")
+
+	flags.BoolVarP(&conf.ForceRemote, "force-remote", "f", false, descBuilder.String())
+	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
+}
+
+func addRemoteUrlFlag(flags *pflag.FlagSet, needToken bool, conf *config.Config, pRemote *string) {
+	if needToken {
+		flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
+	}
 	flags.StringVarP(pRemote, "remote-url", "u", *pRemote, "remote url to install from")
 }
