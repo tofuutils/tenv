@@ -79,7 +79,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 		return err
 	}
 	// noInstall is set to false to force install regardless of conf
-	_, err = m.searchInstallRemote(predicate, false, reverseOrder)
+	_, err = m.searchInstallRemote(predicate, reverseOrder, false)
 	return err
 }
 
@@ -247,7 +247,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		}
 		return m.installLatest()
 	}
-	return m.searchInstallRemote(predicate, m.conf.NoInstall, reverseOrder)
+	return m.searchInstallRemote(predicate, reverseOrder, m.conf.NoInstall)
 }
 
 func (m VersionManager) installLatest() (string, error) {
@@ -297,7 +297,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 	return zip.UnzipToDir(response.Body, targetPath)
 }
 
-func (m VersionManager) searchInstallRemote(predicate func(string) bool, noInstall bool, reverseOrder bool) (string, error) {
+func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {
 	versions, err := m.ListRemote()
 	if err != nil {
 		return "", err
