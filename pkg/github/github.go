@@ -31,58 +31,69 @@ import (
 
 const pageQuery = "?page="
 
-func DownloadAssetUrl(tag string, searchedAssetName string, githubReleaseUrl string, githubToken string) (string, error) {
+func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 	value, err := apiGetRequest(releaseUrl, authorizationHeader)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	object, _ := value.(map[string]any)
 	baseAssetsUrl, ok := object["assets_url"].(string)
 	if !ok {
-		return "", apierrors.ErrReturn
+		return nil, apierrors.ErrReturn
+	}
+
+	waited := len(searchedAssetNames)
+	searchedAssetNameSet := make(map[string]struct{}, waited)
+	for _, searchAssetName := range searchedAssetNames {
+		searchedAssetNameSet[searchAssetName] = struct{}{}
 	}
 
 	page := 1
+	assets := make(map[string]string, waited)
 	baseAssetsUrl += pageQuery
 	for {
 		assetsUrl := baseAssetsUrl + strconv.Itoa(page)
 		value, err = apiGetRequest(assetsUrl, authorizationHeader)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		values, ok := value.([]any)
 		if !ok {
-			return "", apierrors.ErrReturn
+			return nil, apierrors.ErrReturn
 		}
 
 		if len(values) == 0 {
-			return "", apierrors.ErrNoAsset
+			return nil, apierrors.ErrNoAsset
 		}
 
 		for _, value := range values {
 			object, _ = value.(map[string]any)
 			assetName, ok := object["name"].(string)
 			if !ok {
-				return "", apierrors.ErrReturn
+				return nil, apierrors.ErrReturn
 			}
 
-			if assetName != searchedAssetName {
+			if _, ok := searchedAssetNameSet[assetName]; !ok {
 				continue
 			}
 
 			downloadUrl, ok := object["browser_download_url"].(string)
 			if !ok {
-				return "", apierrors.ErrReturn
+				return nil, apierrors.ErrReturn
 			}
-			return downloadUrl, nil
+			assets[assetName] = downloadUrl
+
+			if len(assets) == waited {
+				return assets, nil
+			}
 		}
 		page++
 	}

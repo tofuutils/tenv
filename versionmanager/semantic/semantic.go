@@ -22,7 +22,7 @@ import (
 	"fmt"
 
 	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/versionmanager/tfparser"
+	"github.com/dvaumoron/gotofuenv/versionmanager/semantic/tfparser"
 	"github.com/hashicorp/go-version"
 )
 
