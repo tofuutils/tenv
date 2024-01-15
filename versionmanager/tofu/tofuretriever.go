@@ -34,7 +34,7 @@ func MakeTofuRetriever(conf *config.Config) TofuRetriever {
 	return TofuRetriever{conf: conf}
 }
 
-func (v TofuRetriever) DownloadAssetUrl(version string) (string, error) {
+func (v TofuRetriever) DownloadAssetsUrl(version string) (string, string, error) {
 	tag := version
 	// assume that opentofu tags start with a 'v'
 	// and version in asset name does not
@@ -43,7 +43,15 @@ func (v TofuRetriever) DownloadAssetUrl(version string) (string, error) {
 	} else {
 		tag = "v" + version
 	}
-	return github.DownloadAssetUrl(tag, buildAssetName(version), v.conf.TofuRemoteUrl, v.conf.GithubToken)
+
+	assetNames := buildAssetNames(version)
+	assets, err := github.DownloadAssetUrl(tag, assetNames, v.conf.TofuRemoteUrl, v.conf.GithubToken)
+	if err != nil {
+		return "", "", nil
+	}
+
+	// should be safe here (an error would have been returned if one was not found)
+	return assets[assetNames[0]], assets[assetNames[1]], nil
 }
 
 func (v TofuRetriever) LatestRelease() (string, error) {
@@ -54,7 +62,7 @@ func (v TofuRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(v.conf.TofuRemoteUrl, v.conf.GithubToken)
 }
 
-func buildAssetName(version string) string {
+func buildAssetNames(version string) []string {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString("tofu_")
 	nameBuilder.WriteString(version)
@@ -63,5 +71,8 @@ func buildAssetName(version string) string {
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(runtime.GOARCH)
 	nameBuilder.WriteString(".zip")
-	return nameBuilder.String()
+	zipAssetName := nameBuilder.String()
+
+	nameBuilder.WriteString(".gpgsig")
+	return []string{zipAssetName, nameBuilder.String()}
 }

@@ -22,12 +22,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"path"
 	"slices"
 
 	"github.com/dvaumoron/gotofuenv/config"
+	"github.com/dvaumoron/gotofuenv/pkg/download"
 	"github.com/dvaumoron/gotofuenv/pkg/iterate"
 	"github.com/dvaumoron/gotofuenv/pkg/zip"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
@@ -40,12 +40,17 @@ var (
 )
 
 type ReleaseInfoRetriever interface {
-	DownloadAssetUrl(version string) (string, error)
+	DownloadAssetsUrl(version string) (string, string, error)
 	LatestRelease() (string, error)
 	ListReleases() ([]string, error)
 }
 
+type SignatureChecker interface {
+	Check(data []byte, dataSig []byte) error
+}
+
 type VersionManager struct {
+	checker         SignatureChecker
 	conf            *config.Config
 	FolderName      string
 	retriever       ReleaseInfoRetriever
@@ -282,19 +287,28 @@ func (m VersionManager) installSpecificVersion(version string) error {
 		fmt.Println("Installation of OpenTofu", version)
 	}
 
-	downloadUrl, err := m.retriever.DownloadAssetUrl(version)
+	downloadUrl, downloadSigUrl, err := m.retriever.DownloadAssetsUrl(version)
 	if err != nil {
 		return err
 	}
 
-	response, err := http.Get(downloadUrl)
+	data, err := download.DownloadBytes(downloadUrl)
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+
+	dataSig, err := download.DownloadBytes(downloadSigUrl)
+	if err != nil {
+		return err
+	}
+
+	err = m.checker.Check(data, dataSig)
+	if err != nil {
+		return err
+	}
 
 	targetPath := path.Join(installPath, version)
-	return zip.UnzipToDir(response.Body, targetPath)
+	return zip.UnzipToDir(bytes.NewReader(data), targetPath)
 }
 
 func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {

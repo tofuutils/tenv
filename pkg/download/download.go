@@ -16,11 +16,19 @@
  *
  */
 
-package apierrors
+package download
 
-import "errors"
-
-var (
-	ErrNoAsset = errors.New("asset not found for current platform")
-	ErrReturn  = errors.New("unexpected value returned by API")
+import (
+	"io"
+	"net/http"
 )
+
+func DownloadBytes(url string) ([]byte, error) {
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	return io.ReadAll(response.Body)
+}

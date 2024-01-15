@@ -41,7 +41,7 @@ func MakeTerraformRetriever(conf *config.Config) TerraformRetriever {
 	return TerraformRetriever{conf: conf}
 }
 
-func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {
+func (v TerraformRetriever) DownloadAssetsUrl(version string) (string, string, error) {
 	// assume that terraform version do not start with a 'v'
 	if version[0] == 'v' {
 		version = version[1:]
@@ -49,29 +49,29 @@ func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {
 
 	versionUrl, err := url.JoinPath(v.conf.TfRemoteUrl, version, indexJson)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	value, err := apiGetRequest(versionUrl)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	if !ok {
-		return "", apierrors.ErrReturn
+		return "", "", apierrors.ErrReturn
 	}
 
 	for _, build := range builds {
 		object, ok = build.(map[string]any)
 		if !ok {
-			return "", apierrors.ErrReturn
+			return "", "", apierrors.ErrReturn
 		}
 
 		osStr, ok := object["os"].(string)
 		if !ok {
-			return "", apierrors.ErrReturn
+			return "", "", apierrors.ErrReturn
 		}
 
 		if osStr != runtime.GOOS {
@@ -80,7 +80,7 @@ func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {
 
 		archStr, ok := object["arch"].(string)
 		if !ok {
-			return "", apierrors.ErrReturn
+			return "", "", apierrors.ErrReturn
 		}
 
 		if archStr != runtime.GOARCH {
@@ -89,11 +89,11 @@ func (v TerraformRetriever) DownloadAssetUrl(version string) (string, error) {
 
 		downloadUrl, ok := object["url"].(string)
 		if !ok {
-			return "", apierrors.ErrReturn
+			return "", "", apierrors.ErrReturn
 		}
-		return downloadUrl, nil
+		return downloadUrl, "todo", nil
 	}
-	return "", apierrors.ErrNoAsset
+	return "", "", apierrors.ErrNoAsset
 }
 
 func (v TerraformRetriever) LatestRelease() (string, error) {
