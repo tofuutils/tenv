@@ -61,7 +61,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
 
 	rootCmd.AddCommand(newVersionCmd())
-	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
+	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), true, config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
 
 	tfCmd := &cobra.Command{
 		Use:   "tf",
@@ -69,7 +69,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		Long:  tfHelp,
 	}
 
-	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), config.TfRemoteUrlEnvName, &conf.TfRemoteUrl)
+	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), false, config.TfRemoteUrlEnvName, &conf.TfRemoteUrl)
 
 	rootCmd.AddCommand(tfCmd)
 
@@ -88,12 +88,12 @@ func newVersionCmd() *cobra.Command {
 	}
 }
 
-func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, remoteEnvName string, pRemote *string) {
-	cmd.AddCommand(newDetectCmd(conf, versionManager, pRemote))
-	cmd.AddCommand(newInstallCmd(conf, versionManager, remoteEnvName, pRemote))
+func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, needToken bool, remoteEnvName string, pRemote *string) {
+	cmd.AddCommand(newDetectCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
+	cmd.AddCommand(newInstallCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
 	cmd.AddCommand(newListCmd(conf, versionManager))
-	cmd.AddCommand(newListRemoteCmd(conf, versionManager, remoteEnvName, pRemote))
+	cmd.AddCommand(newListRemoteCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
 	cmd.AddCommand(newResetCmd(conf, versionManager))
 	cmd.AddCommand(newUninstallCmd(conf, versionManager))
-	cmd.AddCommand(newUseCmd(conf, versionManager, remoteEnvName, pRemote))
+	cmd.AddCommand(newUseCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
 }
