@@ -21,8 +21,6 @@ package apierrors
 import "errors"
 
 var (
-	ErrCheck   = errors.New("invalid checksum")
 	ErrNoAsset = errors.New("asset not found for current platform")
-	ErrNoSum   = errors.New("file checksum not found for current platform")
 	ErrReturn  = errors.New("unexpected value returned by API")
 )
