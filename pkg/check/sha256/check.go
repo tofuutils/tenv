@@ -4,15 +4,19 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"strings"
+)
 
-	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
+var (
+	errCheck = errors.New("invalid sha256 checksum")
+	errNoSum = errors.New("file sha256 checksum not found for current platform")
 )
 
 func Check(data []byte, dataSum []byte) error {
 	hashed := sha256.Sum256(data)
 	if !bytes.Equal(dataSum, hashed[:]) {
-		return apierrors.ErrCheck
+		return errCheck
 	}
 	return nil
 }
@@ -26,5 +30,5 @@ func Extract(dataSums []byte, fileName string) ([]byte, error) {
 			return hex.DecodeString(dataSumStr)
 		}
 	}
-	return nil, apierrors.ErrNoSum
+	return nil, errNoSum
 }
