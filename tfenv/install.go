@@ -2,11 +2,12 @@ package tfenv
 
 import (
 	"fmt"
-	"github.com/opentofuutils/tenv/pkg/utils/archive"
 	"net/http"
 	"os"
 	"path"
 	"runtime"
+
+	"github.com/tofuutils/tenv/pkg/utils/archive"
 )
 
 func InstallSpecificVersion(version string) error {
