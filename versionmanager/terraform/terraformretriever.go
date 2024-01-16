@@ -28,30 +28,25 @@ import (
 
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
-	"github.com/dvaumoron/gotofuenv/pkg/sha256check"
+	pgpcheck "github.com/dvaumoron/gotofuenv/pkg/check/pgp"
+	sha256check "github.com/dvaumoron/gotofuenv/pkg/check/sha256"
+	"github.com/dvaumoron/gotofuenv/pkg/download"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 )
+
+const publicKeyUrl = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
 const indexJson = "index.json"
 
 type TerraformRetriever struct {
-	conf     *config.Config
-	fileName string
+	conf *config.Config
 }
 
 func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
 	return &TerraformRetriever{conf: conf}
 }
 
-func (r *TerraformRetriever) Check(data []byte, dataSigs []byte) error {
-	dataSig, err := sha256check.Extract(dataSigs, r.fileName)
-	if err != nil {
-		return err
-	}
-	return sha256check.Check(data, dataSig)
-}
-
-func (r *TerraformRetriever) DownloadAssetsUrl(version string) (string, string, error) {
+func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) {
 	// assume that terraform version do not start with a 'v'
 	if version[0] == 'v' {
 		version = version[1:]
@@ -59,39 +54,49 @@ func (r *TerraformRetriever) DownloadAssetsUrl(version string) (string, string, 
 
 	versionUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version, indexJson)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	value, err := apiGetRequest(versionUrl)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	if !ok {
-		return "", "", apierrors.ErrReturn
+		return nil, apierrors.ErrReturn
 	}
 
 	shaFileName, ok := object["shasums"].(string)
 	if !ok {
-		return "", "", apierrors.ErrReturn
+		return nil, apierrors.ErrReturn
 	}
 
-	downloadSigUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version, shaFileName)
+	shaSigFileName, ok := object["shasums_signature"].(string)
+	if !ok {
+		return nil, apierrors.ErrReturn
+	}
+
+	downloadSumsUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version, shaFileName)
 	if err != nil {
-		return "", "", err
+		return nil, err
+	}
+
+	downloadSumsSigUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version, shaSigFileName)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, build := range builds {
 		object, ok = build.(map[string]any)
 		if !ok {
-			return "", "", apierrors.ErrReturn
+			return nil, apierrors.ErrReturn
 		}
 
 		osStr, ok := object["os"].(string)
 		if !ok {
-			return "", "", apierrors.ErrReturn
+			return nil, apierrors.ErrReturn
 		}
 
 		if osStr != runtime.GOOS {
@@ -100,7 +105,7 @@ func (r *TerraformRetriever) DownloadAssetsUrl(version string) (string, string, 
 
 		archStr, ok := object["arch"].(string)
 		if !ok {
-			return "", "", apierrors.ErrReturn
+			return nil, apierrors.ErrReturn
 		}
 
 		if archStr != runtime.GOARCH {
@@ -109,18 +114,49 @@ func (r *TerraformRetriever) DownloadAssetsUrl(version string) (string, string, 
 
 		downloadUrl, ok := object["url"].(string)
 		if !ok {
-			return "", "", apierrors.ErrReturn
+			return nil, apierrors.ErrReturn
 		}
 
 		fileName, ok := object["filename"].(string)
 		if !ok {
-			return "", "", apierrors.ErrReturn
+			return nil, apierrors.ErrReturn
 		}
 
-		r.fileName = fileName
-		return downloadUrl, downloadSigUrl, nil
+		data, err := download.DownloadBytes(downloadUrl)
+		if err != nil {
+			return nil, err
+		}
+
+		dataSums, err := download.DownloadBytes(downloadSumsUrl)
+		if err != nil {
+			return nil, err
+		}
+
+		dataSum, err := sha256check.Extract(dataSums, fileName)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = sha256check.Check(data, dataSum); err != nil {
+			return nil, err
+		}
+
+		dataSumsSig, err := download.DownloadBytes(downloadSumsSigUrl)
+		if err != nil {
+			return nil, err
+		}
+
+		dataPublicKey, err := download.DownloadBytes(publicKeyUrl)
+		if err != nil {
+			return nil, err
+		}
+
+		if err = pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey); err != nil {
+			return nil, err
+		}
+		return data, nil
 	}
-	return "", "", apierrors.ErrNoAsset
+	return nil, apierrors.ErrNoAsset
 }
 
 func (r *TerraformRetriever) LatestRelease() (string, error) {
