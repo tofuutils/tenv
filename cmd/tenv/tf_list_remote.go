@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 opentofuutils authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/opentofuutils/tenv/pkg/common"
-	"github.com/opentofuutils/tenv/pkg/github"
+	"github.com/tofuutils/tenv/pkg/common"
+	"github.com/tofuutils/tenv/pkg/github"
 	"github.com/spf13/cobra"
 )
 

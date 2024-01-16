@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 opentofuutils authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 package main
 
 import (
-	"github.com/opentofuutils/tenv/tfenv"
+	"github.com/tofuutils/tenv/tfenv"
 	"github.com/spf13/cobra"
 )
 
