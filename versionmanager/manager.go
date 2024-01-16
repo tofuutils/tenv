@@ -27,7 +27,6 @@ import (
 	"slices"
 
 	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/pkg/download"
 	"github.com/dvaumoron/gotofuenv/pkg/iterate"
 	"github.com/dvaumoron/gotofuenv/pkg/zip"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
@@ -40,17 +39,12 @@ var (
 )
 
 type ReleaseInfoRetriever interface {
-	DownloadAssetsUrl(version string) (string, string, error)
+	DownloadReleaseZip(version string) ([]byte, error)
 	LatestRelease() (string, error)
 	ListReleases() ([]string, error)
 }
 
-type SignatureChecker interface {
-	Check(data []byte, dataSig []byte) error
-}
-
 type VersionManager struct {
-	checker         SignatureChecker
 	conf            *config.Config
 	FolderName      string
 	retriever       ReleaseInfoRetriever
@@ -58,8 +52,8 @@ type VersionManager struct {
 	VersionFileName string
 }
 
-func MakeVersionManager(checker SignatureChecker, conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string) VersionManager {
-	return VersionManager{checker: checker, conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
+func MakeVersionManager(conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
 }
 
 // detect version (can install depending on auto install env var)
@@ -287,28 +281,13 @@ func (m VersionManager) installSpecificVersion(version string) error {
 		fmt.Println("Installation of OpenTofu", version)
 	}
 
-	downloadUrl, downloadSigUrl, err := m.retriever.DownloadAssetsUrl(version)
-	if err != nil {
-		return err
-	}
-
-	data, err := download.DownloadBytes(downloadUrl)
-	if err != nil {
-		return err
-	}
-
-	dataSig, err := download.DownloadBytes(downloadSigUrl)
-	if err != nil {
-		return err
-	}
-
-	err = m.checker.Check(data, dataSig)
+	data, err := m.retriever.DownloadReleaseZip(version)
 	if err != nil {
 		return err
 	}
 
 	targetPath := path.Join(installPath, version)
-	return zip.UnzipToDir(bytes.NewReader(data), targetPath)
+	return zip.UnzipToDir(data, targetPath)
 }
 
 func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {
