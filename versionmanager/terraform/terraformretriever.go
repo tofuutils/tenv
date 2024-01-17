@@ -23,6 +23,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"runtime"
 	"slices"
 
@@ -127,7 +128,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 			return nil, err
 		}
 
-		if err = checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
+		if err = r.checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
 			return nil, err
 		}
 		return data, nil
@@ -179,6 +180,34 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	return releases, nil
 }
 
+func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsUrl string, downloadSumsSigUrl string) error {
+	dataSums, err := download.DownloadBytes(downloadSumsUrl)
+	if err != nil {
+		return err
+	}
+
+	if err = sha256check.Check(data, dataSums, fileName); err != nil {
+		return err
+	}
+
+	dataSumsSig, err := download.DownloadBytes(downloadSumsSigUrl)
+	if err != nil {
+		return err
+	}
+
+	var dataPublicKey []byte
+	if r.conf.TfKeyPath == "" {
+		dataPublicKey, err = download.DownloadBytes(publicKeyUrl)
+	} else {
+		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
+	}
+
+	if err != nil {
+		return err
+	}
+	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
+}
+
 func apiGetRequest(callUrl string) (any, error) {
 	response, err := http.Get(callUrl)
 	if err != nil {
@@ -194,26 +223,4 @@ func apiGetRequest(callUrl string) (any, error) {
 	var value any
 	err = json.Unmarshal(data, &value)
 	return value, err
-}
-
-func checkSumAndSig(fileName string, data []byte, downloadSumsUrl string, downloadSumsSigUrl string) error {
-	dataSums, err := download.DownloadBytes(downloadSumsUrl)
-	if err != nil {
-		return err
-	}
-
-	if err = sha256check.Check(data, dataSums, fileName); err != nil {
-		return err
-	}
-
-	dataSumsSig, err := download.DownloadBytes(downloadSumsSigUrl)
-	if err != nil {
-		return err
-	}
-
-	dataPublicKey, err := download.DownloadBytes(publicKeyUrl)
-	if err != nil {
-		return err
-	}
-	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }

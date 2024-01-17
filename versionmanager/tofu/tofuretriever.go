@@ -20,6 +20,7 @@ package tofuretriever
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 
@@ -74,7 +75,7 @@ func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
 		return nil, err
 	}
 
-	if err = checkSumAndSig(v, stable, data, assetNames, assets, r.conf.Verbose); err != nil {
+	if err = r.checkSumAndSig(v, stable, data, assetNames, assets); err != nil {
 		return nil, err
 	}
 	return data, nil
@@ -86,6 +87,59 @@ func (r *TofuRetriever) LatestRelease() (string, error) {
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.TofuRemoteUrl, r.conf.GithubToken)
+}
+
+func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string) error {
+	dataSums, err := download.DownloadBytes(assets[assetNames[1]])
+	if err != nil {
+		return err
+	}
+
+	if err = sha256check.Check(data, dataSums, assetNames[0]); err != nil {
+		return err
+	}
+
+	dataSumsSig, err := download.DownloadBytes(assets[assetNames[3]])
+	if err != nil {
+		return err
+	}
+
+	dataSumsCert, err := download.DownloadBytes(assets[assetNames[2]])
+	if err != nil {
+		return err
+	}
+
+	identity := buildIdentity(v)
+	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer)
+	if err == nil || err != cosigncheck.ErrNotInstalled {
+		return err
+	}
+
+	if stable {
+		if r.conf.Verbose {
+			fmt.Println("cosign executable not found, fallback to pgp check")
+		}
+	} else {
+		fmt.Println("cosign executable not found and pgp check not available for unstable version")
+		return nil
+	}
+
+	dataSumsSig, err = download.DownloadBytes(assets[assetNames[4]])
+	if err != nil {
+		return err
+	}
+
+	var dataPublicKey []byte
+	if r.conf.TofuKeyPath == "" {
+		dataPublicKey, err = download.DownloadBytes(publicKeyUrl)
+	} else {
+		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
+	}
+
+	if err != nil {
+		return err
+	}
+	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
 
 func buildAssetNames(version string, stable bool) []string {
@@ -117,51 +171,4 @@ func buildIdentity(v *version.Version) string {
 	// cleaned, so indexDot can not be -1
 	shortVersion := cleanedVersion[:indexDot]
 	return baseIdentity + shortVersion
-}
-
-func checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string, verbose bool) error {
-	dataSums, err := download.DownloadBytes(assets[assetNames[1]])
-	if err != nil {
-		return err
-	}
-
-	if err = sha256check.Check(data, dataSums, assetNames[0]); err != nil {
-		return err
-	}
-
-	dataSumsSig, err := download.DownloadBytes(assets[assetNames[3]])
-	if err != nil {
-		return err
-	}
-
-	dataSumsCert, err := download.DownloadBytes(assets[assetNames[2]])
-	if err != nil {
-		return err
-	}
-
-	identity := buildIdentity(v)
-	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer)
-	if err == nil || err != cosigncheck.ErrNotInstalled {
-		return err
-	}
-
-	if stable {
-		if verbose {
-			fmt.Println("cosign executable not found, fallback to pgp check")
-		}
-	} else {
-		fmt.Println("cosign executable not found and pgp check not available for unstable version")
-		return nil
-	}
-
-	dataSumsSig, err = download.DownloadBytes(assets[assetNames[4]])
-	if err != nil {
-		return err
-	}
-
-	dataPublicKey, err := download.DownloadBytes(publicKeyUrl)
-	if err != nil {
-		return err
-	}
-	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
