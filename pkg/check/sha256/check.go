@@ -32,22 +32,26 @@ var (
 )
 
 func Check(data []byte, dataSums []byte, fileName string) error {
+	dataSum, err := extract(dataSums, fileName)
+	if err != nil {
+		return err
+	}
+
+	hashed := sha256.Sum256(data)
+	if !bytes.Equal(dataSum, hashed[:]) {
+		return ErrCheck
+	}
+	return nil
+}
+
+func extract(dataSums []byte, fileName string) ([]byte, error) {
 	dataSumsStr := string(dataSums)
 	for _, dataSumStr := range strings.Split(dataSumsStr, "\n") {
 		dataSumStr, ok := strings.CutSuffix(dataSumStr, fileName)
 		if ok {
 			dataSumStr = strings.TrimSpace(dataSumStr)
-			dataSum, err := hex.DecodeString(dataSumStr)
-			if err != nil {
-				return err
-			}
-
-			hashed := sha256.Sum256(data)
-			if !bytes.Equal(dataSum, hashed[:]) {
-				return ErrCheck
-			}
-			return nil
+			return hex.DecodeString(dataSumStr)
 		}
 	}
-	return ErrNoSum
+	return nil, ErrNoSum
 }
