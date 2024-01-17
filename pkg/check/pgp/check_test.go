@@ -41,13 +41,13 @@ func TestPgpCheckCorrect(t *testing.T) {
 }
 
 func TestPgpCheckErrorKey(t *testing.T) {
-	if err := pgpcheck.Check(data, dataSig, dataKey[1:]); err == nil {
+	if pgpcheck.Check(data, dataSig, dataKey[1:]) == nil {
 		t.Error("Should fail on erroneus public key")
 	}
 }
 
 func TestPgpCheckErrorSig(t *testing.T) {
-	if err := pgpcheck.Check(data, dataSig[1:], dataKey); err == nil {
+	if pgpcheck.Check(data, dataSig[1:], dataKey) == nil {
 		t.Error("Should fail on erroneus signature")
 	}
 }

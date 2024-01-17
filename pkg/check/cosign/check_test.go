@@ -41,13 +41,13 @@ func TestCosignCheckCorrect(t *testing.T) {
 }
 
 func TestCosignCheckErrorKey(t *testing.T) {
-	if err := cosigncheck.Check(data, dataSig, dataKey[1:]); err == nil {
+	if cosigncheck.Check(data, dataSig, dataKey[1:]) == nil {
 		t.Error("Should fail on erroneus public key")
 	}
 }
 
 func TestCosignCheckErrorSig(t *testing.T) {
-	if err := cosigncheck.Check(data, dataSig[1:], dataKey); err == nil {
+	if cosigncheck.Check(data, dataSig[1:], dataKey) == nil {
 		t.Error("Should fail on erroneus signature")
 	}
 }
