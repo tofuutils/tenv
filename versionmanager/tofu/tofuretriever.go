@@ -67,12 +67,7 @@ func (r *TofuRetriever) DownloadReleaseZip(version string) ([]byte, error) {
 		return nil, err
 	}
 
-	dataSum, err := sha256check.Extract(dataSums, assetNames[0])
-	if err != nil {
-		return nil, err
-	}
-
-	if err = sha256check.Check(data, dataSum); err != nil {
+	if err = sha256check.Check(data, dataSums, assetNames[0]); err != nil {
 		return nil, err
 	}
 
