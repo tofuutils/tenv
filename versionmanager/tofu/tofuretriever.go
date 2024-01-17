@@ -120,7 +120,7 @@ func buildIdentity(v *version.Version) string {
 }
 
 func checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string, verbose bool) error {
-	dataSums, err := download.DownloadBytes(assetNames[1])
+	dataSums, err := download.DownloadBytes(assets[assetNames[1]])
 	if err != nil {
 		return err
 	}
@@ -129,12 +129,12 @@ func checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []s
 		return err
 	}
 
-	dataSumsSig, err := download.DownloadBytes(assetNames[3])
+	dataSumsSig, err := download.DownloadBytes(assets[assetNames[3]])
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.DownloadBytes(assetNames[2])
+	dataSumsCert, err := download.DownloadBytes(assets[assetNames[2]])
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []s
 		return nil
 	}
 
-	dataSumsSig, err = download.DownloadBytes(assetNames[4])
+	dataSumsSig, err = download.DownloadBytes(assets[assetNames[4]])
 	if err != nil {
 		return err
 	}
