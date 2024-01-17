@@ -27,8 +27,8 @@ import (
 )
 
 var (
-	errCheck = errors.New("invalid sha256 checksum")
-	errNoSum = errors.New("file sha256 checksum not found for current platform")
+	ErrCheck = errors.New("invalid sha256 checksum")
+	ErrNoSum = errors.New("file sha256 checksum not found for current platform")
 )
 
 func Check(data []byte, dataSums []byte, fileName string) error {
@@ -44,10 +44,10 @@ func Check(data []byte, dataSums []byte, fileName string) error {
 
 			hashed := sha256.Sum256(data)
 			if !bytes.Equal(dataSum, hashed[:]) {
-				return errCheck
+				return ErrCheck
 			}
 			return nil
 		}
 	}
-	return errNoSum
+	return ErrNoSum
 }
