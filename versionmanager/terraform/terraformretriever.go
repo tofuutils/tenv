@@ -132,12 +132,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 			return nil, err
 		}
 
-		dataSum, err := sha256check.Extract(dataSums, fileName)
-		if err != nil {
-			return nil, err
-		}
-
-		if err = sha256check.Check(data, dataSum); err != nil {
+		if err = sha256check.Check(data, dataSums, fileName); err != nil {
 			return nil, err
 		}
 

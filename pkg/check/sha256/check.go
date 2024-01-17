@@ -13,22 +13,23 @@ var (
 	errNoSum = errors.New("file sha256 checksum not found for current platform")
 )
 
-func Check(data []byte, dataSum []byte) error {
-	hashed := sha256.Sum256(data)
-	if !bytes.Equal(dataSum, hashed[:]) {
-		return errCheck
-	}
-	return nil
-}
-
-func Extract(dataSums []byte, fileName string) ([]byte, error) {
+func Check(data []byte, dataSums []byte, fileName string) error {
 	dataSumsStr := string(dataSums)
 	for _, dataSumStr := range strings.Split(dataSumsStr, "\n") {
 		dataSumStr, ok := strings.CutSuffix(dataSumStr, fileName)
 		if ok {
 			dataSumStr = strings.TrimSpace(dataSumStr)
-			return hex.DecodeString(dataSumStr)
+			dataSum, err := hex.DecodeString(dataSumStr)
+			if err != nil {
+				return err
+			}
+
+			hashed := sha256.Sum256(data)
+			if !bytes.Equal(dataSum, hashed[:]) {
+				return errCheck
+			}
+			return nil
 		}
 	}
-	return nil, errNoSum
+	return errNoSum
 }
