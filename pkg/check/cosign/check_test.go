@@ -25,29 +25,46 @@ import (
 	cosigncheck "github.com/dvaumoron/gotofuenv/pkg/check/cosign"
 )
 
-//go:embed tofu_1.6.0_arm64.deb
+const (
+	identity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v1.6"
+	issuer   = "https://token.actions.githubusercontent.com"
+)
+
+//go:embed tofu_1.6.0_SHA256SUMS
 var data []byte
 
-//go:embed tofu_1.6.0_arm64.deb.sig
+//go:embed tofu_1.6.0_SHA256SUMS.sig
 var dataSig []byte
 
-//go:embed tofu_1.6.0_arm64.deb.pem
-var dataKey []byte
+//go:embed tofu_1.6.0_SHA256SUMS.pem
+var dataCert []byte
 
 func TestCosignCheckCorrect(t *testing.T) {
-	if err := cosigncheck.Check(data, dataSig, dataKey); err != nil {
+	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer); err != nil {
 		t.Error("Unexpected error : ", err)
 	}
 }
 
-func TestCosignCheckErrorKey(t *testing.T) {
-	if cosigncheck.Check(data, dataSig, dataKey[1:]) == nil {
-		t.Error("Should fail on erroneus public key")
+func TestCosignCheckErrorCert(t *testing.T) {
+	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer) == nil {
+		t.Error("Should fail on erroneus certificate")
+	}
+}
+
+func TestCosignCheckErrorIdentity(t *testing.T) {
+	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer) == nil {
+		t.Error("Should fail on erroneus issuer")
+	}
+}
+
+func TestCosignCheckErrorIssuer(t *testing.T) {
+	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com") == nil {
+		t.Error("Should fail on erroneus issuer")
 	}
 }
 
 func TestCosignCheckErrorSig(t *testing.T) {
-	if cosigncheck.Check(data, dataSig[1:], dataKey) == nil {
+	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer) == nil {
 		t.Error("Should fail on erroneus signature")
 	}
 }

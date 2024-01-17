@@ -18,7 +18,64 @@
 
 package cosigncheck
 
-func Check(data []byte, dataSig []byte, dataPublicKey []byte) error {
-	// TODO
+import (
+	"errors"
+	"os"
+	"os/exec"
+)
+
+const cosignExecName = "cosign"
+
+var (
+	ErrCheck        = errors.New("cosign check failed")
+	ErrNotInstalled = errors.New("cosign executable not found")
+)
+
+func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, certOidcIssuer string) error {
+	_, err := exec.LookPath(cosignExecName)
+	if err != nil {
+		return ErrNotInstalled
+	}
+
+	dataFileName, remove, err := tempFile("data", data)
+	if err != nil {
+		return err
+	}
+	defer remove()
+
+	dataSigFileName, remove, err := tempFile("data.sig", dataSig)
+	if err != nil {
+		return err
+	}
+	defer remove()
+
+	dataCertFileName, remove, err := tempFile("data.cert", dataCert)
+	if err != nil {
+		return err
+	}
+	defer remove()
+
+	cmdArgs := []string{
+		"verify-blob", "--certificate-identity", certIdentity, "--signature", dataSigFileName, "--certificate", dataCertFileName,
+		"--certificate-oidc-issuer", certOidcIssuer, dataFileName,
+	}
+	cmd := exec.Command(cosignExecName, cmdArgs...)
+
+	if err = cmd.Run(); err != nil {
+		return ErrCheck
+	}
 	return nil
+}
+
+func tempFile(name string, data []byte) (string, func(), error) {
+	tmpFile, err := os.CreateTemp("", name)
+	if err != nil {
+		return "", nil, err
+	}
+
+	tmpFileName := tmpFile.Name()
+	os.WriteFile(tmpFileName, data, 0644)
+	return tmpFileName, func() {
+		os.Remove(tmpFileName)
+	}, nil
 }
