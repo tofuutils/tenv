@@ -127,26 +127,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 			return nil, err
 		}
 
-		dataSums, err := download.DownloadBytes(downloadSumsUrl)
-		if err != nil {
-			return nil, err
-		}
-
-		if err = sha256check.Check(data, dataSums, fileName); err != nil {
-			return nil, err
-		}
-
-		dataSumsSig, err := download.DownloadBytes(downloadSumsSigUrl)
-		if err != nil {
-			return nil, err
-		}
-
-		dataPublicKey, err := download.DownloadBytes(publicKeyUrl)
-		if err != nil {
-			return nil, err
-		}
-
-		if err = pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey); err != nil {
+		if err = checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
 			return nil, err
 		}
 		return data, nil
@@ -213,4 +194,26 @@ func apiGetRequest(callUrl string) (any, error) {
 	var value any
 	err = json.Unmarshal(data, &value)
 	return value, err
+}
+
+func checkSumAndSig(fileName string, data []byte, downloadSumsUrl string, downloadSumsSigUrl string) error {
+	dataSums, err := download.DownloadBytes(downloadSumsUrl)
+	if err != nil {
+		return err
+	}
+
+	if err = sha256check.Check(data, dataSums, fileName); err != nil {
+		return err
+	}
+
+	dataSumsSig, err := download.DownloadBytes(downloadSumsSigUrl)
+	if err != nil {
+		return err
+	}
+
+	dataPublicKey, err := download.DownloadBytes(publicKeyUrl)
+	if err != nil {
+		return err
+	}
+	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
