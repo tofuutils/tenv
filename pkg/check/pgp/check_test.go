@@ -31,7 +31,7 @@ var data []byte
 //go:embed terraform_1.6.6_SHA256SUMS.sig
 var dataSig []byte
 
-//go:embed pgp-key.txt
+//go:embed hashicorp-pgp-key.txt
 var dataKey []byte
 
 func TestPgpCheckCorrect(t *testing.T) {
