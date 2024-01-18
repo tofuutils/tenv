@@ -28,6 +28,9 @@ import (
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 )
 
+// empty marker
+var e = struct{}{}
+
 //go:embed assets.json
 var assetsData []byte
 
@@ -59,7 +62,6 @@ func init() {
 }
 
 func TestExtractAssetsEmpty(t *testing.T) {
-	e := struct{}{}
 	assets := map[string]string{}
 	searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": e, "tofu_1.6.0_amd64.apk.gpgsig": e}
 	err := extractAssets(assets, searchedAssetNames, 2, []any{})
@@ -76,7 +78,6 @@ func TestExtractAssetsMissing(t *testing.T) {
 		return
 	}
 
-	e := struct{}{}
 	assets := map[string]string{}
 	searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": e, "any_name.zip": e}
 	err := extractAssets(assets, searchedAssetNames, 2, assetsValue)
@@ -93,7 +94,6 @@ func TestExtractAssetsPresent(t *testing.T) {
 		return
 	}
 
-	e := struct{}{}
 	assets := map[string]string{}
 	searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": e, "tofu_1.6.0_amd64.apk.gpgsig": e}
 	err := extractAssets(assets, searchedAssetNames, 2, assetsValue)
