@@ -94,7 +94,7 @@ If a parameter is passed, available options:
 		RunE: func(_ *cobra.Command, args []string) error {
 			requestedVersion := ""
 			if len(args) == 0 {
-				requestedVersion = versionManager.Resolve(config.LatestStableKey)
+				requestedVersion = versionManager.Resolve(semantic.LatestStableKey)
 			} else {
 				requestedVersion = args[0]
 			}

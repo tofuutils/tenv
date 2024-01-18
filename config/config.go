@@ -25,19 +25,6 @@ import (
 )
 
 const (
-	LatestAllowedKey = "latest-allowed"
-	LatestStableKey  = "latest-stable"
-	LatestKey        = "latest"
-	MinRequiredKey   = "min-required"
-
-	TfFolderName      = "Terraform"
-	TfVersionFileName = ".terraform-version"
-
-	TofuFolderName      = "OpenTofu"
-	TofuVersionFileName = ".opentofu-version"
-)
-
-const (
 	defaultTfHashicorpUrl = "https://releases.hashicorp.com/terraform"
 	defaultTofuGithubUrl  = "https://api.github.com/repos/opentofu/opentofu/releases"
 

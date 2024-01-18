@@ -27,10 +27,10 @@ import (
 
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {
 	tfRetriever := terraformretriever.NewTerraformRetriever(conf)
-	return versionmanager.MakeVersionManager(conf, config.TfFolderName, tfRetriever, config.TfVersionEnvName, config.TfVersionFileName)
+	return versionmanager.MakeVersionManager(conf, "Terraform", tfRetriever, config.TfVersionEnvName, ".terraform-version")
 }
 
 func BuildTofuManager(conf *config.Config) versionmanager.VersionManager {
 	tofuRetriever := tofuretriever.NewTofuRetriever(conf)
-	return versionmanager.MakeVersionManager(conf, config.TofuFolderName, tofuRetriever, config.TofuVersionEnvName, config.TofuVersionFileName)
+	return versionmanager.MakeVersionManager(conf, "OpenTofu", tofuRetriever, config.TofuVersionEnvName, ".opentofu-version")
 }
