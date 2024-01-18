@@ -182,7 +182,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	cleanedVersion := parsedVersion.String()
 	targetPath := path.Join(m.InstallPath(), cleanedVersion)
 	if m.conf.Verbose {
-		fmt.Println("Uninstallation of OpenTofu", cleanedVersion, "(Remove directory", targetPath+")")
+		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")")
 	}
 	return os.RemoveAll(targetPath)
 }
@@ -271,14 +271,14 @@ func (m VersionManager) installSpecificVersion(version string) error {
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
 			if m.conf.Verbose {
-				fmt.Println("OpenTofu", version, "already installed")
+				fmt.Println(m.FolderName, version, "already installed")
 			}
 			return nil
 		}
 	}
 
 	if m.conf.Verbose {
-		fmt.Println("Installation of OpenTofu", version)
+		fmt.Println("Installation of", m.FolderName, version)
 	}
 
 	data, err := m.retriever.DownloadReleaseZip(version)
