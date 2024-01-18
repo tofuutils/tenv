@@ -21,8 +21,8 @@ package builder
 import (
 	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/versionmanager"
-	terraformretriever "github.com/dvaumoron/gotofuenv/versionmanager/terraform"
-	tofuretriever "github.com/dvaumoron/gotofuenv/versionmanager/tofu"
+	terraformretriever "github.com/dvaumoron/gotofuenv/versionmanager/retriever/terraform"
+	tofuretriever "github.com/dvaumoron/gotofuenv/versionmanager/retriever/tofu"
 )
 
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {
