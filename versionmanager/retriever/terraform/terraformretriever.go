@@ -68,77 +68,20 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		return nil, err
 	}
 
-	object, _ := value.(map[string]any)
-	builds, ok := object["builds"].([]any)
-	if !ok {
-		return nil, apierrors.ErrReturn
-	}
-
-	shaFileName, ok := object["shasums"].(string)
-	if !ok {
-		return nil, apierrors.ErrReturn
-	}
-
-	shaSigFileName, ok := object["shasums_signature"].(string)
-	if !ok {
-		return nil, apierrors.ErrReturn
-	}
-
-	downloadSumsUrl, err := url.JoinPath(baseVersionUrl, shaFileName)
+	fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, err := extractAssetUrls(baseVersionUrl, runtime.GOOS, runtime.GOARCH, value)
 	if err != nil {
 		return nil, err
 	}
 
-	downloadSumsSigUrl, err := url.JoinPath(baseVersionUrl, shaSigFileName)
+	data, err := download.DownloadBytes(downloadUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, build := range builds {
-		object, ok = build.(map[string]any)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		osStr, ok := object["os"].(string)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		if osStr != runtime.GOOS {
-			continue
-		}
-
-		archStr, ok := object["arch"].(string)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		if archStr != runtime.GOARCH {
-			continue
-		}
-
-		downloadUrl, ok := object["url"].(string)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		fileName, ok := object["filename"].(string)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		data, err := download.DownloadBytes(downloadUrl)
-		if err != nil {
-			return nil, err
-		}
-
-		if err = r.checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
-			return nil, err
-		}
-		return data, nil
+	if err = r.checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
+		return nil, err
 	}
-	return nil, apierrors.ErrAsset
+	return data, nil
 }
 
 func (r *TerraformRetriever) LatestRelease() (string, error) {
@@ -167,22 +110,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	object, ok := value.(map[string]any)
-	if !ok {
-		return nil, apierrors.ErrReturn
-	}
-
-	object, ok = object["versions"].(map[string]any)
-	if !ok {
-		return nil, apierrors.ErrReturn
-	}
-
-	var releases []string
-	for version := range object {
-		releases = append(releases, version)
-	}
-	return releases, nil
+	return extractReleases(value)
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsUrl string, downloadSumsSigUrl string) error {
@@ -228,4 +156,55 @@ func apiGetRequest(callUrl string) (any, error) {
 	var value any
 	err = json.Unmarshal(data, &value)
 	return value, err
+}
+
+func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
+	object, _ := value.(map[string]any)
+	builds, ok := object["builds"].([]any)
+	shaFileName, ok2 := object["shasums"].(string)
+	shaSigFileName, ok3 := object["shasums_signature"].(string)
+	if !ok || !ok2 || !ok3 {
+		return "", "", "", "", apierrors.ErrReturn
+	}
+
+	downloadSumsUrl, err := url.JoinPath(baseVersionUrl, shaFileName)
+	if err != nil {
+		return "", "", "", "", err
+	}
+
+	downloadSumsSigUrl, err := url.JoinPath(baseVersionUrl, shaSigFileName)
+	if err != nil {
+		return "", "", "", "", err
+	}
+
+	for _, build := range builds {
+		object, _ = build.(map[string]any)
+		osStr, ok := object["os"].(string)
+		archStr, ok2 := object["arch"].(string)
+		downloadUrl, ok3 := object["url"].(string)
+		fileName, ok4 := object["filename"].(string)
+		if !ok || !ok2 || !ok3 || !ok4 {
+			return "", "", "", "", apierrors.ErrReturn
+		}
+
+		if osStr != searchedOs || archStr != searchedArch {
+			continue
+		}
+		return fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, nil
+	}
+	return "", "", "", "", apierrors.ErrAsset
+}
+
+func extractReleases(value any) ([]string, error) {
+	object, _ := value.(map[string]any)
+	object, ok := object["versions"].(map[string]any)
+	if !ok {
+		return nil, apierrors.ErrReturn
+	}
+
+	var releases []string
+	for version := range object {
+		releases = append(releases, version)
+	}
+	return releases, nil
 }

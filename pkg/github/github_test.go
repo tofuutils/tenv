@@ -75,7 +75,6 @@ func TestExtractAssetsEmpty(t *testing.T) {
 func TestExtractAssetsMissing(t *testing.T) {
 	if assetsErr != nil {
 		t.Fatal("Unexpected parsing error : ", assetsErr)
-		return
 	}
 
 	assets := map[string]string{}
@@ -91,7 +90,6 @@ func TestExtractAssetsMissing(t *testing.T) {
 func TestExtractAssetsPresent(t *testing.T) {
 	if assetsErr != nil {
 		t.Fatal("Unexpected parsing error : ", assetsErr)
-		return
 	}
 
 	assets := map[string]string{}
@@ -128,7 +126,6 @@ func TestExtractReleasesEmpty(t *testing.T) {
 func TestExtractReleasesPresent(t *testing.T) {
 	if releasesErr != nil {
 		t.Fatal("Unexpected parsing error : ", releasesErr)
-		return
 	}
 
 	var releases []string
@@ -148,7 +145,6 @@ func TestExtractReleasesPresent(t *testing.T) {
 func TestExtractVersion(t *testing.T) {
 	if releaseErr != nil {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
-		return
 	}
 
 	version, ok := extractVersion(releaseValue)
