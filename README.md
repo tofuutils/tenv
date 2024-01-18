@@ -6,6 +6,8 @@ Support [Terraform](https://www.terraform.io/) too (see [here](#terraform-suppor
 
 Handle [Semver 2.0.0](https://semver.org/) with [go-version](https://github.com/hashicorp/go-version) and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu files.
 
+GoTofuEnv can use [cosign](https://github.com/sigstore/cosign) (if present) to check OpenTofu signature or fallback to [PGP](https://www.openpgp.org/about) using [gopenpgp](https://github.com/ProtonMail/gopenpgp) implementation. However, unstable OpenTofu are signed only with cosign (GoTofuEnv will display a warning for them when cosign is not found).
+
 ## Installation
 
 ### Automatic
@@ -15,6 +17,12 @@ Install via [Homebrew](https://brew.sh/)
 ```console
 $ brew tap dvaumoron/tap
 $ brew install gotofuenv
+```
+
+You can enable cosign check with :
+
+```console
+$ brew install cosign
 ```
 
 ### Manual
@@ -101,6 +109,22 @@ String (Default: "")
 Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu binares are downloaded from the OpenTofu GitHub repository.
 
 `gotofuenv` subcommands `detect`, `install`, `list-remote` and `use` support a `--github-token`, `-t` flag version.
+
+#### TOFUENV_OPENTOFU_PGP_KEY
+
+String (Default: "")
+
+Allow to specify a local file path to OpenTofu PGP public key, if not present download https://get.opentofu.org/opentofu.asc.
+
+`gotofuenv` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
+
+#### TFENV_HASHICORP_PGP_KEY
+
+String (Default: "")
+
+Allow to specify a local file path to Hashicorp PGP public key, if not present download https://www.hashicorp.com/.well-known/pgp-key.txt.
+
+`gotofuenv tf` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
 
 #### TOFUENV_REMOTE
 
@@ -314,9 +338,11 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 
 ## Terraform support
 
-GoTofuEnv rely on `.terraform-version` files, [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
+GoTofuEnv rely on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hashicorp_pgp_key), [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
 
 `gotofuenv tf` have the same managing subcommands for Terraform versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
+
+GoTofuEnv check Terraform PGP signature (there is no cosign signature available).
 
 ## LICENSE
 

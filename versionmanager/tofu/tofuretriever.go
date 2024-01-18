@@ -120,7 +120,7 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 			fmt.Println("cosign executable not found, fallback to pgp check")
 		}
 	} else {
-		fmt.Println("cosign executable not found and pgp check not available for unstable version")
+		fmt.Println("skip signature check : cosign executable not found and pgp check not available for unstable version")
 		return nil
 	}
 
