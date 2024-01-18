@@ -26,7 +26,7 @@ import (
 )
 
 func TestCmpVersion(t *testing.T) {
-	var versions = []string{"1.6.0-beta5", "1.5.2", "1.6.0-alpha5", "1.6.0", "1.5.1", "1.5.0", "1.6.0-rc1"}
+	versions := []string{"1.6.0-beta5", "1.5.2", "1.6.0-alpha5", "1.6.0", "1.5.1", "1.5.0", "1.6.0-rc1"}
 	slices.SortFunc(versions, semantic.CmpVersion)
 	if !slices.Equal(versions, []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0-alpha5", "1.6.0-beta5", "1.6.0-rc1", "1.6.0"}) {
 		t.Error("Unmatching results, get :", versions)
