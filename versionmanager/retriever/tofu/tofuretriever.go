@@ -40,6 +40,8 @@ const (
 	issuer       = "https://token.actions.githubusercontent.com"
 )
 
+const baseFileName = "tofu_"
+
 type TofuRetriever struct {
 	conf *config.Config
 }
@@ -144,7 +146,7 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 
 func buildAssetNames(version string, stable bool) []string {
 	var nameBuilder strings.Builder
-	nameBuilder.WriteString("tofu_")
+	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(version)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(runtime.GOOS)
@@ -154,7 +156,7 @@ func buildAssetNames(version string, stable bool) []string {
 	zipAssetName := nameBuilder.String()
 
 	nameBuilder.Reset()
-	nameBuilder.WriteString("tofu_")
+	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(version)
 	nameBuilder.WriteString("_SHA256SUMS")
 	sumsAssetName := nameBuilder.String()
