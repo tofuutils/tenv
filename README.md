@@ -35,11 +35,11 @@ For the .zip case, the unzipped folder must be added to your PATH.
 
 ### tofu
 
-This project version of `tofu` command is a proxy to OpenTofu `tofu` command  managed by `gotofuenv`. The default resolution strategy is latest-allowed (without [TOFUENV_REMOTE](#tofuenv_remote) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
+This project version of `tofu` command is a proxy to OpenTofu `tofu` command  managed by `gotofuenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofuenv_tofu_version) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
 
 ### terraform
 
-This project version of `terraform` command is a proxy to Hashicorp `terraform` command  managed by `gotofuenv`. The default resolution strategy is latest-allowed (without [TFENV_REMOTE](#tfenv_remote) environment variable or `.terraform-version` file).
+This project version of `terraform` command is a proxy to Hashicorp `terraform` command  managed by `gotofuenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) environment variable or `.terraform-version` file).
 
 
 ### gotofuenv install [version]
