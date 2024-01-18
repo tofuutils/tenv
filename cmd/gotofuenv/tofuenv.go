@@ -36,6 +36,13 @@ const (
 // can be overridden with ldflags
 var version = "dev"
 
+type subCmdParams struct {
+	needToken      bool
+	remoteEnvName  string
+	pRemote        *string
+	pPublicKeyPath *string
+}
+
 func main() {
 	conf, err := config.InitConfigFromEnv()
 	if err != nil {
@@ -61,7 +68,11 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
 
 	rootCmd.AddCommand(newVersionCmd())
-	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), true, config.TofuRemoteUrlEnvName, &conf.TofuRemoteUrl)
+	tofuParams := subCmdParams{
+		needToken: true, remoteEnvName: config.TofuRemoteUrlEnvName,
+		pRemote: &conf.TofuRemoteUrl, pPublicKeyPath: &conf.TofuKeyPath,
+	}
+	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), tofuParams)
 
 	tfCmd := &cobra.Command{
 		Use:   "tf",
@@ -69,7 +80,11 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		Long:  tfHelp,
 	}
 
-	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), false, config.TfRemoteUrlEnvName, &conf.TfRemoteUrl)
+	tfParams := subCmdParams{
+		needToken: false, remoteEnvName: config.TfRemoteUrlEnvName,
+		pRemote: &conf.TfRemoteUrl, pPublicKeyPath: &conf.TfKeyPath,
+	}
+	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), tfParams)
 
 	rootCmd.AddCommand(tfCmd)
 
@@ -88,12 +103,12 @@ func newVersionCmd() *cobra.Command {
 	}
 }
 
-func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, needToken bool, remoteEnvName string, pRemote *string) {
-	cmd.AddCommand(newDetectCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
-	cmd.AddCommand(newInstallCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
+func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) {
+	cmd.AddCommand(newDetectCmd(conf, versionManager, params))
+	cmd.AddCommand(newInstallCmd(conf, versionManager, params))
 	cmd.AddCommand(newListCmd(conf, versionManager))
-	cmd.AddCommand(newListRemoteCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
+	cmd.AddCommand(newListRemoteCmd(conf, versionManager, params))
 	cmd.AddCommand(newResetCmd(conf, versionManager))
 	cmd.AddCommand(newUninstallCmd(conf, versionManager))
-	cmd.AddCommand(newUseCmd(conf, versionManager, needToken, remoteEnvName, pRemote))
+	cmd.AddCommand(newUseCmd(conf, versionManager, params))
 }
