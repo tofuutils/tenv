@@ -27,7 +27,7 @@ import (
 	"slices"
 
 	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/pkg/iterate"
+	"github.com/dvaumoron/gotofuenv/pkg/reversecmp"
 	"github.com/dvaumoron/gotofuenv/pkg/zip"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 	"github.com/hashicorp/go-version"
@@ -92,7 +92,7 @@ func (m VersionManager) InstallPath() string {
 	return dir
 }
 
-func (m VersionManager) ListLocal() ([]string, error) {
+func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 	entries, err := os.ReadDir(m.InstallPath())
 	if err != nil {
 		return nil, err
@@ -105,17 +105,19 @@ func (m VersionManager) ListLocal() ([]string, error) {
 		}
 	}
 
-	slices.SortFunc(versions, semantic.CmpVersion)
+	cmpFunc := reversecmp.Reverser(semantic.CmpVersion, reverseOrder)
+	slices.SortFunc(versions, cmpFunc)
 	return versions, nil
 }
 
-func (m VersionManager) ListRemote() ([]string, error) {
+func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
 	versions, err := m.retriever.ListReleases()
 	if err != nil {
 		return nil, err
 	}
 
-	slices.SortFunc(versions, semantic.CmpVersion)
+	cmpFunc := reversecmp.Reverser(semantic.CmpVersion, reverseOrder)
+	slices.SortFunc(versions, cmpFunc)
 	return versions, nil
 }
 
@@ -219,15 +221,12 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 	}
 
 	if !m.conf.ForceRemote {
-		versions, err := m.ListLocal()
+		versions, err := m.ListLocal(reverseOrder)
 		if err != nil {
 			return "", err
 		}
 
-		versionReceiver, done := iterate.Iterate(versions, reverseOrder)
-		defer done()
-
-		for version := range versionReceiver {
+		for _, version := range versions {
 			if predicate(version) {
 				return version, nil
 			}
@@ -291,15 +290,12 @@ func (m VersionManager) installSpecificVersion(version string) error {
 }
 
 func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {
-	versions, err := m.ListRemote()
+	versions, err := m.ListRemote(reverseOrder)
 	if err != nil {
 		return "", err
 	}
 
-	versionReceiver, done := iterate.Iterate(versions, reverseOrder)
-	defer done()
-
-	for version := range versionReceiver {
+	for _, version := range versions {
 		if predicate(version) {
 			if noInstall {
 				return version, nil

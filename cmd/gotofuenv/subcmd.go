@@ -25,7 +25,6 @@ import (
 	"strings"
 
 	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/pkg/iterate"
 	"github.com/dvaumoron/gotofuenv/versionmanager"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 	"github.com/spf13/cobra"
@@ -126,7 +125,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			versions, err := versionManager.ListLocal()
+			versions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
 				return err
 			}
@@ -138,10 +137,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			}
 			usedVersion := string(bytes.TrimSpace(data))
 
-			versionReceiver, done := iterate.Iterate(versions, reverseOrder)
-			defer done()
-
-			for version := range versionReceiver {
+			for _, version := range versions {
 				if usedVersion == version {
 					fmt.Println("*", version, "(set by", filePath+")")
 				} else {
@@ -180,17 +176,14 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			versions, err := versionManager.ListRemote()
+			versions, err := versionManager.ListRemote(reverseOrder)
 			if err != nil {
 				return err
 			}
 
-			versionReceiver, done := iterate.Iterate(versions, reverseOrder)
-			defer done()
-
 			countSkipped := 0
 			localSet := versionManager.LocalSet()
-			for version := range versionReceiver {
+			for _, version := range versions {
 				if filterStable && !semantic.StableVersion(version) {
 					countSkipped++
 					continue
