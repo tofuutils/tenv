@@ -20,6 +20,7 @@ package github
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -30,6 +31,8 @@ import (
 )
 
 const pageQuery = "?page="
+
+var errContinue = errors.New("continue")
 
 func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag)
@@ -65,35 +68,10 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 			return nil, err
 		}
 
-		values, ok := value.([]any)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		if len(values) == 0 {
-			return nil, apierrors.ErrNoAsset
-		}
-
-		for _, value := range values {
-			object, _ = value.(map[string]any)
-			assetName, ok := object["name"].(string)
-			if !ok {
-				return nil, apierrors.ErrReturn
-			}
-
-			if _, ok := searchedAssetNameSet[assetName]; !ok {
-				continue
-			}
-
-			downloadUrl, ok := object["browser_download_url"].(string)
-			if !ok {
-				return nil, apierrors.ErrReturn
-			}
-			assets[assetName] = downloadUrl
-
-			if len(assets) == waited {
-				return assets, nil
-			}
+		if err = extractAssets(assets, searchedAssetNameSet, waited, value); err == nil {
+			return assets, nil
+		} else if err != errContinue {
+			return nil, err
 		}
 		page++
 	}
@@ -131,21 +109,11 @@ func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error)
 			return nil, err
 		}
 
-		values, ok := value.([]any)
-		if !ok {
-			return nil, apierrors.ErrReturn
-		}
-
-		if len(values) == 0 {
+		releases, err = extractReleases(releases, value)
+		if err == nil {
 			return releases, nil
-		}
-
-		for _, value := range values {
-			version, ok := extractVersion(value)
-			if !ok {
-				return nil, apierrors.ErrReturn
-			}
-			releases = append(releases, version)
+		} else if err != errContinue {
+			return nil, err
 		}
 		page++
 	}
@@ -188,6 +156,60 @@ func buildAuthorizationHeader(token string) string {
 	authorizationBuilder.WriteString("Bearer ")
 	authorizationBuilder.WriteString(token)
 	return authorizationBuilder.String()
+}
+
+func extractAssets(assets map[string]string, searchedAssetNameSet map[string]struct{}, waited int, value any) error {
+	values, ok := value.([]any)
+	if !ok {
+		return apierrors.ErrReturn
+	}
+
+	if len(values) == 0 {
+		return apierrors.ErrAsset
+	}
+
+	for _, value := range values {
+		object, _ := value.(map[string]any)
+		assetName, ok := object["name"].(string)
+		if !ok {
+			return apierrors.ErrReturn
+		}
+
+		if _, ok := searchedAssetNameSet[assetName]; !ok {
+			continue
+		}
+
+		downloadUrl, ok := object["browser_download_url"].(string)
+		if !ok {
+			return apierrors.ErrReturn
+		}
+		assets[assetName] = downloadUrl
+
+		if len(assets) == waited {
+			return nil
+		}
+	}
+	return errContinue
+}
+
+func extractReleases(releases []string, value any) ([]string, error) {
+	values, ok := value.([]any)
+	if !ok {
+		return nil, apierrors.ErrReturn
+	}
+
+	if len(values) == 0 {
+		return releases, nil
+	}
+
+	for _, value := range values {
+		version, ok := extractVersion(value)
+		if !ok {
+			return nil, apierrors.ErrReturn
+		}
+		releases = append(releases, version)
+	}
+	return releases, errContinue
 }
 
 func extractVersion(value any) (string, bool) {
