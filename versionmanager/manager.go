@@ -58,7 +58,7 @@ func MakeVersionManager(conf *config.Config, folderName string, retriever Releas
 
 // detect version (can install depending on auto install env var)
 func (m VersionManager) Detect() (string, error) {
-	configVersion := m.Resolve(config.LatestAllowedKey)
+	configVersion := m.Resolve(semantic.LatestAllowedKey)
 	return m.detect(configVersion)
 }
 
@@ -68,7 +68,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 		return m.installSpecificVersion(parsedVersion.String())
 	}
 
-	if requestedVersion == config.LatestKey {
+	if requestedVersion == semantic.LatestKey {
 		_, err = m.installLatest()
 		return err
 	}
@@ -240,7 +240,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		}
 	}
 
-	if requestedVersion == config.LatestKey {
+	if requestedVersion == semantic.LatestKey {
 		if m.conf.NoInstall {
 			return m.retriever.LatestRelease()
 		}

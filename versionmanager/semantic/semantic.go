@@ -21,9 +21,15 @@ package semantic
 import (
 	"fmt"
 
-	"github.com/dvaumoron/gotofuenv/config"
 	"github.com/dvaumoron/gotofuenv/versionmanager/semantic/tfparser"
 	"github.com/hashicorp/go-version"
+)
+
+const (
+	LatestAllowedKey = "latest-allowed"
+	LatestStableKey  = "latest-stable"
+	LatestKey        = "latest"
+	MinRequiredKey   = "min-required"
 )
 
 func alwaysTrue(string) bool {
@@ -50,10 +56,10 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 	predicate := StableVersion
 	reverseOrder := true
 	switch requestedVersion {
-	case config.MinRequiredKey:
+	case MinRequiredKey:
 		reverseOrder = false // start with older
 		fallthrough          // same predicate retrieving
-	case config.LatestAllowedKey:
+	case LatestAllowedKey:
 		requireds, err := tfparser.GatherRequiredVersion(verbose)
 		if err != nil {
 			return nil, false, err
@@ -75,9 +81,9 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 		} else {
 			predicate = predicateFromConstraint(constraint)
 		}
-	case config.LatestStableKey:
+	case LatestStableKey:
 		// nothing to do (stableVersion and reverseOrder will work)
-	case config.LatestKey:
+	case LatestKey:
 		predicate = alwaysTrue
 	default:
 		constraint, err := version.NewConstraint(requestedVersion)
