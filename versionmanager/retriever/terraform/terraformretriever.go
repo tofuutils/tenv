@@ -138,7 +138,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		}
 		return data, nil
 	}
-	return nil, apierrors.ErrNoAsset
+	return nil, apierrors.ErrAsset
 }
 
 func (r *TerraformRetriever) LatestRelease() (string, error) {
