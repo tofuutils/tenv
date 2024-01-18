@@ -288,6 +288,7 @@ Usage:
 Flags:
   -f, --force-remote        force search version available at TFENV_REMOTE url
   -h, --help                help for detect
+  -k, --key-file string     local path to PGP public key file (replace check against remote one)
   -n, --no-install          disable installation of missing version
   -u, --remote-url string   remote url to install from (default "https://releases.hashicorp.com/terraform")
 
@@ -313,6 +314,7 @@ Flags:
   -f, --force-remote          force search version available at TOFUENV_REMOTE url
   -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
   -h, --help                  help for use
+  -k, --key-file string       local path to PGP public key file (replace check against remote one)
   -n, --no-install            disable installation of missing version
   -u, --remote-url string     remote url to install from (default "https://api.github.com/repos/opentofu/opentofu/releases")
   -w, --working-dir           create .opentofu-version file in working directory
