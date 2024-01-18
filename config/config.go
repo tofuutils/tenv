@@ -50,7 +50,7 @@ const (
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
 	tfForceRemoteEnvName     = tfenvPrefix + forceRemoteEnvName
-	TfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
+	tfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
 	TfRemoteUrlEnvName       = tfenvPrefix + remoteUrlEnvName
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
 	tfVerboseEnvName         = tfenvPrefix + verboseEnvName
@@ -59,7 +59,7 @@ const (
 	tofuenvPrefix             = "TOFUENV_"
 	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
 	tofuForceRemoteEnvName    = tofuenvPrefix + forceRemoteEnvName
-	TofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
+	tofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
 	TofuRemoteUrlEnvName      = tofuenvPrefix + remoteUrlEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName          = tofuenvPrefix + "GITHUB_TOKEN"
@@ -133,9 +133,9 @@ func InitConfigFromEnv() (Config, error) {
 		GithubToken:   os.Getenv(tofuTokenEnvName),
 		NoInstall:     !autoInstall,
 		RootPath:      rootPath,
-		TfKeyPath:     os.Getenv(TfHashicorpPGPKeyEnvName),
+		TfKeyPath:     os.Getenv(tfHashicorpPGPKeyEnvName),
 		TfRemoteUrl:   tfRemoteUrl,
-		TofuKeyPath:   os.Getenv(TofuOpenTofuPGPKeyEnvName),
+		TofuKeyPath:   os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		TofuRemoteUrl: tofuRemoteUrl,
 		UserPath:      userPath,
 		Verbose:       verbose,
