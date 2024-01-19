@@ -304,7 +304,7 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 
 func addForceRemoteAndNoInstallFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("force search version available at ")
+	descBuilder.WriteString("force search on versions available at ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url")
 
