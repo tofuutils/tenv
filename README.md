@@ -6,7 +6,7 @@ Support [Terraform](https://www.terraform.io/) too (see [here](#terraform-suppor
 
 Handle [Semver 2.0.0](https://semver.org/) with [go-version](https://github.com/hashicorp/go-version) and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu files.
 
-GoTofuEnv can use [cosign](https://github.com/sigstore/cosign) (if present) to check OpenTofu signature or fallback to [PGP](https://www.openpgp.org/about) using [gopenpgp](https://github.com/ProtonMail/gopenpgp) implementation. However, unstable OpenTofu are signed only with cosign (GoTofuEnv will display a warning for them when cosign is not found).
+GoTofuEnv can use [cosign](https://github.com/sigstore/cosign) (if present) to check OpenTofu signature or fallback to [PGP](https://www.openpgp.org/about) using [gopenpgp](https://github.com/ProtonMail/gopenpgp) implementation. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found GoTofuEnv will display a warning).
 
 ## Installation
 
@@ -70,7 +70,7 @@ $ gotofuenv install min-required
 
 ### Environment Variables
 
-Both command support the following environment variables.
+GoTofuEnv commands support the following environment variables.
 
 #### TOFUENV_AUTO_INSTALL (alias TFENV_AUTO_INSTALL)
 
@@ -287,7 +287,7 @@ Usage:
   gotofuenv tf detect [flags]
 
 Flags:
-  -f, --force-remote        force search version available at TFENV_REMOTE url
+  -f, --force-remote        force search on versions available at TFENV_REMOTE url
   -h, --help                help for detect
   -k, --key-file string     local path to PGP public key file (replace check against remote one)
   -n, --no-install          disable installation of missing version
@@ -312,7 +312,7 @@ Usage:
   gotofuenv use version [flags]
 
 Flags:
-  -f, --force-remote          force search version available at TOFUENV_REMOTE url
+  -f, --force-remote          force search on versions available at TOFUENV_REMOTE url
   -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
   -h, --help                  help for use
   -k, --key-file string       local path to PGP public key file (replace check against remote one)
