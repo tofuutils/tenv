@@ -20,7 +20,7 @@ Install via [Homebrew](https://brew.sh/)
 
 ```console
 brew tap tofuutils/tap
-brew install gotofuenv
+brew install tenv
 ```
 
 You can enable cosign check with :
@@ -31,7 +31,7 @@ brew install cosign
 
 ### Manual
 
-Get the last packaged binaries (use .deb, .rpm, .apk or .zip) found [here](https://github.com/tofuutils/gotofuenv/releases).
+Get the last packaged binaries (use .deb, .rpm, .apk or .zip) found [here](https://github.com/tofuutils/tenv/releases).
 
 For the .zip case, the unzipped folder must be added to your PATH.
 
@@ -79,7 +79,7 @@ GoTofuEnv commands support the following environment variables.
 
 String (Default: true)
 
-If set to true gotofuenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
+If set to true tenv will automatically install missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
 
 `tenv` subcommands `detect` and `use` support a `--no-install`, `-n` disabling flag version.
 
@@ -87,7 +87,7 @@ Example: use 1.6.0-rc1 version that is not installed, and auto installation is d
 
 ```console
 $ TOFUENV_AUTO_INSTALL=false tenv use -v 1.6.0-rc1
-Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
+Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.opentofu-version
 ```
 
 Example: use 1.6.0-rc1 version that is not installed, and auto installation stay enabled.
@@ -95,14 +95,14 @@ Example: use 1.6.0-rc1 version that is not installed, and auto installation stay
 ```console
 $ tenv use -v 1.6.0-rc1
 Installation of OpenTofu 1.6.0-rc1
-Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
+Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.opentofu-version
 ```
 
 #### TOFUENV_FORCE_REMOTE (alias TFENV_FORCE_REMOTE)
 
 String (Default: false)
 
-If set to true gotofuenv detection of needed version will skip local check and verify compatibility on remote list.
+If set to true tenv detection of needed version will skip local check and verify compatibility on remote list.
 
 `tenv` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
 
@@ -148,7 +148,7 @@ To install Terraform from a remote other than the default (must comply with [Has
 
 #### TOFUENV_ROOT (alias TFENV_ROOT)
 
-Path (Default: `$HOME/.gotofuenv`)
+Path (Default: `$HOME/.tenv`)
 
 The path to a directory where the local OpenTofu versions, Terraform versions and GoTofuEnv configuration files exist.
 
@@ -189,7 +189,7 @@ If not empty string, this variable overrides Terraform version, specified in `.t
 
 String (Default: false)
 
-Active the verbose display of gotofuenv.
+Active the verbose display of tenv.
 
 `tenv` support a `--verbose`, `-v` flag version.
 
@@ -249,7 +249,7 @@ List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in 
 ```console
 $ tenv list
   1.6.0-rc1 
-* 1.6.0 (set by /home/dvaumoron/.gotofuenv/.opentofu-version)
+* 1.6.0 (set by /home/dvaumoron/.tenv/.opentofu-version)
 ```
 
 ### tenv list-remote
@@ -297,7 +297,7 @@ Flags:
   -u, --remote-url string   remote url to install from (default "https://releases.hashicorp.com/terraform")
 
 Global Flags:
-  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.gotofuenv")
+  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.tenv")
   -v, --verbose            verbose output
 ```
 
@@ -324,13 +324,13 @@ Flags:
   -w, --working-dir           create .opentofu-version file in working directory
 
 Global Flags:
-  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.gotofuenv")
+  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.tenv")
   -v, --verbose            verbose output
 ```
 
 ## .opentofu-version file
 
-If you put a `.opentofu-version` file  in working directory, user home directory or TOFUENV_ROOT directory, gotofuenv detects it and uses the version written in it.
+If you put a `.opentofu-version` file  in working directory, user home directory or TOFUENV_ROOT directory, tenv detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
 
 Recognized value (same as `tenv use` command) :

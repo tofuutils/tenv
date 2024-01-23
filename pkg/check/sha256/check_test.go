@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import (
 	_ "embed"
 	"testing"
 
-	sha256check "github.com/tofuutils/gotofuenv/pkg/check/sha256"
+	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 )
 
 //go:embed tofu_1.6.0_linux_arm64.zip

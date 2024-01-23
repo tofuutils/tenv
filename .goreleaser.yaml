@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 # vim: set ts=2 sw=2 tw=0 fo=cnqoj
 
-project_name: gotofuenv
+project_name: tenv
 version: 1
 
 before:
@@ -86,9 +86,9 @@ archives:
 nfpms:
   - file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}'
     maintainer: 'https://github.com/dvaumoron'
-    homepage: https://github.com/tofuutils/gotofuenv
+    homepage: https://github.com/tofuutils/tenv
     description: >-
-      GoTofuEnv help manage several version of OpenTofu (https://opentofu.org) and Terraform (https://www.terraform.io/),
+      tenv help manage several version of OpenTofu (https://opentofu.org) and Terraform (https://www.terraform.io/),
       tenv is the managing command and tofu and terraform are proxy commands.
     license: "Apache-2.0"
     formats:
@@ -99,7 +99,7 @@ nfpms:
     section: default
     contents:
       - src: ./LICENSE
-        dst: /usr/share/doc/gotofuenv/copyright
+        dst: /usr/share/doc/tenv/copyright
         file_info:
           mode: 0444
     rpm:
@@ -114,7 +114,7 @@ brews:
       owner: tofuutils
       name: homebrew-tap
     folder: Formula
-    homepage: https://github.com/tofuutils/gotofuenv
+    homepage: https://github.com/tofuutils/tenv
     description: OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)
     license: "Apache-2.0"
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"

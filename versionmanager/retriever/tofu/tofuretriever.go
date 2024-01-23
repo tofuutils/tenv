@@ -25,12 +25,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-version"
-	"github.com/tofuutils/gotofuenv/config"
-	cosigncheck "github.com/tofuutils/gotofuenv/pkg/check/cosign"
-	pgpcheck "github.com/tofuutils/gotofuenv/pkg/check/pgp"
-	sha256check "github.com/tofuutils/gotofuenv/pkg/check/sha256"
-	"github.com/tofuutils/gotofuenv/pkg/download"
-	"github.com/tofuutils/gotofuenv/pkg/github"
+	"github.com/tofuutils/tenv/config"
+	cosigncheck "github.com/tofuutils/tenv/pkg/check/cosign"
+	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
+	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
+	"github.com/tofuutils/tenv/pkg/download"
+	"github.com/tofuutils/tenv/pkg/github"
 )
 
 const publicKeyUrl = "https://get.opentofu.org/opentofu.asc"

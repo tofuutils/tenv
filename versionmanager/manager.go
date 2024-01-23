@@ -27,10 +27,10 @@ import (
 	"slices"
 
 	"github.com/hashicorp/go-version"
-	"github.com/tofuutils/gotofuenv/config"
-	"github.com/tofuutils/gotofuenv/pkg/reversecmp"
-	"github.com/tofuutils/gotofuenv/pkg/zip"
-	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/reversecmp"
+	"github.com/tofuutils/tenv/pkg/zip"
+	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 var (

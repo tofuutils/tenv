@@ -27,12 +27,12 @@ import (
 	"runtime"
 	"slices"
 
-	"github.com/tofuutils/gotofuenv/config"
-	"github.com/tofuutils/gotofuenv/pkg/apierrors"
-	pgpcheck "github.com/tofuutils/gotofuenv/pkg/check/pgp"
-	sha256check "github.com/tofuutils/gotofuenv/pkg/check/sha256"
-	"github.com/tofuutils/gotofuenv/pkg/download"
-	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/apierrors"
+	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
+	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
+	"github.com/tofuutils/tenv/pkg/download"
+	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const publicKeyUrl = "https://www.hashicorp.com/.well-known/pgp-key.txt"

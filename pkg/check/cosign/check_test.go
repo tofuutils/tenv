@@ -22,7 +22,7 @@ import (
 	_ "embed"
 	"testing"
 
-	cosigncheck "github.com/tofuutils/gotofuenv/pkg/check/cosign"
+	cosigncheck "github.com/tofuutils/tenv/pkg/check/cosign"
 )
 
 const (
