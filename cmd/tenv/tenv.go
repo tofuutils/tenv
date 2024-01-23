@@ -98,7 +98,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println("gotofuenv", version)
+			fmt.Println("tenv from GoTofuEnv", version)
 		},
 	}
 }
