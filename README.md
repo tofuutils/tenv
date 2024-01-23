@@ -4,6 +4,8 @@
   <p align="center">Terraform and OpenTofu version manager version written in Go.</p>
 </p>
 
+[![Github tag](https://img.shields.io/github/v/tag/tofuutils/tofuenv)](https://github.com/tofuutils/tofuenv/releases)  ![maintenance status](https://img.shields.io/maintenance/yes/2024.svg)
+
 [OpenTofu](https://opentofu.org) version manager (inspired by [tofuenv](https://github.com/tofuutils/tofuenv), written in Go)
 
 Support [Terraform](https://www.terraform.io/) too (see [here](#terraform-support)).
