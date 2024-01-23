@@ -1,0 +1,139 @@
+project_name: tenv
+version: 1
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go get -u ./cmd/tenv
+    - go get -u ./cmd/tofu
+    - go get -u ./cmd/terraform
+    - go mod tidy
+
+builds:
+  - id: tenv
+    main: ./cmd/tenv
+    binary: tenv
+    env:
+      - CGO_ENABLED=0
+
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: 386
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
+  - id: tofu
+    binary: tofu
+    main: ./cmd/tofu
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: 386
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
+  - id: terraform
+    binary: terraform
+    main: ./cmd/terraform
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: 386
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{ .Tag }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        format: zip
+
+release:
+  name_template: "Release {{.Tag}}"
+
+changelog:
+  use: github-native
+  sort: asc
+  filters:
+    exclude:
+      - "^test:"
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
+  algorithm: sha256
