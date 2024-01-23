@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
+	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 //go:embed release.json

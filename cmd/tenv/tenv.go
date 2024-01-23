@@ -23,9 +23,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/tofuutils/gotofuenv/config"
-	"github.com/tofuutils/gotofuenv/versionmanager"
-	"github.com/tofuutils/gotofuenv/versionmanager/builder"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/versionmanager"
+	"github.com/tofuutils/tenv/versionmanager/builder"
 )
 
 const (

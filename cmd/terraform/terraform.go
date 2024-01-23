@@ -19,8 +19,8 @@
 package main
 
 import (
-	"github.com/tofuutils/gotofuenv/versionmanager/builder"
-	"github.com/tofuutils/gotofuenv/versionmanager/proxy"
+	"github.com/tofuutils/tenv/versionmanager/builder"
+	"github.com/tofuutils/tenv/versionmanager/proxy"
 )
 
 func main() {

@@ -24,8 +24,8 @@ import (
 	"os/exec"
 	"path"
 
-	"github.com/tofuutils/gotofuenv/config"
-	"github.com/tofuutils/gotofuenv/versionmanager"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/versionmanager"
 )
 
 func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, execName string) {

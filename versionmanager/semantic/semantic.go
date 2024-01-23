@@ -22,7 +22,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-version"
-	"github.com/tofuutils/gotofuenv/versionmanager/semantic/tfparser"
+	"github.com/tofuutils/tenv/versionmanager/semantic/tfparser"
 )
 
 const (

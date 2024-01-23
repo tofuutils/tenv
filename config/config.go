@@ -103,7 +103,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	rootPath := getenvFallback(tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
-		rootPath = path.Join(userPath, ".gotofuenv")
+		rootPath = path.Join(userPath, ".tenv")
 	}
 
 	verbose := false

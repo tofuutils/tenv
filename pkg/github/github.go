@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tofuutils/gotofuenv/pkg/apierrors"
+	"github.com/tofuutils/tenv/pkg/apierrors"
 )
 
 const pageQuery = "?page="
