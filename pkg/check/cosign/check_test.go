@@ -47,24 +47,24 @@ func TestCosignCheckCorrect(t *testing.T) {
 
 func TestCosignCheckErrorCert(t *testing.T) {
 	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer) == nil {
-		t.Error("Should fail on erroneus certificate")
+		t.Error("Should fail on erroneous certificate")
 	}
 }
 
 func TestCosignCheckErrorIdentity(t *testing.T) {
 	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer) == nil {
-		t.Error("Should fail on erroneus issuer")
+		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorIssuer(t *testing.T) {
 	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com") == nil {
-		t.Error("Should fail on erroneus issuer")
+		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorSig(t *testing.T) {
 	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer) == nil {
-		t.Error("Should fail on erroneus signature")
+		t.Error("Should fail on erroneous signature")
 	}
 }

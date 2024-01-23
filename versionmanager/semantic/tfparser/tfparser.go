@@ -23,7 +23,6 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
@@ -80,8 +79,8 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 				return nil
 			}
 
-			extraxted := extractRequiredVersion(parsedFile.Body, verbose)
-			requireds = append(requireds, extraxted...)
+			extracted := extractRequiredVersion(parsedFile.Body, verbose)
+			requireds = append(requireds, extracted...)
 			return nil
 		}
 		return nil
