@@ -22,6 +22,6 @@ jobs:
       - name: Codespell
         uses: codespell-project/actions-codespell@v2
         with:
-          skip: .git,*.png,*.woff,*.woff2,*.eot,*.ttf,*.jpg,*.ico,*.svg,*.gpg,.*asc
+          skip: .git,*.png,*.woff,*.woff2,*.eot,*.ttf,*.jpg,*.ico,*.svg,*.gpg,.*asc,.goreleaser.yaml
           check_filenames: true
           check_hidden: true

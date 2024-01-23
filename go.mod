@@ -1,6 +1,6 @@
 module github.com/tofuutils/gotofuenv
 
-go 1.21.5
+go 1.21
 
 require (
 	github.com/ProtonMail/gopenpgp/v2 v2.7.4

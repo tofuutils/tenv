@@ -102,7 +102,7 @@ Write 1.6.0-rc1 in /home/dvaumoron/.gotofuenv/.opentofu-version
 
 String (Default: false)
 
-If set to true gotofuenv detection of needed version will skip local check and verify compatibiliy on remote list.
+If set to true gotofuenv detection of needed version will skip local check and verify compatibility on remote list.
 
 `tenv` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
 

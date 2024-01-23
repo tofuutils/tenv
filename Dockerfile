@@ -20,9 +20,12 @@ ENV CGO_ENABLED=0 \
     GOARCH=amd64 \
     GIT_TERMINAL_PROMPT=1
 
-COPY ./pkg ${GOPATH}/src/github.com/tofuutils/tenv/pkg
 COPY ./cmd ${GOPATH}/src/github.com/tofuutils/tenv/cmd
-COPY ./go.mod ./go.sum ./main.go ${GOPATH}/src/github.com/tofuutils/tenv/
+COPY ./config ${GOPATH}/src/github.com/tofuutils/tenv/config
+COPY ./pkg ${GOPATH}/src/github.com/tofuutils/tenv/pkg
+COPY ./versionmanager ${GOPATH}/src/github.com/tofuutils/tenv/versionmanager
+COPY ./go.mod ./go.sum ${GOPATH}/src/github.com/tofuutils/tenv/
+
 WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
 RUN go get ./
 RUN go build -ldflags="-s -w" -o tenv .
