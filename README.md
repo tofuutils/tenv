@@ -146,7 +146,7 @@ To install Terraform from a remote other than the default (must comply with [Has
 
 Path (Default: `$HOME/.gotofuenv`)
 
-The path to a directory where the local OpenTofu versions and GoTofuEnv configuration files exist.
+The path to a directory where the local OpenTofu versions, Terraform versions and GoTofuEnv configuration files exist.
 
 `tenv` support a `--root-path`, `-r` flag version.
 
