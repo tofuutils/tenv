@@ -1,4 +1,8 @@
-# GoTofuEnv
+<p align="center">
+  <img alt="golangci-lint logo" src="assets/logo.png" height="150" />
+  <h3 align="center">tenv</h3>
+  <p align="center">Terraform and OpenTofu version manager version written in Go.</p>
+</p>
 
 [OpenTofu](https://opentofu.org) version manager (inspired by [tofuenv](https://github.com/tofuutils/tofuenv), written in Go)
 
