@@ -28,7 +28,7 @@ COPY ./go.mod ./go.sum ${GOPATH}/src/github.com/tofuutils/tenv/
 
 WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
 RUN go get ./
-RUN go build -ldflags="-s -w" -o tenv .
+RUN go build -ldflags="-s -w" -o tenv ./cmd/tenv
 
 FROM gcr.io/distroless/static:nonroot
 COPY --from=builder go/src/github.com/tofuutils/tenv/tenv /app/
