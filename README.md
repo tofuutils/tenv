@@ -15,14 +15,14 @@ GoTofuEnv can use [cosign](https://github.com/sigstore/cosign) (if present) to c
 Install via [Homebrew](https://brew.sh/)
 
 ```console
-$ brew tap tofuutils/tap
-$ brew install gotofuenv
+brew tap tofuutils/tap
+brew install gotofuenv
 ```
 
 You can enable cosign check with :
 
 ```console
-$ brew install cosign
+brew install cosign
 ```
 
 ### Manual
@@ -40,7 +40,6 @@ This project version of `tofu` command is a proxy to OpenTofu `tofu` command  ma
 ### terraform
 
 This project version of `terraform` command is a proxy to Hashicorp `terraform` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) environment variable or `.terraform-version` file).
-
 
 ### tenv install [version]
 
@@ -226,7 +225,7 @@ OpenTofu 1.6.0 will be run from this directory.
 Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
 
 ```console
-$ tenv reset
+tenv reset
 ```
 
 ### tenv uninstall version
@@ -234,7 +233,7 @@ $ tenv reset
 Uninstall a specific version of OpenTofu (remove it from TOFUENV_ROOT directory without interpretation).
 
 ```console
-$ tenv uninstall v1.6.0-alpha4
+tenv uninstall v1.6.0-alpha4
 ```
 
 ### tenv list
