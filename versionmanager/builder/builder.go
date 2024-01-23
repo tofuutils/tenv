@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
 package builder
 
 import (
-	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/versionmanager"
-	terraformretriever "github.com/dvaumoron/gotofuenv/versionmanager/retriever/terraform"
-	tofuretriever "github.com/dvaumoron/gotofuenv/versionmanager/retriever/tofu"
+	"github.com/tofuutils/gotofuenv/config"
+	"github.com/tofuutils/gotofuenv/versionmanager"
+	terraformretriever "github.com/tofuutils/gotofuenv/versionmanager/retriever/terraform"
+	tofuretriever "github.com/tofuutils/gotofuenv/versionmanager/retriever/tofu"
 )
 
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {

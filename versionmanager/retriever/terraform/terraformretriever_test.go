@@ -24,7 +24,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
+	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
 )
 
 //go:embed release.json

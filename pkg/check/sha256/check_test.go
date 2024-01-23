@@ -22,7 +22,7 @@ import (
 	_ "embed"
 	"testing"
 
-	sha256check "github.com/dvaumoron/gotofuenv/pkg/check/sha256"
+	sha256check "github.com/tofuutils/gotofuenv/pkg/check/sha256"
 )
 
 //go:embed tofu_1.6.0_linux_arm64.zip

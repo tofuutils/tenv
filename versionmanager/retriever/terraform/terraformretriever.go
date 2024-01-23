@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ import (
 	"runtime"
 	"slices"
 
-	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
-	pgpcheck "github.com/dvaumoron/gotofuenv/pkg/check/pgp"
-	sha256check "github.com/dvaumoron/gotofuenv/pkg/check/sha256"
-	"github.com/dvaumoron/gotofuenv/pkg/download"
-	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
+	"github.com/tofuutils/gotofuenv/config"
+	"github.com/tofuutils/gotofuenv/pkg/apierrors"
+	pgpcheck "github.com/tofuutils/gotofuenv/pkg/check/pgp"
+	sha256check "github.com/tofuutils/gotofuenv/pkg/check/sha256"
+	"github.com/tofuutils/gotofuenv/pkg/download"
+	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
 )
 
 const publicKeyUrl = "https://www.hashicorp.com/.well-known/pgp-key.txt"
