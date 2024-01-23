@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/versionmanager"
-	"github.com/dvaumoron/gotofuenv/versionmanager/builder"
 	"github.com/spf13/cobra"
+	"github.com/tofuutils/gotofuenv/config"
+	"github.com/tofuutils/gotofuenv/versionmanager"
+	"github.com/tofuutils/gotofuenv/versionmanager/builder"
 )
 
 const (
@@ -58,8 +58,8 @@ func main() {
 
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:     "gotofuenv",
-		Long:    "gotofuenv help manage several version of OpenTofu (https://opentofu.org).",
+		Use:     "tenv",
+		Long:    "tenv help manage several version of OpenTofu (https://opentofu.org).",
 		Version: version,
 	}
 

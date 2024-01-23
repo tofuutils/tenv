@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/dvaumoron/gotofuenv/config"
-	cosigncheck "github.com/dvaumoron/gotofuenv/pkg/check/cosign"
-	pgpcheck "github.com/dvaumoron/gotofuenv/pkg/check/pgp"
-	sha256check "github.com/dvaumoron/gotofuenv/pkg/check/sha256"
-	"github.com/dvaumoron/gotofuenv/pkg/download"
-	"github.com/dvaumoron/gotofuenv/pkg/github"
 	"github.com/hashicorp/go-version"
+	"github.com/tofuutils/gotofuenv/config"
+	cosigncheck "github.com/tofuutils/gotofuenv/pkg/check/cosign"
+	pgpcheck "github.com/tofuutils/gotofuenv/pkg/check/pgp"
+	sha256check "github.com/tofuutils/gotofuenv/pkg/check/sha256"
+	"github.com/tofuutils/gotofuenv/pkg/download"
+	"github.com/tofuutils/gotofuenv/pkg/github"
 )
 
 const publicKeyUrl = "https://get.opentofu.org/opentofu.asc"

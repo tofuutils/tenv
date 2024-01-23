@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 package main
 
 import (
-	"github.com/dvaumoron/gotofuenv/versionmanager/builder"
-	"github.com/dvaumoron/gotofuenv/versionmanager/proxy"
+	"github.com/tofuutils/gotofuenv/versionmanager/builder"
+	"github.com/tofuutils/gotofuenv/versionmanager/proxy"
 )
 
 func main() {

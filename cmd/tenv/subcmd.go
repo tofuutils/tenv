@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/versionmanager"
-	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/tofuutils/gotofuenv/config"
+	"github.com/tofuutils/gotofuenv/versionmanager"
+	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
 )
 
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import (
 	_ "embed"
 	"testing"
 
-	pgpcheck "github.com/dvaumoron/gotofuenv/pkg/check/pgp"
+	pgpcheck "github.com/tofuutils/gotofuenv/pkg/check/pgp"
 )
 
 //go:embed terraform_1.6.6_SHA256SUMS

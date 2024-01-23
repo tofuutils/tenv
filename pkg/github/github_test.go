@@ -24,8 +24,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/dvaumoron/gotofuenv/pkg/apierrors"
-	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
+	"github.com/tofuutils/gotofuenv/pkg/apierrors"
+	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
 )
 
 // empty marker

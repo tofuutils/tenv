@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import (
 	"os/exec"
 	"path"
 
-	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/versionmanager"
+	"github.com/tofuutils/gotofuenv/config"
+	"github.com/tofuutils/gotofuenv/versionmanager"
 )
 
 func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, execName string) {

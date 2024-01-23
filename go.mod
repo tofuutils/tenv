@@ -1,4 +1,4 @@
-module github.com/dvaumoron/gotofuenv
+module github.com/tofuutils/gotofuenv
 
 go 1.21.5
 

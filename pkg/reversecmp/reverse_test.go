@@ -22,7 +22,7 @@ import (
 	"cmp"
 	"testing"
 
-	"github.com/dvaumoron/gotofuenv/pkg/reversecmp"
+	"github.com/tofuutils/gotofuenv/pkg/reversecmp"
 )
 
 func TestReverserFalse(t *testing.T) {

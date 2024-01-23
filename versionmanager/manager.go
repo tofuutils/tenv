@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2024 gotofuenv authors.
+ * Copyright 2024 tofuutils authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ import (
 	"path"
 	"slices"
 
-	"github.com/dvaumoron/gotofuenv/config"
-	"github.com/dvaumoron/gotofuenv/pkg/reversecmp"
-	"github.com/dvaumoron/gotofuenv/pkg/zip"
-	"github.com/dvaumoron/gotofuenv/versionmanager/semantic"
 	"github.com/hashicorp/go-version"
+	"github.com/tofuutils/gotofuenv/config"
+	"github.com/tofuutils/gotofuenv/pkg/reversecmp"
+	"github.com/tofuutils/gotofuenv/pkg/zip"
+	"github.com/tofuutils/gotofuenv/versionmanager/semantic"
 )
 
 var (
