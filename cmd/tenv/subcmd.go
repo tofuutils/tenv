@@ -145,7 +145,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 				}
 			}
 			if conf.Verbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by gotofuenv.")
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.")
 			}
 			return nil
 		},

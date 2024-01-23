@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	rootVersionHelp = "Display gotofuenv current version."
+	rootVersionHelp = "Display tenv current version."
 	tfHelp          = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
 )
 
