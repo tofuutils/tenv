@@ -26,7 +26,7 @@ vet: ## Run go vet against code.
 
 ##@ Build
 build: fmt vet  ## Build service binary.
-	go build -o bin/tenv main.go
+	go build -o tenv ./cmd/tenv
 
 run: vet ## Run service from your laptop.
 	go run ./main.go
