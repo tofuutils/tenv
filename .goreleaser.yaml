@@ -10,9 +10,9 @@ before:
     - go test ./...
 
 builds:
-  - id: gotofuenv
-    binary: gotofuenv
-    main: ./cmd/gotofuenv
+  - id: tenv
+    binary: tenv
+    main: ./cmd/tenv
 
     env:
       - CGO_ENABLED=0
@@ -86,9 +86,10 @@ archives:
 nfpms:
   - file_name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}'
     maintainer: 'https://github.com/dvaumoron'
-    homepage: https://github.com/dvaumoron/gotofuenv
+    homepage: https://github.com/tofuutils/gotofuenv
     description: >-
-      gotofuenv help manage several version of OpenTofu (https://opentofu.org).
+      GoTofuEnv help manage several version of OpenTofu (https://opentofu.org) and Terraform (https://www.terraform.io/),
+      tenv is the managing command and tofu and terraform are proxy commands.
     license: "Apache-2.0"
     formats:
       - deb
@@ -110,10 +111,10 @@ nfpms:
 
 brews:
   - repository:
-      owner: dvaumoron
+      owner: tofuutils
       name: homebrew-tap
     folder: Formula
-    homepage: https://github.com/dvaumoron/gotofuenv
-    description: OpenTofu version manager (inspired by tofuenv, written in Go)
+    homepage: https://github.com/tofuutils/gotofuenv
+    description: OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)
     license: "Apache-2.0"
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
