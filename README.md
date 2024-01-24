@@ -1,7 +1,7 @@
 <p align="center">
   <img alt="golangci-lint logo" src="assets/logo.png" height="150" />
   <h3 align="center">tenv</h3>
-  <p align="center">Terraform and OpenTofu version manager, written in Go.</p>
+  <p align="center">Terraform and OpenTofu version manager, tools written in Go.</p>
 </p>
 
 [![Github tag](https://img.shields.io/github/v/tag/tofuutils/tofuenv)](https://github.com/tofuutils/tofuenv/releases)  ![maintenance status](https://img.shields.io/maintenance/yes/2024.svg)
