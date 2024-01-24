@@ -12,7 +12,7 @@ Support [Terraform](https://www.terraform.io/) too (see [here](#terraform-suppor
 
 Handle [Semver 2.0.0](https://semver.org/) with [go-version](https://github.com/hashicorp/go-version) and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu files.
 
-GoTofuEnv can use [cosign](https://github.com/sigstore/cosign) (if present) to check OpenTofu signature or fallback to [PGP](https://www.openpgp.org/about) using [gopenpgp](https://github.com/ProtonMail/gopenpgp) implementation. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found GoTofuEnv will display a warning).
+tenv can use [cosign](https://github.com/sigstore/cosign) (if present) to check OpenTofu signature or fallback to [PGP](https://www.openpgp.org/about) using [gopenpgp](https://github.com/ProtonMail/gopenpgp) implementation. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
 
 ## Installation
 
@@ -75,7 +75,7 @@ tenv install min-required
 
 ### Environment Variables
 
-GoTofuEnv commands support the following environment variables.
+tenv commands support the following environment variables.
 
 #### TOFUENV_AUTO_INSTALL (alias TFENV_AUTO_INSTALL)
 
@@ -152,7 +152,7 @@ To install Terraform from a remote other than the default (must comply with [Has
 
 Path (Default: `$HOME/.tenv`)
 
-The path to a directory where the local OpenTofu versions, Terraform versions and GoTofuEnv configuration files exist.
+The path to a directory where the local OpenTofu versions, Terraform versions and tenv configuration files exist.
 
 `tenv` support a `--root-path`, `-r` flag version.
 
@@ -346,12 +346,12 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 
 ## Terraform support
 
-GoTofuEnv rely on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hashicorp_pgp_key), [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
+tenv rely on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hashicorp_pgp_key), [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
 
 `tenv tf` have the same managing subcommands for Terraform versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
 
-GoTofuEnv check Terraform PGP signature (there is no cosign signature available).
+tenv check Terraform PGP signature (there is no cosign signature available).
 
 ## LICENSE
 
-The GoTofuEnv project is released under the Apache 2.0 license. See [LICENSE](LICENSE).
+The tenv project is released under the Apache 2.0 license. See [LICENSE](LICENSE).
