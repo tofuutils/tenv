@@ -33,9 +33,9 @@ brew install cosign
 
 ### Manual
 
-Get the last packaged binaries (use .deb, .rpm, .apk or .zip) found [here](https://github.com/tofuutils/tenv/releases).
+Get the last packaged binaries (.zip or .tar.gz) found [here](https://github.com/tofuutils/tenv/releases).
 
-For the .zip case, the unzipped folder must be added to your PATH.
+The unzipped folder must be added to your PATH.
 
 ## Usage
 
