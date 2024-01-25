@@ -44,10 +44,12 @@ func CmpVersion(v1Str string, v2Str string) int {
 		if hasErr2 {
 			return 0
 		}
+
 		return -1
 	} else if hasErr2 {
 		return 1
 	}
+
 	return v1.Compare(v2)
 }
 
@@ -93,17 +95,20 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 		}
 		predicate = predicateFromConstraint(constraint)
 	}
+
 	return predicate, reverseOrder, nil
 }
 
 func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	return func(versionStr string) bool {
 		v, err := version.NewVersion(versionStr)
+
 		return err == nil && constraint.Check(v)
 	}
 }
 
 func StableVersion(versionStr string) bool {
 	v, err := version.NewVersion(versionStr)
+
 	return err == nil && v.Prerelease() == ""
 }

@@ -173,7 +173,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 
 	for _, value := range values {
 		object, _ := value.(map[string]any)
-		assetName, ok := object["name"].(string)
+		assetName, ok := object["name"].(string) //nolint
 		if !ok {
 			return apierrors.ErrReturn
 		}

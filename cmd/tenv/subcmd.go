@@ -91,7 +91,7 @@ If a parameter is passed, available options:
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			requestedVersion := ""
+			var requestedVersion string
 			if len(args) == 0 {
 				requestedVersion = versionManager.Resolve(semantic.LatestStableKey)
 			} else {
@@ -145,7 +145,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 				}
 			}
 			if conf.Verbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.")
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.") //nolint
 			}
 			return nil
 		},
@@ -191,15 +191,15 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 				}
 
 				if _, installed := localSet[version]; installed {
-					fmt.Println(version, "(installed)")
+					fmt.Println(version, "(installed)") //nolint
 				} else {
-					fmt.Println(version)
+					fmt.Println(version) //nolint
 				}
 			}
 			if conf.Verbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").")
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").") //nolint
 				if filterStable {
-					fmt.Println(countSkipped, "result(s) hidden (version not stable).")
+					fmt.Println(countSkipped, "result(s) hidden (version not stable).") //nolint
 				}
 			}
 			return err

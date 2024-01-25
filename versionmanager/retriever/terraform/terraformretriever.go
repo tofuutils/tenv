@@ -53,12 +53,12 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		version = version[1:]
 	}
 
-	baseVersionUrl, err := url.JoinPath(r.conf.TfRemoteURL, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, version)
 	if err != nil {
 		return nil, err
 	}
 
-	versionUrl, err := url.JoinPath(baseVersionUrl, indexJson) //nolint
+	versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		return nil, err
 	}
 
-	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionUrl, runtime.GOOS, runtime.GOARCH, value)
+	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, value)
 	if err != nil {
 		return nil, err
 	}
@@ -81,6 +81,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 	if err = r.checkSumAndSig(fileName, data, downloadSumsURL, downloadSumsSigURL); err != nil {
 		return nil, err
 	}
+
 	return data, nil
 }
 
@@ -97,6 +98,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 	}
 
 	slices.SortFunc(versions, semantic.CmpVersion)
+
 	return versions[versionLen-1], nil
 }
 
@@ -158,7 +160,7 @@ func apiGetRequest(callURL string) (any, error) {
 	return value, err
 }
 
-func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
+func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	shaFileName, ok2 := object["shasums"].(string)
@@ -167,12 +169,12 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 		return "", "", "", "", apierrors.ErrReturn
 	}
 
-	downloadSumsURL, err := url.JoinPath(baseVersionUrl, shaFileName)
+	downloadSumsURL, err := url.JoinPath(baseVersionURL, shaFileName)
 	if err != nil {
 		return "", "", "", "", err
 	}
 
-	downloadSumsSigURL, err := url.JoinPath(baseVersionUrl, shaSigFileName)
+	downloadSumsSigURL, err := url.JoinPath(baseVersionURL, shaSigFileName)
 	if err != nil {
 		return "", "", "", "", err
 	}
