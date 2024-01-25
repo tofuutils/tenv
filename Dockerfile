@@ -27,10 +27,18 @@ COPY ./versionmanager ${GOPATH}/src/github.com/tofuutils/tenv/versionmanager
 COPY ./go.mod ./go.sum ${GOPATH}/src/github.com/tofuutils/tenv/
 
 WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
-RUN go get ./
+RUN go get -u ./cmd/tenv \
+ && go get -u ./cmd/tofu \
+ && go get -u ./cmd/terraform \
+ && go mod tidy
+
 RUN go build -ldflags="-s -w" -o tenv ./cmd/tenv
+RUN go build -ldflags="-s -w" -o tofu ./cmd/tofu
+RUN go build -ldflags="-s -w" -o terraform ./cmd/terraform
 
 FROM gcr.io/distroless/static:nonroot
 COPY --from=builder go/src/github.com/tofuutils/tenv/tenv /app/
+COPY --from=builder go/src/github.com/tofuutils/tenv/tofu /app/
+COPY --from=builder go/src/github.com/tofuutils/tenv/terraform /app/
 WORKDIR /app
 ENTRYPOINT ["/app/tenv"]
