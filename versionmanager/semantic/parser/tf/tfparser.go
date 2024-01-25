@@ -29,6 +29,8 @@ import (
 	"github.com/zclconf/go-cty/cty/convert"
 )
 
+const requiredVersionName = "required_version"
+
 type extDescription struct {
 	value    string
 	len      int
@@ -42,7 +44,7 @@ var terraformPartialSchema = &hcl.BodySchema{ //nolint
 }
 
 var versionPartialSchema = &hcl.BodySchema{ //nolint
-	Attributes: []hcl.AttributeSchema{{Name: "required_version"}},
+	Attributes: []hcl.AttributeSchema{{Name: requiredVersionName}},
 }
 
 func init() {
@@ -113,7 +115,7 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 			return nil
 		}
 
-		attr, exists := content.Attributes["required_version"]
+		attr, exists := content.Attributes[requiredVersionName]
 		if !exists {
 			continue
 		}
