@@ -522,6 +522,7 @@ on linux_amd64
 </details>
 
 
+<a id="version-files"></a>
 ## version files
 
 ### .opentofu-version file
@@ -544,6 +545,8 @@ TODO
 ### terragrunt.hcl file
 TODO
 
+
+<a id="technical-details"></a>
 ## Technical details
 
 ### Project binaries
@@ -564,6 +567,7 @@ tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hash
 tenv checks the Terraform PGP signature (there is no cosign signature available).
 
 
+<a id="contributing"></a>
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -579,6 +583,8 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+
+<a id="community"></a>
 ## Community
 Have questions or suggestions? Reach out to us via:
 
@@ -586,6 +592,8 @@ Have questions or suggestions? Reach out to us via:
 * User/Developer Group: Join github community to get update of Harbor's news, features, releases, or to provide suggestion and feedback.
 * Slack: Join tofuutils's community for discussion and ask questions: OpenTofu, channel: #tofuutils
 
+
+<a id="authors"></a>
 ## Authors
 tenv is based on [tofuenv](https://github.com/tofuutils/tofuenv) and [](https://github.com/tofuutils/gotofuenv) projects and supported by tofuutils team with help from these awesome contributors:
 
@@ -605,5 +613,6 @@ tenv is based on [tofuenv](https://github.com/tofuutils/tofuenv) and [](https://
 
 <!-- markdownlint-enable no-inline-html -->
 
+<a id="licence"></a>
 ## LICENSE
 The tenv project is distributed under the Apache 2.0 license. See [LICENSE](LICENSE).
