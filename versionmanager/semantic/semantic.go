@@ -64,6 +64,22 @@ func ParsePredicate(requestedVersion string, displayName string, verbose bool) (
 
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
+		constraintStr, err := terragruntparser.RetrieveVersionConstraint(verbose)
+		if err != nil {
+			return nil, false, err
+		}
+
+		if constraintStr != "" {
+			constraint, err := version.NewConstraint(constraintStr)
+			if err != nil {
+				return nil, false, err
+			}
+
+			predicate = predicateFromConstraint(constraint)
+
+			break
+		}
+
 		requireds, err := tfparser.GatherRequiredVersion(verbose)
 		if err != nil {
 			return nil, false, err
@@ -78,23 +94,9 @@ func ParsePredicate(requestedVersion string, displayName string, verbose bool) (
 			constraint = append(constraint, temp...)
 		}
 		if len(constraint) == 0 {
-			constraintStr, err := terragruntparser.RetrieveVersionConstraint(verbose)
-			if err != nil {
-				return nil, false, err
-			}
-
-			if constraintStr == "" {
-				reverseOrder = true // erase min-required case
-				if verbose {
-					fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
-				}
-			} else {
-				constraint, err := version.NewConstraint(constraintStr)
-				if err != nil {
-					return nil, false, err
-				}
-
-				predicate = predicateFromConstraint(constraint)
+			reverseOrder = true // erase min-required case
+			if verbose {
+				fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
 			}
 		} else {
 			predicate = predicateFromConstraint(constraint)
