@@ -99,7 +99,7 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 		return nil
 	}
 
-	var requireds []string
+	requireds := make([]string, 0, 1)
 	for _, block := range rootContent.Blocks {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
