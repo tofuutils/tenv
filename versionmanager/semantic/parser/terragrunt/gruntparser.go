@@ -28,14 +28,14 @@ import (
 	"github.com/zclconf/go-cty/cty/convert"
 )
 
-const versionConstraintName = "terraform_version_constraint"
+const (
+	hclName  = "terragrunt.hcl"
+	jsonName = "terragrunt.hcl.json"
 
-type nameDescription struct {
-	value    string
-	parseHCL bool
-}
+	versionConstraintName = "terraform_version_constraint"
 
-var names = []nameDescription{{value: "terragrunt.hcl", parseHCL: true}, {value: "terragrunt.hcl.json", parseHCL: false}} //nolint
+	msgTerraGruntErr = "Failed to read terragrunt file :"
+)
 
 var terraGruntPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: versionConstraintName}},
@@ -44,49 +44,51 @@ var terraGruntPartialSchema = &hcl.BodySchema{ //nolint
 func RetrieveVersionConstraint(verbose bool) (string, error) {
 	parser := hclparse.NewParser()
 
-	var parsedFile *hcl.File
-	var diags hcl.Diagnostics
-	for _, nameDesc := range names {
-		data, err := os.ReadFile(nameDesc.value)
-		if err != nil {
-			if verbose {
-				fmt.Println("Failed to read terragrunt file :", err) //nolint
-			}
+	data, err := os.ReadFile(hclName)
+	if err == nil {
+		parsedFile, diags := parser.ParseHCL(data, hclName)
 
-			continue
-		}
-
-		if nameDesc.parseHCL {
-			parsedFile, diags = parser.ParseHCL(data, nameDesc.value)
-		} else {
-			parsedFile, diags = parser.ParseJSON(data, nameDesc.value)
-		}
-		if diags.HasErrors() {
-			return "", diags
-		}
-		if parsedFile == nil {
-			return "", nil
-		}
-
-		return extractVersionConstraint(parsedFile.Body, verbose), nil
+		return extractVersionConstraint(parsedFile, diags, verbose)
 	}
 
-	return "", nil
+	if verbose {
+		fmt.Println(msgTerraGruntErr, err) //nolint
+	}
+
+	data, err = os.ReadFile(jsonName)
+	if err != nil {
+		if verbose {
+			fmt.Println(msgTerraGruntErr, err) //nolint
+		}
+
+		return "", nil
+	}
+
+	parsedFile, diags := parser.ParseJSON(data, jsonName)
+
+	return extractVersionConstraint(parsedFile, diags, verbose)
 }
 
-func extractVersionConstraint(body hcl.Body, verbose bool) string {
-	content, _, diags := body.PartialContent(terraGruntPartialSchema)
+func extractVersionConstraint(parsedFile *hcl.File, diags hcl.Diagnostics, verbose bool) (string, error) {
+	if diags.HasErrors() {
+		return "", diags
+	}
+	if parsedFile == nil {
+		return "", nil
+	}
+
+	content, _, diags := parsedFile.Body.PartialContent(terraGruntPartialSchema)
 	if diags.HasErrors() {
 		if verbose {
 			fmt.Println("Failed to parse terragrunt file :", diags) //nolint
 		}
 
-		return ""
+		return "", nil
 	}
 
 	attr, exists := content.Attributes[versionConstraintName]
 	if !exists {
-		return ""
+		return "", nil
 	}
 
 	val, diags := attr.Expr.Value(nil)
@@ -95,7 +97,7 @@ func extractVersionConstraint(body hcl.Body, verbose bool) string {
 			fmt.Println("Failures parsing terragrunt attribute :", diags) //nolint
 		}
 
-		return ""
+		return "", nil
 	}
 
 	val, err := convert.Convert(val, cty.String)
@@ -104,7 +106,7 @@ func extractVersionConstraint(body hcl.Body, verbose bool) string {
 			fmt.Println("Failed to convert terragrunt attribute :", err) //nolint
 		}
 
-		return ""
+		return "", nil
 	}
 
 	if val.IsNull() {
@@ -112,7 +114,7 @@ func extractVersionConstraint(body hcl.Body, verbose bool) string {
 			fmt.Println("Empty terragrunt attribute") //nolint
 		}
 
-		return ""
+		return "", nil
 	}
 
 	if !val.IsWhollyKnown() {
@@ -120,8 +122,8 @@ func extractVersionConstraint(body hcl.Body, verbose bool) string {
 			fmt.Println("Unknown terragrunt attribute") //nolint
 		}
 
-		return ""
+		return "", nil
 	}
 
-	return val.AsString()
+	return val.AsString(), nil
 }
