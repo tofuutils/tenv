@@ -13,8 +13,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    outputs:
-      version: ${{ steps.set_version.outputs.safe_version }}
+#    outputs:
+#      version: ${{ steps.set_version.outputs.safe_version }}
     steps:
       -
         uses: actions/checkout@v4
@@ -35,12 +35,12 @@ jobs:
           registry: ${{ env.registry_url }}
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      -
-        name: Set application version
-        id: set_version
-        uses: kvendingoldo/semver-action@v1.19
-        with:
-          primary_branch: 'main'
+#      -
+#        name: Set application version
+#        id: set_version
+#        uses: kvendingoldo/semver-action@v1.19
+#        with:
+#          primary_branch: 'main'
       -
         name: Build and push
         uses: docker/build-push-action@v5
@@ -48,7 +48,7 @@ jobs:
           push: true
           tags: |
             ${{ env.registry_url }}/${{ env.image_repo }}:latest
-            ${{ env.registry_url }}/${{ env.image_repo }}:${{ steps.set_version.outputs.safe_version }}
-      -
-        name: Print image version
-        run: echo ${{ steps.set_version.outputs.safe_version }}
+#            ${{ env.registry_url }}/${{ env.image_repo }}:${{ steps.set_version.outputs.safe_version }}
+#      -
+#        name: Print image version
+#        run: echo ${{ steps.set_version.outputs.safe_version }}

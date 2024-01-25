@@ -48,7 +48,7 @@ func Check(data []byte, dataSums []byte, fileName string) error {
 func extract(dataSums []byte, fileName string) ([]byte, error) {
 	dataSumsStr := string(dataSums)
 	for _, dataSumStr := range strings.Split(dataSumsStr, "\n") {
-		dataSumStr, ok := strings.CutSuffix(dataSumStr, fileName) //nolint
+		dataSumStr, ok := strings.CutSuffix(dataSumStr, fileName)
 		if ok {
 			dataSumStr = strings.TrimSpace(dataSumStr)
 

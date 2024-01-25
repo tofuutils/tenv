@@ -92,7 +92,7 @@ If a parameter is passed, available options:
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			requestedVersion := ""
+			var requestedVersion string
 			if len(args) == 0 {
 				requestedVersion = versionManager.Resolve(semantic.LatestStableKey)
 			} else {
@@ -135,7 +135,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			filePath := versionManager.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
 			if err != nil && conf.Verbose {
-				fmt.Println("Can not read used version :", err)
+				fmt.Println("Can not read used version :", err) //nolint
 			}
 			usedVersion := string(bytes.TrimSpace(data))
 

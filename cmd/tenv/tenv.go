@@ -46,12 +46,12 @@ type subCmdParams struct {
 func main() {
 	conf, err := config.InitConfigFromEnv()
 	if err != nil {
-		fmt.Println("Configuration error :", err)
+		fmt.Println("Configuration error :", err) //nolint
 		os.Exit(1)
 	}
 
 	if err = initRootCmd(&conf).Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println(err) //nolint
 		os.Exit(1)
 	}
 }
@@ -98,7 +98,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println("tenv", version)
+			fmt.Println("tenv", version) //nolint
 		},
 	}
 }

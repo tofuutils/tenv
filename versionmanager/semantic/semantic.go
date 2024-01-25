@@ -37,8 +37,8 @@ func alwaysTrue(string) bool {
 }
 
 func CmpVersion(v1Str string, v2Str string) int {
-	v1, err1 := version.NewVersion(v1Str)
-	v2, err2 := version.NewVersion(v2Str)
+	v1, err1 := version.NewVersion(v1Str) //nolint
+	v2, err2 := version.NewVersion(v2Str) //nolint
 
 	if hasErr1, hasErr2 := err1 != nil, err2 != nil; hasErr1 {
 		if hasErr2 {
@@ -79,7 +79,7 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 		if len(constraint) == 0 {
 			reverseOrder = true // erase min-required case
 			if verbose {
-				fmt.Println("No OpenTofu version requirement found in files, fallback to latest-stable")
+				fmt.Println("No OpenTofu version requirement found in files, fallback to latest-stable") //nolint
 			}
 		} else {
 			predicate = predicateFromConstraint(constraint)

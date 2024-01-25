@@ -34,8 +34,8 @@ const pageQuery = "?page="
 
 var errContinue = errors.New("continue")
 
-func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
-	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag) //nolint
+func DownloadAssetURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string) (map[string]string, error) {
+	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 	}
 
 	object, _ := value.(map[string]any)
-	baseAssetsUrl, ok := object["assets_url"].(string)
+	baseAssetsURL, ok := object["assets_url"].(string)
 	if !ok {
 		return nil, apierrors.ErrReturn
 	}
@@ -60,10 +60,10 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 
 	page := 1
 	assets := make(map[string]string, waited)
-	baseAssetsUrl += pageQuery
+	baseAssetsURL += pageQuery
 	for {
-		assetsUrl := baseAssetsUrl + strconv.Itoa(page)
-		value, err = apiGetRequest(assetsUrl, authorizationHeader)
+		assetsURL := baseAssetsURL + strconv.Itoa(page)
+		value, err = apiGetRequest(assetsURL, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -77,8 +77,8 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 	}
 }
 
-func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) {
-	latestUrl, err := url.JoinPath(githubReleaseUrl, "latest") //nolint
+func LatestRelease(githubReleaseURL string, githubToken string) (string, error) {
+	latestUrl, err := url.JoinPath(githubReleaseURL, "latest") //nolint
 	if err != nil {
 		return "", err
 	}
@@ -97,15 +97,15 @@ func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) 
 	return version, nil
 }
 
-func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error) {
-	basePageUrl := githubReleaseUrl + pageQuery
+func ListReleases(githubReleaseURL string, githubToken string) ([]string, error) {
+	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 
 	page := 1
 	var releases []string
 	for {
-		pageUrl := basePageUrl + strconv.Itoa(page)
-		value, err := apiGetRequest(pageUrl, authorizationHeader)
+		pageURL := basePageURL + strconv.Itoa(page)
+		value, err := apiGetRequest(pageURL, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -120,8 +120,8 @@ func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error)
 	}
 }
 
-func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
-	request, err := http.NewRequest(http.MethodGet, callUrl, nil)
+func apiGetRequest(callURL string, authorizationHeader string) (any, error) {
+	request, err := http.NewRequest(http.MethodGet, callURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 
 	for _, value := range values {
 		object, _ := value.(map[string]any)
-		assetName, ok := object["name"].(string)
+		assetName, ok := object["name"].(string) //nolint
 		if !ok {
 			return apierrors.ErrReturn
 		}
@@ -182,11 +182,11 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 			continue
 		}
 
-		downloadUrl, ok := object["browser_download_url"].(string)
+		downloadURL, ok := object["browser_download_url"].(string)
 		if !ok {
 			return apierrors.ErrReturn
 		}
-		assets[assetName] = downloadUrl
+		assets[assetName] = downloadURL
 
 		if len(assets) == waited {
 			return nil
