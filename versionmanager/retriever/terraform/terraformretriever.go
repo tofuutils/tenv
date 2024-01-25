@@ -53,7 +53,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, version)
+	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, version) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -172,12 +172,12 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 		return "", "", "", "", apierrors.ErrReturn
 	}
 
-	downloadSumsURL, err := url.JoinPath(baseVersionURL, shaFileName)
+	downloadSumsURL, err := url.JoinPath(baseVersionURL, shaFileName) //nolint
 	if err != nil {
 		return "", "", "", "", err
 	}
 
-	downloadSumsSigURL, err := url.JoinPath(baseVersionURL, shaSigFileName)
+	downloadSumsSigURL, err := url.JoinPath(baseVersionURL, shaSigFileName) //nolint
 	if err != nil {
 		return "", "", "", "", err
 	}
