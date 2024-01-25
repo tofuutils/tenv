@@ -56,7 +56,6 @@ func CmpVersion(v1Str string, v2Str string) int {
 
 // the boolean returned as second value indicates to reverse order for filtering.
 func ParsePredicate(requestedVersion string, displayName string, verbose bool) (func(string) bool, bool, error) {
-	predicate := StableVersion
 	reverseOrder := true
 	switch requestedVersion {
 	case MinRequiredKey:
@@ -64,57 +63,82 @@ func ParsePredicate(requestedVersion string, displayName string, verbose bool) (
 
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
-		constraintStr, err := terragruntparser.RetrieveVersionConstraint(verbose)
+		predicate, found, err := readTerragruntFile(verbose)
 		if err != nil {
 			return nil, false, err
 		}
-
-		if constraintStr != "" {
-			constraint, err := version.NewConstraint(constraintStr)
-			if err != nil {
-				return nil, false, err
-			}
-
-			predicate = predicateFromConstraint(constraint)
-
-			break
+		if found {
+			return predicate, reverseOrder, nil
 		}
 
-		requireds, err := tfparser.GatherRequiredVersion(verbose)
+		predicate, found, err = readTfFiles(verbose)
 		if err != nil {
 			return nil, false, err
 		}
+		if found {
+			return predicate, reverseOrder, nil
+		}
 
-		var constraint version.Constraints
-		for _, required := range requireds {
-			temp, err := version.NewConstraint(required)
-			if err != nil {
-				return nil, false, err
-			}
-			constraint = append(constraint, temp...)
+		if verbose {
+			fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
 		}
-		if len(constraint) == 0 {
-			reverseOrder = true // erase min-required case
-			if verbose {
-				fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
-			}
-		} else {
-			predicate = predicateFromConstraint(constraint)
-		}
+
+		return StableVersion, true, nil // erase min-required case
 	case LatestStableKey:
-		// nothing to do (stableVersion and reverseOrder will work)
+		return StableVersion, true, nil
 	case LatestKey:
-		predicate = alwaysTrue
+		return alwaysTrue, true, nil
 	default:
 		constraint, err := version.NewConstraint(requestedVersion)
 		if err != nil {
 			return nil, false, err
 		}
 
-		predicate = predicateFromConstraint(constraint)
+		return predicateFromConstraint(constraint), true, nil
+	}
+}
+
+func StableVersion(versionStr string) bool {
+	v, err := version.NewVersion(versionStr)
+
+	return err == nil && v.Prerelease() == ""
+}
+
+// the boolean returned as second value indicates if a predicate was found.
+func readTerragruntFile(verbose bool) (func(string) bool, bool, error) {
+	constraintStr, err := terragruntparser.RetrieveVersionConstraint(verbose)
+	if err != nil || constraintStr == "" {
+		return nil, false, err
 	}
 
-	return predicate, reverseOrder, nil
+	constraint, err := version.NewConstraint(constraintStr)
+	if err != nil {
+		return nil, false, err
+	}
+
+	return predicateFromConstraint(constraint), true, nil
+}
+
+// the boolean returned as second value indicates if a predicate was found.
+func readTfFiles(verbose bool) (func(string) bool, bool, error) {
+	requireds, err := tfparser.GatherRequiredVersion(verbose)
+	if err != nil {
+		return nil, false, err
+	}
+
+	var constraint version.Constraints
+	for _, required := range requireds {
+		temp, err := version.NewConstraint(required)
+		if err != nil {
+			return nil, false, err
+		}
+		constraint = append(constraint, temp...)
+	}
+	if len(constraint) == 0 {
+		return nil, false, nil
+	}
+
+	return predicateFromConstraint(constraint), true, nil
 }
 
 func predicateFromConstraint(constraint version.Constraints) func(string) bool {
@@ -123,10 +147,4 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 
 		return err == nil && constraint.Check(v)
 	}
-}
-
-func StableVersion(versionStr string) bool {
-	v, err := version.NewVersion(versionStr)
-
-	return err == nil && v.Prerelease() == ""
 }
