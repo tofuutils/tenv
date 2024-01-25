@@ -51,9 +51,9 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 
 // a separate function allows deferred Close to execute earlier.
 func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
-	destPath := filepath.Join(dirPath, zipFile.Name)
-	if !strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
-		return fmt.Errorf("content filepath is tainted: %s", zipFile.Name)
+	destPath, err := sanitizeArchivePath(dirPath, zipFile.Name)
+	if err != nil {
+		return err
 	}
 
 	if destPath[len(destPath)-1] == '/' {
@@ -72,4 +72,13 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
 		return err
 	}
 	return os.WriteFile(destPath, data, zipFile.Mode())
+}
+
+// Sanitize archive file pathing from "G305" (file traversal).
+func sanitizeArchivePath(dirPath string, fileName string) (destPath string, err error) {
+	destPath = filepath.Join(dirPath, fileName)
+	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
+		return destPath, nil
+	}
+	return "", fmt.Errorf("content filepath is tainted: %s", fileName)
 }
