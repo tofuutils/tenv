@@ -51,7 +51,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-// the boolean returned as second value indicates to reverse order for filtering
+// the boolean returned as second value indicates to reverse order for filtering.
 func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, bool, error) {
 	predicate := StableVersion
 	reverseOrder := true

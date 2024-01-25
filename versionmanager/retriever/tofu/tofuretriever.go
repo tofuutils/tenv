@@ -67,12 +67,12 @@ func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
 	stable := v.Prerelease() == ""
 
 	assetNames := buildAssetNames(versionStr, stable)
-	assets, err := github.DownloadAssetUrl(tag, assetNames, r.conf.TofuRemoteUrl, r.conf.GithubToken)
+	assets, err := github.DownloadAssetUrl(tag, assetNames, r.conf.TofuRemoteURL, r.conf.GithubToken)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := download.DownloadBytes(assets[assetNames[0]])
+	data, err := download.Bytes(assets[assetNames[0]])
 	if err != nil {
 		return nil, err
 	}
@@ -84,15 +84,15 @@ func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
-	return github.LatestRelease(r.conf.TofuRemoteUrl, r.conf.GithubToken)
+	return github.LatestRelease(r.conf.TofuRemoteURL, r.conf.GithubToken)
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(r.conf.TofuRemoteUrl, r.conf.GithubToken)
+	return github.ListReleases(r.conf.TofuRemoteURL, r.conf.GithubToken)
 }
 
 func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string) error {
-	dataSums, err := download.DownloadBytes(assets[assetNames[1]])
+	dataSums, err := download.Bytes(assets[assetNames[1]])
 	if err != nil {
 		return err
 	}
@@ -101,12 +101,12 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 		return err
 	}
 
-	dataSumsSig, err := download.DownloadBytes(assets[assetNames[3]])
+	dataSumsSig, err := download.Bytes(assets[assetNames[3]])
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.DownloadBytes(assets[assetNames[2]])
+	dataSumsCert, err := download.Bytes(assets[assetNames[2]])
 	if err != nil {
 		return err
 	}
@@ -126,14 +126,14 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 		return nil
 	}
 
-	dataSumsSig, err = download.DownloadBytes(assets[assetNames[4]])
+	dataSumsSig, err = download.Bytes(assets[assetNames[4]])
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.DownloadBytes(publicKeyUrl)
+		dataPublicKey, err = download.Bytes(publicKeyUrl)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}

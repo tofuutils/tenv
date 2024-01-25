@@ -47,7 +47,7 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 	return nil
 }
 
-// a separate function allows deferred Close to execute earlier
+// a separate function allows deferred Close to execute earlier.
 func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
 	destPath := path.Join(dirPath, zipFile.Name)
 	if destPath[len(destPath)-1] == '/' {

@@ -53,7 +53,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		version = version[1:]
 	}
 
-	baseVersionUrl, err := url.JoinPath(r.conf.TfRemoteUrl, version)
+	baseVersionUrl, err := url.JoinPath(r.conf.TfRemoteURL, version)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		return nil, err
 	}
 
-	data, err := download.DownloadBytes(downloadUrl)
+	data, err := download.Bytes(downloadUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
-	releaseUrl, err := url.JoinPath(r.conf.TfRemoteUrl, indexJson)
+	releaseUrl, err := url.JoinPath(r.conf.TfRemoteURL, indexJson)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsUrl string, downloadSumsSigUrl string) error {
-	dataSums, err := download.DownloadBytes(downloadSumsUrl)
+	dataSums, err := download.Bytes(downloadSumsUrl)
 	if err != nil {
 		return err
 	}
@@ -123,14 +123,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 		return err
 	}
 
-	dataSumsSig, err := download.DownloadBytes(downloadSumsSigUrl)
+	dataSumsSig, err := download.Bytes(downloadSumsSigUrl)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.DownloadBytes(publicKeyUrl)
+		dataPublicKey, err = download.Bytes(publicKeyUrl)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}
