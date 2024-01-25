@@ -22,7 +22,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-version"
-	"github.com/tofuutils/tenv/versionmanager/semantic/tfparser"
+	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
+	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
 )
 
 const (
@@ -54,7 +55,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 }
 
 // the boolean returned as second value indicates to reverse order for filtering.
-func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, bool, error) {
+func ParsePredicate(requestedVersion string, displayName string, verbose bool) (func(string) bool, bool, error) {
 	predicate := StableVersion
 	reverseOrder := true
 	switch requestedVersion {
@@ -77,9 +78,23 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 			constraint = append(constraint, temp...)
 		}
 		if len(constraint) == 0 {
-			reverseOrder = true // erase min-required case
-			if verbose {
-				fmt.Println("No OpenTofu version requirement found in files, fallback to latest-stable") //nolint
+			constraintStr, err := terragruntparser.RetrieveVersionConstraint(verbose)
+			if err != nil {
+				return nil, false, err
+			}
+
+			if constraintStr == "" {
+				reverseOrder = true // erase min-required case
+				if verbose {
+					fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
+				}
+			} else {
+				constraint, err := version.NewConstraint(constraintStr)
+				if err != nil {
+					return nil, false, err
+				}
+
+				predicate = predicateFromConstraint(constraint)
 			}
 		} else {
 			predicate = predicateFromConstraint(constraint)
@@ -93,6 +108,7 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 		if err != nil {
 			return nil, false, err
 		}
+
 		predicate = predicateFromConstraint(constraint)
 	}
 

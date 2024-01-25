@@ -76,7 +76,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 		return err
 	}
 
-	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.conf.Verbose)
+	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		return cleanedVersion, m.installSpecificVersion(cleanedVersion)
 	}
 
-	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.conf.Verbose)
+	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.conf.Verbose)
 	if err != nil {
 		return "", err
 	}
