@@ -34,8 +34,8 @@ const pageQuery = "?page="
 
 var errContinue = errors.New("continue")
 
-func DownloadAssetURL(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
-	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag) //nolint
+func DownloadAssetURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string) (map[string]string, error) {
+	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +77,8 @@ func DownloadAssetURL(tag string, searchedAssetNames []string, githubReleaseUrl 
 	}
 }
 
-func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) {
-	latestUrl, err := url.JoinPath(githubReleaseUrl, "latest") //nolint
+func LatestRelease(githubReleaseURL string, githubToken string) (string, error) {
+	latestUrl, err := url.JoinPath(githubReleaseURL, "latest") //nolint
 	if err != nil {
 		return "", err
 	}
@@ -93,17 +93,18 @@ func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) 
 	if !ok {
 		return "", apierrors.ErrReturn
 	}
+
 	return version, nil
 }
 
-func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error) {
-	basePageUrl := githubReleaseUrl + pageQuery
+func ListReleases(githubReleaseURL string, githubToken string) ([]string, error) {
+	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 
 	page := 1
 	var releases []string
 	for {
-		pageURL := basePageUrl + strconv.Itoa(page)
+		pageURL := basePageURL + strconv.Itoa(page)
 		value, err := apiGetRequest(pageURL, authorizationHeader)
 		if err != nil {
 			return nil, err
@@ -119,8 +120,8 @@ func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error)
 	}
 }
 
-func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
-	request, err := http.NewRequest(http.MethodGet, callUrl, nil)
+func apiGetRequest(callURL string, authorizationHeader string) (any, error) {
+	request, err := http.NewRequest(http.MethodGet, callURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -144,6 +145,7 @@ func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
 
 	var value any
 	err = json.Unmarshal(data, &value)
+
 	return value, err
 }
 
@@ -155,6 +157,7 @@ func buildAuthorizationHeader(token string) string {
 	var authorizationBuilder strings.Builder
 	authorizationBuilder.WriteString("Bearer ")
 	authorizationBuilder.WriteString(token)
+
 	return authorizationBuilder.String()
 }
 

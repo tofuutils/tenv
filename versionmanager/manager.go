@@ -87,7 +87,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 func (m VersionManager) InstallPath() string {
 	dir := path.Join(m.conf.RootPath, m.FolderName)
 	if err := os.MkdirAll(dir, 0755); err != nil && m.conf.Verbose {
-		fmt.Println("Can not create installation directory :", err)
+		fmt.Println("Can not create installation directory :", err) //nolint
 	}
 	return dir
 }
@@ -125,7 +125,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 	entries, err := os.ReadDir(m.InstallPath())
 	if err != nil {
 		if m.conf.Verbose {
-			fmt.Println("Can not read installed versions :", err)
+			fmt.Println("Can not read installed versions :", err) //nolint
 		}
 		return nil
 	}
@@ -170,7 +170,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 	return defaultVersion
 }
 
-// (made lazy method : not always useful and allows flag override for root path)
+// (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
 	return path.Join(m.conf.RootPath, m.VersionFileName)
 }
