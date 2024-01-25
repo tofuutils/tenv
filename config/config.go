@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	defaultTfHashicorpUrl = "https://releases.hashicorp.com/terraform"
-	defaultTofuGithubUrl  = "https://api.github.com/repos/opentofu/opentofu/releases"
+	defaultTfHashicorpURL = "https://releases.hashicorp.com/terraform"
+	defaultTofuGithubURL  = "https://api.github.com/repos/opentofu/opentofu/releases"
 
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
@@ -93,12 +93,12 @@ func InitConfigFromEnv() (Config, error) {
 
 	tfRemoteURL := os.Getenv(TfRemoteURLEnvName)
 	if tfRemoteURL == "" {
-		tfRemoteURL = defaultTfHashicorpUrl
+		tfRemoteURL = defaultTfHashicorpURL
 	}
 
 	tofuRemoteURL := os.Getenv(TofuRemoteURLEnvName)
 	if tofuRemoteURL == "" {
-		tofuRemoteURL = defaultTofuGithubUrl
+		tofuRemoteURL = defaultTofuGithubURL
 	}
 
 	rootPath := getenvFallback(tofuRootPathEnvName, tfRootPathEnvName)
