@@ -84,6 +84,7 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 			requireds = append(requireds, extracted...)
 			return nil
 		}
+
 		return nil
 	})
 

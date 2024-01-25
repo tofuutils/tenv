@@ -56,7 +56,7 @@ func MakeVersionManager(conf *config.Config, folderName string, retriever Releas
 	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
 }
 
-// detect version (can install depending on auto install env var)
+// detect version (can install depending on auto install env var).
 func (m VersionManager) Detect() (string, error) {
 	configVersion := m.Resolve(semantic.LatestAllowedKey)
 	return m.detect(configVersion)
@@ -83,7 +83,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 }
 
 // try to ensure the directory exists with a MkdirAll call.
-// (made lazy method : not always useful and allows flag override for root path)
+// (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() string {
 	dir := path.Join(m.conf.RootPath, m.FolderName)
 	if err := os.MkdirAll(dir, 0755); err != nil && m.conf.Verbose {
@@ -147,7 +147,7 @@ func (m VersionManager) Reset() error {
 	return os.RemoveAll(versionFilePath)
 }
 
-// (made lazy method : not always useful and allows flag override for root path)
+// (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) Resolve(defaultVersion string) string {
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
 		return forcedVersion

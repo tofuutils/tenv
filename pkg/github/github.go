@@ -34,7 +34,7 @@ const pageQuery = "?page="
 
 var errContinue = errors.New("continue")
 
-func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
+func DownloadAssetURL(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 	}
 
 	object, _ := value.(map[string]any)
-	baseAssetsUrl, ok := object["assets_url"].(string)
+	baseAssetsURL, ok := object["assets_url"].(string)
 	if !ok {
 		return nil, apierrors.ErrReturn
 	}
@@ -60,10 +60,10 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 
 	page := 1
 	assets := make(map[string]string, waited)
-	baseAssetsUrl += pageQuery
+	baseAssetsURL += pageQuery
 	for {
-		assetsUrl := baseAssetsUrl + strconv.Itoa(page)
-		value, err = apiGetRequest(assetsUrl, authorizationHeader)
+		assetsURL := baseAssetsURL + strconv.Itoa(page)
+		value, err = apiGetRequest(assetsURL, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -103,8 +103,8 @@ func ListReleases(githubReleaseUrl string, githubToken string) ([]string, error)
 	page := 1
 	var releases []string
 	for {
-		pageUrl := basePageUrl + strconv.Itoa(page)
-		value, err := apiGetRequest(pageUrl, authorizationHeader)
+		pageURL := basePageUrl + strconv.Itoa(page)
+		value, err := apiGetRequest(pageURL, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -179,11 +179,11 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 			continue
 		}
 
-		downloadUrl, ok := object["browser_download_url"].(string)
+		downloadURL, ok := object["browser_download_url"].(string)
 		if !ok {
 			return apierrors.ErrReturn
 		}
-		assets[assetName] = downloadUrl
+		assets[assetName] = downloadURL
 
 		if len(assets) == waited {
 			return nil
