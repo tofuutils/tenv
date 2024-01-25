@@ -84,7 +84,9 @@ If a parameter is passed, available options:
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url)\n- latest or latest-stable (checked against version available at ")
 	descBuilder.WriteString(params.remoteEnvName)
-	descBuilder.WriteString(" url)\n- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.")
+	descBuilder.WriteString(" url)\n- latest-allowed or min-required to scan your ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
 
 	installCmd := &cobra.Command{
 		Use:   "install [version]",
@@ -277,7 +279,9 @@ Available parameter options:
 - an exact Semver 2.0.0 version string to use
 - a version constraint string (checked against version available in TOFUENV_ROOT directory)
 - latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
-- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.`)
+- latest-allowed or min-required to scan your `)
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
 
 	workingDir := false
 
