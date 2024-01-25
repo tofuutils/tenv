@@ -28,7 +28,7 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
-// empty marker
+// empty marker.
 var e = struct{}{}
 
 //go:embed assets.json

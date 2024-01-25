@@ -64,6 +64,7 @@ func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, ce
 	if err = cmd.Run(); err != nil {
 		return ErrCheck
 	}
+
 	return nil
 }
 
@@ -77,6 +78,7 @@ func tempFile(name string, data []byte) (string, func(), error) {
 	if err = os.WriteFile(tmpFileName, data, 0600); err != nil {
 		return "", nil, err
 	}
+
 	return tmpFileName, func() {
 		os.Remove(tmpFileName)
 	}, nil

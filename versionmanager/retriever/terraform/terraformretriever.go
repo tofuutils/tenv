@@ -81,6 +81,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 	if err = r.checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
 		return nil, err
 	}
+
 	return data, nil
 }
 
@@ -97,6 +98,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 	}
 
 	slices.SortFunc(versions, semantic.CmpVersion)
+
 	return versions[versionLen-1], nil
 }
 
@@ -110,6 +112,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return extractReleases(value)
 }
 
@@ -138,6 +141,7 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 	if err != nil {
 		return err
 	}
+
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
 
@@ -155,6 +159,7 @@ func apiGetRequest(callUrl string) (any, error) {
 
 	var value any
 	err = json.Unmarshal(data, &value)
+
 	return value, err
 }
 
@@ -190,8 +195,10 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 		if osStr != searchedOs || archStr != searchedArch {
 			continue
 		}
+
 		return fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, nil
 	}
+
 	return "", "", "", "", apierrors.ErrAsset
 }
 
@@ -202,9 +209,10 @@ func extractReleases(value any) ([]string, error) {
 		return nil, apierrors.ErrReturn
 	}
 
-	var releases []string
+	releases := make([]string, 0, len(object))
 	for version := range object {
 		releases = append(releases, version)
 	}
+
 	return releases, nil
 }

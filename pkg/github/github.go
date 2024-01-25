@@ -93,6 +93,7 @@ func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) 
 	if !ok {
 		return "", apierrors.ErrReturn
 	}
+
 	return version, nil
 }
 
@@ -144,6 +145,7 @@ func apiGetRequest(callUrl string, authorizationHeader string) (any, error) {
 
 	var value any
 	err = json.Unmarshal(data, &value)
+
 	return value, err
 }
 
@@ -155,6 +157,7 @@ func buildAuthorizationHeader(token string) string {
 	var authorizationBuilder strings.Builder
 	authorizationBuilder.WriteString("Bearer ")
 	authorizationBuilder.WriteString(token)
+
 	return authorizationBuilder.String()
 }
 
@@ -189,6 +192,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 			return nil
 		}
 	}
+
 	return errContinue
 }
 
@@ -209,6 +213,7 @@ func extractReleases(releases []string, value any) ([]string, error) {
 		}
 		releases = append(releases, version)
 	}
+
 	return releases, errContinue
 }
 
@@ -223,5 +228,6 @@ func extractVersion(value any) (string, bool) {
 	if version[0] == 'v' {
 		version = version[1:]
 	}
+
 	return version, true
 }

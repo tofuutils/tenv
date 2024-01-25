@@ -82,8 +82,10 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 
 			extracted := extractRequiredVersion(parsedFile.Body, verbose)
 			requireds = append(requireds, extracted...)
+
 			return nil
 		}
+
 		return nil
 	})
 
@@ -94,8 +96,9 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 	rootContent, _, diags := body.PartialContent(terraformPartialSchema)
 	if diags.HasErrors() {
 		if verbose {
-			fmt.Println("Failed to parse tf file :", diags)
+			fmt.Println("Failed to parse tf file :", diags) //nolint
 		}
+
 		return nil
 	}
 
@@ -104,8 +107,9 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
 			if verbose {
-				fmt.Println("Failed to parse tf block :", diags)
+				fmt.Println("Failed to parse tf block :", diags) //nolint
 			}
+
 			return nil
 		}
 
@@ -117,22 +121,24 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 		val, diags := attr.Expr.Value(nil)
 		if diags.HasErrors() {
 			if verbose {
-				fmt.Println("Failures parsing tf attribute :", diags)
+				fmt.Println("Failures parsing tf attribute :", diags) //nolint
 			}
+
 			return nil
 		}
 
 		val, err := convert.Convert(val, cty.String)
 		if err != nil {
 			if verbose {
-				fmt.Println("Failed to convert tf attribute :", err)
+				fmt.Println("Failed to convert tf attribute :", err) //nolint
 			}
+
 			return nil
 		}
 
 		if val.IsNull() {
 			if verbose {
-				fmt.Println("Empty tf attribute")
+				fmt.Println("Empty tf attribute") //nolint
 			}
 
 			continue
@@ -140,11 +146,13 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 
 		if !val.IsWhollyKnown() {
 			if verbose {
-				fmt.Println("Unknown tf attribute")
+				fmt.Println("Unknown tf attribute") //nolint
 			}
+
 			continue
 		}
 		requireds = append(requireds, val.AsString())
 	}
+
 	return requireds
 }

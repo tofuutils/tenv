@@ -80,6 +80,7 @@ func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
 	if err = r.checkSumAndSig(v, stable, data, assetNames, assets); err != nil {
 		return nil, err
 	}
+
 	return data, nil
 }
 
@@ -119,10 +120,11 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 
 	if stable {
 		if r.conf.Verbose {
-			fmt.Println("cosign executable not found, fallback to pgp check")
+			fmt.Println("cosign executable not found, fallback to pgp check") //nolint
 		}
 	} else {
-		fmt.Println("skip signature check : cosign executable not found and pgp check not available for unstable version")
+		fmt.Println("skip signature check : cosign executable not found and pgp check not available for unstable version") //nolint
+
 		return nil
 	}
 
@@ -141,6 +143,7 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 	if err != nil {
 		return err
 	}
+
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
 
@@ -164,6 +167,7 @@ func buildAssetNames(version string, stable bool) []string {
 	if stable {
 		return []string{zipAssetName, sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig", sumsAssetName + ".gpgsig"}
 	}
+
 	return []string{zipAssetName, sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig"}
 }
 
@@ -172,5 +176,6 @@ func buildIdentity(v *version.Version) string {
 	indexDot := strings.LastIndexByte(cleanedVersion, '.')
 	// cleaned, so indexDot can not be -1
 	shortVersion := cleanedVersion[:indexDot]
+
 	return baseIdentity + shortVersion
 }

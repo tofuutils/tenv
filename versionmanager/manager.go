@@ -56,7 +56,7 @@ func MakeVersionManager(conf *config.Config, folderName string, retriever Releas
 	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
 }
 
-// detect version (can install depending on auto install env var)
+// detect version (can install depending on auto install env var).
 func (m VersionManager) Detect() (string, error) {
 	configVersion := m.Resolve(semantic.LatestAllowedKey)
 	return m.detect(configVersion)
@@ -147,7 +147,7 @@ func (m VersionManager) Reset() error {
 	return os.RemoveAll(versionFilePath)
 }
 
-// (made lazy method : not always useful and allows flag override for root path)
+// (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) Resolve(defaultVersion string) string {
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
 		return forcedVersion
@@ -170,7 +170,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 	return defaultVersion
 }
 
-// (made lazy method : not always useful and allows flag override for root path)
+// (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
 	return path.Join(m.conf.RootPath, m.VersionFileName)
 }
