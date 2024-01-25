@@ -8,34 +8,33 @@
   <a>
     <img src="assets/logo.png" alt="Logo" width="200" height="200">
   </a>
-
 <h3 align="center">tenv</h3>
-
   <p align="center">
     Terraform and OpenTofu version manager, written in Go.
     <br />
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
+    <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=issue%3A+bug&projects=&template=bug_report.md&title=">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
   </p>
 </div>
 
 
 ## About The Project
 
-Welcome to tenv, a versatile version manager for [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
-tenv is inspired by [tofuenv](https://github.com/tofuutils/tofuenv) and tfenv.
+Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
+
+**tenv** is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
 
 ### Key Features
 
-- Versatile Version Management: Easily switch between different versions of Terraform and OpenTofu.
+- Versatile version management: Easily switch between different versions of Terraform and OpenTofu.
 - [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform files.
-- Signature Verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)) for verifying OpenTofu signatures. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
-- Intuitive Installation: Simple installation process with Homebrew and manual options.
+- Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)) for verifying OpenTofu signatures. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
+- Intuitive installation: Simple installation process with Homebrew and manual options.
 
 
-## Table of Contents
+## Table of Contents (TODO)
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -66,11 +65,42 @@ tenv is inspired by [tofuenv](https://github.com/tofuutils/tofuenv) and tfenv.
 ## Getting Started
 
 ### Prerequisites
-If you need to enable cosign checks, install `cosign` via the following command:
+If you need to enable cosign checks, install `cosign` tool via one of the following commands:
+
+<details><summary><b>MacOS (Homebrew)</b></summary><br>
 
 ```sh
 brew install cosign
+```
+</details>
+
+
+<details><summary><b>Alpine Linux</b></summary><br>
+
+```sh
+apk add cosign
+```
+</details>
+
+
+<details><summary><b>Linux: RPM</b></summary><br>
+
+```sh
+LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | grep tag_name | cut -d : -f2 | tr -d "v\", ")
+curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-${LATEST_VERSION}-1.x86_64.rpm"
+sudo rpm -ivh cosign-${LATEST_VERSION}.x86_64.rpm
+```
+</details>
+
+
+<details><summary><b>Linux: dkpg</b></summary><br>
+
+```sh
+LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | grep tag_name | cut -d : -f2 | tr -d "v\", ")
+curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_VERSION}_amd64.deb"
+sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
   ```
+</details>
 
 ### Installation
 
@@ -89,20 +119,22 @@ TODO
 
 
 #### Manual Installation
-Get the most recent packaged binaries in either .zip or .tar.gz format by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's PATH.
+Get the most recent packaged binaries in either `.zip` or `.tar.gz` format by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
 
 #### Docker Installation
-You can use dockerized version of tenv via the following way:
+You can use dockerized version of tenv via the following commands:
 
 ```shell
-docker run -d -e HOME=abc --name=tenv --entrypoint=/bin/sh tofuutils/tenv
+TODO
 ```
 
 ## Usage
+**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use a subcommand `tenv tofu` or `tenv tf`. Below is a list of commands that use actual subcommands:
+TOFUENV_
+
 
 <details><summary><b>tenv (tool) install [version]</b></summary><br>
-
-Install a requested version of OpenTofu (into TOFUENV_ROOT directory from TOFUENV_REMOTE url).
+Install a requested version of <b>(tool)</b> (into <b>(TOOL)_ROOT</b> directory from <b>(TOOL)_REMOTE</b> url).
 
 Without a parameter, the version to use is resolved automatically via TOFUENV_TOFU_VERSION or [`.opentofu-version`](#opentofu-version-file) files
 (searched in the working directory, user home directory, and TOFUENV_ROOT directory).
