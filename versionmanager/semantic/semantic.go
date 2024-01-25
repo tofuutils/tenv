@@ -33,9 +33,7 @@ const (
 	MinRequiredKey   = "min-required"
 )
 
-func alwaysTrue(string) bool {
-	return true
-}
+var predicateReaders = []func(bool) (func(string) bool, bool, error){readTerragruntFile, readTfFiles} //nolint
 
 func CmpVersion(v1Str string, v2Str string) int {
 	v1, err1 := version.NewVersion(v1Str) //nolint
@@ -63,20 +61,14 @@ func ParsePredicate(requestedVersion string, displayName string, verbose bool) (
 
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
-		predicate, found, err := readTerragruntFile(verbose)
-		if err != nil {
-			return nil, false, err
-		}
-		if found {
-			return predicate, reverseOrder, nil
-		}
-
-		predicate, found, err = readTfFiles(verbose)
-		if err != nil {
-			return nil, false, err
-		}
-		if found {
-			return predicate, reverseOrder, nil
+		for _, reader := range predicateReaders {
+			predicate, found, err := reader(verbose)
+			if err != nil {
+				return nil, false, err
+			}
+			if found {
+				return predicate, reverseOrder, nil
+			}
 		}
 
 		if verbose {
@@ -102,6 +94,18 @@ func StableVersion(versionStr string) bool {
 	v, err := version.NewVersion(versionStr)
 
 	return err == nil && v.Prerelease() == ""
+}
+
+func alwaysTrue(string) bool {
+	return true
+}
+
+func predicateFromConstraint(constraint version.Constraints) func(string) bool {
+	return func(versionStr string) bool {
+		v, err := version.NewVersion(versionStr)
+
+		return err == nil && constraint.Check(v)
+	}
 }
 
 // the boolean returned as second value indicates if a predicate was found.
@@ -139,12 +143,4 @@ func readTfFiles(verbose bool) (func(string) bool, bool, error) {
 	}
 
 	return predicateFromConstraint(constraint), true, nil
-}
-
-func predicateFromConstraint(constraint version.Constraints) func(string) bool {
-	return func(versionStr string) bool {
-		v, err := version.NewVersion(versionStr)
-
-		return err == nil && constraint.Check(v)
-	}
 }
