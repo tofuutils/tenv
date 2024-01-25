@@ -46,6 +46,7 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

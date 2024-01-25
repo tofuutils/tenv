@@ -24,5 +24,6 @@ func Reverser[T any](cmpFunc func(a T, b T) int, reverseOrder bool) func(T, T) i
 			return cmpFunc(b, a)
 		}
 	}
+
 	return cmpFunc
 }

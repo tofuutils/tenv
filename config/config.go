@@ -135,5 +135,6 @@ func getenvFallback(keys ...string) string {
 			return value
 		}
 	}
+
 	return ""
 }
