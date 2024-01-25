@@ -44,10 +44,12 @@ func CmpVersion(v1Str string, v2Str string) int {
 		if hasErr2 {
 			return 0
 		}
+
 		return -1
 	} else if hasErr2 {
 		return 1
 	}
+
 	return v1.Compare(v2)
 }
 
@@ -58,7 +60,8 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 	switch requestedVersion {
 	case MinRequiredKey:
 		reverseOrder = false // start with older
-		fallthrough          // same predicate retrieving
+
+		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
 		requireds, err := tfparser.GatherRequiredVersion(verbose)
 		if err != nil {
@@ -92,17 +95,20 @@ func ParsePredicate(requestedVersion string, verbose bool) (func(string) bool, b
 		}
 		predicate = predicateFromConstraint(constraint)
 	}
+
 	return predicate, reverseOrder, nil
 }
 
 func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	return func(versionStr string) bool {
 		v, err := version.NewVersion(versionStr)
+
 		return err == nil && constraint.Check(v)
 	}
 }
 
 func StableVersion(versionStr string) bool {
 	v, err := version.NewVersion(versionStr)
+
 	return err == nil && v.Prerelease() == ""
 }

@@ -48,7 +48,8 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			if err != nil {
 				return err
 			}
-			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.")
+			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.") //nolint
+
 			return nil
 		},
 	}
@@ -97,6 +98,7 @@ If a parameter is passed, available options:
 			} else {
 				requestedVersion = args[0]
 			}
+
 			return versionManager.Install(requestedVersion)
 		},
 	}
@@ -139,14 +141,15 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 			for _, version := range versions {
 				if usedVersion == version {
-					fmt.Println("*", version, "(set by", filePath+")")
+					fmt.Println("*", version, "(set by", filePath+")") //nolint
 				} else {
-					fmt.Println(" ", version)
+					fmt.Println(" ", version) //nolint
 				}
 			}
 			if conf.Verbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.")
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.") //nolint
 			}
+
 			return nil
 		},
 	}
@@ -186,21 +189,23 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 			for _, version := range versions {
 				if filterStable && !semantic.StableVersion(version) {
 					countSkipped++
+
 					continue
 				}
 
 				if _, installed := localSet[version]; installed {
-					fmt.Println(version, "(installed)")
+					fmt.Println(version, "(installed)") //nolint
 				} else {
-					fmt.Println(version)
+					fmt.Println(version) //nolint
 				}
 			}
 			if conf.Verbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").")
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").") //nolint
 				if filterStable {
-					fmt.Println(countSkipped, "result(s) hidden (version not stable).")
+					fmt.Println(countSkipped, "result(s) hidden (version not stable).") //nolint
 				}
 			}
+
 			return err
 		},
 	}
@@ -232,6 +237,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 			return versionManager.Reset()
 		},
 	}
+
 	return resetCmd
 }
 
@@ -252,6 +258,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 			return versionManager.Uninstall(args[0])
 		},
 	}
+
 	return uninstallCmd
 }
 

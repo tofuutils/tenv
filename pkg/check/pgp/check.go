@@ -35,5 +35,6 @@ func Check(data []byte, dataSig []byte, dataPublicKey []byte) error {
 	}
 
 	message := crypto.NewPlainMessage(data)
+
 	return signingKeyRing.VerifyDetached(message, pgpSignature, crypto.GetUnixTime())
 }

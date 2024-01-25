@@ -41,6 +41,7 @@ func Check(data []byte, dataSums []byte, fileName string) error {
 	if !bytes.Equal(dataSum, hashed[:]) {
 		return ErrCheck
 	}
+
 	return nil
 }
 
@@ -50,8 +51,10 @@ func extract(dataSums []byte, fileName string) ([]byte, error) {
 		dataSumStr, ok := strings.CutSuffix(dataSumStr, fileName) //nolint
 		if ok {
 			dataSumStr = strings.TrimSpace(dataSumStr)
+
 			return hex.DecodeString(dataSumStr)
 		}
 	}
+
 	return nil, ErrNoSum
 }
