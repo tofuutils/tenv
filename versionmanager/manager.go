@@ -45,20 +45,22 @@ type ReleaseInfoRetriever interface {
 }
 
 type VersionManager struct {
-	conf            *config.Config
-	FolderName      string
-	retriever       ReleaseInfoRetriever
-	VersionEnvName  string
-	VersionFileName string
+	conf                  *config.Config
+	FolderName            string
+	retriever             ReleaseInfoRetriever
+	VersionEnvName        string
+	VersionFileName       string
+	otherVersionFileNames []string
 }
 
-func MakeVersionManager(conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName}
+func MakeVersionManager(conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string, otherVersionFileNames ...string) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName, otherVersionFileNames: otherVersionFileNames}
 }
 
 // detect version (can install depending on auto install env var).
 func (m VersionManager) Detect() (string, error) {
 	configVersion := m.Resolve(semantic.LatestAllowedKey)
+
 	return m.detect(configVersion)
 }
 
@@ -70,6 +72,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 
 	if requestedVersion == semantic.LatestKey {
 		_, err = m.installLatest()
+
 		return err
 	}
 
@@ -77,8 +80,10 @@ func (m VersionManager) Install(requestedVersion string) error {
 	if err != nil {
 		return err
 	}
+
 	// noInstall is set to false to force install regardless of conf
 	_, err = m.searchInstallRemote(predicate, reverseOrder, false)
+
 	return err
 }
 
@@ -89,6 +94,7 @@ func (m VersionManager) InstallPath() string {
 	if err := os.MkdirAll(dir, 0755); err != nil && m.conf.Verbose {
 		fmt.Println("Can not create installation directory :", err) //nolint
 	}
+
 	return dir
 }
 
@@ -107,6 +113,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 
 	cmpFunc := reversecmp.Reverser(semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
+
 	return versions, nil
 }
 
@@ -118,6 +125,7 @@ func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
 
 	cmpFunc := reversecmp.Reverser(semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
+
 	return versions, nil
 }
 
@@ -127,6 +135,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 		if m.conf.Verbose {
 			fmt.Println("Can not read installed versions :", err) //nolint
 		}
+
 		return nil
 	}
 
@@ -136,6 +145,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 			versionSet[entry.Name()] = struct{}{}
 		}
 	}
+
 	return versionSet
 }
 
@@ -144,6 +154,7 @@ func (m VersionManager) Reset() error {
 	if m.conf.Verbose {
 		fmt.Println("Remove", versionFilePath) //nolint
 	}
+
 	return os.RemoveAll(versionFilePath)
 }
 
@@ -158,6 +169,13 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 		return string(bytes.TrimSpace(data))
 	}
 
+	for _, versionFileName := range m.otherVersionFileNames {
+		data, err := os.ReadFile(versionFileName)
+		if err == nil {
+			return string(bytes.TrimSpace(data))
+		}
+	}
+
 	data, err = os.ReadFile(path.Join(m.conf.UserPath, m.VersionFileName))
 	if err == nil {
 		return string(bytes.TrimSpace(data))
@@ -167,6 +185,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 	if err == nil {
 		return string(bytes.TrimSpace(data))
 	}
+
 	return defaultVersion
 }
 
@@ -186,6 +205,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	if m.conf.Verbose {
 		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
 	}
+
 	return os.RemoveAll(targetPath)
 }
 
@@ -202,6 +222,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	if m.conf.Verbose {
 		fmt.Println("Write", detectedVersion, "in", targetFilePath) //nolint
 	}
+
 	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
 }
 
@@ -212,6 +233,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		if m.conf.NoInstall {
 			return cleanedVersion, nil
 		}
+
 		return cleanedVersion, m.installSpecificVersion(cleanedVersion)
 	}
 
@@ -243,8 +265,10 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		if m.conf.NoInstall {
 			return m.retriever.LatestRelease()
 		}
+
 		return m.installLatest()
 	}
+
 	return m.searchInstallRemote(predicate, reverseOrder, m.conf.NoInstall)
 }
 
@@ -253,6 +277,7 @@ func (m VersionManager) installLatest() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return latestVersion, m.installSpecificVersion(latestVersion)
 }
 
@@ -272,6 +297,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 			if m.conf.Verbose {
 				fmt.Println(m.FolderName, version, "already installed") //nolint
 			}
+
 			return nil
 		}
 	}
@@ -286,6 +312,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 	}
 
 	targetPath := path.Join(installPath, version)
+
 	return zip.UnzipToDir(data, targetPath)
 }
 
@@ -300,8 +327,10 @@ func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverse
 			if noInstall {
 				return version, nil
 			}
+
 			return version, m.installSpecificVersion(version)
 		}
 	}
+
 	return "", errNoCompatible
 }

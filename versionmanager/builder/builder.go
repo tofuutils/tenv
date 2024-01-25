@@ -28,7 +28,7 @@ import (
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {
 	tfRetriever := terraformretriever.NewTerraformRetriever(conf)
 
-	return versionmanager.MakeVersionManager(conf, "Terraform", tfRetriever, config.TfVersionEnvName, ".terraform-version")
+	return versionmanager.MakeVersionManager(conf, "Terraform", tfRetriever, config.TfVersionEnvName, ".terraform-version", ".tfswitchrc")
 }
 
 func BuildTofuManager(conf *config.Config) versionmanager.VersionManager {
