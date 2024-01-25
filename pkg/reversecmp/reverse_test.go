@@ -28,7 +28,7 @@ import (
 func TestReverserFalse(t *testing.T) {
 	t.Parallel()
 
-	reversed := reversecmp.Reverser(cmp.Compare[int], false)
+	reversed := reversecmp.Reverser[int](cmp.Compare[int], false)
 	if reversed(0, 5) != -1 {
 		t.Error("Not ordered")
 	}
@@ -43,7 +43,7 @@ func TestReverserFalse(t *testing.T) {
 func TestReverserTrue(t *testing.T) {
 	t.Parallel()
 
-	reversed := reversecmp.Reverser(cmp.Compare[int], true)
+	reversed := reversecmp.Reverser[int](cmp.Compare[int], true)
 	if reversed(0, 5) != 1 {
 		t.Error("Not inversed")
 	}
