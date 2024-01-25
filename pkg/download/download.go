@@ -24,7 +24,7 @@ import (
 )
 
 func Bytes(url string) ([]byte, error) {
-	response, err := http.Get(url)
+	response, err := http.Get(url) //nolint
 	if err != nil {
 		return nil, err
 	}

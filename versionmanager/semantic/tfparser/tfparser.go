@@ -35,13 +35,13 @@ type extDescription struct {
 	parseHCL bool
 }
 
-var exts = []extDescription{{value: ".tf", parseHCL: true}, {value: ".tf.json", parseHCL: false}}
+var exts = []extDescription{{value: ".tf", parseHCL: true}, {value: ".tf.json", parseHCL: false}} //nolint
 
-var terraformPartialSchema = &hcl.BodySchema{
+var terraformPartialSchema = &hcl.BodySchema{ //nolint
 	Blocks: []hcl.BlockHeaderSchema{{Type: "terraform"}},
 }
 
-var versionPartialSchema = &hcl.BodySchema{
+var versionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: "required_version"}},
 }
 

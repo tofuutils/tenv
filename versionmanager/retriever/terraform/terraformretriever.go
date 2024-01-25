@@ -53,7 +53,7 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		version = version[1:]
 	}
 
-	baseVersionUrl, err := url.JoinPath(r.conf.TfRemoteURL, version)
+	baseVersionUrl, err := url.JoinPath(r.conf.TfRemoteURL, version) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
-	releaseUrl, err := url.JoinPath(r.conf.TfRemoteURL, indexJson)
+	releaseUrl, err := url.JoinPath(r.conf.TfRemoteURL, indexJson) //nolint
 	if err != nil {
 		return nil, err
 	}
