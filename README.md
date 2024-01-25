@@ -19,13 +19,14 @@
   </p>
 </div>
 
-
+<a id="about-the-project"></a>
 ## About The Project
 
 Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
 
 **tenv** is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
 
+<a id="key-features"></a>
 ### Key Features
 
 - Versatile version management: Easily switch between different versions of Terraform and OpenTofu.
@@ -33,8 +34,8 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 - Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)) for verifying OpenTofu signatures. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
 
-
-## Table of Contents (TODO)
+<a id="table-of-contents"></a>
+## Table of Contents
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
@@ -46,6 +47,9 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
       </ul>
     </li>
     <li>
+        <a href="#table-of-contents">Table of contents</a>
+    </li>
+    <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
@@ -53,17 +57,21 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#environment-variables">Environment variables</a></li>
+    <li><a href="#version-files">Version files</a></li>
+    <li><a href="#technical-details">Technical details</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#comunity">Community</a></li>
+    <li><a href="#authors">Authors</a></li>
+    <li><a href="#licence">Licence</a></li>
   </ol>
 </details>
 
 
+<a id="getting-started"></a>
 ## Getting Started
 
+<a id="prerequisites"></a>
 ### Prerequisites
 If you need to enable cosign checks, install `cosign` tool via one of the following commands:
 
@@ -102,8 +110,11 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
   ```
 </details>
 
+
+<a id="installation"></a>
 ### Installation
 
+<a id="automatic-installation"></a>
 #### Automatic Installation
 <details><summary><b>MacOS (Homebrew)</b></summary><br>
 
@@ -117,10 +128,11 @@ brew install tenv
 TODO
 </details>
 
-
+<a id="manual-installation"></a>
 #### Manual Installation
 Get the most recent packaged binaries in either `.zip` or `.tar.gz` format by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
 
+<a id="docker-installation"></a>
 #### Docker Installation
 You can use dockerized version of tenv via the following commands:
 
@@ -128,6 +140,7 @@ You can use dockerized version of tenv via the following commands:
 TODO
 ```
 
+<a id="usage"></a>
 ## Usage
 **tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use a subcommand `tenv tofu` or `tenv tf`. Below is a list of commands that use actual subcommands:
 TOFUENV_
@@ -158,8 +171,6 @@ tenv install latest-allowed
 tenv install min-required
 ```
 </details>
-
-
 
 
 <details><summary><b>tenv (tool) use</b></summary><br>
@@ -304,42 +315,75 @@ Global Flags:
 </details>
 
 
-## Environment Variables
+<a id="environment-variables"></a>
+## Environment variables
 
-tenv commands support the following environment variables.
+tenv commands support two groups of environment variables, one for managing[ OpenTofu](https://opentofu.org) and one for managing [Terraform](https://www.terraform.io/)
 
-<details><summary><b>TOFUENV_AUTO_INSTALL (alias TFENV_AUTO_INSTALL)</b></summary><br>
+<a id="tofu-env-vars"></a>
+### OpenTofu environment variables
+
+<details><summary><b>TOFUENV_AUTO_INSTALL</b></summary><br>
 String (Default: true)
 
-If set to true tenv will automatically install a missing OpenTofu version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
+If set to true **tenv** will automatically install a missing `OpenTofu` version needed (fallback to latest-allowed strategy when no [`.opentofu-version`](#opentofu-version-file) files are found).
 
 `tenv` subcommands `detect` and `use` support a `--no-install`, `-n` disabling flag version.
 
-Example: Use OpenTofu version 1.6.0-rc1 that is not installed, and auto installation is disabled. (-v flag is equivalent to `TOFUENV_VERBOSE=true`)
+#### Example: 
+Use OpenTofu version 1.6.1 that is not installed, and auto installation is disabled. (-v flag is equivalent to `TOFUENV_VERBOSE=true`):
 
 ```console
-$ TOFUENV_AUTO_INSTALL=false tenv use -v 1.6.0-rc1
-Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.opentofu-version
+$ TOFUENV_AUTO_INSTALL=false tenv use -v 1.6.1
+Write 1.6.1 in /home/dvaumoron/.tenv/.opentofu-version
 ```
 
-Example: Use OpenTofu version 1.6.0-rc1 that is not installed, and auto installation stay enabled.
+#### Example: 
+Use OpenTofu version 1.6.0 that is not installed, and auto installation stay enabled.
 
 ```console
-$ tenv use -v 1.6.0-rc1
-Installation of OpenTofu 1.6.0-rc1
-Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.opentofu-version
+$ tenv use -v 1.6.0
+Installation of OpenTofu 1.6.0
+Write 1.6.0 in /home/dvaumoron/.tenv/.opentofu-version
 ```
 </details>
 
 
-<details><summary><b>TOFUENV_FORCE_REMOTE (alias TFENV_FORCE_REMOTE)</b></summary><br>
+<details><summary><b>TOFUENV_FORCE_REMOTE</b></summary><br>
 String (Default: false)
 
-If set to true tenv detection of needed version will skip local check and verify compatibility on remote list.
+If set to true **tenv** detection of needed version will skip local check and verify compatibility on remote list.
 
 `tenv` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
 </details>
 
+
+<details><summary><b>TOFUENV_OPENTOFU_PGP_KEY</b></summary><br>
+String (Default: "")
+
+Allow to specify a local file path to OpenTofu PGP public key, if not present download https://get.opentofu.org/opentofu.asc.
+
+**tenv** subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
+</details>
+
+
+<details><summary><b>TOFUENV_REMOTE</b></summary><br>
+String (Default: https://releases.hashicorp.com/terraform)
+
+To install OpenTofu from a remote other than the default.
+
+`tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+</details>
+
+
+<details><summary><b>TOFUENV_ROOT</b></summary><br>
+
+String (Default: `${HOME}/.tenv`)
+
+The path to a directory where the local OpenTofu versions, Terraform versions and tenv configuration files exist.
+
+`tenv` support a `--root-path`, `-r` flag version.
+</details>
 
 <details><summary><b>TOFUENV_GITHUB_TOKEN</b></summary><br>
 String (Default: "")
@@ -350,48 +394,12 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 </details>
 
 
-<details><summary><b>TOFUENV_OPENTOFU_PGP_KEY</b></summary><br>
-String (Default: "")
+<details><summary><b>TOFUENV_VERBOSE</b></summary><br>
+String (Default: false)
 
-Allow to specify a local file path to OpenTofu PGP public key, if not present download https://get.opentofu.org/opentofu.asc.
+Active the verbose display of **tenv**.
 
-`tenv` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
-</details>
-
-
-<details><summary><b>TFENV_HASHICORP_PGP_KEY</b></summary><br>
-String (Default: "")
-
-Allow to specify a local file path to Hashicorp PGP public key, if not present download https://www.hashicorp.com/.well-known/pgp-key.txt.
-
-`tenv tf` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
-</details>
-
-
-<details><summary><b>TOFUENV_REMOTE</b></summary><br>
-String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
-
-To install OpenTofu from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
-
-`tenv` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
-</details>
-
-
-<details><summary><b>TFENV_REMOTE</b></summary><br>
-String (Default: https://releases.hashicorp.com/terraform)
-
-To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
-
-`tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
-</details>
-
-
-<details><summary><b>TOFUENV_ROOT (alias TFENV_ROOT)</b></summary><br>
-Path (Default: `$HOME/.tenv`)
-
-The path to a directory where the local OpenTofu versions, Terraform versions and tenv configuration files exist.
-
-`tenv` support a `--root-path`, `-r` flag version.
+`tenv` support a `--verbose`, `-v` flag version.
 </details>
 
 
@@ -419,16 +427,69 @@ on linux_amd64
 </details>
 
 
-<details><summary><b>TFENV_TERRAFORM_VERSION</b></summary><br>
-String (Default: "")
+<a id="tf-env-vars"></a>
+### Terraform environment variables
+<details><summary><b>TFENV_AUTO_INSTALL</b></summary><br>
+String (Default: true)
 
-If not empty string, this variable overrides Terraform version, specified in `.terraform-version` files.
+If set to true tenv will automatically install a missing Terraform version needed (fallback to latest-allowed strategy when no [`.terraform-version`](#terraform-version-file) files are found).
 
-`tenv tf` subcommands `install` and `detect` also respects this variable.
+`tenv` subcommands `detect` and `use` support a `--no-install`, `-n` disabling flag version.
+
+Example: Use Terraform version 1.6.0-rc1 that is not installed, and auto installation is disabled. (-v flag is equivalent to `TFENV_VERBOSE=true`)
+
+```console
+$ TFENV_AUTO_INSTALL=false tenv use -v 1.6.0-rc1
+Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.terraform-version
+```
+
+Example: Use Terraform version 1.6.0-rc1 that is not installed, and auto installation stay enabled.
+
+```console
+$ tenv use -v 1.6.0-rc1
+Installation of Terraform 1.6.0-rc1
+Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.terraform-version
+```
 </details>
 
 
-<details><summary><b>TOFUENV_VERBOSE (alias TFENV_VERBOSE)</b></summary><br>
+<details><summary><b>TFENV_FORCE_REMOTE</b></summary><br>
+String (Default: false)
+
+If set to true tenv detection of needed version will skip local check and verify compatibility on remote list.
+
+`tenv` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
+</details>
+
+
+<details><summary><b>TFENV_HASHICORP_PGP_KEY</b></summary><br>
+String (Default: "")
+
+Allow to specify a local file path to Hashicorp PGP public key, if not present download https://www.hashicorp.com/.well-known/pgp-key.txt.
+
+`tenv tf` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
+</details>
+
+
+<details><summary><b>TFENV_REMOTE</b></summary><br>
+String (Default: https://api.github.com/repos/terraform/terraform/releases)
+
+To install Terraform from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
+
+`tenv` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+</details>
+
+
+<details><summary><b>TFENV_ROOT</b></summary><br>
+Path (Default: `$HOME/.tenv`)
+
+The path to a directory where the local Terraform versions, Terraform versions and tenv configuration files exist.
+
+`tenv` support a `--root-path`, `-r` flag version.
+</details>
+
+
+<details><summary><b>TFENV_VERBOSE</b></summary><br>
 String (Default: false)
 
 Active the verbose display of tenv.
@@ -437,7 +498,33 @@ Active the verbose display of tenv.
 </details>
 
 
-## .opentofu-version file
+<details><summary><b>TFENV_TOFU_VERSION</b></summary><br>
+String (Default: "")
+
+If not empty string, this variable overrides Terraform version, specified in [`.terraform-version`](#terraform-version-file) files.
+`tenv` subcommands `install` and `detect` also respects this variable.
+
+e.g. with :
+
+```console
+$ tofu version
+Terraform v1.6.0
+on linux_amd64
+```
+
+then :
+
+```console
+$ TFENV_TOFU_VERSION=1.6.0-rc1 tofu version
+Terraform v1.6.0-rc1
+on linux_amd64
+```
+</details>
+
+
+## version files
+
+### .opentofu-version file
 
 If you put a `.opentofu-version` file in the working directory, user home directory, or TOFUENV_ROOT directory, tenv detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
@@ -451,6 +538,11 @@ Recognized values (same as `tenv use` command):
 
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
+### .terraform-version file
+TODO
+
+### terragrunt.hcl file
+TODO
 
 ## Technical details
 
