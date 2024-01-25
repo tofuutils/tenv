@@ -35,7 +35,7 @@ const pageQuery = "?page="
 var errContinue = errors.New("continue")
 
 func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl string, githubToken string) (map[string]string, error) {
-	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag)
+	releaseUrl, err := url.JoinPath(githubReleaseUrl, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func DownloadAssetUrl(tag string, searchedAssetNames []string, githubReleaseUrl 
 }
 
 func LatestRelease(githubReleaseUrl string, githubToken string) (string, error) {
-	latestUrl, err := url.JoinPath(githubReleaseUrl, "latest")
+	latestUrl, err := url.JoinPath(githubReleaseUrl, "latest") //nolint
 	if err != nil {
 		return "", err
 	}
