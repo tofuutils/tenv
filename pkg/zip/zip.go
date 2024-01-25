@@ -81,5 +81,6 @@ func sanitizeArchivePath(dirPath string, fileName string) (destPath string, err 
 	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
 		return destPath, nil
 	}
+
 	return "", fmt.Errorf("content filepath is tainted: %s", fileName)
 }

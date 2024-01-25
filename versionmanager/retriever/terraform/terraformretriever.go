@@ -68,12 +68,12 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		return nil, err
 	}
 
-	fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, err := extractAssetUrls(baseVersionUrl, runtime.GOOS, runtime.GOARCH, value)
+	fileName, downloadURL, downloadSumsUrl, downloadSumsSigUrl, err := extractAssetUrls(baseVersionUrl, runtime.GOOS, runtime.GOARCH, value)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := download.Bytes(downloadUrl)
+	data, err := download.Bytes(downloadURL)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 		object, _ = build.(map[string]any)
 		osStr, ok := object["os"].(string)
 		archStr, ok2 := object["arch"].(string)
-		downloadUrl, ok3 := object["url"].(string)
+		downloadURL, ok3 := object["url"].(string)
 		fileName, ok4 := object["filename"].(string)
 		if !ok || !ok2 || !ok3 || !ok4 {
 			return "", "", "", "", apierrors.ErrReturn
@@ -190,7 +190,7 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 		if osStr != searchedOs || archStr != searchedArch {
 			continue
 		}
-		return fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, nil
+		return fileName, downloadURL, downloadSumsUrl, downloadSumsSigUrl, nil
 	}
 	return "", "", "", "", apierrors.ErrAsset
 }
