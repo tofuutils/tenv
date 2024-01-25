@@ -134,6 +134,7 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 			if verbose {
 				fmt.Println("Empty tf attribute")
 			}
+
 			continue
 		}
 
