@@ -31,14 +31,14 @@ import (
 func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, execName string) {
 	conf, err := config.InitConfigFromEnv()
 	if err != nil {
-		fmt.Println("Configuration error :", err)
+		fmt.Println("Configuration error :", err) //nolint
 		os.Exit(1)
 	}
 
 	versionManager := builderFunc(&conf)
 	detectedVersion, err := versionManager.Detect()
 	if err != nil {
-		fmt.Println("Failed to detect a version allowing to call", execName, ":", err)
+		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
 	}
 
@@ -52,6 +52,6 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 		if exitError, ok := err.(*exec.ExitError); ok {
 			os.Exit(exitError.ExitCode())
 		}
-		fmt.Println("Failure during", execName, "call :", err)
+		fmt.Println("Failure during", execName, "call :", err) //nolint
 	}
 }

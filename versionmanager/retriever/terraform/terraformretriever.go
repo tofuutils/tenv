@@ -35,7 +35,7 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
-const publicKeyUrl = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+const publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
 const indexJson = "index.json"
 
@@ -53,12 +53,12 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		version = version[1:]
 	}
 
-	baseVersionUrl, err := url.JoinPath(r.conf.TfRemoteURL, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, version)
 	if err != nil {
 		return nil, err
 	}
 
-	versionUrl, err := url.JoinPath(baseVersionUrl, indexJson) //nolint
+	versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -68,17 +68,17 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 		return nil, err
 	}
 
-	fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, err := extractAssetUrls(baseVersionUrl, runtime.GOOS, runtime.GOARCH, value)
+	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, value)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := download.Bytes(downloadUrl)
+	data, err := download.Bytes(downloadURL)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = r.checkSumAndSig(fileName, data, downloadSumsUrl, downloadSumsSigUrl); err != nil {
+	if err = r.checkSumAndSig(fileName, data, downloadSumsURL, downloadSumsSigURL); err != nil {
 		return nil, err
 	}
 
@@ -116,8 +116,8 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	return extractReleases(value)
 }
 
-func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsUrl string, downloadSumsSigUrl string) error {
-	dataSums, err := download.Bytes(downloadSumsUrl)
+func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
+	dataSums, err := download.Bytes(downloadSumsURL)
 	if err != nil {
 		return err
 	}
@@ -126,14 +126,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigUrl)
+	dataSumsSig, err := download.Bytes(downloadSumsSigURL)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyUrl)
+		dataPublicKey, err = download.Bytes(publicKeyURL)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}
@@ -145,8 +145,8 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
 
-func apiGetRequest(callUrl string) (any, error) {
-	response, err := http.Get(callUrl)
+func apiGetRequest(callURL string) (any, error) {
+	response, err := http.Get(callURL)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func apiGetRequest(callUrl string) (any, error) {
 	return value, err
 }
 
-func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
+func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	shaFileName, ok2 := object["shasums"].(string)
@@ -172,12 +172,12 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 		return "", "", "", "", apierrors.ErrReturn
 	}
 
-	downloadSumsUrl, err := url.JoinPath(baseVersionUrl, shaFileName) //nolint
+	downloadSumsURL, err := url.JoinPath(baseVersionURL, shaFileName)
 	if err != nil {
 		return "", "", "", "", err
 	}
 
-	downloadSumsSigUrl, err := url.JoinPath(baseVersionUrl, shaSigFileName) //nolint
+	downloadSumsSigURL, err := url.JoinPath(baseVersionURL, shaSigFileName)
 	if err != nil {
 		return "", "", "", "", err
 	}
@@ -186,7 +186,7 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 		object, _ = build.(map[string]any)
 		osStr, ok := object["os"].(string)
 		archStr, ok2 := object["arch"].(string)
-		downloadUrl, ok3 := object["url"].(string)
+		downloadURL, ok3 := object["url"].(string)
 		fileName, ok4 := object["filename"].(string)
 		if !ok || !ok2 || !ok3 || !ok4 {
 			return "", "", "", "", apierrors.ErrReturn
@@ -196,7 +196,7 @@ func extractAssetUrls(baseVersionUrl string, searchedOs string, searchedArch str
 			continue
 		}
 
-		return fileName, downloadUrl, downloadSumsUrl, downloadSumsSigUrl, nil
+		return fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, nil
 	}
 
 	return "", "", "", "", apierrors.ErrAsset

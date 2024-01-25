@@ -32,12 +32,16 @@ var data []byte
 var dataSums []byte
 
 func TestSha256CheckCorrect(t *testing.T) {
+	t.Parallel()
+
 	if err := sha256check.Check(data, dataSums, "tofu_1.6.0_linux_arm64.zip"); err != nil {
 		t.Error("Unexpected error : ", err)
 	}
 }
 
 func TestSha256CheckError(t *testing.T) {
+	t.Parallel()
+
 	if err := sha256check.Check(data, dataSums, "tofu_1.6.0_linux_amd64.zip"); err == nil {
 		t.Error("Should fail on non corresponding file and fileName")
 	} else if err != sha256check.ErrCheck {
@@ -46,6 +50,8 @@ func TestSha256CheckError(t *testing.T) {
 }
 
 func TestSha256Extract(t *testing.T) {
+	t.Parallel()
+
 	if err := sha256check.Check(data, dataSums, "any_name.zip"); err == nil {
 		t.Fatal("Should fail on non exiting fileName")
 	} else if err != sha256check.ErrNoSum {

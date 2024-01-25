@@ -62,6 +62,8 @@ func init() {
 }
 
 func TestExtractAssetsEmpty(t *testing.T) {
+	t.Parallel()
+
 	assets := map[string]string{}
 	searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": e, "tofu_1.6.0_amd64.apk.gpgsig": e}
 	err := extractAssets(assets, searchedAssetNames, 2, []any{})
@@ -73,6 +75,8 @@ func TestExtractAssetsEmpty(t *testing.T) {
 }
 
 func TestExtractAssetsMissing(t *testing.T) {
+	t.Parallel()
+
 	if assetsErr != nil {
 		t.Fatal("Unexpected parsing error : ", assetsErr)
 	}
@@ -88,6 +92,8 @@ func TestExtractAssetsMissing(t *testing.T) {
 }
 
 func TestExtractAssetsPresent(t *testing.T) {
+	t.Parallel()
+
 	if assetsErr != nil {
 		t.Fatal("Unexpected parsing error : ", assetsErr)
 	}
@@ -108,6 +114,8 @@ func TestExtractAssetsPresent(t *testing.T) {
 }
 
 func TestExtractReleasesEmpty(t *testing.T) {
+	t.Parallel()
+
 	releases, err := extractReleases([]string{"value"}, []any{})
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
@@ -124,6 +132,8 @@ func TestExtractReleasesEmpty(t *testing.T) {
 }
 
 func TestExtractReleasesPresent(t *testing.T) {
+	t.Parallel()
+
 	if releasesErr != nil {
 		t.Fatal("Unexpected parsing error : ", releasesErr)
 	}
@@ -143,6 +153,8 @@ func TestExtractReleasesPresent(t *testing.T) {
 }
 
 func TestExtractVersion(t *testing.T) {
+	t.Parallel()
+
 	if releaseErr != nil {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
 	}
