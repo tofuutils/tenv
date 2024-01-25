@@ -21,9 +21,11 @@ package zip
 import (
 	"archive/zip"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
+	"strings"
 )
 
 // ensure the directory exists with a MkdirAll call.
@@ -49,7 +51,11 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 
 // a separate function allows deferred Close to execute earlier.
 func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
-	destPath := path.Join(dirPath, zipFile.Name)
+	destPath := filepath.Join(dirPath, zipFile.Name)
+	if !strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
+		return fmt.Errorf("content filepath is tainted: %s", zipFile.Name)
+	}
+
 	if destPath[len(destPath)-1] == '/' {
 		// trailing slash indicates a directory
 		return os.MkdirAll(destPath, 0755)

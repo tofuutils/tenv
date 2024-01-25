@@ -74,7 +74,7 @@ func tempFile(name string, data []byte) (string, func(), error) {
 	}
 
 	tmpFileName := tmpFile.Name()
-	if err = os.WriteFile(tmpFileName, data, 0644); err != nil {
+	if err = os.WriteFile(tmpFileName, data, 0600); err != nil {
 		return "", nil, err
 	}
 	return tmpFileName, func() {
