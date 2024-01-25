@@ -132,6 +132,7 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 			if verbose {
 				fmt.Println("Failed to convert tf attribute :", err) //nolint
 			}
+
 			return nil
 		}
 

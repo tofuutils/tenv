@@ -35,18 +35,24 @@ var dataSig []byte
 var dataKey []byte
 
 func TestPgpCheckCorrect(t *testing.T) {
+	t.Parallel()
+
 	if err := pgpcheck.Check(data, dataSig, dataKey); err != nil {
 		t.Error("Unexpected error : ", err)
 	}
 }
 
 func TestPgpCheckErrorKey(t *testing.T) {
+	t.Parallel()
+
 	if pgpcheck.Check(data, dataSig, dataKey[1:]) == nil {
 		t.Error("Should fail on erroneous public key")
 	}
 }
 
 func TestPgpCheckErrorSig(t *testing.T) {
+	t.Parallel()
+
 	if pgpcheck.Check(data, dataSig[1:], dataKey) == nil {
 		t.Error("Should fail on erroneous signature")
 	}

@@ -77,8 +77,8 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
 }
 
 // Sanitize archive file pathing from "G305" (file traversal).
-func sanitizeArchivePath(dirPath string, fileName string) (destPath string, err error) {
-	destPath = filepath.Join(dirPath, fileName)
+func sanitizeArchivePath(dirPath string, fileName string) (string, error) {
+	destPath := filepath.Join(dirPath, fileName)
 	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
 		return destPath, nil
 	}

@@ -142,7 +142,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 func (m VersionManager) Reset() error {
 	versionFilePath := m.RootVersionFilePath()
 	if m.conf.Verbose {
-		fmt.Println("Remove", versionFilePath)
+		fmt.Println("Remove", versionFilePath) //nolint
 	}
 	return os.RemoveAll(versionFilePath)
 }
@@ -184,7 +184,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	cleanedVersion := parsedVersion.String()
 	targetPath := path.Join(m.InstallPath(), cleanedVersion)
 	if m.conf.Verbose {
-		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")")
+		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
 	}
 	return os.RemoveAll(targetPath)
 }
@@ -200,7 +200,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 		targetFilePath = m.RootVersionFilePath()
 	}
 	if m.conf.Verbose {
-		fmt.Println("Write", detectedVersion, "in", targetFilePath)
+		fmt.Println("Write", detectedVersion, "in", targetFilePath) //nolint
 	}
 	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
 }
@@ -235,7 +235,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		if m.conf.NoInstall {
 			return "", errNoCompatible
 		} else if m.conf.Verbose {
-			fmt.Println("No compatible version found locally, search a remote one...")
+			fmt.Println("No compatible version found locally, search a remote one...") //nolint
 		}
 	}
 
@@ -270,14 +270,14 @@ func (m VersionManager) installSpecificVersion(version string) error {
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
 			if m.conf.Verbose {
-				fmt.Println(m.FolderName, version, "already installed")
+				fmt.Println(m.FolderName, version, "already installed") //nolint
 			}
 			return nil
 		}
 	}
 
 	if m.conf.Verbose {
-		fmt.Println("Installation of", m.FolderName, version)
+		fmt.Println("Installation of", m.FolderName, version) //nolint
 	}
 
 	data, err := m.retriever.DownloadReleaseZip(version)

@@ -49,6 +49,8 @@ func init() {
 }
 
 func TestExtractAssetUrls(t *testing.T) {
+	t.Parallel()
+
 	if releaseErr != nil {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
 	}
@@ -73,6 +75,8 @@ func TestExtractAssetUrls(t *testing.T) {
 }
 
 func TestExtractReleases(t *testing.T) {
+	t.Parallel()
+
 	if releasesErr != nil {
 		t.Fatal("Unexpected parsing error : ", releasesErr)
 	}
