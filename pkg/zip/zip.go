@@ -72,6 +72,7 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
 	if err != nil {
 		return err
 	}
+
 	return os.WriteFile(destPath, data, zipFile.Mode())
 }
 

@@ -48,7 +48,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			if err != nil {
 				return err
 			}
-			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.")
+			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.") //nolint
 			return nil
 		},
 	}
@@ -133,15 +133,15 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			filePath := versionManager.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
 			if err != nil && conf.Verbose {
-				fmt.Println("Can not read used version :", err)
+				fmt.Println("Can not read used version :", err) //nolint
 			}
 			usedVersion := string(bytes.TrimSpace(data))
 
 			for _, version := range versions {
 				if usedVersion == version {
-					fmt.Println("*", version, "(set by", filePath+")")
+					fmt.Println("*", version, "(set by", filePath+")") //nolint
 				} else {
-					fmt.Println(" ", version)
+					fmt.Println(" ", version) //nolint
 				}
 			}
 			if conf.Verbose {
@@ -186,6 +186,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 			for _, version := range versions {
 				if filterStable && !semantic.StableVersion(version) {
 					countSkipped++
+
 					continue
 				}
 

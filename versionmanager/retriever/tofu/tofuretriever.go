@@ -33,7 +33,7 @@ import (
 	"github.com/tofuutils/tenv/pkg/github"
 )
 
-const publicKeyUrl = "https://get.opentofu.org/opentofu.asc"
+const publicKeyURL = "https://get.opentofu.org/opentofu.asc"
 
 const (
 	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
@@ -60,7 +60,7 @@ func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
 		tag = "v" + versionStr
 	}
 
-	v, err := version.NewVersion(versionStr)
+	v, err := version.NewVersion(versionStr) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.TofuRemoteURL, r.conf.GithubToken)
 }
 
-func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string) error {
+func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string) error {
 	dataSums, err := download.Bytes(assets[assetNames[1]])
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 		return err
 	}
 
-	identity := buildIdentity(v)
+	identity := buildIdentity(version)
 	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer)
 	if err == nil || err != cosigncheck.ErrNotInstalled {
 		return err
@@ -133,7 +133,7 @@ func (r *TofuRetriever) checkSumAndSig(v *version.Version, stable bool, data []b
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyUrl)
+		dataPublicKey, err = download.Bytes(publicKeyURL)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}

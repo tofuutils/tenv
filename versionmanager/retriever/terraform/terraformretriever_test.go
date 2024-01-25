@@ -53,7 +53,7 @@ func TestExtractAssetUrls(t *testing.T) {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
 	}
 
-	fileName, downloadURL, downloadSumsUrl, downloadSumsSigUrl, err := extractAssetUrls("http://localhost:8080", "linux", "386", releaseValue)
+	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls("http://localhost:8080", "linux", "386", releaseValue)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -64,11 +64,11 @@ func TestExtractAssetUrls(t *testing.T) {
 	if downloadURL != "https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_386.zip" {
 		t.Error("Unexpected downloadURL, get :", downloadURL)
 	}
-	if downloadSumsUrl != "http://localhost:8080/terraform_1.7.0_SHA256SUMS" {
-		t.Error("Unexpected downloadSumsUrl, get :", downloadSumsUrl)
+	if downloadSumsURL != "http://localhost:8080/terraform_1.7.0_SHA256SUMS" {
+		t.Error("Unexpected downloadSumsURL, get :", downloadSumsURL)
 	}
-	if downloadSumsSigUrl != "http://localhost:8080/terraform_1.7.0_SHA256SUMS.sig" {
-		t.Error("Unexpected downloadSumsSigUrl, get :", downloadSumsSigUrl)
+	if downloadSumsSigURL != "http://localhost:8080/terraform_1.7.0_SHA256SUMS.sig" {
+		t.Error("Unexpected downloadSumsSigURL, get :", downloadSumsSigURL)
 	}
 }
 

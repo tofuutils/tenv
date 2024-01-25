@@ -33,7 +33,7 @@ const (
 	tfHelp          = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
 )
 
-// can be overridden with ldflags
+// can be overridden with ldflags.
 var version = "dev"
 
 type subCmdParams struct {
