@@ -30,7 +30,7 @@ const (
 
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
-	remoteUrlEnvName   = "REMOTE"
+	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
 	verboseEnvName     = "VERBOSE"
 
@@ -38,7 +38,7 @@ const (
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
 	tfForceRemoteEnvName     = tfenvPrefix + forceRemoteEnvName
 	tfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
-	TfRemoteUrlEnvName       = tfenvPrefix + remoteUrlEnvName
+	TfRemoteURLEnvName       = tfenvPrefix + remoteURLEnvName
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
 	tfVerboseEnvName         = tfenvPrefix + verboseEnvName
 	TfVersionEnvName         = tfenvPrefix + "TERRAFORM_VERSION"
@@ -47,7 +47,7 @@ const (
 	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
 	tofuForceRemoteEnvName    = tofuenvPrefix + forceRemoteEnvName
 	tofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
-	TofuRemoteUrlEnvName      = tofuenvPrefix + remoteUrlEnvName
+	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName          = tofuenvPrefix + "GITHUB_TOKEN"
 	tofuVerboseEnvName        = tofuenvPrefix + verboseEnvName
@@ -60,9 +60,9 @@ type Config struct {
 	NoInstall     bool
 	RootPath      string
 	TfKeyPath     string
-	TfRemoteUrl   string
+	TfRemoteURL   string
 	TofuKeyPath   string
-	TofuRemoteUrl string
+	TofuRemoteURL string
 	UserPath      string
 	Verbose       bool
 }
@@ -91,14 +91,14 @@ func InitConfigFromEnv() (Config, error) {
 		}
 	}
 
-	tfRemoteUrl := os.Getenv(TfRemoteUrlEnvName)
-	if tfRemoteUrl == "" {
-		tfRemoteUrl = defaultTfHashicorpUrl
+	tfRemoteURL := os.Getenv(TfRemoteURLEnvName)
+	if tfRemoteURL == "" {
+		tfRemoteURL = defaultTfHashicorpUrl
 	}
 
-	tofuRemoteUrl := os.Getenv(TofuRemoteUrlEnvName)
-	if tofuRemoteUrl == "" {
-		tofuRemoteUrl = defaultTofuGithubUrl
+	tofuRemoteURL := os.Getenv(TofuRemoteURLEnvName)
+	if tofuRemoteURL == "" {
+		tofuRemoteURL = defaultTofuGithubUrl
 	}
 
 	rootPath := getenvFallback(tofuRootPathEnvName, tfRootPathEnvName)
@@ -121,9 +121,9 @@ func InitConfigFromEnv() (Config, error) {
 		NoInstall:     !autoInstall,
 		RootPath:      rootPath,
 		TfKeyPath:     os.Getenv(tfHashicorpPGPKeyEnvName),
-		TfRemoteUrl:   tfRemoteUrl,
+		TfRemoteURL:   tfRemoteURL,
 		TofuKeyPath:   os.Getenv(tofuOpenTofuPGPKeyEnvName),
-		TofuRemoteUrl: tofuRemoteUrl,
+		TofuRemoteURL: tofuRemoteURL,
 		UserPath:      userPath,
 		Verbose:       verbose,
 	}, nil

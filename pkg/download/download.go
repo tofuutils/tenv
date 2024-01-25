@@ -23,7 +23,7 @@ import (
 	"net/http"
 )
 
-func DownloadBytes(url string) ([]byte, error) {
+func Bytes(url string) ([]byte, error) {
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, err
