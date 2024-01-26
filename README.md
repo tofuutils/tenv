@@ -542,9 +542,16 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 ### .terraform-version file
 TODO
 
-### terragrunt.hcl file
+### .tfswitchrc file
 TODO
 
+### terragrunt.hcl file
+or terragrunt.hcl.json
+TODO
+
+### .tf files
+or .tf.json files
+TODO
 
 <a id="technical-details"></a>
 ## Technical details
