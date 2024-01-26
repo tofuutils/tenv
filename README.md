@@ -61,7 +61,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
     <li><a href="#version-files">Version files</a></li>
     <li><a href="#technical-details">Technical details</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#comunity">Community</a></li>
+    <li><a href="#community">Community</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#licence">Licence</a></li>
   </ol>
@@ -130,7 +130,7 @@ TODO
 
 <a id="manual-installation"></a>
 #### Manual Installation
-Get the most recent packaged binaries in either `.zip` or `.tar.gz` format by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
+Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
 
 <a id="docker-installation"></a>
 #### Docker Installation
