@@ -61,7 +61,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
     <li><a href="#version-files">Version files</a></li>
     <li><a href="#technical-details">Technical details</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#comunity">Community</a></li>
+    <li><a href="#community">Community</a></li>
     <li><a href="#authors">Authors</a></li>
     <li><a href="#licence">Licence</a></li>
   </ol>
