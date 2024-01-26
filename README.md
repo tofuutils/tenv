@@ -368,7 +368,7 @@ Allow to specify a local file path to OpenTofu PGP public key, if not present do
 
 
 <details><summary><b>TOFUENV_REMOTE</b></summary><br>
-String (Default: [https://api.github.com/repos/opentofu/opentofu/releases](https://api.github.com/repos/opentofu/opentofu/releases))
+String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
 To install OpenTofu from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28)).
 
@@ -472,7 +472,7 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 
 
 <details><summary><b>TFENV_REMOTE</b></summary><br>
-String (Default: [https://releases.hashicorp.com/terraform](https://releases.hashicorp.com/terraform))
+String (Default: https://releases.hashicorp.com/terraform)
 
 To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
 
