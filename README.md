@@ -130,7 +130,7 @@ TODO
 
 <a id="manual-installation"></a>
 #### Manual Installation
-Get the most recent packaged binaries in either `.zip` or `.tar.gz` format by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
+Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
 
 <a id="docker-installation"></a>
 #### Docker Installation
