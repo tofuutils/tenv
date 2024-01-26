@@ -142,7 +142,7 @@ TODO
 
 <a id="usage"></a>
 ## Usage
-**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv` subcommands (manage OpenTofu versions)  or `tenv tf` subcommmands (manage Terraform versions). Below is a list of commands that use actual subcommands:
+**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv` subcommands (manage OpenTofu versions)  or `tenv tf` subcommands (manage Terraform versions). Below is a list of commands that use actual subcommands:
 TOFUENV_
 
 
