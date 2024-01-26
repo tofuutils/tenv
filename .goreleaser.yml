@@ -175,7 +175,7 @@ brews:
       owner: tofuutils
       name: homebrew-tap
     folder: Formula
-    homepage: https://github.com/tofuutils/homebrew-tap
+    homepage: https://github.com/tofuutils/tenv
     description: "OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)"
     license: "Apache-2.0"
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
