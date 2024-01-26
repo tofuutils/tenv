@@ -595,7 +595,7 @@ Have questions or suggestions? Reach out to us via:
 
 <a id="authors"></a>
 ## Authors
-tenv is based on [tofuenv](https://github.com/tofuutils/tofuenv) and [](https://github.com/tofuutils/gotofuenv) projects and supported by tofuutils team with help from these awesome contributors:
+tenv is based on [tofuenv](https://github.com/tofuutils/tofuenv) and [gotofuenv](https://github.com/tofuutils/gotofuenv) projects and supported by tofuutils team with help from these awesome contributors:
 
 <!-- markdownlint-disable no-inline-html -->
 <a href="https://github.com/tofuutils/tenv/graphs/contributors">
