@@ -142,7 +142,7 @@ TODO
 
 <a id="usage"></a>
 ## Usage
-**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use a subcommand `tenv tofu` or `tenv tf`. Below is a list of commands that use actual subcommands:
+**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv` subcommands (manage OpenTofu versions)  or `tenv tf` subcommmands (manage Terraform versions). Below is a list of commands that use actual subcommands:
 TOFUENV_
 
 
@@ -318,7 +318,7 @@ Global Flags:
 <a id="environment-variables"></a>
 ## Environment variables
 
-tenv commands support two groups of environment variables, one for managing[ OpenTofu](https://opentofu.org) and one for managing [Terraform](https://www.terraform.io/)
+tenv commands support two groups of environment variables, one for managing [OpenTofu](https://opentofu.org) and one for managing [Terraform](https://www.terraform.io/)
 
 <a id="tofu-env-vars"></a>
 ### OpenTofu environment variables
