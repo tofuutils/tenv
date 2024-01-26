@@ -136,3 +136,46 @@ changelog:
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
   algorithm: sha256
+
+nfpms:
+  - file_name_template: '{{ .ProjectName }}_{{- .Tag }}_{{ .Arch }}'
+    maintainer: 'https://github.com/dvaumoron'
+    homepage: https://github.com/tofuutils/tenv
+    description: >-
+      tenv helps manage several version of OpenTofu (https://opentofu.org) and Terraform (https://www.terraform.io/),
+      tenv is the managing command and tofu and terraform are proxy commands.
+    license: "Apache-2.0"
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    bindir: /usr/bin
+    section: default
+    contents:
+      - src: ./LICENSE
+        dst: /usr/share/doc/tenv/copyright
+        file_info:
+          mode: 0444
+    rpm:
+      packager: tofuutils <tofuutils@gmail.com>
+      signature:
+        key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
+    deb:
+      signature:
+        key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
+    apk:
+      signature:
+        key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
+    archlinux:
+      packager: tofuutils <tofuutils@gmail.com>
+
+brews:
+  - repository:
+      owner: tofuutils
+      name: homebrew-tap
+    folder: Formula
+    homepage: https://github.com/tofuutils/homebrew-tap
+    description: "OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)"
+    license: "Apache-2.0"
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
