@@ -324,7 +324,9 @@ func addForceRemoteAndNoInstallFlags(flags *pflag.FlagSet, conf *config.Config, 
 }
 
 func addKeyFlag(flags *pflag.FlagSet, params subCmdParams) {
-	flags.StringVarP(params.pPublicKeyPath, "key-file", "k", "", "local path to PGP public key file (replace check against remote one)")
+	if params.pPublicKeyPath != nil {
+		flags.StringVarP(params.pPublicKeyPath, "key-file", "k", "", "local path to PGP public key file (replace check against remote one)")
+	}
 }
 
 func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {

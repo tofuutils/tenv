@@ -22,17 +22,25 @@ import (
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager"
 	terraformretriever "github.com/tofuutils/tenv/versionmanager/retriever/terraform"
+	terragruntretriever "github.com/tofuutils/tenv/versionmanager/retriever/terragrunt"
 	tofuretriever "github.com/tofuutils/tenv/versionmanager/retriever/tofu"
+	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {
 	tfRetriever := terraformretriever.NewTerraformRetriever(conf)
 
-	return versionmanager.MakeVersionManager(conf, "Terraform", tfRetriever, config.TfVersionEnvName, ".terraform-version", ".tfswitchrc")
+	return versionmanager.MakeVersionManager(conf, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, ".terraform-version", ".tfswitchrc")
+}
+
+func BuildTgManager(conf *config.Config) versionmanager.VersionManager {
+	tgRetriever := terragruntretriever.NewTerragruntRetriever(conf)
+
+	return versionmanager.MakeVersionManager(conf, "Terragrunt", semantic.TgPredicateReaders, tgRetriever, config.TgVersionEnvName, ".terragrunt-version", ".tgswitchrc")
 }
 
 func BuildTofuManager(conf *config.Config) versionmanager.VersionManager {
 	tofuRetriever := tofuretriever.NewTofuRetriever(conf)
 
-	return versionmanager.MakeVersionManager(conf, "OpenTofu", tofuRetriever, config.TofuVersionEnvName, ".opentofu-version")
+	return versionmanager.MakeVersionManager(conf, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, ".opentofu-version")
 }

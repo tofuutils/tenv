@@ -22,8 +22,10 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-version"
+	"github.com/tofuutils/tenv/config"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
+	tgswitchparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tgswitch"
 )
 
 const (
@@ -33,7 +35,10 @@ const (
 	MinRequiredKey   = "min-required"
 )
 
-var predicateReaders = []func(bool) (func(string) bool, bool, error){readTerragruntFile, readTfFiles} //nolint
+var (
+	TfPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTfVersionFromTerragruntFile, readTfFiles}                   //nolint
+	TgPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTgVersionFromTgSwitchFile, readTgVersionFromTerragruntFile} //nolint
+)
 
 func CmpVersion(v1Str string, v2Str string) int {
 	v1, err1 := version.NewVersion(v1Str) //nolint
@@ -53,7 +58,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 }
 
 // the boolean returned as second value indicates to reverse order for filtering.
-func ParsePredicate(requestedVersion string, displayName string, verbose bool) (func(string) bool, bool, error) {
+func ParsePredicate(requestedVersion string, displayName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), conf *config.Config) (func(string) bool, bool, error) {
 	reverseOrder := true
 	switch requestedVersion {
 	case MinRequiredKey:
@@ -62,7 +67,7 @@ func ParsePredicate(requestedVersion string, displayName string, verbose bool) (
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
 		for _, reader := range predicateReaders {
-			predicate, found, err := reader(verbose)
+			predicate, found, err := reader(conf)
 			if err != nil {
 				return nil, false, err
 			}
@@ -71,7 +76,7 @@ func ParsePredicate(requestedVersion string, displayName string, verbose bool) (
 			}
 		}
 
-		if verbose {
+		if conf.Verbose {
 			fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
 		}
 
@@ -109,8 +114,8 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 }
 
 // the boolean returned as second value indicates if a predicate was found.
-func readTerragruntFile(verbose bool) (func(string) bool, bool, error) {
-	constraintStr, err := terragruntparser.RetrieveVersionConstraint(verbose)
+func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, bool, error) {
+	constraintStr, err := constraintRetriever(conf)
 	if err != nil || constraintStr == "" {
 		return nil, false, err
 	}
@@ -124,8 +129,8 @@ func readTerragruntFile(verbose bool) (func(string) bool, bool, error) {
 }
 
 // the boolean returned as second value indicates if a predicate was found.
-func readTfFiles(verbose bool) (func(string) bool, bool, error) {
-	requireds, err := tfparser.GatherRequiredVersion(verbose)
+func readTfFiles(conf *config.Config) (func(string) bool, bool, error) {
+	requireds, err := tfparser.GatherRequiredVersion(conf.Verbose)
 	if err != nil {
 		return nil, false, err
 	}
@@ -143,4 +148,19 @@ func readTfFiles(verbose bool) (func(string) bool, bool, error) {
 	}
 
 	return predicateFromConstraint(constraint), true, nil
+}
+
+// the boolean returned as second value indicates if a predicate was found.
+func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, bool, error) {
+	return readPredicate(terragruntparser.RetrieveTerraformVersionConstraint, conf)
+}
+
+// the boolean returned as second value indicates if a predicate was found.
+func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, bool, error) {
+	return readPredicate(terragruntparser.RetrieveTerraguntVersionConstraint, conf)
+}
+
+// the boolean returned as second value indicates if a predicate was found.
+func readTgVersionFromTgSwitchFile(conf *config.Config) (func(string) bool, bool, error) {
+	return readPredicate(tgswitchparser.RetrieveTerraguntVersion, conf)
 }

@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/tofuutils/tenv/config"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 )
@@ -32,23 +33,36 @@ const (
 	hclName  = "terragrunt.hcl"
 	jsonName = "terragrunt.hcl.json"
 
-	versionConstraintName = "terraform_version_constraint"
+	terraformVersionConstraintName  = "terraform_version_constraint"
+	terragruntVersionConstraintName = "terraform_version_constraint"
 
 	msgTerraGruntErr = "Failed to read terragrunt file :"
 )
 
-var terraGruntPartialSchema = &hcl.BodySchema{ //nolint
-	Attributes: []hcl.AttributeSchema{{Name: versionConstraintName}},
+var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
+	Attributes: []hcl.AttributeSchema{{Name: terraformVersionConstraintName}},
 }
 
-func RetrieveVersionConstraint(verbose bool) (string, error) {
+var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
+	Attributes: []hcl.AttributeSchema{{Name: terragruntVersionConstraintName}},
+}
+
+func RetrieveTerraformVersionConstraint(conf *config.Config) (string, error) {
+	return retrieveVersionConstraint(terraformVersionPartialSchema, terraformVersionConstraintName, conf.Verbose)
+}
+
+func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, error) {
+	return retrieveVersionConstraint(terragruntVersionPartialSchema, terragruntVersionConstraintName, conf.Verbose)
+}
+
+func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	parser := hclparse.NewParser()
 
 	data, err := os.ReadFile(hclName)
 	if err == nil {
 		parsedFile, diags := parser.ParseHCL(data, hclName)
 
-		return extractVersionConstraint(parsedFile, diags, verbose)
+		return extractVersionConstraint(parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
 	}
 
 	if verbose {
@@ -66,10 +80,10 @@ func RetrieveVersionConstraint(verbose bool) (string, error) {
 
 	parsedFile, diags := parser.ParseJSON(data, jsonName)
 
-	return extractVersionConstraint(parsedFile, diags, verbose)
+	return extractVersionConstraint(parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
 }
 
-func extractVersionConstraint(parsedFile *hcl.File, diags hcl.Diagnostics, verbose bool) (string, error) {
+func extractVersionConstraint(parsedFile *hcl.File, diags hcl.Diagnostics, versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	if diags.HasErrors() {
 		return "", diags
 	}
@@ -77,7 +91,7 @@ func extractVersionConstraint(parsedFile *hcl.File, diags hcl.Diagnostics, verbo
 		return "", nil
 	}
 
-	content, _, diags := parsedFile.Body.PartialContent(terraGruntPartialSchema)
+	content, _, diags := parsedFile.Body.PartialContent(versionPartialShema)
 	if diags.HasErrors() {
 		if verbose {
 			fmt.Println("Failed to parse terragrunt file :", diags) //nolint

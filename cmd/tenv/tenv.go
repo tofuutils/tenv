@@ -31,6 +31,7 @@ import (
 const (
 	rootVersionHelp = "Display tenv current version."
 	tfHelp          = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
+	tgHelp          = "subcommands that help manage several version of Terragrunt (https://terragrunt.gruntwork.io/)."
 )
 
 // can be overridden with ldflags.
@@ -85,6 +86,19 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		pRemote: &conf.TfRemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
 	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), tfParams)
+
+	rootCmd.AddCommand(tfCmd)
+
+	tgCmd := &cobra.Command{
+		Use:   "tg",
+		Short: tgHelp,
+		Long:  tgHelp,
+	}
+
+	tgParams := subCmdParams{
+		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.TgRemoteURL,
+	}
+	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf), tgParams)
 
 	rootCmd.AddCommand(tfCmd)
 

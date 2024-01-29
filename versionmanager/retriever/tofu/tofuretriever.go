@@ -31,6 +31,7 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
+	"github.com/tofuutils/tenv/pkg/zip"
 )
 
 const publicKeyURL = "https://get.opentofu.org/opentofu.asc"
@@ -50,7 +51,7 @@ func NewTofuRetriever(conf *config.Config) *TofuRetriever {
 	return &TofuRetriever{conf: conf}
 }
 
-func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
+func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) error {
 	tag := versionStr
 	// assume that opentofu tags start with a 'v'
 	// and version in asset name does not
@@ -62,26 +63,26 @@ func (r *TofuRetriever) DownloadReleaseZip(versionStr string) ([]byte, error) {
 
 	v, err := version.NewVersion(versionStr) //nolint
 	if err != nil {
-		return nil, err
+		return err
 	}
 	stable := v.Prerelease() == ""
 
 	assetNames := buildAssetNames(versionStr, stable)
 	assets, err := github.DownloadAssetURL(tag, assetNames, r.conf.TofuRemoteURL, r.conf.GithubToken)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	data, err := download.Bytes(assets[assetNames[0]])
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = r.checkSumAndSig(v, stable, data, assetNames, assets); err != nil {
-		return nil, err
+		return err
 	}
 
-	return data, nil
+	return zip.UnzipToDir(data, targetPath)
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
