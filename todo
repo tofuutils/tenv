@@ -1,4 +1,0 @@
-
-```shell
-docker run -d -e HOME= --name=tenv --entrypoint=/bin/sh tofuutils/tenv
-```
