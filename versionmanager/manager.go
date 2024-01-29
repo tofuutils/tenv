@@ -29,7 +29,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
-	"github.com/tofuutils/tenv/pkg/zip"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
@@ -39,7 +38,7 @@ var (
 )
 
 type ReleaseInfoRetriever interface {
-	DownloadReleaseZip(version string) ([]byte, error)
+	InstallRelease(version string, targetPath string) error
 	LatestRelease() (string, error)
 	ListReleases() ([]string, error)
 }
@@ -47,14 +46,15 @@ type ReleaseInfoRetriever interface {
 type VersionManager struct {
 	conf                  *config.Config
 	FolderName            string
+	predicateReaders      []func(*config.Config) (func(string) bool, bool, error)
 	retriever             ReleaseInfoRetriever
 	VersionEnvName        string
 	VersionFileName       string
 	otherVersionFileNames []string
 }
 
-func MakeVersionManager(conf *config.Config, folderName string, retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string, otherVersionFileNames ...string) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName, otherVersionFileNames: otherVersionFileNames}
+func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string, otherVersionFileNames ...string) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName, otherVersionFileNames: otherVersionFileNames}
 }
 
 // detect version (can install depending on auto install env var).
@@ -76,7 +76,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 		return err
 	}
 
-	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.conf.Verbose)
+	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
 	if err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		return cleanedVersion, m.installSpecificVersion(cleanedVersion)
 	}
 
-	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.conf.Verbose)
+	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
 	if err != nil {
 		return "", err
 	}
@@ -306,14 +306,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 		fmt.Println("Installation of", m.FolderName, version) //nolint
 	}
 
-	data, err := m.retriever.DownloadReleaseZip(version)
-	if err != nil {
-		return err
-	}
-
-	targetPath := path.Join(installPath, version)
-
-	return zip.UnzipToDir(data, targetPath)
+	return m.retriever.InstallRelease(version, path.Join(installPath, version))
 }
 
 func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {

@@ -32,6 +32,7 @@ import (
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
+	"github.com/tofuutils/tenv/pkg/zip"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
@@ -47,7 +48,7 @@ func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
 	return &TerraformRetriever{conf: conf}
 }
 
-func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) {
+func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
 	// assume that terraform version do not start with a 'v'
 	if version[0] == 'v' {
 		version = version[1:]
@@ -55,34 +56,34 @@ func (r *TerraformRetriever) DownloadReleaseZip(version string) ([]byte, error) 
 
 	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, version) //nolint
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	value, err := apiGetRequest(versionUrl)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, value)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	data, err := download.Bytes(downloadURL)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if err = r.checkSumAndSig(fileName, data, downloadSumsURL, downloadSumsSigURL); err != nil {
-		return nil, err
+		return err
 	}
 
-	return data, nil
+	return zip.UnzipToDir(data, targetPath)
 }
 
 func (r *TerraformRetriever) LatestRelease() (string, error) {

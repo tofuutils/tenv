@@ -25,8 +25,9 @@ import (
 )
 
 const (
-	defaultTfHashicorpURL = "https://releases.hashicorp.com/terraform"
-	defaultTofuGithubURL  = "https://api.github.com/repos/opentofu/opentofu/releases"
+	defaultTfHashicorpURL      = "https://releases.hashicorp.com/terraform"
+	defaultTerragruntGithubURL = "https://api.github.com/repos/gruntwork-io/terragrunt/releases"
+	defaultTofuGithubURL       = "https://api.github.com/repos/opentofu/opentofu/releases"
 
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
@@ -42,6 +43,10 @@ const (
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
 	tfVerboseEnvName         = tfenvPrefix + verboseEnvName
 	TfVersionEnvName         = tfenvPrefix + "TERRAFORM_VERSION"
+
+	tgPrefix           = "TG_"
+	TgRemoteURLEnvName = tgPrefix + remoteURLEnvName
+	TgVersionEnvName   = tgPrefix + "VERSION"
 
 	tofuenvPrefix             = "TOFUENV_"
 	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
@@ -61,6 +66,7 @@ type Config struct {
 	RootPath      string
 	TfKeyPath     string
 	TfRemoteURL   string
+	TgRemoteURL   string
 	TofuKeyPath   string
 	TofuRemoteURL string
 	UserPath      string
@@ -96,6 +102,11 @@ func InitConfigFromEnv() (Config, error) {
 		tfRemoteURL = defaultTfHashicorpURL
 	}
 
+	tgRemoteURL := os.Getenv(TgRemoteURLEnvName)
+	if tfRemoteURL == "" {
+		tfRemoteURL = defaultTerragruntGithubURL
+	}
+
 	tofuRemoteURL := os.Getenv(TofuRemoteURLEnvName)
 	if tofuRemoteURL == "" {
 		tofuRemoteURL = defaultTofuGithubURL
@@ -122,6 +133,7 @@ func InitConfigFromEnv() (Config, error) {
 		RootPath:      rootPath,
 		TfKeyPath:     os.Getenv(tfHashicorpPGPKeyEnvName),
 		TfRemoteURL:   tfRemoteURL,
+		TgRemoteURL:   tgRemoteURL,
 		TofuKeyPath:   os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		TofuRemoteURL: tofuRemoteURL,
 		UserPath:      userPath,
