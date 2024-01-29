@@ -540,7 +540,18 @@ Recognized values (same as `tenv use` command):
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
 ### .terraform-version file
-TODO
+
+If you put a `.terraform-version` file in the working directory, user home directory, or TFENV_ROOT directory, tenv detects it and uses the version writtien in it.
+Note that TFENV_TERRAFORM_VERSION can be used to override version specified by `.terraform-version` file.
+
+Recognized values (same as `tenv use` command):
+
+- an exact [Semver 2.0.0](https://semver.org/) version string to use
+- a [version constraint](https://developer.hashicorp.com/terraform/language/expressions/version-constraints) string (checked against versions available in TFENV_ROOT directory)
+- `latest` or `latest-stable` (checked against versions available in TFENV_ROOT directory)
+- `latest-allowed` or `min-required` to scan your Terraform files to detect which version is maximally allowed or minimally required.
+
+See [required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) docs.
 
 ### .tfswitchrc file
 TODO
