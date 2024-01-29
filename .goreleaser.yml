@@ -6,6 +6,7 @@ before:
     - go get -u ./cmd/tenv
     - go get -u ./cmd/tofu
     - go get -u ./cmd/terraform
+    - go get -u ./cmd/terragrunt
     - go mod tidy
 
 builds:
@@ -78,6 +79,38 @@ builds:
   - id: terraform
     binary: terraform
     main: ./cmd/terraform
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: 386
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
+  - id: terragrunt
+    binary: terragrunt
+    main: ./cmd/terragrunt
     env:
       - CGO_ENABLED=0
 
