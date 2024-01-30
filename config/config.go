@@ -103,8 +103,8 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	tgRemoteURL := os.Getenv(TgRemoteURLEnvName)
-	if tfRemoteURL == "" {
-		tfRemoteURL = defaultTerragruntGithubURL
+	if tgRemoteURL == "" {
+		tgRemoteURL = defaultTerragruntGithubURL
 	}
 
 	tofuRemoteURL := os.Getenv(TofuRemoteURLEnvName)

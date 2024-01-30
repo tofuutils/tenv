@@ -19,6 +19,7 @@
 package tgswitchparser
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -30,6 +31,8 @@ const (
 	tomlName = ".tgswitch.toml"
 
 	versionName = "version"
+
+	msgTgSwitchErr = "Failed to read tgswitch file :"
 )
 
 func RetrieveTerraguntVersion(conf *config.Config) (string, error) {
@@ -42,6 +45,9 @@ func RetrieveTerraguntVersion(conf *config.Config) (string, error) {
 
 		return parsed[versionName], nil
 	}
+	if conf.Verbose {
+		fmt.Println(msgTgSwitchErr, err) //nolint
+	}
 
 	data, err = os.ReadFile(path.Join(conf.UserPath, tomlName))
 	if err == nil {
@@ -51,10 +57,17 @@ func RetrieveTerraguntVersion(conf *config.Config) (string, error) {
 
 		return parsed[versionName], nil
 	}
+	if conf.Verbose {
+		fmt.Println(msgTgSwitchErr, err) //nolint
+	}
 
 	data, err = os.ReadFile(path.Join(conf.RootPath, tomlName))
 	if err != nil {
-		return "", err
+		if conf.Verbose {
+			fmt.Println(msgTgSwitchErr, err) //nolint
+		}
+
+		return "", nil
 	}
 
 	if _, err = toml.Decode(string(data), &parsed); err != nil {

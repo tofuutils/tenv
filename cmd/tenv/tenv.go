@@ -100,7 +100,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	}
 	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf), tgParams)
 
-	rootCmd.AddCommand(tfCmd)
+	rootCmd.AddCommand(tgCmd)
 
 	return rootCmd
 }

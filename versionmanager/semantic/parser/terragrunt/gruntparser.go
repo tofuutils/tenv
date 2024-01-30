@@ -36,7 +36,7 @@ const (
 	terraformVersionConstraintName  = "terraform_version_constraint"
 	terragruntVersionConstraintName = "terraform_version_constraint"
 
-	msgTerraGruntErr = "Failed to read terragrunt file :"
+	msgTerragruntErr = "Failed to read terragrunt file :"
 )
 
 var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
@@ -66,13 +66,13 @@ func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConst
 	}
 
 	if verbose {
-		fmt.Println(msgTerraGruntErr, err) //nolint
+		fmt.Println(msgTerragruntErr, err) //nolint
 	}
 
 	data, err = os.ReadFile(jsonName)
 	if err != nil {
 		if verbose {
-			fmt.Println(msgTerraGruntErr, err) //nolint
+			fmt.Println(msgTerragruntErr, err) //nolint
 		}
 
 		return "", nil
