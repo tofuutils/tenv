@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	defaultTfHashicorpURL      = "https://releases.hashicorp.com/terraform"
+	defaultTfHashicorpURL      = "https://releases.hashicorp.com"
 	defaultTerragruntGithubURL = "https://api.github.com/repos/gruntwork-io/terragrunt/releases"
 	defaultTofuGithubURL       = "https://api.github.com/repos/opentofu/opentofu/releases"
 

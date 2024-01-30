@@ -472,7 +472,7 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 
 
 <details><summary><b>TFENV_REMOTE</b></summary><br>
-String (Default: https://releases.hashicorp.com/terraform)
+String (Default: https://releases.hashicorp.com)
 
 To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
 
