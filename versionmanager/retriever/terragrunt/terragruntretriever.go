@@ -86,7 +86,6 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 func buildAssetNames() []string {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString(baseFileName)
-	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(runtime.GOARCH)

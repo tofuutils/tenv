@@ -319,7 +319,7 @@ func addForceRemoteAndNoInstallFlags(flags *pflag.FlagSet, conf *config.Config, 
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url")
 
-	flags.BoolVarP(&conf.ForceRemote, "force-remote", "f", false, descBuilder.String())
+	flags.BoolVarP(&conf.ForceRemote, "force-remote", "f", conf.ForceRemote, descBuilder.String())
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 }
 
@@ -331,7 +331,7 @@ func addKeyFlag(flags *pflag.FlagSet, params subCmdParams) {
 
 func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
 	if params.needToken {
-		flags.StringVarP(&conf.GithubToken, "github-token", "t", "", "GitHub token (increases GitHub REST API rate limits)")
+		flags.StringVarP(&conf.GithubToken, "github-token", "t", conf.GithubToken, "GitHub token (increases GitHub REST API rate limits)")
 	}
 	flags.StringVarP(params.pRemote, "remote-url", "u", *params.pRemote, "remote url to install from")
 }
