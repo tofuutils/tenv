@@ -521,6 +521,38 @@ on linux_amd64
 ```
 </details>
 
+<a id="tg-env-vars"></a>
+### Terragrunt environment variables
+
+<details><summary><b>TG_REMOTE</b></summary><br>
+String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
+
+To install Terragrunt from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
+
+`tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+</details>
+
+
+<details><summary><b>TG_VERSION</b></summary><br>
+String (Default: "")
+
+If not empty string, this variable overrides Terragrunt version, specified in [`.terragrunt-version`](#terragrunt-version-file) files.
+`tenv` subcommands `install` and `detect` also respects this variable.
+
+e.g. with :
+
+```console
+$ terragrunt -v
+terragrunt version v0.54.22
+```
+
+then :
+
+```console
+$ TG_VERSION=0.54.1 terragrunt -v
+terragrunt version v0.54.1
+```
+</details>
 
 <a id="version-files"></a>
 ## version files
@@ -553,7 +585,16 @@ Recognized values (same as `tenv use` command):
 
 See [required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) docs.
 
+### .terragrunt-version file
+TODO
+
 ### .tfswitchrc file
+TODO
+
+### .tgswitchrc file
+TODO
+
+### .tgswitch.toml file
 TODO
 
 ### terragrunt.hcl file
@@ -575,6 +616,8 @@ The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  mana
 #### terraform
 The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) environment variable or `.terraform-version` file).
 
+#### terragrunt
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg_version) environment variable or `.terragrunt-version` file).
 
 ### Terraform support
 
@@ -584,6 +627,13 @@ tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hash
 
 tenv checks the Terraform PGP signature (there is no cosign signature available).
 
+### Terragrunt support
+
+tenv relies on `.terragrunt-version` files, [TG_REMOTE](#tg_remote) and [TG_VERSION](#tg_version) specifically to manage Terragrunt versions.
+
+`tenv tg` have the same managing subcommands for Terragrunt versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
+
+tenv checks the sha256 checksum (there is no signature available).
 
 <a id="contributing"></a>
 ## Contributing
