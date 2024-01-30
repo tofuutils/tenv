@@ -497,12 +497,11 @@ Active the verbose display of tenv.
 `tenv tf` support a `--verbose`, `-v` flag version.
 </details>
 
-
 <details><summary><b>TFENV_TERRAFORM_VERSION</b></summary><br>
 String (Default: "")
 
 If not empty string, this variable overrides Terraform version, specified in [`.terraform-version`](#terraform-version-file) files.
-`tenv` subcommands `install` and `detect` also respects this variable.
+`tenv tf` subcommands `install` and `detect` also respects this variable.
 
 e.g. with :
 
@@ -519,6 +518,7 @@ $ TFENV_TERRAFORM_VERSION=1.6.0-rc1 terraform version
 Terraform v1.6.0-rc1
 on linux_amd64
 ```
+
 </details>
 
 <a id="tg-env-vars"></a>
@@ -537,7 +537,7 @@ To install Terragrunt from a remote other than the default (must comply with [Gi
 String (Default: "")
 
 If not empty string, this variable overrides Terragrunt version, specified in [`.terragrunt-version`](#terragrunt-version-file) files.
-`tenv` subcommands `install` and `detect` also respects this variable.
+`tenv tg` subcommands `install` and `detect` also respects this variable.
 
 e.g. with :
 
@@ -552,6 +552,7 @@ then :
 $ TG_VERSION=0.54.1 terragrunt -v
 terragrunt version v0.54.1
 ```
+
 </details>
 
 <a id="version-files"></a>
