@@ -27,7 +27,7 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
-//go:embed release.json
+//go:embed testdata/release.json
 var releaseData []byte
 
 var (
@@ -35,7 +35,7 @@ var (
 	releaseErr   error
 )
 
-//go:embed releases.json
+//go:embed testdata/releases.json
 var releasesData []byte
 
 var (

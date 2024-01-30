@@ -25,13 +25,13 @@ import (
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 )
 
-//go:embed terraform_1.6.6_SHA256SUMS
+//go:embed testdata/terraform_1.6.6_SHA256SUMS
 var data []byte
 
-//go:embed terraform_1.6.6_SHA256SUMS.sig
+//go:embed testdata/terraform_1.6.6_SHA256SUMS.sig
 var dataSig []byte
 
-//go:embed hashicorp-pgp-key.txt
+//go:embed testdata/hashicorp-pgp-key.txt
 var dataKey []byte
 
 func TestPgpCheckCorrect(t *testing.T) {

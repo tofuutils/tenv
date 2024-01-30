@@ -25,10 +25,10 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 )
 
-//go:embed tofu_1.6.0_linux_arm64.zip
+//go:embed testdata/tofu_1.6.0_linux_arm64.zip
 var data []byte
 
-//go:embed tofu_1.6.0_SHA256SUMS
+//go:embed testdata/tofu_1.6.0_SHA256SUMS
 var dataSums []byte
 
 func TestSha256CheckCorrect(t *testing.T) {
