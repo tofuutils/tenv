@@ -30,13 +30,13 @@ const (
 	issuer   = "https://token.actions.githubusercontent.com"
 )
 
-//go:embed tofu_1.6.0_SHA256SUMS
+//go:embed testdata/tofu_1.6.0_SHA256SUMS
 var data []byte
 
-//go:embed tofu_1.6.0_SHA256SUMS.sig
+//go:embed testdata/tofu_1.6.0_SHA256SUMS.sig
 var dataSig []byte
 
-//go:embed tofu_1.6.0_SHA256SUMS.pem
+//go:embed testdata/tofu_1.6.0_SHA256SUMS.pem
 var dataCert []byte
 
 func TestCosignCheckCorrect(t *testing.T) {

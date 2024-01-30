@@ -31,7 +31,7 @@ import (
 // empty marker.
 var e = struct{}{}
 
-//go:embed assets.json
+//go:embed testdata/assets.json
 var assetsData []byte
 
 var (
@@ -39,7 +39,7 @@ var (
 	assetsErr   error
 )
 
-//go:embed release.json
+//go:embed testdata/release.json
 var releaseData []byte
 
 var (
@@ -47,7 +47,7 @@ var (
 	releaseErr   error
 )
 
-//go:embed releases.json
+//go:embed testdata/releases.json
 var releasesData []byte
 
 var (
