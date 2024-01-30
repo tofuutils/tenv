@@ -36,9 +36,12 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
-const publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+const (
+	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
-const indexJson = "index.json"
+	indexJson     = "index.json"
+	terraformName = "terraform"
+)
 
 type TerraformRetriever struct {
 	conf *config.Config
@@ -54,7 +57,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, terraformName, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -104,7 +107,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
-	releaseUrl, err := url.JoinPath(r.conf.TfRemoteURL, indexJson) //nolint
+	releaseUrl, err := url.JoinPath(r.conf.TfRemoteURL, terraformName, indexJson) //nolint
 	if err != nil {
 		return nil, err
 	}
