@@ -333,5 +333,5 @@ func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, params subCmdPa
 	if params.needToken {
 		flags.StringVarP(&conf.GithubToken, "github-token", "t", conf.GithubToken, "GitHub token (increases GitHub REST API rate limits)")
 	}
-	flags.StringVarP(params.pRemote, "remote-url", "u", *params.pRemote, "remote url to install from")
+	flags.StringVarP(params.pRemote, "remote-url", "u", "", "remote url to install from")
 }

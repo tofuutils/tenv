@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/tofuutils/tenv/pkg/apierrors"
+	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
 const pageQuery = "?page="
@@ -89,8 +90,8 @@ func LatestRelease(githubReleaseURL string, githubToken string) (string, error) 
 		return "", err
 	}
 
-	version, ok := extractVersion(value)
-	if !ok {
+	version := extractVersion(value)
+	if version == "" {
 		return "", apierrors.ErrReturn
 	}
 
@@ -207,8 +208,8 @@ func extractReleases(releases []string, value any) ([]string, error) {
 	}
 
 	for _, value := range values {
-		version, ok := extractVersion(value)
-		if !ok {
+		version := extractVersion(value)
+		if version == "" {
 			return nil, apierrors.ErrReturn
 		}
 		releases = append(releases, version)
@@ -217,17 +218,9 @@ func extractReleases(releases []string, value any) ([]string, error) {
 	return releases, errContinue
 }
 
-func extractVersion(value any) (string, bool) {
+func extractVersion(value any) string {
 	object, _ := value.(map[string]any)
 	version, _ := object["tag_name"].(string)
-	if version == "" {
-		return "", false
-	}
 
-	// version returned without starting 'v'
-	if version[0] == 'v' {
-		version = version[1:]
-	}
-
-	return version, true
+	return versionfinder.Find(version)
 }

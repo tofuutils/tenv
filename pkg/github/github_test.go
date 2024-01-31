@@ -159,9 +159,9 @@ func TestExtractVersion(t *testing.T) {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
 	}
 
-	version, ok := extractVersion(releaseValue)
-	if !ok {
-		t.Fatal("Unexpected extract failure")
+	version := extractVersion(releaseValue)
+	if version == "" {
+		t.Fatal("Unexpected empty result")
 	}
 	if version != "1.6.0" {
 		t.Error("Unmatching result, get :", version)

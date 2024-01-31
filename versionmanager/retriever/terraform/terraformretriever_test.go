@@ -24,6 +24,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
@@ -55,7 +56,8 @@ func TestExtractAssetUrls(t *testing.T) {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
 	}
 
-	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls("http://localhost:8080", "linux", "386", releaseValue)
+	urlTransformer := download.UrlTranformer(nil)
+	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls("http://localhost:8080/terraform/1.7.0", "linux", "386", urlTransformer, releaseValue)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -66,10 +68,10 @@ func TestExtractAssetUrls(t *testing.T) {
 	if downloadURL != "https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_386.zip" {
 		t.Error("Unexpected downloadURL, get :", downloadURL)
 	}
-	if downloadSumsURL != "http://localhost:8080/terraform_1.7.0_SHA256SUMS" {
+	if downloadSumsURL != "http://localhost:8080/terraform/1.7.0/terraform_1.7.0_SHA256SUMS" {
 		t.Error("Unexpected downloadSumsURL, get :", downloadSumsURL)
 	}
-	if downloadSumsSigURL != "http://localhost:8080/terraform_1.7.0_SHA256SUMS.sig" {
+	if downloadSumsSigURL != "http://localhost:8080/terraform/1.7.0/terraform_1.7.0_SHA256SUMS.sig" {
 		t.Error("Unexpected downloadSumsSigURL, get :", downloadSumsSigURL)
 	}
 }
