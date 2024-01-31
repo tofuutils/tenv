@@ -24,10 +24,10 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-var versionRegexp *regexp.Regexp
+var versionRegexp *regexp.Regexp //nolint
 
 func init() {
-	versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw) //nolint
+	versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw)
 }
 
 // return a version without starting 'v'.
