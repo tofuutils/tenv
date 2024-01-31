@@ -36,9 +36,9 @@ func Request(callURL string, selector string, extracter func(*goquery.Selection)
 	return extract(response.Body, selector, extracter)
 }
 
-func SelectionExtracter(part string) func(*goquery.Selection) string {
+func SelectionExtractor(part string) func(*goquery.Selection) string {
 	if part == "#text" {
-		return selectionTextExtracter
+		return selectionTextExtractor
 	}
 
 	return func(s *goquery.Selection) string {
@@ -64,6 +64,6 @@ func extract(reader io.Reader, selector string, extracter func(*goquery.Selectio
 	return extracteds, nil
 }
 
-func selectionTextExtracter(s *goquery.Selection) string {
+func selectionTextExtractor(s *goquery.Selection) string {
 	return strings.TrimSpace(s.Text())
 }

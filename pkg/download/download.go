@@ -50,7 +50,7 @@ func UrlTranformer(remoteConf map[string]string) func(string) (string, error) {
 			return "", ErrPrefix
 		}
 
-		return url.JoinPath(baseURL, urlValue[prevLen:])
+		return url.JoinPath(baseURL, urlValue[prevLen:]) //nolint
 	}
 }
 

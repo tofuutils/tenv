@@ -27,7 +27,7 @@ import (
 var versionRegexp *regexp.Regexp
 
 func init() {
-	versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw)
+	versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw) //nolint
 }
 
 // return a version without starting 'v'.
