@@ -30,10 +30,16 @@ import (
 	"github.com/tofuutils/tenv/pkg/github"
 )
 
-const baseFileName = "terragrunt_"
+const (
+	defaultTerragruntGithubURL = "https://api.github.com/repos/gruntwork-io/terragrunt/releases"
+
+	baseFileName = "terragrunt_"
+)
 
 type TerragruntRetriever struct {
-	conf *config.Config
+	conf       *config.Config
+	notLoaded  bool
+	remoteConf map[string]string
 }
 
 func NewTerragruntRetriever(conf *config.Config) *TerragruntRetriever {
@@ -53,12 +59,23 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	data, err := download.Bytes(assets[assetNames[0]])
+	urlTranformer := download.UrlTranformer(r.readRemoteConf())
+	downloadURL, err := urlTranformer(assets[assetNames[0]])
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assets[assetNames[1]])
+	data, err := download.Bytes(downloadURL)
+	if err != nil {
+		return err
+	}
+
+	downloadURL, err = urlTranformer(assets[assetNames[1]])
+	if err != nil {
+		return err
+	}
+
+	dataSums, err := download.Bytes(downloadURL)
 	if err != nil {
 		return err
 	}
@@ -81,6 +98,23 @@ func (r *TerragruntRetriever) LatestRelease() (string, error) {
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.TgRemoteURL, r.conf.GithubToken)
+}
+
+func (r *TerragruntRetriever) getRemoteURL() string {
+	if r.conf.TgRemoteURL != "" {
+		return r.conf.TgRemoteURL
+	}
+
+	return config.MapGetDefault(r.readRemoteConf(), "url", defaultTerragruntGithubURL)
+}
+
+func (r *TerragruntRetriever) readRemoteConf() map[string]string {
+	if r.notLoaded {
+		r.notLoaded = false
+		r.remoteConf = r.conf.ReadRemoteConf("terragrunt")
+	}
+
+	return r.remoteConf
 }
 
 func buildAssetNames() []string {

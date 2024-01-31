@@ -34,9 +34,10 @@ import (
 	"github.com/tofuutils/tenv/pkg/zip"
 )
 
-const publicKeyURL = "https://get.opentofu.org/opentofu.asc"
-
 const (
+	defaultTofuGithubURL = "https://api.github.com/repos/opentofu/opentofu/releases"
+	publicKeyURL         = "https://get.opentofu.org/opentofu.asc"
+
 	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
 	issuer       = "https://token.actions.githubusercontent.com"
 )
@@ -44,7 +45,9 @@ const (
 const baseFileName = "tofu_"
 
 type TofuRetriever struct {
-	conf *config.Config
+	conf       *config.Config
+	notLoaded  bool
+	remoteConf map[string]string
 }
 
 func NewTofuRetriever(conf *config.Config) *TofuRetriever {
@@ -73,12 +76,18 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	data, err := download.Bytes(assets[assetNames[0]])
+	urlTranformer := download.UrlTranformer(r.readRemoteConf())
+	downloadURL, err := urlTranformer(assets[assetNames[0]])
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(v, stable, data, assetNames, assets); err != nil {
+	data, err := download.Bytes(downloadURL)
+	if err != nil {
+		return err
+	}
+
+	if err = r.checkSumAndSig(v, stable, data, assetNames, assets, urlTranformer); err != nil {
 		return err
 	}
 
@@ -93,8 +102,13 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.TofuRemoteURL, r.conf.GithubToken)
 }
 
-func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string) error {
-	dataSums, err := download.Bytes(assets[assetNames[1]])
+func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string, urlTranformer func(string) (string, error)) error {
+	downloadURL, err := urlTranformer(assets[assetNames[1]])
+	if err != nil {
+		return err
+	}
+
+	dataSums, err := download.Bytes(downloadURL)
 	if err != nil {
 		return err
 	}
@@ -103,12 +117,22 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(assets[assetNames[3]])
+	downloadURL, err = urlTranformer(assets[assetNames[3]])
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(assets[assetNames[2]])
+	dataSumsSig, err := download.Bytes(downloadURL)
+	if err != nil {
+		return err
+	}
+
+	downloadURL, err = urlTranformer(assets[assetNames[2]])
+	if err != nil {
+		return err
+	}
+
+	dataSumsCert, err := download.Bytes(downloadURL)
 	if err != nil {
 		return err
 	}
@@ -119,17 +143,22 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	if stable {
-		if r.conf.Verbose {
-			fmt.Println("cosign executable not found, fallback to pgp check") //nolint
-		}
-	} else {
+	if !stable {
 		fmt.Println("skip signature check : cosign executable not found and pgp check not available for unstable version") //nolint
 
 		return nil
 	}
 
-	dataSumsSig, err = download.Bytes(assets[assetNames[4]])
+	if r.conf.Verbose {
+		fmt.Println("cosign executable not found, fallback to pgp check") //nolint
+	}
+
+	downloadURL, err = urlTranformer(assets[assetNames[4]])
+	if err != nil {
+		return err
+	}
+
+	dataSumsSig, err = download.Bytes(downloadURL)
 	if err != nil {
 		return err
 	}
@@ -146,6 +175,23 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 	}
 
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
+}
+
+func (r *TofuRetriever) getRemoteURL() string {
+	if r.conf.TofuRemoteURL != "" {
+		return r.conf.TofuRemoteURL
+	}
+
+	return config.MapGetDefault(r.readRemoteConf(), "url", defaultTofuGithubURL)
+}
+
+func (r *TofuRetriever) readRemoteConf() map[string]string {
+	if r.notLoaded {
+		r.notLoaded = false
+		r.remoteConf = r.conf.ReadRemoteConf("tofu")
+	}
+
+	return r.remoteConf
 }
 
 func buildAssetNames(version string, stable bool) []string {
