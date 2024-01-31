@@ -35,7 +35,7 @@ const pageQuery = "?page="
 
 var errContinue = errors.New("continue")
 
-func DownloadAssetURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string) (map[string]string, error) {
+func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string) (map[string]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err

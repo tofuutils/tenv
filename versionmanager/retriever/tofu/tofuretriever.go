@@ -71,7 +71,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	stable := v.Prerelease() == ""
 
 	assetNames := buildAssetNames(versionStr, stable)
-	assets, err := github.DownloadAssetURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
+	assets, err := github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
 	if err != nil {
 		return err
 	}
