@@ -111,7 +111,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 		}
 	}
 
-	cmpFunc := reversecmp.Reverser(semantic.CmpVersion, reverseOrder)
+	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
 
 	return versions, nil
@@ -123,7 +123,7 @@ func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
 		return nil, err
 	}
 
-	cmpFunc := reversecmp.Reverser(semantic.CmpVersion, reverseOrder)
+	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
 
 	return versions, nil
