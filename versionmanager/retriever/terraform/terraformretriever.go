@@ -77,8 +77,12 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.readRemoteConf())
-	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, urlTranformer, value)
+	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, value)
+	if err != nil {
+		return err
+	}
+
+	downloadURL, err = download.UrlTranformer(r.readRemoteConf())(downloadURL)
 	if err != nil {
 		return err
 	}
@@ -200,7 +204,7 @@ func apiGetRequest(callURL string) (any, error) {
 	return value, err
 }
 
-func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, urlTranformer func(string) (string, error), value any) (string, string, string, string, error) {
+func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	shaFileName, ok2 := object["shasums"].(string)
@@ -231,11 +235,6 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 
 		if osStr != searchedOs || archStr != searchedArch {
 			continue
-		}
-
-		downloadURL, err := urlTranformer(downloadURL)
-		if err != nil {
-			return "", "", "", "", err
 		}
 
 		return fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, nil
