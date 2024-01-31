@@ -39,7 +39,7 @@ func Bytes(url string) ([]byte, error) {
 
 func UrlTranformer(remoteConf map[string]string) func(string) (string, error) {
 	prevBaseURL := remoteConf["old_base_url"]
-	prevLen := len(remoteConf["old_base_url"])
+	prevLen := len(prevBaseURL)
 	baseURL := remoteConf["new_base_url"]
 	if prevLen == 0 || baseURL == "" {
 		return noTransform
