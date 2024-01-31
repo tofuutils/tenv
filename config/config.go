@@ -28,9 +28,6 @@ import (
 )
 
 const (
-	defaultTerragruntGithubURL = "https://api.github.com/repos/gruntwork-io/terragrunt/releases"
-	defaultTofuGithubURL       = "https://api.github.com/repos/opentofu/opentofu/releases"
-
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
 	remoteURLEnvName   = "REMOTE"

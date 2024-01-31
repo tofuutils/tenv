@@ -25,7 +25,6 @@ import (
 	"net/url"
 	"os"
 	"runtime"
-	"slices"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/tofuutils/tenv/config"
@@ -103,14 +102,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 		return "", err
 	}
 
-	versionLen := len(versions)
-	if versionLen == 0 {
-		return "", apierrors.ErrReturn
-	}
-
-	slices.SortFunc(versions, semantic.CmpVersion)
-
-	return versions[versionLen-1], nil
+	return semantic.LatestVersionFromList(versions)
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
