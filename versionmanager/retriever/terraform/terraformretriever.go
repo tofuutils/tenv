@@ -63,13 +63,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		version = version[1:]
 	}
 
-	remoteConf := r.readRemoteConf()
-	remoteURL := r.conf.TfRemoteURL
-	if remoteURL == "" {
-		remoteURL = config.MapGetDefault(remoteConf, "url", defaultTfHashicorpURL)
-	}
-
-	baseVersionURL, err := url.JoinPath(remoteURL, terraformName, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.getRemoteURL(), terraformName, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -84,7 +78,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(remoteConf)
+	urlTranformer := download.UrlTranformer(r.readRemoteConf())
 	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, urlTranformer, value)
 	if err != nil {
 		return err
@@ -181,6 +175,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 	}
 
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
+}
+
+func (r *TerraformRetriever) getRemoteURL() string {
+	if r.conf.TfRemoteURL != "" {
+		return r.conf.TfRemoteURL
+	}
+
+	return config.MapGetDefault(r.readRemoteConf(), "url", defaultTfHashicorpURL)
 }
 
 func (r *TerraformRetriever) readRemoteConf() map[string]string {
