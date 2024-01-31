@@ -43,7 +43,7 @@ type TerragruntRetriever struct {
 }
 
 func NewTerragruntRetriever(conf *config.Config) *TerragruntRetriever {
-	return &TerragruntRetriever{conf: conf}
+	return &TerragruntRetriever{conf: conf, notLoaded: true}
 }
 
 func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath string) error {

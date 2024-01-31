@@ -51,7 +51,7 @@ type TofuRetriever struct {
 }
 
 func NewTofuRetriever(conf *config.Config) *TofuRetriever {
-	return &TofuRetriever{conf: conf}
+	return &TofuRetriever{conf: conf, notLoaded: true}
 }
 
 func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) error {
@@ -71,7 +71,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	stable := v.Prerelease() == ""
 
 	assetNames := buildAssetNames(versionStr, stable)
-	assets, err := github.DownloadAssetURL(tag, assetNames, r.conf.TofuRemoteURL, r.conf.GithubToken)
+	assets, err := github.DownloadAssetURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
 	if err != nil {
 		return err
 	}
@@ -95,11 +95,11 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
-	return github.LatestRelease(r.conf.TofuRemoteURL, r.conf.GithubToken)
+	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken)
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(r.conf.TofuRemoteURL, r.conf.GithubToken)
+	return github.ListReleases(r.getRemoteURL(), r.conf.GithubToken)
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string, urlTranformer func(string) (string, error)) error {
