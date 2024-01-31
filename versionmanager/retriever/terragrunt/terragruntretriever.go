@@ -54,7 +54,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	}
 
 	assetNames := buildAssetNames()
-	assets, err := github.DownloadAssetURL(tag, assetNames, r.conf.TgRemoteURL, r.conf.GithubToken)
+	assets, err := github.DownloadAssetURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
 	if err != nil {
 		return err
 	}
@@ -93,11 +93,11 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 }
 
 func (r *TerragruntRetriever) LatestRelease() (string, error) {
-	return github.LatestRelease(r.conf.TgRemoteURL, r.conf.GithubToken)
+	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken)
 }
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(r.conf.TgRemoteURL, r.conf.GithubToken)
+	return github.ListReleases(r.getRemoteURL(), r.conf.GithubToken)
 }
 
 func (r *TerragruntRetriever) getRemoteURL() string {
