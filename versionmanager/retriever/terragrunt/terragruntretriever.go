@@ -54,7 +54,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	}
 
 	assetNames := buildAssetNames()
-	assets, err := github.DownloadAssetURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
+	assets, err := github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
 	if err != nil {
 		return err
 	}
