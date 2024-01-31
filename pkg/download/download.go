@@ -19,9 +19,13 @@
 package download
 
 import (
+	"errors"
 	"io"
 	"net/http"
+	"net/url"
 )
+
+var ErrPrefix = errors.New("prefix does not match")
 
 func Bytes(url string) ([]byte, error) {
 	response, err := http.Get(url) //nolint
@@ -31,4 +35,25 @@ func Bytes(url string) ([]byte, error) {
 	defer response.Body.Close()
 
 	return io.ReadAll(response.Body)
+}
+
+func UrlTranformer(remoteConf map[string]string) func(string) (string, error) {
+	prevBaseURL := remoteConf["old_base_url"]
+	prevLen := len(remoteConf["old_base_url"])
+	baseURL := remoteConf["new_base_url"]
+	if prevLen == 0 || baseURL == "" {
+		return noTransform
+	}
+
+	return func(urlValue string) (string, error) {
+		if len(urlValue) < prevLen || urlValue[:prevLen] != prevBaseURL {
+			return "", ErrPrefix
+		}
+
+		return url.JoinPath(baseURL, urlValue[prevLen:])
+	}
+}
+
+func noTransform(value string) (string, error) {
+	return value, nil
 }

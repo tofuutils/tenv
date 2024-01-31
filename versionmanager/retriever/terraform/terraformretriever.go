@@ -27,28 +27,34 @@ import (
 	"runtime"
 	"slices"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apierrors"
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
+	"github.com/tofuutils/tenv/pkg/htmlquery"
 	"github.com/tofuutils/tenv/pkg/zip"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
+	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
 const (
-	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+	defaultTfHashicorpURL = "https://releases.hashicorp.com"
+	publicKeyURL          = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
 	indexJson     = "index.json"
 	terraformName = "terraform"
 )
 
 type TerraformRetriever struct {
-	conf *config.Config
+	conf       *config.Config
+	notLoaded  bool
+	remoteConf map[string]string
 }
 
 func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
-	return &TerraformRetriever{conf: conf}
+	return &TerraformRetriever{conf: conf, notLoaded: true}
 }
 
 func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
@@ -57,7 +63,13 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.TfRemoteURL, terraformName, version) //nolint
+	remoteConf := r.readRemoteConf()
+	remoteURL := r.conf.TfRemoteURL
+	if remoteURL == "" {
+		remoteURL = config.MapGetDefault(remoteConf, "url", defaultTfHashicorpURL)
+	}
+
+	baseVersionURL, err := url.JoinPath(remoteURL, terraformName, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -72,7 +84,8 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, value)
+	urlTranformer := download.UrlTranformer(remoteConf)
+	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, urlTranformer, value)
 	if err != nil {
 		return err
 	}
@@ -107,17 +120,38 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
-	releaseUrl, err := url.JoinPath(r.conf.TfRemoteURL, terraformName, indexJson) //nolint
+	remoteConf := r.readRemoteConf()
+	remoteURL := r.conf.TfRemoteURL
+	if remoteURL == "" {
+		remoteURL = config.MapGetDefault(remoteConf, "url", defaultTfHashicorpURL)
+	}
+	listRemoteURL := config.MapGetDefault(remoteConf, "list_url", remoteURL)
+	baseURL, err := url.JoinPath(listRemoteURL, terraformName) //nolint
 	if err != nil {
 		return nil, err
 	}
 
-	value, err := apiGetRequest(releaseUrl)
-	if err != nil {
-		return nil, err
-	}
+	if remoteConf["list_mode"] == "html" {
+		selector := config.MapGetDefault(remoteConf, "selector", "a")
+		extracter := htmlquery.SelectionExtracter(config.MapGetDefault(remoteConf, "part", "href"))
+		versionExtracter := func(s *goquery.Selection) string {
+			return versionfinder.Find(extracter(s))
+		}
 
-	return extractReleases(value)
+		return htmlquery.Request(baseURL, selector, versionExtracter)
+	} else {
+		releaseUrl, err := url.JoinPath(baseURL, indexJson) //nolint
+		if err != nil {
+			return nil, err
+		}
+
+		value, err := apiGetRequest(releaseUrl)
+		if err != nil {
+			return nil, err
+		}
+
+		return extractReleases(value)
+	}
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
@@ -149,6 +183,15 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
 
+func (r *TerraformRetriever) readRemoteConf() map[string]string {
+	if r.notLoaded {
+		r.notLoaded = false
+		r.remoteConf = r.conf.ReadRemoteConf("terraform")
+	}
+
+	return r.remoteConf
+}
+
 func apiGetRequest(callURL string) (any, error) {
 	response, err := http.Get(callURL)
 	if err != nil {
@@ -167,7 +210,7 @@ func apiGetRequest(callURL string) (any, error) {
 	return value, err
 }
 
-func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
+func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, urlTranformer func(string) (string, error), value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	shaFileName, ok2 := object["shasums"].(string)
@@ -198,6 +241,11 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 
 		if osStr != searchedOs || archStr != searchedArch {
 			continue
+		}
+
+		downloadURL, err := urlTranformer(downloadURL)
+		if err != nil {
+			return "", "", "", "", err
 		}
 
 		return fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, nil
