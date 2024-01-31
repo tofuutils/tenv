@@ -26,14 +26,14 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func Request(callURL string, selector string, extracter func(*goquery.Selection) string) ([]string, error) {
+func Request(callURL string, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
 	response, err := http.Get(callURL)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
 
-	return extract(response.Body, selector, extracter)
+	return extract(response.Body, selector, extractor)
 }
 
 func SelectionExtractor(part string) func(*goquery.Selection) string {
@@ -48,7 +48,7 @@ func SelectionExtractor(part string) func(*goquery.Selection) string {
 	}
 }
 
-func extract(reader io.Reader, selector string, extracter func(*goquery.Selection) string) ([]string, error) {
+func extract(reader io.Reader, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func extract(reader io.Reader, selector string, extracter func(*goquery.Selectio
 
 	var extracteds []string
 	doc.Find(selector).Each(func(i int, s *goquery.Selection) {
-		if extracted := extracter(s); extracted != "" {
+		if extracted := extractor(s); extracted != "" {
 			extracteds = append(extracteds, extracted)
 		}
 	})
