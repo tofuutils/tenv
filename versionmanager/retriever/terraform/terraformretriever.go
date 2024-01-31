@@ -119,12 +119,12 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 
 	if remoteConf["list_mode"] == "html" {
 		selector := config.MapGetDefault(remoteConf, "selector", "a")
-		extracter := htmlquery.SelectionExtracter(config.MapGetDefault(remoteConf, "part", "href"))
-		versionExtracter := func(s *goquery.Selection) string {
-			return versionfinder.Find(extracter(s))
+		extractor := htmlquery.SelectionExtractor(config.MapGetDefault(remoteConf, "part", "href"))
+		versionExtractor := func(s *goquery.Selection) string {
+			return versionfinder.Find(extractor(s))
 		}
 
-		return htmlquery.Request(baseURL, selector, versionExtracter)
+		return htmlquery.Request(baseURL, selector, versionExtractor)
 	} else {
 		releaseUrl, err := url.JoinPath(baseURL, indexJson) //nolint
 		if err != nil {
