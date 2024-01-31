@@ -115,11 +115,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	remoteConf := r.readRemoteConf()
-	remoteURL := r.conf.TfRemoteURL
-	if remoteURL == "" {
-		remoteURL = config.MapGetDefault(remoteConf, "url", defaultTfHashicorpURL)
-	}
-	listRemoteURL := config.MapGetDefault(remoteConf, "list_url", remoteURL)
+	listRemoteURL := config.MapGetDefault(remoteConf, "list_url", r.getRemoteURL())
 	baseURL, err := url.JoinPath(listRemoteURL, terraformName) //nolint
 	if err != nil {
 		return nil, err
