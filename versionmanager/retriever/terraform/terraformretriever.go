@@ -38,21 +38,18 @@ import (
 )
 
 const (
-	defaultTfHashicorpURL = "https://releases.hashicorp.com"
-	publicKeyURL          = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
 	indexJson = "index.json"
 	Name      = "terraform"
 )
 
 type TerraformRetriever struct {
-	conf       *config.Config
-	notLoaded  bool
-	remoteConf map[string]string
+	conf *config.Config
 }
 
 func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
-	return &TerraformRetriever{conf: conf, notLoaded: true}
+	return &TerraformRetriever{conf: conf}
 }
 
 func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
@@ -61,7 +58,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.getRemoteURL(), Name, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), Name, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -85,7 +82,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	downloadURL, err = download.UrlTranformer(r.readRemoteConf())(downloadURL)
+	downloadURL, err = download.UrlTranformer(r.conf.Tf.Data)(downloadURL)
 	if err != nil {
 		return err
 	}
@@ -113,15 +110,14 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
-	remoteConf := r.readRemoteConf()
-	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
+	listRemoteURL := r.conf.Tf.GetListURL()
 	baseURL, err := url.JoinPath(listRemoteURL, Name) //nolint
 	if err != nil {
 		return nil, err
 	}
 
-	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
-		return htmlretriever.ListReleases(baseURL, remoteConf, r.conf.Verbose)
+	if r.conf.Tf.GetListMode() == htmlretriever.ListModeHTML {
+		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.Verbose)
 	}
 
 	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
@@ -168,23 +164,6 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 	}
 
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
-}
-
-func (r *TerraformRetriever) getRemoteURL() string {
-	if r.conf.TfRemoteURL != "" {
-		return r.conf.TfRemoteURL
-	}
-
-	return config.MapGetDefault(r.readRemoteConf(), htmlretriever.URL, defaultTfHashicorpURL)
-}
-
-func (r *TerraformRetriever) readRemoteConf() map[string]string {
-	if r.notLoaded {
-		r.notLoaded = false
-		r.remoteConf = r.conf.ReadRemoteConf(Name)
-	}
-
-	return r.remoteConf
 }
 
 func apiGetRequest(callURL string) (any, error) {

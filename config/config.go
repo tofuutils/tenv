@@ -30,28 +30,42 @@ import (
 const (
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
+	installModeEnvName = "INSTALL_MODE"
+	listModeEnvName    = "LIST_MODE"
+	listURLEnvName     = "LIST_URL"
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
 	verboseEnvName     = "VERBOSE"
 
-	tenvRemoteConf = "TENV_REMOTE_CONF"
+	tenvPrefix            = "TENV_"
+	tenvRemoteConfEnvName = tenvPrefix + "REMOTE_CONF"
+	tenvVerboseEnvName    = tenvPrefix + verboseEnvName
 
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
 	tfForceRemoteEnvName     = tfenvPrefix + forceRemoteEnvName
 	tfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
+	tfInstallModeEnvName     = tfenvPrefix + installModeEnvName
+	tfListModeEnvName        = tfenvPrefix + listModeEnvName
+	tfListURLEnvName         = tfenvPrefix + listURLEnvName
 	TfRemoteURLEnvName       = tfenvPrefix + remoteURLEnvName
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
 	tfVerboseEnvName         = tfenvPrefix + verboseEnvName
 	TfVersionEnvName         = tfenvPrefix + "TERRAFORM_VERSION"
 
-	tgPrefix           = "TG_"
-	TgRemoteURLEnvName = tgPrefix + remoteURLEnvName
-	TgVersionEnvName   = tgPrefix + "VERSION"
+	tgPrefix             = "TG_"
+	tgInstallModeEnvName = tgPrefix + installModeEnvName
+	tgListModeEnvName    = tgPrefix + listModeEnvName
+	tgListURLEnvName     = tgPrefix + listURLEnvName
+	TgRemoteURLEnvName   = tgPrefix + remoteURLEnvName
+	TgVersionEnvName     = tgPrefix + "VERSION"
 
 	tofuenvPrefix             = "TOFUENV_"
 	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
 	tofuForceRemoteEnvName    = tofuenvPrefix + forceRemoteEnvName
+	tofuInstallModeEnvName    = tofuenvPrefix + installModeEnvName
+	tofuListModeEnvName       = tofuenvPrefix + listModeEnvName
+	tofuListURLEnvName        = tofuenvPrefix + listURLEnvName
 	tofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
 	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
@@ -61,18 +75,19 @@ const (
 )
 
 type Config struct {
-	ForceRemote    bool
-	GithubToken    string
-	NoInstall      bool
-	RemoteConfPath string
-	RootPath       string
-	TfKeyPath      string
-	TfRemoteURL    string
-	TgRemoteURL    string
-	TofuKeyPath    string
-	TofuRemoteURL  string
-	UserPath       string
-	Verbose        bool
+	ForceRemote      bool
+	GithubToken      string
+	NoInstall        bool
+	remoteConfLoaded bool
+	RemoteConfPath   string
+	RootPath         string
+	Tf               RemoteConfig
+	TfKeyPath        string
+	Tg               RemoteConfig
+	Tofu             RemoteConfig
+	TofuKeyPath      string
+	UserPath         string
+	Verbose          bool
 }
 
 func InitConfigFromEnv() (Config, error) {
@@ -96,7 +111,7 @@ func InitConfigFromEnv() (Config, error) {
 		rootPath = path.Join(userPath, ".tenv")
 	}
 
-	verbose, err := getenvBoolFallback(false, tofuVerboseEnvName, tfVerboseEnvName)
+	verbose, err := getenvBoolFallback(false, tenvVerboseEnvName, tofuVerboseEnvName, tfVerboseEnvName)
 	if err != nil {
 		return Config{}, err
 	}
@@ -105,19 +120,24 @@ func InitConfigFromEnv() (Config, error) {
 		ForceRemote:    forceRemote,
 		GithubToken:    os.Getenv(tofuTokenEnvName),
 		NoInstall:      !autoInstall,
-		RemoteConfPath: os.Getenv(tenvRemoteConf),
+		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
+		Tf:             makeRemoteConfig(TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL),
 		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
-		TfRemoteURL:    os.Getenv(TfRemoteURLEnvName),
-		TgRemoteURL:    os.Getenv(TgRemoteURLEnvName),
+		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL),
+		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, defaultTofuGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
-		TofuRemoteURL:  os.Getenv(TofuRemoteURLEnvName),
 		UserPath:       userPath,
 		Verbose:        verbose,
 	}, nil
 }
 
-func (conf *Config) ReadRemoteConf(targetName string) map[string]string {
+func (conf *Config) InitRemoteConf() {
+	if conf.remoteConfLoaded {
+		return
+	}
+	conf.remoteConfLoaded = true
+
 	remoteConfPath := conf.RemoteConfPath
 	if remoteConfPath == "" {
 		remoteConfPath = path.Join(conf.RootPath, "remote.yaml")
@@ -129,7 +149,7 @@ func (conf *Config) ReadRemoteConf(targetName string) map[string]string {
 			fmt.Println("Can not read remote conf :", err) //nolint
 		}
 
-		return nil
+		return
 	}
 
 	var remoteConf map[string]map[string]string
@@ -138,18 +158,14 @@ func (conf *Config) ReadRemoteConf(targetName string) map[string]string {
 			fmt.Println("Can not parse remote conf :", err) //nolint
 		}
 
-		return nil
+		return
 	}
 
-	return remoteConf[targetName]
-}
+	conf.Tf.Data = remoteConf["terraform"]
+	conf.Tg.Data = remoteConf["terragrunt"]
+	conf.Tofu.Data = remoteConf["tofu"]
 
-func MapGetDefault(m map[string]string, key string, defaultValue string) string {
-	if value := m[key]; value != "" {
-		return value
-	}
-
-	return defaultValue
+	return
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
