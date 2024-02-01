@@ -55,6 +55,10 @@ func init() {
 }
 
 func GatherRequiredVersion(verbose bool) ([]string, error) {
+	if verbose {
+		fmt.Println("Scan project to find tf files") //nolint
+	}
+
 	var requireds []string
 	parser := hclparse.NewParser()
 	err := filepath.WalkDir(".", func(path string, entry fs.DirEntry, err error) error {
