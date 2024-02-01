@@ -62,7 +62,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	var assetURLs []string
 	assetNames := buildAssetNames()
 	if r.readRemoteConf()[htmlretriever.InstallMode] == htmlretriever.InstallModeDirect {
-		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), gruntworkName, Name, github.Releases, github.Download, tag)
+		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), gruntworkName, Name, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
@@ -126,7 +126,7 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
 
 	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(listRemoteURL, gruntworkName, Name, github.Releases, github.Download)
+		baseURL, err := url.JoinPath(listRemoteURL, gruntworkName, Name, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}
