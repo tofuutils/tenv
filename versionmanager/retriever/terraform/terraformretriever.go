@@ -53,6 +53,8 @@ func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
 }
 
 func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
+	r.conf.InitRemoteConf()
+
 	// assume that terraform version do not start with a 'v'
 	if version[0] == 'v' {
 		version = version[1:]
@@ -100,6 +102,8 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 }
 
 func (r *TerraformRetriever) LatestRelease() (string, error) {
+	r.conf.InitRemoteConf()
+
 	// hashicorp release api does not seem to have a shortcut
 	versions, err := r.ListReleases()
 	if err != nil {
@@ -110,6 +114,8 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
+	r.conf.InitRemoteConf()
+
 	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), Name) //nolint
 	if err != nil {
 		return nil, err

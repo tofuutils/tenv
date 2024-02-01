@@ -21,7 +21,7 @@ package config
 import "os"
 
 const (
-	baseGithubURL              = "https://github.com/"
+	baseGithubURL              = "https://github.com"
 	defaultGithubURL           = "https://api.github.com/repos/"
 	defaultHashicorpURL        = "https://releases.hashicorp.com"
 	defaultTerragruntGithubURL = defaultGithubURL + "gruntwork-io/terragrunt" + slashReleases
@@ -39,10 +39,10 @@ type RemoteConfig struct {
 	RemoteURL      string
 }
 
-func makeRemoteConfig(remoteURLEnvName string, listURlEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
+func makeRemoteConfig(remoteURLEnvName string, listURLEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
 	return RemoteConfig{
 		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, installMode: os.Getenv(installModeEnvName), listMode: os.Getenv(listModeEnvName),
-		listURL: os.Getenv(listURlEnvName), RemoteURL: os.Getenv(remoteURLEnvName),
+		listURL: os.Getenv(listURLEnvName), RemoteURL: os.Getenv(remoteURLEnvName),
 	}
 }
 
@@ -69,15 +69,37 @@ func (r RemoteConfig) GetRewriteRule() []string {
 		return []string{oldBase, newBase}
 	}
 
-	if r.GetListMode() == "" || r.GetRemoteURL() == r.GetListURL() {
-		return nil
+	emptyListMode := r.GetListMode() == ""
+	listURL := r.GetListURL()
+	remoteURL := r.GetRemoteURL()
+	sameURL := remoteURL == listURL
+	if emptyListMode && sameURL {
+		return nil // no special behaviour, no rewriting
 	}
 
 	if oldBase == "" {
 		oldBase = r.defaultBaseURL
 	}
+
+	twoActivated := !emptyListMode && !sameURL
+	if r.GetInstallMode() != "" {
+		if twoActivated {
+			if newBase == "" {
+				newBase = listURL
+			}
+
+			return []string{oldBase, newBase}
+		}
+
+		return nil // build correct url
+	}
+
 	if newBase == "" {
-		oldBase = r.GetRemoteURL()
+		if twoActivated {
+			newBase = listURL
+		} else {
+			newBase = remoteURL
+		}
 	}
 
 	return []string{oldBase, newBase}

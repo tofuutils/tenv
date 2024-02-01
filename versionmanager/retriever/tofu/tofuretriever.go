@@ -56,6 +56,8 @@ func NewTofuRetriever(conf *config.Config) *TofuRetriever {
 }
 
 func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) error {
+	r.conf.InitRemoteConf()
+
 	tag := versionStr
 	// assume that opentofu tags start with a 'v'
 	// and version in asset name does not
@@ -106,6 +108,8 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
+	r.conf.InitRemoteConf()
+
 	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
 		versions, err := r.ListReleases()
 		if err != nil {
@@ -119,6 +123,8 @@ func (r *TofuRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
+	r.conf.InitRemoteConf()
+
 	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
 		baseURL, err := url.JoinPath(r.conf.Tofu.GetListURL(), opentofu, opentofu, github.Releases, github.Download) //nolint
 		if err != nil {

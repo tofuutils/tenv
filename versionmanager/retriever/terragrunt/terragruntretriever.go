@@ -48,6 +48,8 @@ func NewTerragruntRetriever(conf *config.Config) *TerragruntRetriever {
 }
 
 func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath string) error {
+	r.conf.InitRemoteConf()
+
 	tag := versionStr
 	// assume that terragrunt tags start with a 'v'
 	if tag[0] != 'v' {
@@ -105,6 +107,8 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 }
 
 func (r *TerragruntRetriever) LatestRelease() (string, error) {
+	r.conf.InitRemoteConf()
+
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
 		versions, err := r.ListReleases()
 		if err != nil {
@@ -118,6 +122,8 @@ func (r *TerragruntRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {
+	r.conf.InitRemoteConf()
+
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
 		baseURL, err := url.JoinPath(r.conf.Tg.GetListURL(), gruntworkName, Name, github.Releases, github.Download) //nolint
 		if err != nil {
