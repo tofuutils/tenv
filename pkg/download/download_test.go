@@ -25,10 +25,7 @@ import (
 )
 
 func TestUrlTransformer(t *testing.T) {
-	urlTransformer := download.UrlTranformer(map[string]string{
-		"old_base_url": "https://releases.hashicorp.com",
-		"new_base_url": "http://localhost:8080",
-	})
+	urlTransformer := download.UrlTranformer([]string{"https://releases.hashicorp.com", "http://localhost:8080"})
 
 	value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_386.zip")
 	if err != nil {
@@ -54,10 +51,7 @@ func TestUrlTransformerDisabled(t *testing.T) {
 }
 
 func TestUrlTransformerPrefix(t *testing.T) {
-	urlTransformer := download.UrlTranformer(map[string]string{
-		"old_base_url": "https://github.com",
-		"new_base_url": "https://go.dev",
-	})
+	urlTransformer := download.UrlTranformer([]string{"https://github.com", "https://go.dev"})
 
 	if value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip"); err == nil {
 		t.Error("Should fail on erroneous prefix, get :", value)
@@ -67,10 +61,7 @@ func TestUrlTransformerPrefix(t *testing.T) {
 }
 
 func TestUrlTransformerSlash(t *testing.T) {
-	urlTransformer := download.UrlTranformer(map[string]string{
-		"old_base_url": "https://releases.hashicorp.com/",
-		"new_base_url": "http://localhost",
-	})
+	urlTransformer := download.UrlTranformer([]string{"https://releases.hashicorp.com/", "http://localhost"})
 
 	value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip")
 	if err != nil {

@@ -87,7 +87,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tofu.Data)
+	urlTranformer := download.UrlTranformer(r.conf.Tofu.GetRewriteRule())
 	downloadURL, err := urlTranformer(assetURLs[0])
 	if err != nil {
 		return err

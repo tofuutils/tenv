@@ -42,10 +42,14 @@ func Bytes(url string, verbose bool) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
-func UrlTranformer(remoteConf map[string]string) func(string) (string, error) {
-	prevBaseURL := remoteConf["old_base_url"]
+func UrlTranformer(rewriteRule []string) func(string) (string, error) {
+	if len(rewriteRule) < 2 {
+		return noTransform
+	}
+
+	prevBaseURL := rewriteRule[0]
+	baseURL := rewriteRule[1]
 	prevLen := len(prevBaseURL)
-	baseURL := remoteConf["new_base_url"]
 	if prevLen == 0 || baseURL == "" {
 		return noTransform
 	}
