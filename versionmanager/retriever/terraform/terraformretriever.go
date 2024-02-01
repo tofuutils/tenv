@@ -110,8 +110,7 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
-	listRemoteURL := r.conf.Tf.GetListURL()
-	baseURL, err := url.JoinPath(listRemoteURL, Name) //nolint
+	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), Name) //nolint
 	if err != nil {
 		return nil, err
 	}

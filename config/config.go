@@ -164,8 +164,6 @@ func (conf *Config) InitRemoteConf() {
 	conf.Tf.Data = remoteConf["terraform"]
 	conf.Tg.Data = remoteConf["terragrunt"]
 	conf.Tofu.Data = remoteConf["tofu"]
-
-	return
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
