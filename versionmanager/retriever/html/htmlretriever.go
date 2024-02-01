@@ -30,12 +30,8 @@ import (
 )
 
 const (
-	InstallMode       = "install_mode"
 	InstallModeDirect = "direct"
-	ListMode          = "list_mode"
 	ListModeHTML      = "html"
-	ListURL           = "list_url"
-	URL               = "url"
 )
 
 func BuildAssetURLs(baseAssetURL string, assetNames []string) ([]string, error) {

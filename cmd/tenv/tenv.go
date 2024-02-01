@@ -71,7 +71,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd.AddCommand(newVersionCmd())
 	tofuParams := subCmdParams{
 		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
-		pRemote: &conf.TofuRemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
+		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
 	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), tofuParams)
 
@@ -83,7 +83,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 	tfParams := subCmdParams{
 		needToken: false, remoteEnvName: config.TfRemoteURLEnvName,
-		pRemote: &conf.TfRemoteURL, pPublicKeyPath: &conf.TfKeyPath,
+		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
 	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), tfParams)
 
@@ -96,7 +96,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	}
 
 	tgParams := subCmdParams{
-		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.TgRemoteURL,
+		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.Tg.RemoteURL,
 	}
 	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf), tgParams)
 

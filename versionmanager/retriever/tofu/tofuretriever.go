@@ -38,8 +38,7 @@ import (
 )
 
 const (
-	defaultTofuGithubURL = "https://api.github.com/repos/opentofu/opentofu/releases"
-	publicKeyURL         = "https://get.opentofu.org/opentofu.asc"
+	publicKeyURL = "https://get.opentofu.org/opentofu.asc"
 
 	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
 	baseFileName = "tofu_"
@@ -49,13 +48,11 @@ const (
 )
 
 type TofuRetriever struct {
-	conf       *config.Config
-	notLoaded  bool
-	remoteConf map[string]string
+	conf *config.Config
 }
 
 func NewTofuRetriever(conf *config.Config) *TofuRetriever {
-	return &TofuRetriever{conf: conf, notLoaded: true}
+	return &TofuRetriever{conf: conf}
 }
 
 func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) error {
@@ -76,21 +73,21 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 
 	var assetURLs []string
 	assetNames := buildAssetNames(versionStr, stable)
-	if r.readRemoteConf()[htmlretriever.InstallMode] == htmlretriever.InstallModeDirect {
-		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
+	if r.conf.Tofu.GetInstallMode() == htmlretriever.InstallModeDirect {
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 	}
 	if err != nil {
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.readRemoteConf())
+	urlTranformer := download.UrlTranformer(r.conf.Tofu.Data)
 	downloadURL, err := urlTranformer(assetURLs[0])
 	if err != nil {
 		return err
@@ -109,7 +106,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
-	if r.readRemoteConf()[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
+	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
 		versions, err := r.ListReleases()
 		if err != nil {
 			return "", err
@@ -118,23 +115,20 @@ func (r *TofuRetriever) LatestRelease() (string, error) {
 		return semantic.LatestVersionFromList(versions)
 	}
 
-	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+	return github.LatestRelease(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
-	remoteConf := r.readRemoteConf()
-	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
-
-	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(listRemoteURL, opentofu, opentofu, github.Releases, github.Download) //nolint
+	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
+		baseURL, err := url.JoinPath(r.conf.Tofu.GetListURL(), opentofu, opentofu, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, remoteConf, r.conf.Verbose)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data, r.conf.Verbose)
 	}
 
-	return github.ListReleases(listRemoteURL, r.conf.GithubToken, r.conf.Verbose)
+	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, urlTranformer func(string) (string, error)) error {
@@ -210,23 +204,6 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 	}
 
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
-}
-
-func (r *TofuRetriever) getRemoteURL() string {
-	if r.conf.TofuRemoteURL != "" {
-		return r.conf.TofuRemoteURL
-	}
-
-	return config.MapGetDefault(r.readRemoteConf(), "url", defaultTofuGithubURL)
-}
-
-func (r *TofuRetriever) readRemoteConf() map[string]string {
-	if r.notLoaded {
-		r.notLoaded = false
-		r.remoteConf = r.conf.ReadRemoteConf(Name)
-	}
-
-	return r.remoteConf
 }
 
 func buildAssetNames(version string, stable bool) []string {
