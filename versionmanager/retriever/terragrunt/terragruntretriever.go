@@ -71,7 +71,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tg.Data)
+	urlTranformer := download.UrlTranformer(r.conf.Tg.GetRewriteRule())
 	downloadURL, err := urlTranformer(assetURLs[0])
 	if err != nil {
 		return err

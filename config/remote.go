@@ -21,6 +21,7 @@ package config
 import "os"
 
 const (
+	baseGithubURL              = "https://github.com/"
 	defaultGithubURL           = "https://api.github.com/repos/"
 	defaultHashicorpURL        = "https://releases.hashicorp.com"
 	defaultTerragruntGithubURL = defaultGithubURL + "gruntwork-io/terragrunt" + slashReleases
@@ -29,17 +30,18 @@ const (
 )
 
 type RemoteConfig struct {
-	Data        map[string]string
-	defaultURL  string
-	installMode string
-	listMode    string
-	listURL     string
-	RemoteURL   string
+	Data           map[string]string
+	defaultBaseURL string
+	defaultURL     string
+	installMode    string
+	listMode       string
+	listURL        string
+	RemoteURL      string
 }
 
-func makeRemoteConfig(remoteURLEnvName string, listURlEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string) RemoteConfig {
+func makeRemoteConfig(remoteURLEnvName string, listURlEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
 	return RemoteConfig{
-		defaultURL: defaultURL, installMode: os.Getenv(installModeEnvName), listMode: os.Getenv(listModeEnvName),
+		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, installMode: os.Getenv(installModeEnvName), listMode: os.Getenv(listModeEnvName),
 		listURL: os.Getenv(listURlEnvName), RemoteURL: os.Getenv(remoteURLEnvName),
 	}
 }
@@ -58,6 +60,27 @@ func (r RemoteConfig) GetListURL() string {
 
 func (r RemoteConfig) GetRemoteURL() string {
 	return r.getValueForcedDefault("url", r.RemoteURL, r.defaultURL)
+}
+
+func (r RemoteConfig) GetRewriteRule() []string {
+	oldBase := r.Data["old_base_url"]
+	newBase := r.Data["new_base_url"]
+	if oldBase != "" && newBase != "" {
+		return []string{oldBase, newBase}
+	}
+
+	if r.GetListMode() == "" || r.GetInstallMode() == "" {
+		return nil
+	}
+
+	if oldBase == "" {
+		oldBase = r.defaultBaseURL
+	}
+	if newBase == "" {
+		oldBase = r.GetRemoteURL()
+	}
+
+	return []string{oldBase, newBase}
 }
 
 func MapGetDefault(m map[string]string, key string, defaultValue string) string {

@@ -82,7 +82,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	downloadURL, err = download.UrlTranformer(r.conf.Tf.Data)(downloadURL)
+	downloadURL, err = download.UrlTranformer(r.conf.Tf.GetRewriteRule())(downloadURL)
 	if err != nil {
 		return err
 	}
