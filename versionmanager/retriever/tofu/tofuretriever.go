@@ -20,6 +20,7 @@ package tofuretriever
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"runtime"
 	"strings"
@@ -32,6 +33,8 @@ import (
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
 	"github.com/tofuutils/tenv/pkg/zip"
+	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
+	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const (
@@ -39,10 +42,11 @@ const (
 	publicKeyURL         = "https://get.opentofu.org/opentofu.asc"
 
 	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
+	baseFileName = "tofu_"
 	issuer       = "https://token.actions.githubusercontent.com"
+	Name         = "tofu"
+	opentofu     = "opentofu"
 )
-
-const baseFileName = "tofu_"
 
 type TofuRetriever struct {
 	conf       *config.Config
@@ -70,14 +74,24 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	}
 	stable := v.Prerelease() == ""
 
+	var assetURLs []string
 	assetNames := buildAssetNames(versionStr, stable)
-	assets, err := github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+	if r.readRemoteConf()[htmlretriever.InstallMode] == htmlretriever.InstallModeDirect {
+		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag)
+		if err2 != nil {
+			return err2
+		}
+
+		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames)
+	} else {
+		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+	}
 	if err != nil {
 		return err
 	}
 
 	urlTranformer := download.UrlTranformer(r.readRemoteConf())
-	downloadURL, err := urlTranformer(assets[assetNames[0]])
+	downloadURL, err := urlTranformer(assetURLs[0])
 	if err != nil {
 		return err
 	}
@@ -87,7 +101,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	if err = r.checkSumAndSig(v, stable, data, assetNames, assets, urlTranformer); err != nil {
+	if err = r.checkSumAndSig(v, stable, data, assetNames[0], assetURLs, urlTranformer); err != nil {
 		return err
 	}
 
@@ -95,15 +109,36 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
+	if r.readRemoteConf()[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
+		versions, err := r.ListReleases()
+		if err != nil {
+			return "", err
+		}
+
+		return semantic.LatestVersionFromList(versions)
+	}
+
 	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+	remoteConf := r.readRemoteConf()
+	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
+
+	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
+		baseURL, err := url.JoinPath(listRemoteURL, opentofu, opentofu, github.Releases, github.Download)
+		if err != nil {
+			return nil, err
+		}
+
+		return htmlretriever.ListReleases(baseURL, remoteConf, r.conf.Verbose)
+	}
+
+	return github.ListReleases(listRemoteURL, r.conf.GithubToken, r.conf.Verbose)
 }
 
-func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string, urlTranformer func(string) (string, error)) error {
-	downloadURL, err := urlTranformer(assets[assetNames[1]])
+func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, urlTranformer func(string) (string, error)) error {
+	downloadURL, err := urlTranformer(assetURLs[1])
 	if err != nil {
 		return err
 	}
@@ -113,11 +148,11 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	if err = sha256check.Check(data, dataSums, assetNames[0]); err != nil {
+	if err = sha256check.Check(data, dataSums, fileName); err != nil {
 		return err
 	}
 
-	downloadURL, err = urlTranformer(assets[assetNames[3]])
+	downloadURL, err = urlTranformer(assetURLs[3])
 	if err != nil {
 		return err
 	}
@@ -127,7 +162,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	downloadURL, err = urlTranformer(assets[assetNames[2]])
+	downloadURL, err = urlTranformer(assetURLs[2])
 	if err != nil {
 		return err
 	}
@@ -153,7 +188,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		fmt.Println("cosign executable not found, fallback to pgp check") //nolint
 	}
 
-	downloadURL, err = urlTranformer(assets[assetNames[4]])
+	downloadURL, err = urlTranformer(assetURLs[4])
 	if err != nil {
 		return err
 	}
@@ -188,7 +223,7 @@ func (r *TofuRetriever) getRemoteURL() string {
 func (r *TofuRetriever) readRemoteConf() map[string]string {
 	if r.notLoaded {
 		r.notLoaded = false
-		r.remoteConf = r.conf.ReadRemoteConf("tofu")
+		r.remoteConf = r.conf.ReadRemoteConf(Name)
 	}
 
 	return r.remoteConf

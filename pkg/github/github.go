@@ -32,11 +32,16 @@ import (
 	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
-const pageQuery = "?page="
+const (
+	Download = "download"
+	Releases = "releases"
+
+	pageQuery = "?page="
+)
 
 var errContinue = errors.New("continue")
 
-func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, verbose bool) (map[string]string, error) {
+func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, verbose bool) ([]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
@@ -75,7 +80,12 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 		}
 
 		if err = extractAssets(assets, searchedAssetNameSet, waited, value); err == nil {
-			return assets, nil
+			assetURLs := make([]string, 0, waited)
+			for _, searchAssetName := range searchedAssetNames {
+				assetURLs = append(assetURLs, assets[searchAssetName])
+			}
+
+			return assetURLs, nil
 		} else if err != errContinue {
 			return nil, err
 		}

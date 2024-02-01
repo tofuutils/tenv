@@ -19,6 +19,7 @@
 package terragruntretriever
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -28,12 +29,16 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
+	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
+	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const (
 	defaultTerragruntGithubURL = "https://api.github.com/repos/gruntwork-io/terragrunt/releases"
 
-	baseFileName = "terragrunt_"
+	baseFileName  = "terragrunt_"
+	gruntworkName = "gruntwork-io"
+	Name          = "terragrunt"
 )
 
 type TerragruntRetriever struct {
@@ -53,14 +58,25 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		tag = "v" + versionStr
 	}
 
+	var err error
+	var assetURLs []string
 	assetNames := buildAssetNames()
-	assets, err := github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+	if r.readRemoteConf()[htmlretriever.InstallMode] == htmlretriever.InstallModeDirect {
+		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), gruntworkName, Name, github.Releases, github.Download, tag)
+		if err2 != nil {
+			return err2
+		}
+
+		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames)
+	} else {
+		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+	}
 	if err != nil {
 		return err
 	}
 
 	urlTranformer := download.UrlTranformer(r.readRemoteConf())
-	downloadURL, err := urlTranformer(assets[assetNames[0]])
+	downloadURL, err := urlTranformer(assetURLs[0])
 	if err != nil {
 		return err
 	}
@@ -70,7 +86,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	downloadURL, err = urlTranformer(assets[assetNames[1]])
+	downloadURL, err = urlTranformer(assetURLs[1])
 	if err != nil {
 		return err
 	}
@@ -89,14 +105,35 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, "terragrunt"), data, 0755)
+	return os.WriteFile(filepath.Join(targetPath, Name), data, 0755)
 }
 
 func (r *TerragruntRetriever) LatestRelease() (string, error) {
+	if r.readRemoteConf()[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
+		versions, err := r.ListReleases()
+		if err != nil {
+			return "", err
+		}
+
+		return semantic.LatestVersionFromList(versions)
+	}
+
 	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {
+	remoteConf := r.readRemoteConf()
+	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
+
+	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
+		baseURL, err := url.JoinPath(listRemoteURL, gruntworkName, Name, github.Releases, github.Download)
+		if err != nil {
+			return nil, err
+		}
+
+		return htmlretriever.ListReleases(baseURL, remoteConf, r.conf.Verbose)
+	}
+
 	return github.ListReleases(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
@@ -105,13 +142,13 @@ func (r *TerragruntRetriever) getRemoteURL() string {
 		return r.conf.TgRemoteURL
 	}
 
-	return config.MapGetDefault(r.readRemoteConf(), "url", defaultTerragruntGithubURL)
+	return config.MapGetDefault(r.readRemoteConf(), htmlretriever.URL, defaultTerragruntGithubURL)
 }
 
 func (r *TerragruntRetriever) readRemoteConf() map[string]string {
 	if r.notLoaded {
 		r.notLoaded = false
-		r.remoteConf = r.conf.ReadRemoteConf("terragrunt")
+		r.remoteConf = r.conf.ReadRemoteConf(Name)
 	}
 
 	return r.remoteConf
