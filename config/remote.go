@@ -69,7 +69,7 @@ func (r RemoteConfig) GetRewriteRule() []string {
 		return []string{oldBase, newBase}
 	}
 
-	if r.GetListMode() == "" || r.GetInstallMode() == "" {
+	if r.GetListMode() == "" || r.GetRemoteURL() == r.GetListURL() {
 		return nil
 	}
 
