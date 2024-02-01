@@ -21,8 +21,9 @@ package main
 import (
 	"github.com/tofuutils/tenv/versionmanager/builder"
 	"github.com/tofuutils/tenv/versionmanager/proxy"
+	terraformretriever "github.com/tofuutils/tenv/versionmanager/retriever/terraform"
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTfManager, "terraform")
+	proxy.ExecProxy(builder.BuildTfManager, terraformretriever.Name)
 }

@@ -33,7 +33,7 @@ func Request(callURL string, selector string, extractor func(*goquery.Selection)
 	}
 	defer response.Body.Close()
 
-	return extract(response.Body, selector, extractor)
+	return extractList(response.Body, selector, extractor)
 }
 
 func SelectionExtractor(part string) func(*goquery.Selection) string {
@@ -48,7 +48,7 @@ func SelectionExtractor(part string) func(*goquery.Selection) string {
 	}
 }
 
-func extract(reader io.Reader, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
+func extractList(reader io.Reader, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return nil, err

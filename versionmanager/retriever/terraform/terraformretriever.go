@@ -27,24 +27,22 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
-	"github.com/tofuutils/tenv/pkg/htmlquery"
 	"github.com/tofuutils/tenv/pkg/zip"
+	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
-	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
 const (
 	defaultTfHashicorpURL = "https://releases.hashicorp.com"
 	publicKeyURL          = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
-	indexJson     = "index.json"
-	terraformName = "terraform"
+	indexJson = "index.json"
+	Name      = "terraform"
 )
 
 type TerraformRetriever struct {
@@ -63,7 +61,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.getRemoteURL(), terraformName, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.getRemoteURL(), Name, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -116,41 +114,31 @@ func (r *TerraformRetriever) LatestRelease() (string, error) {
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	remoteConf := r.readRemoteConf()
-	listRemoteURL := config.MapGetDefault(remoteConf, "list_url", r.getRemoteURL())
-	baseURL, err := url.JoinPath(listRemoteURL, terraformName) //nolint
+	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
+	baseURL, err := url.JoinPath(listRemoteURL, Name) //nolint
 	if err != nil {
 		return nil, err
 	}
 
-	if remoteConf["list_mode"] == "html" {
-		selector := config.MapGetDefault(remoteConf, "selector", "a")
-		extractor := htmlquery.SelectionExtractor(config.MapGetDefault(remoteConf, "part", "href"))
-		versionExtractor := func(s *goquery.Selection) string {
-			return versionfinder.Find(extractor(s))
-		}
-
-		if r.conf.Verbose {
-			fmt.Println(apimsg.MsgFetchAllReleases, baseURL) //nolint
-		}
-
-		return htmlquery.Request(baseURL, selector, versionExtractor)
-	} else {
-		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
-		if err != nil {
-			return nil, err
-		}
-
-		if r.conf.Verbose {
-			fmt.Println(apimsg.MsgFetchAllReleases, releasesURL) //nolint
-		}
-
-		value, err := apiGetRequest(releasesURL)
-		if err != nil {
-			return nil, err
-		}
-
-		return extractReleases(value)
+	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
+		return htmlretriever.ListReleases(baseURL, remoteConf, r.conf.Verbose)
 	}
+
+	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
+	if err != nil {
+		return nil, err
+	}
+
+	if r.conf.Verbose {
+		fmt.Println(apimsg.MsgFetchAllReleases, releasesURL) //nolint
+	}
+
+	value, err := apiGetRequest(releasesURL)
+	if err != nil {
+		return nil, err
+	}
+
+	return extractReleases(value)
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
@@ -187,13 +175,13 @@ func (r *TerraformRetriever) getRemoteURL() string {
 		return r.conf.TfRemoteURL
 	}
 
-	return config.MapGetDefault(r.readRemoteConf(), "url", defaultTfHashicorpURL)
+	return config.MapGetDefault(r.readRemoteConf(), htmlretriever.URL, defaultTfHashicorpURL)
 }
 
 func (r *TerraformRetriever) readRemoteConf() map[string]string {
 	if r.notLoaded {
 		r.notLoaded = false
-		r.remoteConf = r.conf.ReadRemoteConf("terraform")
+		r.remoteConf = r.conf.ReadRemoteConf(Name)
 	}
 
 	return r.remoteConf

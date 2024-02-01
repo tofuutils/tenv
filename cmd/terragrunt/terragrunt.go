@@ -21,8 +21,9 @@ package main
 import (
 	"github.com/tofuutils/tenv/versionmanager/builder"
 	"github.com/tofuutils/tenv/versionmanager/proxy"
+	terragruntretriever "github.com/tofuutils/tenv/versionmanager/retriever/terragrunt"
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTgManager, "terragrunt")
+	proxy.ExecProxy(builder.BuildTgManager, terragruntretriever.Name)
 }

@@ -34,7 +34,7 @@ func TestExtractAttr(t *testing.T) {
 	artifactoryReader := bytes.NewReader(artifactoryData)
 
 	extractor := SelectionExtractor("style")
-	extracted, err := extract(artifactoryReader, "address", extractor)
+	extracted, err := extractList(artifactoryReader, "address", extractor)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -50,7 +50,7 @@ func TestExtractText(t *testing.T) {
 	artifactoryReader := bytes.NewReader(artifactoryData)
 
 	extractor := SelectionExtractor("#text")
-	extracted, err := extract(artifactoryReader, "address", extractor)
+	extracted, err := extractList(artifactoryReader, "address", extractor)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -65,7 +65,7 @@ func TestExtractTexts(t *testing.T) {
 
 	artifactoryReader := bytes.NewReader(artifactoryData)
 
-	extracted, err := extract(artifactoryReader, "a", selectionTextExtractor)
+	extracted, err := extractList(artifactoryReader, "a", selectionTextExtractor)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
