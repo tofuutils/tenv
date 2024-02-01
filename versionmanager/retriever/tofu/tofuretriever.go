@@ -77,7 +77,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	var assetURLs []string
 	assetNames := buildAssetNames(versionStr, stable)
 	if r.readRemoteConf()[htmlretriever.InstallMode] == htmlretriever.InstallModeDirect {
-		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag)
+		baseAssetURL, err2 := url.JoinPath(r.getRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
@@ -126,7 +126,7 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 	listRemoteURL := config.MapGetDefault(remoteConf, htmlretriever.ListURL, r.getRemoteURL())
 
 	if remoteConf[htmlretriever.ListMode] == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(listRemoteURL, opentofu, opentofu, github.Releases, github.Download)
+		baseURL, err := url.JoinPath(listRemoteURL, opentofu, opentofu, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}

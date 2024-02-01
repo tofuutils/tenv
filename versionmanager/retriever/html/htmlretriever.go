@@ -41,7 +41,7 @@ const (
 func BuildAssetURLs(baseAssetURL string, assetNames []string) ([]string, error) {
 	assetURLs := make([]string, 0, len(assetNames))
 	for _, assetName := range assetNames {
-		assetURL, err := url.JoinPath(baseAssetURL, assetName)
+		assetURL, err := url.JoinPath(baseAssetURL, assetName) //nolint
 		if err != nil {
 			return nil, err
 		}
