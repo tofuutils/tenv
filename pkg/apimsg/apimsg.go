@@ -16,9 +16,15 @@
  *
  */
 
-package apierrors
+package apimsg
 
 import "errors"
+
+const (
+	MsgFetchAllReleases   = "Fetching all releases informations from"
+	MsgFetchLatestRelease = "Fetching latest release informations from"
+	MsgFetchRelease       = "Fetching release informations from"
+)
 
 var (
 	ErrAsset  = errors.New("searched asset not found")

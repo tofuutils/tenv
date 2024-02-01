@@ -24,7 +24,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/tofuutils/tenv/pkg/apierrors"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
@@ -69,7 +69,7 @@ func TestExtractAssetsEmpty(t *testing.T) {
 	err := extractAssets(assets, searchedAssetNames, 2, []any{})
 	if err == nil {
 		t.Error("Should fail on empty data")
-	} else if err != apierrors.ErrAsset {
+	} else if err != apimsg.ErrAsset {
 		t.Error("Unexpected extract error : ", err)
 	}
 }

@@ -21,13 +21,14 @@ package github
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
-	"github.com/tofuutils/tenv/pkg/apierrors"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
@@ -35,10 +36,14 @@ const pageQuery = "?page="
 
 var errContinue = errors.New("continue")
 
-func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string) (map[string]string, error) {
+func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, verbose bool) (map[string]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
+	}
+
+	if verbose {
+		fmt.Println(apimsg.MsgFetchRelease, releaseUrl) //nolint
 	}
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
@@ -50,7 +55,7 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	object, _ := value.(map[string]any)
 	baseAssetsURL, ok := object["assets_url"].(string)
 	if !ok {
-		return nil, apierrors.ErrReturn
+		return nil, apimsg.ErrReturn
 	}
 
 	waited := len(searchedAssetNames)
@@ -78,10 +83,14 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	}
 }
 
-func LatestRelease(githubReleaseURL string, githubToken string) (string, error) {
+func LatestRelease(githubReleaseURL string, githubToken string, verbose bool) (string, error) {
 	latestUrl, err := url.JoinPath(githubReleaseURL, "latest") //nolint
 	if err != nil {
 		return "", err
+	}
+
+	if verbose {
+		fmt.Println(apimsg.MsgFetchLatestRelease, latestUrl) //nolint
 	}
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
@@ -92,13 +101,17 @@ func LatestRelease(githubReleaseURL string, githubToken string) (string, error) 
 
 	version := extractVersion(value)
 	if version == "" {
-		return "", apierrors.ErrReturn
+		return "", apimsg.ErrReturn
 	}
 
 	return version, nil
 }
 
-func ListReleases(githubReleaseURL string, githubToken string) ([]string, error) {
+func ListReleases(githubReleaseURL string, githubToken string, verbose bool) ([]string, error) {
+	if verbose {
+		fmt.Println(apimsg.MsgFetchAllReleases, githubReleaseURL) //nolint
+	}
+
 	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 
@@ -165,18 +178,18 @@ func buildAuthorizationHeader(token string) string {
 func extractAssets(assets map[string]string, searchedAssetNameSet map[string]struct{}, waited int, value any) error {
 	values, ok := value.([]any)
 	if !ok {
-		return apierrors.ErrReturn
+		return apimsg.ErrReturn
 	}
 
 	if len(values) == 0 {
-		return apierrors.ErrAsset
+		return apimsg.ErrAsset
 	}
 
 	for _, value := range values {
 		object, _ := value.(map[string]any)
 		assetName, ok := object["name"].(string) //nolint
 		if !ok {
-			return apierrors.ErrReturn
+			return apimsg.ErrReturn
 		}
 
 		if _, ok := searchedAssetNameSet[assetName]; !ok {
@@ -185,7 +198,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 
 		downloadURL, ok := object["browser_download_url"].(string)
 		if !ok {
-			return apierrors.ErrReturn
+			return apimsg.ErrReturn
 		}
 		assets[assetName] = downloadURL
 
@@ -200,7 +213,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 func extractReleases(releases []string, value any) ([]string, error) {
 	values, ok := value.([]any)
 	if !ok {
-		return nil, apierrors.ErrReturn
+		return nil, apimsg.ErrReturn
 	}
 
 	if len(values) == 0 {
@@ -210,7 +223,7 @@ func extractReleases(releases []string, value any) ([]string, error) {
 	for _, value := range values {
 		version := extractVersion(value)
 		if version == "" {
-			return nil, apierrors.ErrReturn
+			return nil, apimsg.ErrReturn
 		}
 		releases = append(releases, version)
 	}

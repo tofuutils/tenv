@@ -24,7 +24,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/apierrors"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
 	tgswitchparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tgswitch"
@@ -62,7 +62,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 func LatestVersionFromList(versions []string) (string, error) {
 	versionLen := len(versions)
 	if versionLen == 0 {
-		return "", apierrors.ErrReturn
+		return "", apimsg.ErrReturn
 	}
 
 	slices.SortFunc(versions, CmpVersion)
