@@ -81,25 +81,25 @@ func (r RemoteConfig) GetRewriteRule() []string {
 		oldBase = r.defaultBaseURL
 	}
 
-	twoActivated := !emptyListMode && !sameURL
-	if r.GetInstallMode() != "" {
-		if twoActivated {
-			if newBase == "" {
+	oneActivated := !(emptyListMode || sameURL)
+	if r.GetInstallMode() == "" {
+		if newBase == "" {
+			if oneActivated {
+				newBase = remoteURL
+			} else {
 				newBase = listURL
 			}
-
-			return []string{oldBase, newBase}
 		}
 
-		return nil // build correct url
+		return []string{oldBase, newBase}
+	}
+
+	if oneActivated {
+		return nil // build correct url (install mode activated)
 	}
 
 	if newBase == "" {
-		if twoActivated {
-			newBase = listURL
-		} else {
-			newBase = remoteURL
-		}
+		newBase = listURL
 	}
 
 	return []string{oldBase, newBase}
