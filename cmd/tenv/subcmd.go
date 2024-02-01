@@ -330,7 +330,7 @@ func addKeyFlag(flags *pflag.FlagSet, params subCmdParams) {
 }
 
 func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
-	flags.StringVarP(&conf.RemoteConfPath, "remote-conf", "c", "", "path to remote configuration file (advanced settings)")
+	flags.StringVarP(&conf.RemoteConfPath, "remote-conf", "c", conf.RemoteConfPath, "path to remote configuration file (advanced settings)")
 	if params.needToken {
 		flags.StringVarP(&conf.GithubToken, "github-token", "t", conf.GithubToken, "GitHub token (increases GitHub REST API rate limits)")
 	}
