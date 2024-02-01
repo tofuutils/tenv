@@ -20,6 +20,7 @@ package download
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -27,7 +28,11 @@ import (
 
 var ErrPrefix = errors.New("prefix does not match")
 
-func Bytes(url string) ([]byte, error) {
+func Bytes(url string, verbose bool) ([]byte, error) {
+	if verbose {
+		fmt.Println("Downloading", url) //nolint
+	}
+
 	response, err := http.Get(url) //nolint
 	if err != nil {
 		return nil, err

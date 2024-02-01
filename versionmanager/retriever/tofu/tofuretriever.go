@@ -71,7 +71,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	stable := v.Prerelease() == ""
 
 	assetNames := buildAssetNames(versionStr, stable)
-	assets, err := github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken)
+	assets, err := github.AssetDownloadURL(tag, assetNames, r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	data, err := download.Bytes(downloadURL)
+	data, err := download.Bytes(downloadURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -95,11 +95,11 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 }
 
 func (r *TofuRetriever) LatestRelease() (string, error) {
-	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken)
+	return github.LatestRelease(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {
-	return github.ListReleases(r.getRemoteURL(), r.conf.GithubToken)
+	return github.ListReleases(r.getRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, assetNames []string, assets map[string]string, urlTranformer func(string) (string, error)) error {
@@ -108,7 +108,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSums, err := download.Bytes(downloadURL)
+	dataSums, err := download.Bytes(downloadURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadURL)
+	dataSumsSig, err := download.Bytes(downloadURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(downloadURL)
+	dataSumsCert, err := download.Bytes(downloadURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -158,14 +158,14 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsSig, err = download.Bytes(downloadURL)
+	dataSumsSig, err = download.Bytes(downloadURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Verbose)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}

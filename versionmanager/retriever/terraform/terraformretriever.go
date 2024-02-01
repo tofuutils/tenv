@@ -20,6 +20,7 @@ package terraformretriever
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,7 +29,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/apierrors"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
@@ -72,6 +73,10 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
+	if r.conf.Verbose {
+		fmt.Println(apimsg.MsgFetchRelease, versionUrl) //nolint
+	}
+
 	value, err := apiGetRequest(versionUrl)
 	if err != nil {
 		return err
@@ -87,7 +92,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	data, err := download.Bytes(downloadURL)
+	data, err := download.Bytes(downloadURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -124,14 +129,22 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 			return versionfinder.Find(extractor(s))
 		}
 
+		if r.conf.Verbose {
+			fmt.Println(apimsg.MsgFetchAllReleases, baseURL) //nolint
+		}
+
 		return htmlquery.Request(baseURL, selector, versionExtractor)
 	} else {
-		releaseUrl, err := url.JoinPath(baseURL, indexJson) //nolint
+		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
 		if err != nil {
 			return nil, err
 		}
 
-		value, err := apiGetRequest(releaseUrl)
+		if r.conf.Verbose {
+			fmt.Println(apimsg.MsgFetchAllReleases, releasesURL) //nolint
+		}
+
+		value, err := apiGetRequest(releasesURL)
 		if err != nil {
 			return nil, err
 		}
@@ -141,7 +154,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
-	dataSums, err := download.Bytes(downloadSumsURL)
+	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -150,14 +163,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigURL)
+	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Verbose)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}
@@ -210,7 +223,7 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 	shaFileName, ok2 := object["shasums"].(string)
 	shaSigFileName, ok3 := object["shasums_signature"].(string)
 	if !ok || !ok2 || !ok3 {
-		return "", "", "", "", apierrors.ErrReturn
+		return "", "", "", "", apimsg.ErrReturn
 	}
 
 	downloadSumsURL, err := url.JoinPath(baseVersionURL, shaFileName) //nolint
@@ -230,7 +243,7 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 		downloadURL, ok3 := object["url"].(string)
 		fileName, ok4 := object["filename"].(string)
 		if !ok || !ok2 || !ok3 || !ok4 {
-			return "", "", "", "", apierrors.ErrReturn
+			return "", "", "", "", apimsg.ErrReturn
 		}
 
 		if osStr != searchedOs || archStr != searchedArch {
@@ -240,14 +253,14 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 		return fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, nil
 	}
 
-	return "", "", "", "", apierrors.ErrAsset
+	return "", "", "", "", apimsg.ErrAsset
 }
 
 func extractReleases(value any) ([]string, error) {
 	object, _ := value.(map[string]any)
 	object, ok := object["versions"].(map[string]any)
 	if !ok {
-		return nil, apierrors.ErrReturn
+		return nil, apimsg.ErrReturn
 	}
 
 	releases := make([]string, 0, len(object))
