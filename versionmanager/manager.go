@@ -19,7 +19,6 @@
 package versionmanager
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -30,6 +29,7 @@ import (
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 )
 
 var (
@@ -44,17 +44,16 @@ type ReleaseInfoRetriever interface {
 }
 
 type VersionManager struct {
-	conf                  *config.Config
-	FolderName            string
-	predicateReaders      []func(*config.Config) (func(string) bool, bool, error)
-	retriever             ReleaseInfoRetriever
-	VersionEnvName        string
-	VersionFileName       string
-	otherVersionFileNames []string
+	conf             *config.Config
+	FolderName       string
+	predicateReaders []func(*config.Config) (func(string) bool, bool, error)
+	retriever        ReleaseInfoRetriever
+	VersionEnvName   string
+	VersionFileNames []string
 }
 
-func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), retriever ReleaseInfoRetriever, versionEnvName string, versionFileName string, otherVersionFileNames ...string) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, VersionFileName: versionFileName, otherVersionFileNames: otherVersionFileNames}
+func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), retriever ReleaseInfoRetriever, versionEnvName string, versionFileNames ...string) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, VersionFileNames: versionFileNames}
 }
 
 // detect version (can install depending on auto install env var).
@@ -164,26 +163,8 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 		return forcedVersion
 	}
 
-	data, err := os.ReadFile(m.VersionFileName)
-	if err == nil {
-		return string(bytes.TrimSpace(data))
-	}
-
-	for _, versionFileName := range m.otherVersionFileNames {
-		data, err := os.ReadFile(versionFileName)
-		if err == nil {
-			return string(bytes.TrimSpace(data))
-		}
-	}
-
-	data, err = os.ReadFile(filepath.Join(m.conf.UserPath, m.VersionFileName))
-	if err == nil {
-		return string(bytes.TrimSpace(data))
-	}
-
-	data, err = os.ReadFile(m.RootVersionFilePath())
-	if err == nil {
-		return string(bytes.TrimSpace(data))
+	if version := flatparser.RetrieveVersion(m.VersionFileNames, m.conf); version == "" {
+		return version
 	}
 
 	return defaultVersion
@@ -191,7 +172,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
-	return filepath.Join(m.conf.RootPath, m.VersionFileName)
+	return filepath.Join(m.conf.RootPath, m.VersionFileNames[0])
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
@@ -215,7 +196,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 		return err
 	}
 
-	targetFilePath := m.VersionFileName
+	targetFilePath := m.VersionFileNames[0]
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}

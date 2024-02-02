@@ -73,7 +73,7 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
 	descBuilder.WriteString(versionManager.VersionEnvName)
 	descBuilder.WriteString(" or ")
-	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(versionManager.VersionFileNames[0])
 	descBuilder.WriteString(` files
 (searched in working directory, user home directory and TOFUENV_ROOT directory).
 Use "latest-stable" when none are found.
@@ -227,7 +227,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	shortMsg := descBuilder.String() + "."
 
 	descBuilder.WriteString(" (remove ")
-	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(versionManager.VersionFileNames[0])
 	descBuilder.WriteString(" file from TOFUENV_ROOT).")
 
 	resetCmd := &cobra.Command{
@@ -272,7 +272,7 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 	shortMsg := descBuilder.String() + "."
 
 	descBuilder.WriteString(" (set in ")
-	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(versionManager.VersionFileNames[0])
 	descBuilder.WriteString(` file in TOFUENV_ROOT)
 
 Available parameter options:
@@ -297,7 +297,7 @@ Available parameter options:
 
 	descBuilder.Reset()
 	descBuilder.WriteString("create ")
-	descBuilder.WriteString(versionManager.VersionFileName)
+	descBuilder.WriteString(versionManager.VersionFileNames[0])
 	descBuilder.WriteString(" file in working directory")
 
 	flags := useCmd.Flags()
