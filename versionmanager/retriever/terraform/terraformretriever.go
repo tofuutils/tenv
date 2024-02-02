@@ -57,16 +57,12 @@ func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
 func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
 	r.conf.InitRemoteConf()
 
-	tag := version
-	// assume that terraform tags start with a 'v'
-	// and version in asset name does not
-	if tag[0] == 'v' {
+	// assume that terraform  version do not start with a 'v'
+	if version[0] == 'v' {
 		version = version[1:]
-	} else {
-		tag = "v" + version
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), Name, tag) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), Name, version) //nolint
 	if err != nil {
 		return err
 	}
