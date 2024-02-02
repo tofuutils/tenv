@@ -33,7 +33,12 @@ func RetrieveVersion(versionFileNames []string, conf *config.Config) string {
 	for _, fileName := range versionFileNames {
 		data, err := os.ReadFile(fileName)
 		if err == nil {
-			return string(bytes.TrimSpace(data))
+			resolvedVersion := string(bytes.TrimSpace(data))
+			if conf.Verbose && resolvedVersion != "" {
+				fmt.Println("Resolved version from", fileName, ":", resolvedVersion) //nolint
+			}
+
+			return resolvedVersion
 		}
 		if conf.Verbose {
 			fmt.Println(msgFlatErr, err) //nolint
@@ -73,9 +78,15 @@ func RetrieveVersion(versionFileNames []string, conf *config.Config) string {
 
 func retrieveVersionFromDir(versionFileNames []string, dirPath string, verbose bool) string {
 	for _, fileName := range versionFileNames {
-		data, err := os.ReadFile(filepath.Join(dirPath, fileName))
+		filePath := filepath.Join(dirPath, fileName)
+		data, err := os.ReadFile(filePath)
 		if err == nil {
-			return string(bytes.TrimSpace(data))
+			resolvedVersion := string(bytes.TrimSpace(data))
+			if verbose && resolvedVersion != "" {
+				fmt.Println("Resolved version from", filePath, ":", resolvedVersion) //nolint
+			}
+
+			return resolvedVersion
 		}
 		if verbose {
 			fmt.Println(msgFlatErr, err) //nolint

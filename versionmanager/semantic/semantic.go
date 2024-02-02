@@ -90,7 +90,7 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 		}
 
 		if conf.Verbose {
-			fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable") //nolint
+			fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable strategy") //nolint
 		}
 
 		return StableVersion, true, nil // erase min-required case
