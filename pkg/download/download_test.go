@@ -53,10 +53,14 @@ func TestUrlTransformerDisabled(t *testing.T) {
 func TestUrlTransformerPrefix(t *testing.T) {
 	urlTransformer := download.UrlTranformer([]string{"https://github.com", "https://go.dev"})
 
-	if value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip"); err == nil {
-		t.Error("Should fail on erroneous prefix, get :", value)
-	} else if err != download.ErrPrefix {
-		t.Error("Incorrect error reported, get :", err)
+	initialValue := "https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip"
+	value, err := urlTransformer(initialValue)
+	if err != nil {
+		t.Fatal("Unexpected error :", err)
+	}
+
+	if value != initialValue {
+		t.Error("Unexpected result, get :", value)
 	}
 }
 
