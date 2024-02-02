@@ -108,17 +108,18 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1]
 	}
 
-	downloadURL, err = download.UrlTranformer(r.conf.Tf.GetRewriteRule())(downloadURL)
+	urlTranformer := download.UrlTranformer(r.conf.Tf.GetRewriteRule())
+	assetURLs, err := download.ApplyUrlTranformer(urlTranformer, downloadURL, downloadSumsURL, downloadSumsSigURL)
 	if err != nil {
 		return err
 	}
 
-	data, err := download.Bytes(downloadURL, r.conf.Verbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(fileName, data, downloadSumsURL, downloadSumsSigURL); err != nil {
+	if err = r.checkSumAndSig(fileName, data, assetURLs[1], assetURLs[2]); err != nil {
 		return err
 	}
 
