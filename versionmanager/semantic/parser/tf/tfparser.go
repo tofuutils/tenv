@@ -102,7 +102,7 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 		if len(foundFiles) == 0 {
 			fmt.Println("No .tf file found") //nolint
 		} else {
-			fmt.Println("Readed :", foundFiles) //nolint
+			fmt.Println("Read :", foundFiles) //nolint
 		}
 	}
 
