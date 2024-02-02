@@ -35,7 +35,6 @@ import (
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const (
@@ -120,18 +119,6 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 	}
 
 	return zip.UnzipToDir(data, targetPath)
-}
-
-func (r *TerraformRetriever) LatestRelease() (string, error) {
-	r.conf.InitRemoteConf()
-
-	// hashicorp release api does not seem to have a shortcut
-	versions, err := r.ListReleases()
-	if err != nil {
-		return "", err
-	}
-
-	return semantic.LatestVersionFromList(versions)
 }
 
 func (r *TerraformRetriever) ListReleases() ([]string, error) {

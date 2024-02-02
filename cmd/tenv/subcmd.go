@@ -97,7 +97,7 @@ If a parameter is passed, available options:
 			var requestedVersion string
 			if len(args) == 0 {
 				var err error
-				requestedVersion, err = versionManager.Resolve(semantic.LatestStableKey)
+				requestedVersion, err = versionManager.Resolve(semantic.LatestKey)
 				if err != nil {
 					return err
 				}

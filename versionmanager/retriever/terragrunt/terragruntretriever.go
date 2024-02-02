@@ -30,7 +30,6 @@ import (
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const (
@@ -99,21 +98,6 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	}
 
 	return os.WriteFile(filepath.Join(targetPath, Name), data, 0755)
-}
-
-func (r *TerragruntRetriever) LatestRelease() (string, error) {
-	r.conf.InitRemoteConf()
-
-	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
-		versions, err := r.ListReleases()
-		if err != nil {
-			return "", err
-		}
-
-		return semantic.LatestVersionFromList(versions)
-	}
-
-	return github.LatestRelease(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {

@@ -38,7 +38,6 @@ var (
 
 type ReleaseInfoRetriever interface {
 	InstallRelease(version string, targetPath string) error
-	LatestRelease() (string, error)
 	ListReleases() ([]string, error)
 }
 
@@ -69,12 +68,6 @@ func (m VersionManager) Install(requestedVersion string) error {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		return m.installSpecificVersion(parsedVersion.String())
-	}
-
-	if requestedVersion == semantic.LatestKey {
-		_, err = m.installLatest()
-
-		return err
 	}
 
 	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
@@ -256,24 +249,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		}
 	}
 
-	if requestedVersion == semantic.LatestKey {
-		if m.conf.NoInstall {
-			return m.retriever.LatestRelease()
-		}
-
-		return m.installLatest()
-	}
-
 	return m.searchInstallRemote(predicate, reverseOrder, m.conf.NoInstall)
-}
-
-func (m VersionManager) installLatest() (string, error) {
-	latestVersion, err := m.retriever.LatestRelease()
-	if err != nil {
-		return "", err
-	}
-
-	return latestVersion, m.installSpecificVersion(latestVersion)
 }
 
 func (m VersionManager) installSpecificVersion(version string) error {
