@@ -27,6 +27,9 @@ vet: ## Run go vet against code.
 ##@ Build
 build: fmt vet  ## Build service binary.
 	go build -o tenv ./cmd/tenv
+	go build -o tofu ./cmd/tofu
+	go build -o terraform ./cmd/terraform
+	go build -o terragrunt ./cmd/terragrunt
 
 run: vet ## Run service from your laptop.
 	go run ./main.go
