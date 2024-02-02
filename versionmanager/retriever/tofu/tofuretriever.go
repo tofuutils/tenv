@@ -81,7 +81,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 			return err2
 		}
 
-		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames)
+		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
 	} else {
 		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 	}
@@ -217,23 +217,18 @@ func buildAssetNames(version string, stable bool) []string {
 	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(version)
 	nameBuilder.WriteByte('_')
+	sumsAssetName := nameBuilder.String() + "SHA256SUMS"
+
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(runtime.GOARCH)
 	nameBuilder.WriteString(".zip")
-	zipAssetName := nameBuilder.String()
-
-	nameBuilder.Reset()
-	nameBuilder.WriteString(baseFileName)
-	nameBuilder.WriteString(version)
-	nameBuilder.WriteString("_SHA256SUMS")
-	sumsAssetName := nameBuilder.String()
 
 	if stable {
-		return []string{zipAssetName, sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig", sumsAssetName + ".gpgsig"}
+		return []string{nameBuilder.String(), sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig", sumsAssetName + ".gpgsig"}
 	}
 
-	return []string{zipAssetName, sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig"}
+	return []string{nameBuilder.String(), sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig"}
 }
 
 func buildIdentity(v *version.Version) string {

@@ -65,7 +65,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 			return err2
 		}
 
-		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames)
+		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
 	} else {
 		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 	}

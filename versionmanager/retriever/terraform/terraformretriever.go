@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
@@ -40,8 +41,9 @@ import (
 const (
 	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
-	indexJson = "index.json"
-	Name      = "terraform"
+	baseFileName = "terraform_"
+	indexJson    = "index.json"
+	Name         = "terraform"
 )
 
 type TerraformRetriever struct {
@@ -55,33 +57,55 @@ func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
 func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
 	r.conf.InitRemoteConf()
 
-	// assume that terraform version do not start with a 'v'
-	if version[0] == 'v' {
+	tag := version
+	// assume that terraform tags start with a 'v'
+	// and version in asset name does not
+	if tag[0] == 'v' {
 		version = version[1:]
+	} else {
+		tag = "v" + version
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), Name, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), Name, tag) //nolint
 	if err != nil {
 		return err
 	}
 
-	versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
-	if err != nil {
-		return err
-	}
+	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
+	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
+		fileName, shaFileName, shaSigFileName = buildAssetNames(version)
+		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, fileName, shaFileName, shaSigFileName)
+		if err != nil {
+			return err
+		}
 
-	if r.conf.Verbose {
-		fmt.Println(apimsg.MsgFetchRelease, versionUrl) //nolint
-	}
+		downloadURL, downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1], assetURLs[2]
+	} else {
+		versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
+		if err != nil {
+			return err
+		}
 
-	value, err := apiGetRequest(versionUrl)
-	if err != nil {
-		return err
-	}
+		if r.conf.Verbose {
+			fmt.Println(apimsg.MsgFetchRelease, versionUrl) //nolint
+		}
 
-	fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, err := extractAssetUrls(baseVersionURL, runtime.GOOS, runtime.GOARCH, value)
-	if err != nil {
-		return err
+		value, err := apiGetRequest(versionUrl)
+		if err != nil {
+			return err
+		}
+
+		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, runtime.GOARCH, value)
+		if err != nil {
+			return err
+		}
+
+		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, shaFileName, shaSigFileName)
+		if err != nil {
+			return err
+		}
+
+		downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1]
 	}
 
 	downloadURL, err = download.UrlTranformer(r.conf.Tf.GetRewriteRule())(downloadURL)
@@ -189,23 +213,28 @@ func apiGetRequest(callURL string) (any, error) {
 	return value, err
 }
 
-func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
+func buildAssetNames(version string) (string, string, string) {
+	var nameBuilder strings.Builder
+	nameBuilder.WriteString(baseFileName)
+	nameBuilder.WriteString(version)
+	nameBuilder.WriteByte('_')
+	sumsAssetName := nameBuilder.String() + "SHA256SUMS"
+
+	nameBuilder.WriteString(runtime.GOOS)
+	nameBuilder.WriteByte('_')
+	nameBuilder.WriteString(runtime.GOARCH)
+	nameBuilder.WriteString(".zip")
+
+	return nameBuilder.String(), sumsAssetName, sumsAssetName + ".sig"
+}
+
+func extractAssetUrls(searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)
 	builds, ok := object["builds"].([]any)
 	shaFileName, ok2 := object["shasums"].(string)
 	shaSigFileName, ok3 := object["shasums_signature"].(string)
 	if !ok || !ok2 || !ok3 {
 		return "", "", "", "", apimsg.ErrReturn
-	}
-
-	downloadSumsURL, err := url.JoinPath(baseVersionURL, shaFileName) //nolint
-	if err != nil {
-		return "", "", "", "", err
-	}
-
-	downloadSumsSigURL, err := url.JoinPath(baseVersionURL, shaSigFileName) //nolint
-	if err != nil {
-		return "", "", "", "", err
 	}
 
 	for _, build := range builds {
@@ -222,7 +251,7 @@ func extractAssetUrls(baseVersionURL string, searchedOs string, searchedArch str
 			continue
 		}
 
-		return fileName, downloadURL, downloadSumsURL, downloadSumsSigURL, nil
+		return fileName, downloadURL, shaFileName, shaSigFileName, nil
 	}
 
 	return "", "", "", "", apimsg.ErrAsset
