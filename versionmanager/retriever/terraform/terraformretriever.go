@@ -72,7 +72,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 	}
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
-	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
+	if r.conf.Tf.GetInstallMode() == htmlretriever.InstallModeDirect {
 		fileName, shaFileName, shaSigFileName = buildAssetNames(version)
 		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, fileName, shaFileName, shaSigFileName)
 		if err != nil {
