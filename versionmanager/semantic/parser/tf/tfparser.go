@@ -56,10 +56,11 @@ func init() {
 
 func GatherRequiredVersion(verbose bool) ([]string, error) {
 	if verbose {
-		fmt.Println("Scan project to find tf files") //nolint
+		fmt.Println("Scan project to find .tf files") //nolint
 	}
 
 	var requireds []string
+	var foundFiles []string
 	parser := hclparse.NewParser()
 	err := filepath.WalkDir(".", func(path string, entry fs.DirEntry, err error) error {
 		if err != nil || entry.IsDir() {
@@ -73,6 +74,8 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 			if start := pathLen - extDesc.len; start < 0 || path[start:] != extDesc.value {
 				continue
 			}
+
+			foundFiles = append(foundFiles, path)
 
 			if extDesc.parseHCL {
 				parsedFile, diags = parser.ParseHCLFile(path)
@@ -94,6 +97,14 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 
 		return nil
 	})
+
+	if verbose {
+		if len(foundFiles) == 0 {
+			fmt.Println("No .tf file found") //nolint
+		} else {
+			fmt.Println("Readed :", foundFiles) //nolint
+		}
+	}
 
 	return requireds, err
 }

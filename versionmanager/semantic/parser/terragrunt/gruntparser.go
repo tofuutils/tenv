@@ -62,7 +62,7 @@ func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConst
 	if err == nil {
 		parsedFile, diags := parser.ParseHCL(data, hclName)
 
-		return extractVersionConstraint(parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
+		return extractVersionConstraint(hclName, parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
 	}
 
 	if verbose {
@@ -80,12 +80,15 @@ func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConst
 
 	parsedFile, diags := parser.ParseJSON(data, jsonName)
 
-	return extractVersionConstraint(parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
+	return extractVersionConstraint(jsonName, parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
 }
 
-func extractVersionConstraint(parsedFile *hcl.File, diags hcl.Diagnostics, versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
+func extractVersionConstraint(fileName string, parsedFile *hcl.File, diags hcl.Diagnostics, versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	if diags.HasErrors() {
 		return "", diags
+	}
+	if verbose {
+		fmt.Println("Readed", fileName) //nolint
 	}
 	if parsedFile == nil {
 		return "", nil
