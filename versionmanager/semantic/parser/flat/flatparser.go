@@ -24,7 +24,7 @@ import (
 	"os"
 )
 
-func RetrieveVersionFromFile(filePath string, verbose bool) (string, error) {
+func RetrieveVersion(filePath string, verbose bool) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		if verbose {
