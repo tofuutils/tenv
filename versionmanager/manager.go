@@ -23,7 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"slices"
 
 	"github.com/hashicorp/go-version"
@@ -90,7 +90,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() string {
-	dir := path.Join(m.conf.RootPath, m.FolderName)
+	dir := filepath.Join(m.conf.RootPath, m.FolderName)
 	if err := os.MkdirAll(dir, 0755); err != nil && m.conf.Verbose {
 		fmt.Println("Can not create installation directory :", err) //nolint
 	}
@@ -176,7 +176,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 		}
 	}
 
-	data, err = os.ReadFile(path.Join(m.conf.UserPath, m.VersionFileName))
+	data, err = os.ReadFile(filepath.Join(m.conf.UserPath, m.VersionFileName))
 	if err == nil {
 		return string(bytes.TrimSpace(data))
 	}
@@ -191,7 +191,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
-	return path.Join(m.conf.RootPath, m.VersionFileName)
+	return filepath.Join(m.conf.RootPath, m.VersionFileName)
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
@@ -201,7 +201,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	}
 
 	cleanedVersion := parsedVersion.String()
-	targetPath := path.Join(m.InstallPath(), cleanedVersion)
+	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
 	if m.conf.Verbose {
 		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
 	}
@@ -306,7 +306,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 		fmt.Println("Installation of", m.FolderName, version) //nolint
 	}
 
-	return m.retriever.InstallRelease(version, path.Join(installPath, version))
+	return m.retriever.InstallRelease(version, filepath.Join(installPath, version))
 }
 
 func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {
