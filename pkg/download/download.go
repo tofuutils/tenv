@@ -19,14 +19,11 @@
 package download
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 )
-
-var ErrPrefix = errors.New("prefix does not match")
 
 func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, 0, len(baseURLs))
@@ -70,7 +67,7 @@ func UrlTranformer(rewriteRule []string) func(string) (string, error) {
 
 	return func(urlValue string) (string, error) {
 		if len(urlValue) < prevLen || urlValue[:prevLen] != prevBaseURL {
-			return "", ErrPrefix
+			return urlValue, nil
 		}
 
 		return url.JoinPath(baseURL, urlValue[prevLen:]) //nolint
