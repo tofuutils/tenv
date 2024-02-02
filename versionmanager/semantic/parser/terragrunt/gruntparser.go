@@ -35,8 +35,6 @@ const (
 
 	terraformVersionConstraintName  = "terraform_version_constraint"
 	terragruntVersionConstraintName = "terraform_version_constraint"
-
-	msgTerragruntErr = "Failed to read terragrunt file :"
 )
 
 var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
@@ -57,19 +55,19 @@ func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, error) {
 
 func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	parser := hclparse.NewParser()
-	constraint, err := extractVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, verbose)
+	constraint, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, verbose)
 	if err != nil || constraint != "" {
 		return constraint, err
 	}
 
-	return extractVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, verbose)
+	return retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, verbose)
 }
 
-func extractVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
+func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	data, err := os.ReadFile(hclName)
 	if err != nil {
 		if verbose {
-			fmt.Println(msgTerragruntErr, err) //nolint
+			fmt.Println("Failed to read terragrunt file :", err) //nolint
 		}
 
 		return "", nil
