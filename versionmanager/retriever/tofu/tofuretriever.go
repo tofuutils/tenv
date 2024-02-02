@@ -34,7 +34,6 @@ import (
 	"github.com/tofuutils/tenv/pkg/github"
 	"github.com/tofuutils/tenv/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const (
@@ -105,21 +104,6 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	}
 
 	return zip.UnzipToDir(data, targetPath)
-}
-
-func (r *TofuRetriever) LatestRelease() (string, error) {
-	r.conf.InitRemoteConf()
-
-	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
-		versions, err := r.ListReleases()
-		if err != nil {
-			return "", err
-		}
-
-		return semantic.LatestVersionFromList(versions)
-	}
-
-	return github.LatestRelease(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
 func (r *TofuRetriever) ListReleases() ([]string, error) {

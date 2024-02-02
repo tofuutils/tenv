@@ -20,17 +20,16 @@ package semantic
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/apimsg"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
 )
 
 const (
 	LatestAllowedKey = "latest-allowed"
+	LatestPreKey     = "latest-pre"
 	LatestStableKey  = "latest-stable"
 	LatestKey        = "latest"
 	MinRequiredKey   = "min-required"
@@ -58,17 +57,6 @@ func CmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-func LatestVersionFromList(versions []string) (string, error) {
-	versionLen := len(versions)
-	if versionLen == 0 {
-		return "", apimsg.ErrReturn
-	}
-
-	slices.SortFunc(versions, CmpVersion)
-
-	return versions[versionLen-1], nil
-}
-
 // the boolean returned as second value indicates to reverse order for filtering.
 func ParsePredicate(behaviourOrConstraint string, displayName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), conf *config.Config) (func(string) bool, bool, error) {
 	reverseOrder := true
@@ -89,13 +77,13 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 		}
 
 		if conf.Verbose {
-			fmt.Println("No", displayName, "version requirement found in files, fallback to latest-stable strategy") //nolint
+			fmt.Println("No", displayName, "version requirement found in files, fallback to latest strategy") //nolint
 		}
 
 		return StableVersion, true, nil // erase min-required case
-	case LatestStableKey:
+	case LatestKey, LatestStableKey:
 		return StableVersion, true, nil
-	case LatestKey:
+	case LatestPreKey:
 		return alwaysTrue, true, nil
 	default:
 		constraint, err := version.NewConstraint(behaviourOrConstraint)
