@@ -25,6 +25,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
+	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/htmlquery"
 	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
@@ -35,17 +36,11 @@ const (
 )
 
 func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error) {
-	assetURLs := make([]string, 0, len(assetNames))
-	for _, assetName := range assetNames {
-		assetURL, err := url.JoinPath(baseAssetURL, assetName) //nolint
-		if err != nil {
-			return nil, err
-		}
-
-		assetURLs = append(assetURLs, assetURL)
+	joinTransformer := func(assetName string) (string, error) {
+		return url.JoinPath(baseAssetURL, assetName) //nolint
 	}
 
-	return assetURLs, nil
+	return download.ApplyUrlTranformer(joinTransformer, assetNames...)
 }
 
 func ListReleases(baseURL string, remoteConf map[string]string, verbose bool) ([]string, error) {

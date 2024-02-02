@@ -28,6 +28,20 @@ import (
 
 var ErrPrefix = errors.New("prefix does not match")
 
+func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
+	transformedURLs := make([]string, 0, len(baseURLs))
+	for _, baseURL := range baseURLs {
+		transformedURL, err := urlTransformer(baseURL)
+		if err != nil {
+			return nil, err
+		}
+
+		transformedURLs = append(transformedURLs, transformedURL)
+	}
+
+	return transformedURLs, nil
+}
+
 func Bytes(url string, verbose bool) ([]byte, error) {
 	if verbose {
 		fmt.Println("Downloading", url) //nolint

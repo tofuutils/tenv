@@ -90,17 +90,17 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	}
 
 	urlTranformer := download.UrlTranformer(r.conf.Tofu.GetRewriteRule())
-	downloadURL, err := urlTranformer(assetURLs[0])
+	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}
 
-	data, err := download.Bytes(downloadURL, r.conf.Verbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(v, stable, data, assetNames[0], assetURLs, urlTranformer); err != nil {
+	if err = r.checkSumAndSig(v, stable, data, assetNames[0], assetURLs); err != nil {
 		return err
 	}
 
@@ -137,13 +137,8 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
-func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, urlTranformer func(string) (string, error)) error {
-	downloadURL, err := urlTranformer(assetURLs[1])
-	if err != nil {
-		return err
-	}
-
-	dataSums, err := download.Bytes(downloadURL, r.conf.Verbose)
+func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -152,22 +147,12 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	downloadURL, err = urlTranformer(assetURLs[3])
+	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadURL, r.conf.Verbose)
-	if err != nil {
-		return err
-	}
-
-	downloadURL, err = urlTranformer(assetURLs[2])
-	if err != nil {
-		return err
-	}
-
-	dataSumsCert, err := download.Bytes(downloadURL, r.conf.Verbose)
+	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
@@ -188,12 +173,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		fmt.Println("cosign executable not found, fallback to pgp check") //nolint
 	}
 
-	downloadURL, err = urlTranformer(assetURLs[4])
-	if err != nil {
-		return err
-	}
-
-	dataSumsSig, err = download.Bytes(downloadURL, r.conf.Verbose)
+	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.Verbose)
 	if err != nil {
 		return err
 	}

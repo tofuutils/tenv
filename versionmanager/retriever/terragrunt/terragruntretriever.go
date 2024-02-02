@@ -58,43 +58,38 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 
 	var err error
 	var assetURLs []string
-	assetNames := buildAssetNames()
+	fileName, shaFileName := buildAssetNames()
 	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, Name, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
 
-		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
+		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
 	}
 	if err != nil {
 		return err
 	}
 
 	urlTranformer := download.UrlTranformer(r.conf.Tg.GetRewriteRule())
-	downloadURL, err := urlTranformer(assetURLs[0])
+	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}
 
-	data, err := download.Bytes(downloadURL, r.conf.Verbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
-	downloadURL, err = urlTranformer(assetURLs[1])
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Verbose)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(downloadURL, r.conf.Verbose)
-	if err != nil {
-		return err
-	}
-
-	if err = sha256check.Check(data, dataSums, assetNames[0]); err != nil {
+	if err = sha256check.Check(data, dataSums, fileName); err != nil {
 		return err
 	}
 
@@ -136,7 +131,7 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
 }
 
-func buildAssetNames() []string {
+func buildAssetNames() (string, string) {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(runtime.GOOS)
@@ -146,5 +141,5 @@ func buildAssetNames() []string {
 		nameBuilder.WriteString(".exe")
 	}
 
-	return []string{nameBuilder.String(), "SHA256SUMS"}
+	return nameBuilder.String(), "SHA256SUMS"
 }
