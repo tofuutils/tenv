@@ -34,7 +34,7 @@ const (
 	ListModeHTML      = "html"
 )
 
-func BuildAssetURLs(baseAssetURL string, assetNames []string) ([]string, error) {
+func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error) {
 	assetURLs := make([]string, 0, len(assetNames))
 	for _, assetName := range assetNames {
 		assetURL, err := url.JoinPath(baseAssetURL, assetName) //nolint
