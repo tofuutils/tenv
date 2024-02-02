@@ -27,21 +27,10 @@ import (
 	"github.com/tofuutils/tenv/config"
 )
 
-const msgFlatErr = "Failed to read file :"
-
 func RetrieveVersion(versionFileNames []string, conf *config.Config) string {
 	for _, fileName := range versionFileNames {
-		data, err := os.ReadFile(fileName)
-		if err == nil {
-			resolvedVersion := string(bytes.TrimSpace(data))
-			if conf.Verbose && resolvedVersion != "" {
-				fmt.Println("Resolved version from", fileName, ":", resolvedVersion) //nolint
-			}
-
+		if resolvedVersion := retrieveVersionFromFile(fileName, conf.Verbose); resolvedVersion != "" {
 			return resolvedVersion
-		}
-		if conf.Verbose {
-			fmt.Println(msgFlatErr, err) //nolint
 		}
 	}
 
@@ -78,19 +67,25 @@ func RetrieveVersion(versionFileNames []string, conf *config.Config) string {
 
 func retrieveVersionFromDir(versionFileNames []string, dirPath string, verbose bool) string {
 	for _, fileName := range versionFileNames {
-		filePath := filepath.Join(dirPath, fileName)
-		data, err := os.ReadFile(filePath)
-		if err == nil {
-			resolvedVersion := string(bytes.TrimSpace(data))
-			if verbose && resolvedVersion != "" {
+		if resolvedVersion := retrieveVersionFromFile(filepath.Join(dirPath, fileName), verbose); resolvedVersion != "" {
+			return resolvedVersion
+		}
+	}
+
+	return ""
+}
+
+func retrieveVersionFromFile(filePath string, verbose bool) string {
+	if data, err := os.ReadFile(filePath); err == nil {
+		if resolvedVersion := string(bytes.TrimSpace(data)); resolvedVersion != "" {
+			if verbose {
 				fmt.Println("Resolved version from", filePath, ":", resolvedVersion) //nolint
 			}
 
 			return resolvedVersion
 		}
-		if verbose {
-			fmt.Println(msgFlatErr, err) //nolint
-		}
+	} else if verbose {
+		fmt.Println("Failed to read file :", err) //nolint
 	}
 
 	return ""
