@@ -57,19 +57,16 @@ func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, error) {
 
 func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	parser := hclparse.NewParser()
+	constraint, err := extractVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, verbose)
+	if err != nil || constraint != "" {
+		return constraint, err
+	}
 
+	return extractVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, verbose)
+}
+
+func extractVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
 	data, err := os.ReadFile(hclName)
-	if err == nil {
-		parsedFile, diags := parser.ParseHCL(data, hclName)
-
-		return extractVersionConstraint(hclName, parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
-	}
-
-	if verbose {
-		fmt.Println(msgTerragruntErr, err) //nolint
-	}
-
-	data, err = os.ReadFile(jsonName)
 	if err != nil {
 		if verbose {
 			fmt.Println(msgTerragruntErr, err) //nolint
@@ -78,17 +75,12 @@ func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConst
 		return "", nil
 	}
 
-	parsedFile, diags := parser.ParseJSON(data, jsonName)
-
-	return extractVersionConstraint(jsonName, parsedFile, diags, versionPartialShema, versionConstraintName, verbose)
-}
-
-func extractVersionConstraint(fileName string, parsedFile *hcl.File, diags hcl.Diagnostics, versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
+	parsedFile, diags := fileParser(data, hclName)
 	if diags.HasErrors() {
 		return "", diags
 	}
 	if verbose {
-		fmt.Println("Readed", fileName) //nolint
+		fmt.Println("Read", fileName) //nolint
 	}
 	if parsedFile == nil {
 		return "", nil
@@ -117,7 +109,7 @@ func extractVersionConstraint(fileName string, parsedFile *hcl.File, diags hcl.D
 		return "", nil
 	}
 
-	val, err := convert.Convert(val, cty.String)
+	val, err = convert.Convert(val, cty.String)
 	if err != nil {
 		if verbose {
 			fmt.Println("Failed to convert terragrunt attribute :", err) //nolint

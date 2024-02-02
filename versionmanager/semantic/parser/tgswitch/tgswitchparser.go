@@ -48,7 +48,7 @@ func RetrieveTerraguntVersion(conf *config.Config) (string, error) {
 }
 
 func retrieveVersionFromFile(filePath string, verbose bool) (string, error) {
-	data, err := os.ReadFile(tomlName)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		if verbose {
 			fmt.Println("Failed to read tgswitch file :", err) //nolint
@@ -58,7 +58,7 @@ func retrieveVersionFromFile(filePath string, verbose bool) (string, error) {
 	}
 
 	if verbose {
-		fmt.Println("Readed", tomlName) //nolint
+		fmt.Println("Read", filePath) //nolint
 	}
 
 	var parsed map[string]string
