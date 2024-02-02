@@ -163,7 +163,7 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 		return forcedVersion
 	}
 
-	if version := flatparser.RetrieveVersion(m.VersionFileNames, m.conf); version == "" {
+	if version := flatparser.RetrieveVersion(m.VersionFileNames, m.conf); version != "" {
 		return version
 	}
 
