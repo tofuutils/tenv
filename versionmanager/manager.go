@@ -158,8 +158,12 @@ func (m VersionManager) Reset() error {
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
-func (m VersionManager) Resolve(defaultVersion string) string {
+func (m VersionManager) Resolve(defaultStrategy string) string {
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
+		if m.conf.Verbose {
+			fmt.Println("Resolved version from", m.VersionEnvName, ":", forcedVersion) //nolint
+		}
+
 		return forcedVersion
 	}
 
@@ -167,7 +171,11 @@ func (m VersionManager) Resolve(defaultVersion string) string {
 		return version
 	}
 
-	return defaultVersion
+	if m.conf.Verbose {
+		fmt.Println("No", m.FolderName, "version found in flat files, fallback to", defaultStrategy, "strategy") //nolint
+	}
+
+	return defaultStrategy
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
