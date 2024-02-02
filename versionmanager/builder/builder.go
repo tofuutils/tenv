@@ -25,22 +25,27 @@ import (
 	terragruntretriever "github.com/tofuutils/tenv/versionmanager/retriever/terragrunt"
 	tofuretriever "github.com/tofuutils/tenv/versionmanager/retriever/tofu"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
+	tgswitchparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tgswitch"
 )
 
 func BuildTfManager(conf *config.Config) versionmanager.VersionManager {
 	tfRetriever := terraformretriever.NewTerraformRetriever(conf)
+	versionFiles := []semantic.VersionFile{{Name: ".terraform-version", Parser: flatparser.RetrieveVersionFromFile}, {Name: ".tfswitchrc", Parser: flatparser.RetrieveVersionFromFile}}
 
-	return versionmanager.MakeVersionManager(conf, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, ".terraform-version", ".tfswitchrc")
+	return versionmanager.MakeVersionManager(conf, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, versionFiles)
 }
 
 func BuildTgManager(conf *config.Config) versionmanager.VersionManager {
 	tgRetriever := terragruntretriever.NewTerragruntRetriever(conf)
+	versionFiles := []semantic.VersionFile{{Name: ".terragrunt-version", Parser: flatparser.RetrieveVersionFromFile}, {Name: ".tgswitchrc", Parser: flatparser.RetrieveVersionFromFile}, {Name: ".tgswitch.toml", Parser: tgswitchparser.RetrieveTerraguntVersionFromFile}}
 
-	return versionmanager.MakeVersionManager(conf, "Terragrunt", semantic.TgPredicateReaders, tgRetriever, config.TgVersionEnvName, ".terragrunt-version", ".tgswitchrc")
+	return versionmanager.MakeVersionManager(conf, "Terragrunt", semantic.TgPredicateReaders, tgRetriever, config.TgVersionEnvName, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config) versionmanager.VersionManager {
 	tofuRetriever := tofuretriever.NewTofuRetriever(conf)
+	versionFiles := []semantic.VersionFile{{Name: ".opentofu-version", Parser: flatparser.RetrieveVersionFromFile}}
 
-	return versionmanager.MakeVersionManager(conf, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, ".opentofu-version")
+	return versionmanager.MakeVersionManager(conf, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, versionFiles)
 }
