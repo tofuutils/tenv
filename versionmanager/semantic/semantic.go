@@ -71,9 +71,9 @@ func LatestVersionFromList(versions []string) (string, error) {
 }
 
 // the boolean returned as second value indicates to reverse order for filtering.
-func ParsePredicate(requestedVersion string, displayName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), conf *config.Config) (func(string) bool, bool, error) {
+func ParsePredicate(behaviourOrConstraint string, displayName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), conf *config.Config) (func(string) bool, bool, error) {
 	reverseOrder := true
-	switch requestedVersion {
+	switch behaviourOrConstraint {
 	case MinRequiredKey:
 		reverseOrder = false // start with older
 
@@ -99,7 +99,7 @@ func ParsePredicate(requestedVersion string, displayName string, predicateReader
 	case LatestKey:
 		return alwaysTrue, true, nil
 	default:
-		constraint, err := version.NewConstraint(requestedVersion)
+		constraint, err := version.NewConstraint(behaviourOrConstraint)
 		if err != nil {
 			return nil, false, err
 		}
