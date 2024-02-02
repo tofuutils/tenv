@@ -21,7 +21,7 @@ package tgswitchparser
 import (
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 	"github.com/tofuutils/tenv/config"
@@ -31,45 +31,37 @@ const (
 	tomlName = ".tgswitch.toml"
 
 	versionName = "version"
-
-	msgTgSwitchErr = "Failed to read tgswitch file :"
 )
 
 func RetrieveTerraguntVersion(conf *config.Config) (string, error) {
-	var parsed map[string]string
+	version, err := retrieveVersionFromFile(tomlName, conf.Verbose)
+	if err != nil || version != "" {
+		return version, err
+	}
+
+	version, err = retrieveVersionFromFile(filepath.Join(conf.UserPath, tomlName), conf.Verbose)
+	if err != nil || version != "" {
+		return version, err
+	}
+
+	return retrieveVersionFromFile(filepath.Join(conf.RootPath, tomlName), conf.Verbose)
+}
+
+func retrieveVersionFromFile(filePath string, verbose bool) (string, error) {
 	data, err := os.ReadFile(tomlName)
-	if err == nil {
-		if _, err = toml.Decode(string(data), &parsed); err != nil {
-			return "", err
-		}
-
-		return parsed[versionName], nil
-	}
-	if conf.Verbose {
-		fmt.Println(msgTgSwitchErr, err) //nolint
-	}
-
-	data, err = os.ReadFile(path.Join(conf.UserPath, tomlName))
-	if err == nil {
-		if _, err = toml.Decode(string(data), &parsed); err != nil {
-			return "", err
-		}
-
-		return parsed[versionName], nil
-	}
-	if conf.Verbose {
-		fmt.Println(msgTgSwitchErr, err) //nolint
-	}
-
-	data, err = os.ReadFile(path.Join(conf.RootPath, tomlName))
 	if err != nil {
-		if conf.Verbose {
-			fmt.Println(msgTgSwitchErr, err) //nolint
+		if verbose {
+			fmt.Println("Failed to read tgswitch file :", err) //nolint
 		}
 
 		return "", nil
 	}
 
+	if verbose {
+		fmt.Println("Readed", tomlName) //nolint
+	}
+
+	var parsed map[string]string
 	if _, err = toml.Decode(string(data), &parsed); err != nil {
 		return "", err
 	}

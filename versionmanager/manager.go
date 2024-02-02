@@ -239,6 +239,10 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 
 		for _, version := range versions {
 			if predicate(version) {
+				if m.conf.Verbose {
+					fmt.Println("Found compatible version installed locally :", version) //nolint
+				}
+
 				return version, nil
 			}
 		}
@@ -306,6 +310,9 @@ func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverse
 
 	for _, version := range versions {
 		if predicate(version) {
+			if m.conf.Verbose {
+				fmt.Println("Found compatible version remotely :", version) //nolint
+			}
 			if noInstall {
 				return version, nil
 			}
