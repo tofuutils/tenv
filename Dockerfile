@@ -30,11 +30,13 @@ WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
 RUN go get -u ./cmd/tenv \
  && go get -u ./cmd/tofu \
  && go get -u ./cmd/terraform \
- && go mod tidy
+ && go get -u ./cmd/terragrunt \
+&& go mod tidy
 
 RUN go build -ldflags="-s -w" -o tenv ./cmd/tenv
 RUN go build -ldflags="-s -w" -o tofu ./cmd/tofu
 RUN go build -ldflags="-s -w" -o terraform ./cmd/terraform
+RUN go build -ldflags="-s -w" -o terragrunt ./cmd/terragrunt
 
 FROM gcr.io/distroless/static:nonroot
 COPY --from=builder go/src/github.com/tofuutils/tenv/tenv /app/
