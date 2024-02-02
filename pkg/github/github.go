@@ -93,30 +93,6 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	}
 }
 
-func LatestRelease(githubReleaseURL string, githubToken string, verbose bool) (string, error) {
-	latestUrl, err := url.JoinPath(githubReleaseURL, "latest") //nolint
-	if err != nil {
-		return "", err
-	}
-
-	if verbose {
-		fmt.Println(apimsg.MsgFetchLatestRelease, latestUrl) //nolint
-	}
-
-	authorizationHeader := buildAuthorizationHeader(githubToken)
-	value, err := apiGetRequest(latestUrl, authorizationHeader)
-	if err != nil {
-		return "", err
-	}
-
-	version := extractVersion(value)
-	if version == "" {
-		return "", apimsg.ErrReturn
-	}
-
-	return version, nil
-}
-
 func ListReleases(githubReleaseURL string, githubToken string, verbose bool) ([]string, error) {
 	if verbose {
 		fmt.Println(apimsg.MsgFetchAllReleases, githubReleaseURL) //nolint
