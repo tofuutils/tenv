@@ -29,7 +29,6 @@ import (
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
-	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 )
 
 var (
@@ -49,16 +48,19 @@ type VersionManager struct {
 	predicateReaders []func(*config.Config) (func(string) bool, bool, error)
 	retriever        ReleaseInfoRetriever
 	VersionEnvName   string
-	VersionFileNames []string
+	VersionFiles     []semantic.VersionFile
 }
 
-func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), retriever ReleaseInfoRetriever, versionEnvName string, versionFileNames ...string) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, VersionFileNames: versionFileNames}
+func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), retriever ReleaseInfoRetriever, versionEnvName string, versionFiles []semantic.VersionFile) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, VersionFiles: versionFiles}
 }
 
 // detect version (can install depending on auto install env var).
 func (m VersionManager) Detect() (string, error) {
-	configVersion := m.Resolve(semantic.LatestAllowedKey)
+	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
+	if err != nil {
+		return "", err
+	}
 
 	return m.detect(configVersion)
 }
@@ -158,29 +160,29 @@ func (m VersionManager) Reset() error {
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
-func (m VersionManager) Resolve(defaultStrategy string) string {
+func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
 		if m.conf.Verbose {
 			fmt.Println("Resolved version from", m.VersionEnvName, ":", forcedVersion) //nolint
 		}
 
-		return forcedVersion
+		return forcedVersion, nil
 	}
 
-	if version := flatparser.RetrieveVersion(m.VersionFileNames, m.conf); version != "" {
-		return version
+	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+		return version, err
 	}
 
 	if m.conf.Verbose {
 		fmt.Println("No", m.FolderName, "version found in flat files, fallback to", defaultStrategy, "strategy") //nolint
 	}
 
-	return defaultStrategy
+	return defaultStrategy, nil
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
-	return filepath.Join(m.conf.RootPath, m.VersionFileNames[0])
+	return filepath.Join(m.conf.RootPath, m.VersionFiles[0].Name)
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
@@ -204,7 +206,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 		return err
 	}
 
-	targetFilePath := m.VersionFileNames[0]
+	targetFilePath := m.VersionFiles[0].Name
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}

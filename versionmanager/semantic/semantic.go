@@ -27,7 +27,6 @@ import (
 	"github.com/tofuutils/tenv/pkg/apimsg"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
-	tgswitchparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tgswitch"
 )
 
 const (
@@ -38,8 +37,8 @@ const (
 )
 
 var (
-	TfPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTfVersionFromTerragruntFile, readTfFiles}                   //nolint
-	TgPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTgVersionFromTgSwitchFile, readTgVersionFromTerragruntFile} //nolint
+	TfPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTfVersionFromTerragruntFile, readTfFiles} //nolint
+	TgPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTgVersionFromTerragruntFile}              //nolint
 )
 
 func CmpVersion(v1Str string, v2Str string) int {
@@ -171,9 +170,4 @@ func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, bo
 // the boolean returned as second value indicates if a predicate was found.
 func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, bool, error) {
 	return readPredicate(terragruntparser.RetrieveTerraguntVersionConstraint, conf)
-}
-
-// the boolean returned as second value indicates if a predicate was found.
-func readTgVersionFromTgSwitchFile(conf *config.Config) (func(string) bool, bool, error) {
-	return readPredicate(tgswitchparser.RetrieveTerraguntVersion, conf)
 }

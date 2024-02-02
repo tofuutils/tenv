@@ -21,33 +21,13 @@ package tgswitchparser
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/tofuutils/tenv/config"
 )
 
-const (
-	tomlName = ".tgswitch.toml"
+const versionName = "version"
 
-	versionName = "version"
-)
-
-func RetrieveTerraguntVersion(conf *config.Config) (string, error) {
-	version, err := retrieveVersionFromFile(tomlName, conf.Verbose)
-	if err != nil || version != "" {
-		return version, err
-	}
-
-	version, err = retrieveVersionFromFile(filepath.Join(conf.UserPath, tomlName), conf.Verbose)
-	if err != nil || version != "" {
-		return version, err
-	}
-
-	return retrieveVersionFromFile(filepath.Join(conf.RootPath, tomlName), conf.Verbose)
-}
-
-func retrieveVersionFromFile(filePath string, verbose bool) (string, error) {
+func RetrieveTerraguntVersionFromFile(filePath string, verbose bool) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		if verbose {
@@ -57,14 +37,18 @@ func retrieveVersionFromFile(filePath string, verbose bool) (string, error) {
 		return "", nil
 	}
 
-	if verbose {
-		fmt.Println("Read", filePath) //nolint
-	}
-
 	var parsed map[string]string
 	if _, err = toml.Decode(string(data), &parsed); err != nil {
 		return "", err
 	}
 
-	return parsed[versionName], nil
+	resolvedVersion := parsed[versionName]
+	if resolvedVersion == "" {
+		return "", nil
+	}
+	if verbose {
+		fmt.Println("Resolved version from", filePath, ":", resolvedVersion) //nolint
+	}
+
+	return resolvedVersion, nil
 }
