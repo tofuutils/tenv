@@ -142,12 +142,16 @@ TODO
 
 <a id="usage"></a>
 ## Usage
-**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv` subcommands (manage OpenTofu versions)  or `tenv tf` subcommands (manage Terraform versions). Below is a list of commands that use actual subcommands:
-TOFUENV_
+**tenv** supports [OpenTofu](https://opentofu.org), [Terragrunt](https://terragrunt.gruntwork.io/) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
+| tool | description                                    |
+| ---- | ---------------------------------------------- |
+| `tofu` | [OpenTofu](https://opentofu.org)               |
+| `tf`   | [Terraform](https://www.terraform.io/)         |
+| `tg`   | [Terragrunt](https://terragrunt.gruntwork.io/) |
 
-<details><summary><b>tenv (tool) install [version]</b></summary><br>
-Install a requested version of <b>(tool)</b> (into <b>(TOOL)_ROOT</b> directory from <b>(TOOL)_REMOTE</b> url).
+<details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
+Install a requested version of <b>&lt;tool&gt;</b> (into <b>&lt;TOOL&gt;_ROOT</b> directory from <b>&lt;TOOL&gt;_REMOTE</b> url).
 
 Without a parameter, the version to use is resolved automatically via TOFUENV_TOFU_VERSION or [`.opentofu-version`](#opentofu-version-file) files
 (searched in the working directory, user home directory, and TOFUENV_ROOT directory).
@@ -163,17 +167,17 @@ If a parameter is passed, available options include:
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
 ```console
-tenv install 1.6.0-beta5
-tenv install "~> 1.6.0"
-tenv install latest
-tenv install latest-stable
-tenv install latest-allowed
-tenv install min-required
+tenv <tool> install 1.6.0-beta5
+tenv <tool> install "~> 1.6.0"
+tenv <tool> install latest
+tenv <tool> install latest-stable
+tenv <tool> install latest-allowed
+tenv <tool> install min-required
 ```
 </details>
 
 
-<details><summary><b>tenv (tool) use</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; use</b></summary><br>
 
 Switch the default OpenTofu version to use (set in [`.opentofu-version`](#opentofu-version-file) file in TOFUENV_ROOT).
 
@@ -196,7 +200,7 @@ tenv use latest-allowed
 ```
 </details>
 
-<details><summary><b>tenv (tool) detect</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; detect</b></summary><br>
 
 Detect the used version of OpenTofu for the working directory.
 
@@ -206,7 +210,7 @@ OpenTofu 1.6.0 will be run from this directory.
 ```
 </details>
 
-<details><summary><b>tenv (tool) reset</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; reset</b></summary><br>
 Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
 
 ```console
@@ -215,7 +219,7 @@ tenv reset
 </details>
 
 
-<details><summary><b>tenv (tool) uninstall [version]</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
 Uninstall a specific version of OpenTofu (remove it from TOFUENV_ROOT directory without interpretation).
 
 ```console
@@ -223,7 +227,7 @@ tenv uninstall v1.6.0-alpha4
 ```
 </details>
 
-<details><summary><b>tenv (tool) list</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; list</b></summary><br>
 
 List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in ascending version order.
 
@@ -237,7 +241,7 @@ $ tenv list
 </details>
 
 
-<details><summary><b>tenv (tool) list-remote</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; list-remote</b></summary><br>
 List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.
 
 `tenv list-remote` has a `--descending`, `-d` flag to sort in descending order.
