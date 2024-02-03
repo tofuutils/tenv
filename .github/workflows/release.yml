@@ -47,13 +47,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/${{ github.actor }}/tenv:${{ github.ref_name }}
-      - name: Build and push docker latest tag
-        uses: docker/build-push-action@v5
-        if: github.event_name == 'release' && github.event.action == 'released'
-        with:
-          push: true
-          tags: ghcr.io/${{ github.actor }}/tenv:latest
-      - name: debug
-        if: always()
-        run: echo ${{ github.event_name }} / ${{ github.event.action }}
+          tags: ghcr.io/${{ github.actor }}/tenv:${{ github.ref_name }}, ghcr.io/${{ github.actor }}/tenv:latest
