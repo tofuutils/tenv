@@ -151,110 +151,113 @@ docker run -v ${HOME}/.tenv:/.tenv -u $(id -u) ghcr.io/tofuutils/tenv:latest -r 
 
 ## Usage
 
-**tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv` subcommands (manage OpenTofu versions)  or `tenv tf` subcommands (manage Terraform versions). Below is a list of commands that use actual subcommands:
-TOFUENV_
+**tenv** supports [OpenTofu](https://opentofu.org), [Terragrunt](https://terragrunt.gruntwork.io/) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
+| tool   | env vars                   | description                                    |
+| ------ | -------------------------- | ---------------------------------------------- |
+| `tofu` | [TOFUENV_](#tofu-env-vars) | [OpenTofu](https://opentofu.org)               |
+| `tf`   | [TFENV_](#tf-env-vars)     | [Terraform](https://www.terraform.io/)         |
+| `tg`   | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
 
-<details><summary><b>tenv (tool) install [version]</b></summary><br>
-Install a requested version of <b>(tool)</b> (into <b>(TOOL)_ROOT</b> directory from <b>(TOOL)_REMOTE</b> url).
+<details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
+Install a requested version of <b>&lt;tool&gt;</b> (into <b>&lt;TOOL&gt;_ROOT</b> directory from <b>&lt;TOOL&gt;_REMOTE</b> url).
 
-Without a parameter, the version to use is resolved automatically via TOFUENV_TOFU_VERSION or [`.opentofu-version`](#opentofu-version-file) files
-(searched in the working directory, user home directory, and TOFUENV_ROOT directory).
-Use "latest-stable" when none are found.
+Without a parameter, the version to use is resolved automatically via the relevant `<TOOL>_VERSION` [environment variable](#environment-variables) or [version file](#version-files)
+(searched in the working directory, user home directory, and `<TOOL>_ROOT` directory).
+
+Will default to "latest-stable" when no specified version is found.
 
 If a parameter is passed, available options include:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to install
-- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available at TOFUENV_REMOTE url)
-- `latest` or `latest-stable` (checked against versions available at TOFUENV_REMOTE url)
-- `latest-allowed` or `min-required` to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
-
-See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available at `<TOOL>_REMOTE` url)
+- `latest` or `latest-stable` (checked against versions available at `<TOOL>_REMOTE` url)
+- `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required. 
+  See [required_version](#required_version) docs.
 
 ```console
-tenv install 1.6.0-beta5
-tenv install "~> 1.6.0"
-tenv install latest
-tenv install latest-stable
-tenv install latest-allowed
-tenv install min-required
+tenv <tool> install
+tenv <tool> install 1.6.0-beta5
+tenv <tool> install "~> 1.6.0"
+tenv <tool> install latest
+tenv <tool> install latest-stable
+tenv <tool> install latest-allowed
+tenv <tool> install min-required
 ```
 </details>
 
 
-<details><summary><b>tenv (tool) use</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; use [version]</b></summary><br>
 
-Switch the default OpenTofu version to use (set in [`.opentofu-version`](#opentofu-version-file) file in TOFUENV_ROOT).
+Switch the default OpenTofu version to use (set in [version file](#version-files) ).
 
-`tenv use` has a `--working-dir`, `-w` flag to write [`.opentofu-version`](#opentofu-version-file) file in working directory.
+`tenv use` has a `--working-dir`, `-w` flag to write [version file](#version-files) file in working directory.
 
 Available parameter options:
 
-- an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against available in TOFUENV_ROOT directory)
-- latest or latest-stable (checked against available in TOFUENV_ROOT directory)
-- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
-
-See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
+- an exact [Semver 2.0.0](https://semver.org/) version string to install
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available at `<TOOL>_REMOTE` url)
+- `latest` or `latest-stable` (checked against versions available at `<TOOL>_REMOTE` url)
+- `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required. 
+  See [required_version](#required_version) docs.
 
 ```console
-tenv use min-required
-tenv use v1.6.0-beta5
-tenv use latest
-tenv use latest-allowed
+tenv <tool> use min-required
+tenv <tool> use v1.6.0-beta5
+tenv <tool> use latest
+tenv <tool> use latest-allowed
 ```
 </details>
 
-<details><summary><b>tenv (tool) detect</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; detect</b></summary><br>
 
-Detect the used version of OpenTofu for the working directory.
+Detect the used version of tool for the working directory.
 
 ```console
-$ tenv detect
+$ tenv tofu detect
 OpenTofu 1.6.0 will be run from this directory.
 ```
 </details>
 
-<details><summary><b>tenv (tool) reset</b></summary><br>
-Reset used version of OpenTofu (remove .opentofu-version file from TOFUENV_ROOT).
+<details><summary><b>tenv &lt;tool&gt; reset</b></summary><br>
+Reset used version of tool (remove `.<tool>-version` file from `<TOOL>_ROOT`).
 
 ```console
-tenv reset
+tenv <tool> reset
 ```
 </details>
 
 
-<details><summary><b>tenv (tool) uninstall [version]</b></summary><br>
-Uninstall a specific version of OpenTofu (remove it from TOFUENV_ROOT directory without interpretation).
+<details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
+Uninstall a specific version of OpenTofu (remove it from `<TOOL>_ROOT` directory without interpretation).
 
 ```console
-tenv uninstall v1.6.0-alpha4
+tenv <tool> uninstall v1.6.0-alpha4
 ```
 </details>
 
-<details><summary><b>tenv (tool) list</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; list</b></summary><br>
 
-List installed OpenTofu versions (located in TOFUENV_ROOT directory), sorted in ascending version order.
+List installed tool versions (located in `<TOOL>_ROOT` directory), sorted in ascending version order.
 
-`tenv list` has a `--descending`, `-d` flag to sort in descending order.
+`tenv <tool> list` has a `--descending`, `-d` flag to sort in descending order.
 
 ```console
-$ tenv list
+$ tenv <tool> list
   1.6.0-rc1 
 * 1.6.0 (set by /home/dvaumoron/.tenv/.opentofu-version)
 ```
 </details>
 
+<details><summary><b>tenv &lt;tool&gt; list-remote</b></summary><br>
+List installable tool versions (from `TOOL_REMOTEHappy_REMOTE url), sorted in ascending version order.
 
-<details><summary><b>tenv (tool) list-remote</b></summary><br>
-List installable OpenTofu versions (from TOFUENV_REMOTE url), sorted in ascending version order.
+`tenv <tool> list-remote` has a `--descending`, `-d` flag to sort in descending order.
 
-`tenv list-remote` has a `--descending`, `-d` flag to sort in descending order.
-
-`tenv list-remote` has a `--stable`, `-s` flag to display only stable version.
+`tenv <tool> list-remote` has a `--stable`, `-s` flag to display only stable version.
 
 ```console
-$ tenv list-remote
+$ tenv <tool> list-remote
 1.6.0-alpha1
 1.6.0-alpha2
 1.6.0-alpha3
@@ -284,29 +287,30 @@ Usage:
   tenv tf detect [flags]
 
 Flags:
-  -f, --force-remote        force search on versions available at TFENV_REMOTE url
-  -h, --help                help for detect
-  -k, --key-file string     local path to PGP public key file (replace check against remote one)
-  -n, --no-install          disable installation of missing version
-  -u, --remote-url string   remote url to install from (default "https://releases.hashicorp.com/terraform")
+  -f, --force-remote         force search on versions available at TFENV_REMOTE url
+  -h, --help                 help for detect
+  -k, --key-file string      local path to PGP public key file (replace check against remote one)
+  -n, --no-install           disable installation of missing version
+  -c, --remote-conf string   path to remote configuration file (advanced settings)
+  -u, --remote-url string    remote url to install from
 
 Global Flags:
-  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.tenv")
+  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/nonroot/.tenv")
   -v, --verbose            verbose output
 ```
 
 ```console
-$ tenv use -h
+$ tenv tofu use -h
 Switch the default OpenTofu version to use (set in .opentofu-version file in TOFUENV_ROOT)
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against versions available in TOFUENV_ROOT directory)
-- `latest` or `latest-stable` (checked against versions available in TOFUENV_ROOT directory)
-- `latest-allowed` or `min-required` to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
+- a version constraint string (checked against version available in TOFUENV_ROOT directory)
+- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+- latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
 Usage:
-  tenv use version [flags]
+  tenv tofu use version [flags]
 
 Flags:
   -f, --force-remote          force search on versions available at TOFUENV_REMOTE url
@@ -314,11 +318,12 @@ Flags:
   -h, --help                  help for use
   -k, --key-file string       local path to PGP public key file (replace check against remote one)
   -n, --no-install            disable installation of missing version
-  -u, --remote-url string     remote url to install from (default "https://api.github.com/repos/opentofu/opentofu/releases")
+  -c, --remote-conf string    path to remote configuration file (advanced settings)
+  -u, --remote-url string     remote url to install from
   -w, --working-dir           create .opentofu-version file in working directory
 
 Global Flags:
-  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/dvaumoron/.tenv")
+  -r, --root-path string   local path to install versions of OpenTofu and Terraform (default "/home/nonroot/.tenv")
   -v, --verbose            verbose output
 ```
 </details>
@@ -327,7 +332,7 @@ Global Flags:
 <a id="environment-variables"></a>
 ## Environment variables
 
-tenv commands support two groups of environment variables, one for managing [OpenTofu](https://opentofu.org) and one for managing [Terraform](https://www.terraform.io/)
+tenv commands support multiple groups of environment variables, [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [TerraGrunt](https://terragrunt.gruntwork.io/).
 
 <a id="tofu-env-vars"></a>
 ### OpenTofu environment variables
@@ -357,7 +362,6 @@ Write 1.6.0 in /home/dvaumoron/.tenv/.opentofu-version
 ```
 </details>
 
-
 <details><summary><b>TOFUENV_FORCE_REMOTE</b></summary><br>
 String (Default: false)
 
@@ -365,7 +369,6 @@ If set to true **tenv** detection of needed version will skip local check and ve
 
 `tenv` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
 </details>
-
 
 <details><summary><b>TOFUENV_OPENTOFU_PGP_KEY</b></summary><br>
 String (Default: "")
@@ -375,7 +378,6 @@ Allow to specify a local file path to OpenTofu PGP public key, if not present do
 **tenv** subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
 </details>
 
-
 <details><summary><b>TOFUENV_REMOTE</b></summary><br>
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
@@ -383,7 +385,6 @@ To install OpenTofu from a remote other than the default (must comply with [Gith
 
 `tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 </details>
-
 
 <details><summary><b>TOFUENV_ROOT</b></summary><br>
 
@@ -402,7 +403,6 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 `tenv` subcommands `detect`, `install`, `list-remote` and `use` support a `--github-token`, `-t` flag version.
 </details>
 
-
 <details><summary><b>TOFUENV_VERBOSE</b></summary><br>
 String (Default: false)
 
@@ -410,7 +410,6 @@ Active the verbose display of **tenv**.
 
 `tenv` support a `--verbose`, `-v` flag version.
 </details>
-
 
 <details><summary><b>TOFUENV_TOFU_VERSION</b></summary><br>
 String (Default: "")
@@ -612,26 +611,45 @@ or terragrunt.hcl.json
 TODO
 
 ### .tf files
+
 or .tf.json files
 TODO
 
+### required_version
+
+Will scan through your IAC files and identify the latest allowed version as defined in the relevant files.
+
+Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
+
+example:
+
+```HCL
+version = ">= 1.2.0, < 2.0.0"
+```
+
+This would identify the latest version at or above 1.2.0 and below 2.0.0
+
 <a id="technical-details"></a>
+
 ## Technical details
 
 ### Project binaries
 
 #### tofu
-The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofuenv_tofu_version) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
+
+The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
 
 #### terraform
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) environment variable or `.terraform-version` file).
+
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or `.terraform-version` file).
 
 #### terragrunt
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg_version) environment variable or `.terragrunt-version` file).
+
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg-env-vars) environment variable or `.terragrunt-version` file).
 
 ### Terraform support
 
-tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hashicorp_pgp_key), [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
+tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tf-env-vars), [TFENV_REMOTE](#tf-env-vars) and [TFENV_TERRAFORM_VERSION](#tf-env-vars) specifically to manage Terraform versions.
 
 `tenv tf` have the same managing subcommands for Terraform versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
 
@@ -639,7 +657,7 @@ tenv checks the Terraform PGP signature (there is no cosign signature available)
 
 ### Terragrunt support
 
-tenv relies on `.terragrunt-version` files, [TG_REMOTE](#tg_remote) and [TG_VERSION](#tg_version) specifically to manage Terragrunt versions.
+tenv relies on `.terragrunt-version` files, [TG_REMOTE](#tg-env-vars) and [TG_VERSION](#tg-env-vars) specifically to manage Terragrunt versions.
 
 `tenv tg` have the same managing subcommands for Terragrunt versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
 
