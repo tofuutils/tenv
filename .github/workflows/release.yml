@@ -7,7 +7,7 @@ on:
 
 jobs:
   goreleaser:
-    name: 'Release the latest tag'
+    name: 'Build and release packages'
     runs-on: ubuntu-latest
     permissions:
       contents: write
