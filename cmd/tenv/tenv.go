@@ -30,8 +30,9 @@ import (
 
 const (
 	rootVersionHelp = "Display tenv current version."
-	tfHelp          = "subcommands that help manage several version of Terraform (https://www.terraform.io)."
-	tgHelp          = "subcommands that help manage several version of Terragrunt (https://terragrunt.gruntwork.io/)."
+	tfHelp          = "subcommand to manage several versions of Terraform (https://www.terraform.io)."
+	tgHelp          = "subcommand to manage several versions of Terragrunt (https://terragrunt.gruntwork.io/)."
+	tofuHelp        = "subcommand to manage several versions of OpenTofu (https://opentofu.org)."
 )
 
 // can be overridden with ldflags.
@@ -60,7 +61,7 @@ func main() {
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     "tenv",
-		Long:    "tenv help manage several version of OpenTofu (https://opentofu.org).",
+		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io/).",
 		Version: version,
 	}
 
@@ -74,6 +75,17 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
 	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), tofuParams)
+
+	// Add this in your main function, after the tfCmd and before the tgCmd
+	tofuCmd := &cobra.Command{
+		Use:   "tofu",
+		Short: tofuHelp,
+		Long:  tofuHelp,
+	}
+
+	initSubCmds(tofuCmd, conf, builder.BuildTofuManager(conf), tofuParams)
+
+	rootCmd.AddCommand(tofuCmd)
 
 	tfCmd := &cobra.Command{
 		Use:   "tf",
