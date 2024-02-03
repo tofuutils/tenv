@@ -133,15 +133,19 @@ TODO
 Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
 
 <a id="docker-installation"></a>
-#### Docker Installation
-You can use dockerized version of tenv via the following commands:
 
-```shell
-TODO
+#### Docker Installation
+
+You can use dockerized version of tenv via the following command:
+
+```sh
+docker run -v ${HOME}/.tenv:/.tenv -u $(id -u) ghcr.io/tofuutils/tenv:latest -r /.tenv help
 ```
 
 <a id="usage"></a>
+
 ## Usage
+
 **tenv** supports [OpenTofu](https://opentofu.org) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv` subcommands (manage OpenTofu versions)  or `tenv tf` subcommands (manage Terraform versions). Below is a list of commands that use actual subcommands:
 TOFUENV_
 
