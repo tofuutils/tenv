@@ -49,4 +49,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/klintrup/tenv:${{ github.ref_name }}
+          tags: ghcr.io/klintrup/tenv:latest, ghcr.io/klintrup/tenv:${{ github.ref_name }}
