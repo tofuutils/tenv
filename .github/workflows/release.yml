@@ -49,4 +49,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: tenv:latest, tenv:${{ github.ref_name }}
+          tags: ${{ github.ref_name }}
