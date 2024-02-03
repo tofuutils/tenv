@@ -628,19 +628,19 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 #### tofu
 
-The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofuenv_tofu_version) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
+The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
 
 #### terraform
 
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) environment variable or `.terraform-version` file).
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or `.terraform-version` file).
 
 #### terragrunt
 
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg_version) environment variable or `.terragrunt-version` file).
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg-env-vars) environment variable or `.terragrunt-version` file).
 
 ### Terraform support
 
-tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tfenv_hashicorp_pgp_key), [TFENV_REMOTE](#tfenv_remote) and [TFENV_TERRAFORM_VERSION](#tfenv_terraform_version) specifically to manage Terraform versions.
+tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tf-env-vars), [TFENV_REMOTE](#tf-env-vars) and [TFENV_TERRAFORM_VERSION](#tf-env-vars) specifically to manage Terraform versions.
 
 `tenv tf` have the same managing subcommands for Terraform versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
 
@@ -648,7 +648,7 @@ tenv checks the Terraform PGP signature (there is no cosign signature available)
 
 ### Terragrunt support
 
-tenv relies on `.terragrunt-version` files, [TG_REMOTE](#tg_remote) and [TG_VERSION](#tg_version) specifically to manage Terragrunt versions.
+tenv relies on `.terragrunt-version` files, [TG_REMOTE](#tg-env-vars) and [TG_VERSION](#tg-env-vars) specifically to manage Terragrunt versions.
 
 `tenv tg` have the same managing subcommands for Terragrunt versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
 
