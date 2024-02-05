@@ -35,16 +35,21 @@ const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, y
 
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" current version.")
 	detectHelp := descBuilder.String()
 
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Display ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" current version.")
+
 	detectCmd := &cobra.Command{
 		Use:   "detect",
 		Short: detectHelp,
-		Long:  detectHelp,
+		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.LogLevelUpdate()
@@ -70,11 +75,15 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	descBuilder.WriteString("Install a specific version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteByte('.')
+	shortMsg := descBuilder.String()
+
+	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	shortMsg := descBuilder.String() + "."
-
 	descBuilder.WriteString(" (into TOFUENV_ROOT directory from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
@@ -128,13 +137,16 @@ If a parameter is passed, available options:
 
 func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	descBuilder.WriteString("List installed ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" versions.")
+	shortMsg := descBuilder.String()
+
+	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions")
-	shortMsg := descBuilder.String() + "."
-
-	descBuilder.WriteString(" (located in TOFUENV_ROOT directory), sorted in ascending version order.")
+	descBuilder.WriteString(" versions (located in TOFUENV_ROOT directory), sorted in ascending version order.")
 
 	reverseOrder := false
 
@@ -181,13 +193,16 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	descBuilder.WriteString("List installable ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" versions.")
+	shortMsg := descBuilder.String()
+
+	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions")
-	shortMsg := descBuilder.String() + "."
-
-	descBuilder.WriteString(" (from ")
+	descBuilder.WriteString(" versions (from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url), sorted in ascending version order.")
 
@@ -244,11 +259,15 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	descBuilder.WriteString("Reset used version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteByte('.')
+	shortMsg := descBuilder.String()
+
+	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	shortMsg := descBuilder.String() + "."
-
 	descBuilder.WriteString(" (remove ")
 	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
 	descBuilder.WriteString(" file from TOFUENV_ROOT).")
@@ -271,12 +290,16 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 
 func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	descBuilder.WriteString("Uninstall a specific version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteByte('.')
+	shortMsg := descBuilder.String()
+
+	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Uninstall a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	shortMsg := descBuilder.String() + "."
-
-	descBuilder.WriteString("(remove it from TOFUENV_ROOT directory).")
+	descBuilder.WriteString(" (remove it from TOFUENV_ROOT directory).")
 
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
@@ -296,13 +319,16 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 
 func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	descBuilder.WriteString("Switch the default ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" version to use.")
+	shortMsg := descBuilder.String()
+
+	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" version to use")
-	shortMsg := descBuilder.String() + "."
-
-	descBuilder.WriteString(" (set in TOFUENV_ROOT/")
+	descBuilder.WriteString(" version to use (set in TOFUENV_ROOT/")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(`/version file)
 
