@@ -27,12 +27,12 @@ import (
 
 type VersionFile struct {
 	Name   string
-	Parser func(string, bool) (string, error)
+	Parser func(string, *config.Config) (string, error)
 }
 
 func RetrieveVersion(versionFiles []VersionFile, conf *config.Config) (string, error) {
 	for _, versionFile := range versionFiles {
-		if version, err := versionFile.Parser(versionFile.Name, conf.DisplayVerbose); err != nil || version != "" {
+		if version, err := versionFile.Parser(versionFile.Name, conf); err != nil || version != "" {
 			return version, err
 		}
 	}
@@ -44,7 +44,7 @@ func RetrieveVersion(versionFiles []VersionFile, conf *config.Config) (string, e
 
 	checkedPath := map[string]struct{}{}
 	for currentPath := filepath.Dir(previousPath); currentPath != previousPath; previousPath, currentPath = currentPath, filepath.Dir(currentPath) {
-		if version, err := retrieveVersionFromDir(versionFiles, currentPath, conf.DisplayVerbose); err != nil || version != "" {
+		if version, err := retrieveVersionFromDir(versionFiles, currentPath, conf); err != nil || version != "" {
 			return version, err
 		}
 
@@ -52,7 +52,7 @@ func RetrieveVersion(versionFiles []VersionFile, conf *config.Config) (string, e
 	}
 
 	if _, ok := checkedPath[conf.UserPath]; !ok {
-		if version, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf.DisplayVerbose); err != nil || version != "" {
+		if version, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf); err != nil || version != "" {
 			return version, err
 		}
 	}
@@ -61,12 +61,12 @@ func RetrieveVersion(versionFiles []VersionFile, conf *config.Config) (string, e
 		return "", nil
 	}
 
-	return retrieveVersionFromDir(versionFiles, conf.RootPath, conf.DisplayVerbose)
+	return retrieveVersionFromDir(versionFiles, conf.RootPath, conf)
 }
 
-func retrieveVersionFromDir(versionFiles []VersionFile, dirPath string, verbose bool) (string, error) {
+func retrieveVersionFromDir(versionFiles []VersionFile, dirPath string, conf *config.Config) (string, error) {
 	for _, versionFile := range versionFiles {
-		if version, err := versionFile.Parser(filepath.Join(dirPath, versionFile.Name), verbose); err != nil || version != "" {
+		if version, err := versionFile.Parser(filepath.Join(dirPath, versionFile.Name), conf); err != nil || version != "" {
 			return version, err
 		}
 	}

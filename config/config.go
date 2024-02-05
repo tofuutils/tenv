@@ -19,12 +19,14 @@
 package config
 
 import (
-	"fmt"
+	"errors"
+	"io/fs"
 	"os"
 	"path"
 	"strconv"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"gopkg.in/yaml.v3"
 )
 
@@ -84,6 +86,7 @@ type Config struct {
 	AppLogger        hclog.Logger
 	DisplayNormal    bool
 	DisplayVerbose   bool
+	ForceQuiet       bool
 	ForceRemote      bool
 	GithubToken      string
 	NoInstall        bool
@@ -104,8 +107,13 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
+	logLevel := hclog.Warn
+	logLevelStr := os.Getenv(tenvLogEnvName)
+	if logLevelStr != "" {
+		logLevel = hclog.LevelFromString(logLevelStr)
+	}
 	appLogger := hclog.New(&hclog.LoggerOptions{
-		Name: TenvName, Level: hclog.LevelFromString(os.Getenv(tenvLogEnvName)),
+		Name: TenvName, Level: logLevel,
 	})
 
 	autoInstall, err := getenvBoolFallback(true, tofuAutoInstallEnvName, tfAutoInstallEnvName)
@@ -130,7 +138,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	return Config{
 		AppLogger:      appLogger,
-		DisplayNormal:  !quiet,
+		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		GithubToken:    os.Getenv(tofuTokenEnvName),
 		NoInstall:      !autoInstall,
@@ -145,9 +153,9 @@ func InitConfigFromEnv() (Config, error) {
 	}, nil
 }
 
-func (conf *Config) InitRemoteConf() {
+func (conf *Config) InitRemoteConf() error {
 	if conf.remoteConfLoaded {
-		return
+		return nil
 	}
 	conf.remoteConfLoaded = true
 
@@ -158,30 +166,35 @@ func (conf *Config) InitRemoteConf() {
 
 	data, err := os.ReadFile(remoteConfPath)
 	if err != nil {
-		if conf.DisplayVerbose {
-			fmt.Println("Can not read remote conf :", err) //nolint
+		if !errors.Is(err, fs.ErrNotExist) {
+			return err
 		}
+		conf.AppLogger.Info("Can not read remote configuration file", loghelper.Error, err)
 
-		return
+		return nil
 	}
 
 	var remoteConf map[string]map[string]string
 	if err = yaml.Unmarshal(data, &remoteConf); err != nil {
-		if conf.DisplayVerbose {
-			fmt.Println("Can not parse remote conf :", err) //nolint
-		}
-
-		return
+		return err
 	}
 
 	conf.Tf.Data = remoteConf[TerraformName]
 	conf.Tg.Data = remoteConf[TerragruntName]
 	conf.Tofu.Data = remoteConf[TofuName]
+
+	return nil
 }
 
 func (conf *Config) LogLevelUpdate() {
-	if conf.DisplayNormal && conf.DisplayVerbose {
-		conf.AppLogger.SetLevel(hclog.Trace)
+	if conf.ForceQuiet {
+		conf.DisplayVerbose = false
+		conf.AppLogger.SetLevel(hclog.Off)
+	} else {
+		conf.DisplayNormal = true
+		if conf.DisplayVerbose {
+			conf.AppLogger.SetLevel(hclog.Trace)
+		}
 	}
 }
 

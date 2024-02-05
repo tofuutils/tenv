@@ -46,7 +46,10 @@ func NewTerragruntRetriever(conf *config.Config) *TerragruntRetriever {
 }
 
 func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath string) error {
-	r.conf.InitRemoteConf()
+	err := r.conf.InitRemoteConf()
+	if err != nil {
+		return err
+	}
 
 	tag := versionStr
 	// assume that terragrunt tags start with a 'v'
@@ -54,7 +57,6 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		tag = "v" + versionStr
 	}
 
-	var err error
 	var assetURLs []string
 	fileName, shaFileName := buildAssetNames()
 	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
@@ -65,7 +67,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.DisplayVerbose)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.DisplayNormal)
 	}
 	if err != nil {
 		return err
@@ -77,12 +79,12 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.DisplayVerbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.DisplayNormal)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.DisplayVerbose)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.DisplayNormal)
 	if err != nil {
 		return err
 	}
@@ -100,7 +102,10 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 }
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {
-	r.conf.InitRemoteConf()
+	err := r.conf.InitRemoteConf()
+	if err != nil {
+		return nil, err
+	}
 
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
 		baseURL, err := url.JoinPath(r.conf.Tg.GetListURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
@@ -108,10 +113,10 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.DisplayVerbose)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.DisplayNormal)
 	}
 
-	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.DisplayVerbose)
+	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.DisplayNormal)
 }
 
 func buildAssetNames() (string, string) {
