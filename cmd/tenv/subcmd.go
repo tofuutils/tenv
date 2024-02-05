@@ -47,6 +47,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		Long:  detectHelp,
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			detectedVersion, err := versionManager.Detect()
@@ -100,6 +101,7 @@ If a parameter is passed, available options:
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			var requestedVersion string
@@ -142,6 +144,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			versions, err := versionManager.ListLocal(reverseOrder)
@@ -197,6 +200,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			versions, err := versionManager.ListRemote(reverseOrder)
@@ -255,6 +259,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			return versionManager.Reset()
@@ -279,6 +284,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			return versionManager.Uninstall(args[0])
@@ -316,6 +322,7 @@ Available parameter options:
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
+			conf.LogLevelUpdate()
 			addDeprecationMsg(params)
 
 			return versionManager.Use(args[0], workingDir)

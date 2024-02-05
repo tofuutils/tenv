@@ -68,8 +68,6 @@ func (m VersionManager) Detect() (string, error) {
 }
 
 func (m VersionManager) Install(requestedVersion string) error {
-	m.conf.LogLevelUpdate()
-
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		return m.installSpecificVersion(parsedVersion.String())
@@ -98,8 +96,6 @@ func (m VersionManager) InstallPath() string {
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
-	m.conf.LogLevelUpdate()
-
 	entries, err := os.ReadDir(m.InstallPath())
 	if err != nil {
 		return nil, err
@@ -119,8 +115,6 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 }
 
 func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
-	m.conf.LogLevelUpdate()
-
 	versions, err := m.retriever.ListReleases()
 	if err != nil {
 		return nil, err
@@ -151,20 +145,14 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 }
 
 func (m VersionManager) Reset() error {
-	m.conf.LogLevelUpdate()
-
 	versionFilePath := m.RootVersionFilePath()
-	if m.conf.DisplayNormal {
-		fmt.Println("Remove", versionFilePath) //nolint
-	}
+	fmt.Println("Remove", versionFilePath) //nolint
 
 	return os.RemoveAll(versionFilePath)
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	m.conf.LogLevelUpdate()
-
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
 		if m.conf.DisplayNormal {
 			fmt.Println("Resolved version from", m.VersionEnvName, ":", color.GreenString(forcedVersion)) //nolint
@@ -190,8 +178,6 @@ func (m VersionManager) RootVersionFilePath() string {
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
-	m.conf.LogLevelUpdate()
-
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err != nil {
 		return err
@@ -199,16 +185,12 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
-	if m.conf.DisplayNormal {
-		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
-	}
+	fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
 
 	return os.RemoveAll(targetPath)
 }
 
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
-	m.conf.LogLevelUpdate()
-
 	detectedVersion, err := m.detect(requestedVersion)
 	if err != nil {
 		return err
@@ -218,9 +200,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}
-	if m.conf.DisplayNormal {
-		fmt.Println("Write", detectedVersion, "in", targetFilePath) //nolint
-	}
+	fmt.Println("Write", detectedVersion, "in", targetFilePath) //nolint
 
 	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
 }
