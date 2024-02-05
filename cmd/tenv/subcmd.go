@@ -302,9 +302,9 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 	descBuilder.WriteString(" version to use")
 	shortMsg := descBuilder.String() + "."
 
-	descBuilder.WriteString(" (set in ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(` file in TOFUENV_ROOT)
+	descBuilder.WriteString(" (set in TOFUENV_ROOT/")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(`/version file)
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use

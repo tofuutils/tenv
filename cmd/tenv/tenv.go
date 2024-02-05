@@ -68,7 +68,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 	flags := rootCmd.PersistentFlags()
 	flags.BoolVarP(&conf.ForceQuiet, "quiet", "q", false, "no unnecessary output (and no log)")
-	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu and Terraform")
+	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu, Terraform and Terragrunt")
 	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", false, "verbose output (and set log level to Trace)")
 
 	rootCmd.AddCommand(newVersionCmd())
