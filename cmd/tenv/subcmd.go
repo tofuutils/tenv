@@ -33,6 +33,7 @@ import (
 
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" current version.")
@@ -64,6 +65,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	shortMsg := descBuilder.String() + "."
@@ -116,8 +118,9 @@ If a parameter is passed, available options:
 	return installCmd
 }
 
-func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" versions")
@@ -167,6 +170,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" versions")
@@ -224,8 +228,9 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	return listRemoteCmd
 }
 
-func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	shortMsg := descBuilder.String() + "."
@@ -247,8 +252,9 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	return resetCmd
 }
 
-func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("Uninstall a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	shortMsg := descBuilder.String() + "."
@@ -270,6 +276,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 
 func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
+	addDeprecationMsg(&descBuilder, params)
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" version to use")
@@ -311,6 +318,12 @@ Available parameter options:
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
+}
+
+func addDeprecationMsg(descBuilder *strings.Builder, params subCmdParams) {
+	if params.deprecated {
+		descBuilder.WriteString("Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n")
+	}
 }
 
 func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
