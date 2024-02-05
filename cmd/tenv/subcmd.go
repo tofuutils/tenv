@@ -255,6 +255,8 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			addDeprecationMsg(params)
+
 			return versionManager.Reset()
 		},
 	}
