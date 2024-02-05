@@ -24,22 +24,30 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/hashicorp/go-hclog"
 	"gopkg.in/yaml.v3"
 )
 
 const (
+	TenvName       = "tenv"
+	TerraformName  = "terraform"
+	TerragruntName = "terragrunt"
+	TofuName       = "tofu"
+
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
 	installModeEnvName = "INSTALL_MODE"
 	listModeEnvName    = "LIST_MODE"
 	listURLEnvName     = "LIST_URL"
+	logEnvName         = "LOG"
+	quietEnvName       = "QUIET"
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
-	verboseEnvName     = "VERBOSE"
 
 	tenvPrefix            = "TENV_"
+	tenvLogEnvName        = tenvPrefix + logEnvName
+	tenvQuietEnvName      = tenvPrefix + quietEnvName
 	tenvRemoteConfEnvName = tenvPrefix + "REMOTE_CONF"
-	tenvVerboseEnvName    = tenvPrefix + verboseEnvName
 
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
@@ -50,7 +58,6 @@ const (
 	tfListURLEnvName         = tfenvPrefix + listURLEnvName
 	TfRemoteURLEnvName       = tfenvPrefix + remoteURLEnvName
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
-	tfVerboseEnvName         = tfenvPrefix + verboseEnvName
 	TfVersionEnvName         = tfenvPrefix + "TERRAFORM_VERSION"
 
 	tgPrefix             = "TG_"
@@ -70,11 +77,13 @@ const (
 	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName          = tofuenvPrefix + "GITHUB_TOKEN"
-	tofuVerboseEnvName        = tofuenvPrefix + verboseEnvName
 	TofuVersionEnvName        = tofuenvPrefix + "TOFU_VERSION"
 )
 
 type Config struct {
+	AppLogger        hclog.Logger
+	DisplayNormal    bool
+	DisplayVerbose   bool
 	ForceRemote      bool
 	GithubToken      string
 	NoInstall        bool
@@ -87,7 +96,6 @@ type Config struct {
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
-	Verbose          bool
 }
 
 func InitConfigFromEnv() (Config, error) {
@@ -95,6 +103,10 @@ func InitConfigFromEnv() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+
+	appLogger := hclog.New(&hclog.LoggerOptions{
+		Name: TenvName, Level: hclog.LevelFromString(os.Getenv(tenvLogEnvName)),
+	})
 
 	autoInstall, err := getenvBoolFallback(true, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
@@ -111,12 +123,14 @@ func InitConfigFromEnv() (Config, error) {
 		rootPath = path.Join(userPath, ".tenv")
 	}
 
-	verbose, err := getenvBoolFallback(false, tenvVerboseEnvName, tofuVerboseEnvName, tfVerboseEnvName)
+	quiet, err := getenvBoolFallback(false, tenvQuietEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
 	return Config{
+		AppLogger:      appLogger,
+		DisplayNormal:  !quiet,
 		ForceRemote:    forceRemote,
 		GithubToken:    os.Getenv(tofuTokenEnvName),
 		NoInstall:      !autoInstall,
@@ -128,7 +142,6 @@ func InitConfigFromEnv() (Config, error) {
 		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, defaultTofuGithubURL, baseGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
-		Verbose:        verbose,
 	}, nil
 }
 
@@ -145,7 +158,7 @@ func (conf *Config) InitRemoteConf() {
 
 	data, err := os.ReadFile(remoteConfPath)
 	if err != nil {
-		if conf.Verbose {
+		if conf.DisplayVerbose {
 			fmt.Println("Can not read remote conf :", err) //nolint
 		}
 
@@ -154,16 +167,22 @@ func (conf *Config) InitRemoteConf() {
 
 	var remoteConf map[string]map[string]string
 	if err = yaml.Unmarshal(data, &remoteConf); err != nil {
-		if conf.Verbose {
+		if conf.DisplayVerbose {
 			fmt.Println("Can not parse remote conf :", err) //nolint
 		}
 
 		return
 	}
 
-	conf.Tf.Data = remoteConf["terraform"]
-	conf.Tg.Data = remoteConf["terragrunt"]
-	conf.Tofu.Data = remoteConf["tofu"]
+	conf.Tf.Data = remoteConf[TerraformName]
+	conf.Tg.Data = remoteConf[TerragruntName]
+	conf.Tofu.Data = remoteConf[TofuName]
+}
+
+func (conf *Config) LogLevelUpdate() {
+	if conf.DisplayNormal && conf.DisplayVerbose {
+		conf.AppLogger.SetLevel(hclog.Trace)
+	}
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {

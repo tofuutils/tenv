@@ -46,11 +46,11 @@ var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
 }
 
 func RetrieveTerraformVersionConstraint(conf *config.Config) (string, error) {
-	return retrieveVersionConstraint(terraformVersionPartialSchema, terraformVersionConstraintName, conf.Verbose)
+	return retrieveVersionConstraint(terraformVersionPartialSchema, terraformVersionConstraintName, conf.DisplayVerbose)
 }
 
 func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, error) {
-	return retrieveVersionConstraint(terragruntVersionPartialSchema, terragruntVersionConstraintName, conf.Verbose)
+	return retrieveVersionConstraint(terragruntVersionPartialSchema, terragruntVersionConstraintName, conf.DisplayVerbose)
 }
 
 func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {

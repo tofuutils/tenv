@@ -19,11 +19,11 @@
 package main
 
 import (
+	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager/builder"
 	"github.com/tofuutils/tenv/versionmanager/proxy"
-	tofuretriever "github.com/tofuutils/tenv/versionmanager/retriever/tofu"
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTofuManager, tofuretriever.Name)
+	proxy.ExecProxy(builder.BuildTofuManager, config.TofuName)
 }

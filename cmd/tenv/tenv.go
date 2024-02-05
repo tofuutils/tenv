@@ -61,14 +61,14 @@ func main() {
 
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:     "tenv",
+		Use:     config.TenvName,
 		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io/).",
 		Version: version,
 	}
 
 	flags := rootCmd.PersistentFlags()
 	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu and Terraform")
-	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
+	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", conf.DisplayVerbose, "verbose output")
 
 	rootCmd.AddCommand(newVersionCmd())
 	tofuParams := subCmdParams{
@@ -81,7 +81,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 	// Add this in your main function, after the tfCmd and before the tgCmd
 	tofuCmd := &cobra.Command{
-		Use:   "tofu",
+		Use:   config.TofuName,
 		Short: tofuHelp,
 		Long:  tofuHelp,
 	}
@@ -127,7 +127,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println("tenv", version) //nolint
+			fmt.Println(config.TenvName, version) //nolint
 		},
 	}
 }
