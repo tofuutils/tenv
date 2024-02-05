@@ -35,6 +35,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 		os.Exit(1)
 	}
 
+	conf.LogLevelUpdate()
 	versionManager := builderFunc(&conf)
 	detectedVersion, err := versionManager.Detect()
 	if err != nil {
