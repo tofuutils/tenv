@@ -146,9 +146,12 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 
 func (m VersionManager) Reset() error {
 	versionFilePath := m.RootVersionFilePath()
-	fmt.Println("Remove", versionFilePath) //nolint
+	err := os.RemoveAll(versionFilePath)
+	if err == nil && m.conf.DisplayNormal {
+		fmt.Println("Removed", versionFilePath) //nolint
+	}
 
-	return os.RemoveAll(versionFilePath)
+	return err
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
@@ -185,9 +188,11 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
-	fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
+	if err = os.RemoveAll(targetPath); err == nil && m.conf.DisplayNormal {
+		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, " successful (directory", targetPath, "removed)") //nolint
+	}
 
-	return os.RemoveAll(targetPath)
+	return err
 }
 
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
@@ -200,7 +205,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}
-	if err = os.WriteFile(targetFilePath, []byte(detectedVersion), 0644); err == nil {
+	if err = os.WriteFile(targetFilePath, []byte(detectedVersion), 0644); err == nil && m.conf.DisplayNormal {
 		fmt.Println("Written", detectedVersion, "in", targetFilePath) //nolint
 	}
 
