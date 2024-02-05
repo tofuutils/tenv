@@ -19,12 +19,14 @@
 package terragruntparser
 
 import (
-	"fmt"
+	"errors"
+	"io/fs"
 	"os"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 )
@@ -46,29 +48,27 @@ var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
 }
 
 func RetrieveTerraformVersionConstraint(conf *config.Config) (string, error) {
-	return retrieveVersionConstraint(terraformVersionPartialSchema, terraformVersionConstraintName, conf.DisplayVerbose)
+	return retrieveVersionConstraint(terraformVersionPartialSchema, terraformVersionConstraintName, conf)
 }
 
 func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, error) {
-	return retrieveVersionConstraint(terragruntVersionPartialSchema, terragruntVersionConstraintName, conf.DisplayVerbose)
+	return retrieveVersionConstraint(terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
 }
 
-func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
+func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	parser := hclparse.NewParser()
-	constraint, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, verbose)
+	constraint, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, conf)
 	if err != nil || constraint != "" {
 		return constraint, err
 	}
 
-	return retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, verbose)
+	return retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, conf)
 }
 
-func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, verbose bool) (string, error) {
+func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		if verbose {
-			fmt.Println("Failed to read terragrunt file :", err) //nolint
-		}
+		conf.AppLogger.Log(loghelper.LevelWarnOrInfo(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
 
 		return "", nil
 	}
@@ -77,18 +77,14 @@ func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, 
 	if diags.HasErrors() {
 		return "", diags
 	}
-	if verbose {
-		fmt.Println("Read", fileName) //nolint
-	}
+	conf.AppLogger.Debug("Read", "fileName", fileName)
 	if parsedFile == nil {
 		return "", nil
 	}
 
 	content, _, diags := parsedFile.Body.PartialContent(versionPartialShema)
 	if diags.HasErrors() {
-		if verbose {
-			fmt.Println("Failed to parse terragrunt file :", diags) //nolint
-		}
+		conf.AppLogger.Warn("Failed to parse terragrunt file", loghelper.Error, diags)
 
 		return "", nil
 	}
@@ -100,34 +96,26 @@ func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, 
 
 	val, diags := attr.Expr.Value(nil)
 	if diags.HasErrors() {
-		if verbose {
-			fmt.Println("Failures parsing terragrunt attribute :", diags) //nolint
-		}
+		conf.AppLogger.Warn("Failures parsing terragrunt attribute", loghelper.Error, diags)
 
 		return "", nil
 	}
 
 	val, err = convert.Convert(val, cty.String)
 	if err != nil {
-		if verbose {
-			fmt.Println("Failed to convert terragrunt attribute :", err) //nolint
-		}
+		conf.AppLogger.Warn("Failed to convert terragrunt attribute", loghelper.Error, err)
 
 		return "", nil
 	}
 
 	if val.IsNull() {
-		if verbose {
-			fmt.Println("Empty terragrunt attribute") //nolint
-		}
+		conf.AppLogger.Info("Empty terragrunt attribute")
 
 		return "", nil
 	}
 
 	if !val.IsWhollyKnown() {
-		if verbose {
-			fmt.Println("Unknown terragrunt attribute") //nolint
-		}
+		conf.AppLogger.Warn("Unknown terragrunt attribute")
 
 		return "", nil
 	}

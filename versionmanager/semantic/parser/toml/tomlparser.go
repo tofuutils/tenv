@@ -19,20 +19,23 @@
 package tomlparser
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 
 	"github.com/BurntSushi/toml"
+	"github.com/fatih/color"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
 const versionName = "version"
 
-func RetrieveVersion(filePath string, verbose bool) (string, error) {
+func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		if verbose {
-			fmt.Println("Failed to read tgswitch file :", err) //nolint
-		}
+		conf.AppLogger.Log(loghelper.LevelWarnOrInfo(errors.Is(err, fs.ErrNotExist)), "Failed to read tgswitch file", loghelper.Error, err)
 
 		return "", nil
 	}
@@ -46,8 +49,8 @@ func RetrieveVersion(filePath string, verbose bool) (string, error) {
 	if resolvedVersion == "" {
 		return "", nil
 	}
-	if verbose {
-		fmt.Println("Resolved version from", filePath, ":", resolvedVersion) //nolint
+	if conf.DisplayNormal {
+		fmt.Println("Resolved version from", filePath, ":", color.GreenString(resolvedVersion)) //nolint
 	}
 
 	return resolvedVersion, nil

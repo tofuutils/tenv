@@ -21,12 +21,15 @@ package versionmanager
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
 
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
@@ -85,8 +88,8 @@ func (m VersionManager) Install(requestedVersion string) error {
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() string {
 	dir := filepath.Join(m.conf.RootPath, m.FolderName)
-	if err := os.MkdirAll(dir, 0755); err != nil && m.conf.DisplayVerbose {
-		fmt.Println("Can not create installation directory :", err) //nolint
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		m.conf.AppLogger.Warn("Can not create installation directory", loghelper.Error, err)
 	}
 
 	return dir
@@ -126,9 +129,7 @@ func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
 func (m VersionManager) LocalSet() map[string]struct{} {
 	entries, err := os.ReadDir(m.InstallPath())
 	if err != nil {
-		if m.conf.DisplayVerbose {
-			fmt.Println("Can not read installed versions :", err) //nolint
-		}
+		m.conf.AppLogger.Log(loghelper.LevelWarnOrInfo(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
 
 		return nil
 	}
@@ -145,7 +146,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 
 func (m VersionManager) Reset() error {
 	versionFilePath := m.RootVersionFilePath()
-	if m.conf.DisplayVerbose {
+	if m.conf.DisplayNormal {
 		fmt.Println("Remove", versionFilePath) //nolint
 	}
 
@@ -155,8 +156,8 @@ func (m VersionManager) Reset() error {
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
-		if m.conf.DisplayVerbose {
-			fmt.Println("Resolved version from", m.VersionEnvName, ":", forcedVersion) //nolint
+		if m.conf.DisplayNormal {
+			fmt.Println("Resolved version from", m.VersionEnvName, ":", color.GreenString(forcedVersion)) //nolint
 		}
 
 		return forcedVersion, nil
@@ -166,8 +167,8 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 		return version, err
 	}
 
-	if m.conf.DisplayVerbose {
-		fmt.Println("No", m.FolderName, "version found in flat files, fallback to", defaultStrategy, "strategy") //nolint
+	if m.conf.DisplayNormal {
+		fmt.Println("No", m.FolderName, "version found in flat files, fallback to", color.GreenString(defaultStrategy), "strategy") //nolint
 	}
 
 	return defaultStrategy, nil
@@ -186,7 +187,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
-	if m.conf.DisplayVerbose {
+	if m.conf.DisplayNormal {
 		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "(Remove directory", targetPath+")") //nolint
 	}
 
@@ -203,7 +204,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}
-	if m.conf.DisplayVerbose {
+	if m.conf.DisplayNormal {
 		fmt.Println("Write", detectedVersion, "in", targetFilePath) //nolint
 	}
 
@@ -234,8 +235,8 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 
 		for _, version := range versions {
 			if predicate(version) {
-				if m.conf.DisplayVerbose {
-					fmt.Println("Found compatible version installed locally :", version) //nolint
+				if m.conf.DisplayNormal {
+					fmt.Println("Found compatible version installed locally :", color.GreenString(version)) //nolint
 				}
 
 				return version, nil
@@ -244,7 +245,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 
 		if m.conf.NoInstall {
 			return "", errNoCompatible
-		} else if m.conf.DisplayVerbose {
+		} else if m.conf.DisplayNormal {
 			fmt.Println("No compatible version found locally, search a remote one...") //nolint
 		}
 	}
@@ -265,7 +266,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
-			if m.conf.DisplayVerbose {
+			if m.conf.DisplayNormal {
 				fmt.Println(m.FolderName, version, "already installed") //nolint
 			}
 
@@ -273,7 +274,7 @@ func (m VersionManager) installSpecificVersion(version string) error {
 		}
 	}
 
-	if m.conf.DisplayVerbose {
+	if m.conf.DisplayNormal {
 		fmt.Println("Installation of", m.FolderName, version) //nolint
 	}
 
@@ -288,8 +289,8 @@ func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverse
 
 	for _, version := range versions {
 		if predicate(version) {
-			if m.conf.DisplayVerbose {
-				fmt.Println("Found compatible version remotely :", version) //nolint
+			if m.conf.DisplayNormal {
+				fmt.Println("Found compatible version remotely :", color.GreenString(version)) //nolint
 			}
 			if noInstall {
 				return version, nil
