@@ -48,7 +48,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			detectedVersion, err := versionManager.Detect()
 			if err != nil {
@@ -102,7 +102,7 @@ If a parameter is passed, available options:
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			var requestedVersion string
 			if len(args) == 0 {
@@ -145,7 +145,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			versions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
@@ -201,7 +201,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			versions, err := versionManager.ListRemote(reverseOrder)
 			if err != nil {
@@ -260,7 +260,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			return versionManager.Reset()
 		},
@@ -285,7 +285,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			return versionManager.Uninstall(args[0])
 		},
@@ -323,7 +323,7 @@ Available parameter options:
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.LogLevelUpdate()
-			addDeprecationMsg(params)
+			addDeprecationMsg(conf, params)
 
 			return versionManager.Use(args[0], workingDir)
 		},
@@ -349,8 +349,8 @@ func addDeprecationHelpMsg(descBuilder *strings.Builder, params subCmdParams) {
 	}
 }
 
-func addDeprecationMsg(params subCmdParams) {
-	if params.deprecated {
+func addDeprecationMsg(conf *config.Config, params subCmdParams) {
+	if conf.DisplayNormal && params.deprecated {
 		fmt.Print(deprecationMsg) //nolint
 	}
 }
