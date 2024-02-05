@@ -39,6 +39,7 @@ const (
 var version = "dev"
 
 type subCmdParams struct {
+	deprecated     bool
 	needToken      bool
 	remoteEnvName  string
 	pRemote        *string
@@ -71,10 +72,12 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 	rootCmd.AddCommand(newVersionCmd())
 	tofuParams := subCmdParams{
-		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
+		deprecated: true, // direct use should display a deprecation message
+		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
-	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), tofuParams)
+	tofuManager := builder.BuildTofuManager(conf)
+	initSubCmds(rootCmd, conf, tofuManager, tofuParams)
 
 	// Add this in your main function, after the tfCmd and before the tgCmd
 	tofuCmd := &cobra.Command{
@@ -82,8 +85,8 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		Short: tofuHelp,
 		Long:  tofuHelp,
 	}
-
-	initSubCmds(tofuCmd, conf, builder.BuildTofuManager(conf), tofuParams)
+	tofuParams.deprecated = false // usage with tofu subcommand are ok
+	initSubCmds(tofuCmd, conf, tofuManager, tofuParams)
 
 	rootCmd.AddCommand(tofuCmd)
 
@@ -132,9 +135,9 @@ func newVersionCmd() *cobra.Command {
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) {
 	cmd.AddCommand(newDetectCmd(conf, versionManager, params))
 	cmd.AddCommand(newInstallCmd(conf, versionManager, params))
-	cmd.AddCommand(newListCmd(conf, versionManager))
+	cmd.AddCommand(newListCmd(conf, versionManager, params))
 	cmd.AddCommand(newListRemoteCmd(conf, versionManager, params))
-	cmd.AddCommand(newResetCmd(conf, versionManager))
-	cmd.AddCommand(newUninstallCmd(conf, versionManager))
+	cmd.AddCommand(newResetCmd(conf, versionManager, params))
+	cmd.AddCommand(newUninstallCmd(conf, versionManager, params))
 	cmd.AddCommand(newUseCmd(conf, versionManager, params))
 }
