@@ -43,16 +43,18 @@ func RetrieveVersion(versionFiles []VersionFile, rootVersionFilePath string, con
 		return "", err
 	}
 
-	checkedPath := map[string]struct{}{}
+	userPathNotDone := true
 	for currentPath := filepath.Dir(previousPath); currentPath != previousPath; previousPath, currentPath = currentPath, filepath.Dir(currentPath) {
 		if version, err := retrieveVersionFromDir(versionFiles, currentPath, conf); err != nil || version != "" {
 			return version, err
 		}
 
-		checkedPath[currentPath] = struct{}{}
+		if currentPath == conf.UserPath {
+			userPathNotDone = false
+		}
 	}
 
-	if _, ok := checkedPath[conf.UserPath]; !ok {
+	if userPathNotDone {
 		if version, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf); err != nil || version != "" {
 			return version, err
 		}
