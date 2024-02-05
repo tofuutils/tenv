@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/config"
+	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 )
 
 type VersionFile struct {
@@ -30,7 +31,7 @@ type VersionFile struct {
 	Parser func(string, *config.Config) (string, error)
 }
 
-func RetrieveVersion(versionFiles []VersionFile, conf *config.Config) (string, error) {
+func RetrieveVersion(versionFiles []VersionFile, rootVersionFilePath string, conf *config.Config) (string, error) {
 	for _, versionFile := range versionFiles {
 		if version, err := versionFile.Parser(versionFile.Name, conf); err != nil || version != "" {
 			return version, err
@@ -57,11 +58,7 @@ func RetrieveVersion(versionFiles []VersionFile, conf *config.Config) (string, e
 		}
 	}
 
-	if _, ok := checkedPath[conf.RootPath]; ok {
-		return "", nil
-	}
-
-	return retrieveVersionFromDir(versionFiles, conf.RootPath, conf)
+	return flatparser.RetrieveVersion(rootVersionFilePath, conf)
 }
 
 func retrieveVersionFromDir(versionFiles []VersionFile, dirPath string, conf *config.Config) (string, error) {
