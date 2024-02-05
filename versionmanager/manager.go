@@ -161,7 +161,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 		return forcedVersion, nil
 	}
 
-	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || version != "" {
 		return version, err
 	}
 
@@ -174,7 +174,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
-	return filepath.Join(m.conf.RootPath, m.VersionFiles[0].Name)
+	return filepath.Join(m.conf.RootPath, m.FolderName, "version")
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
