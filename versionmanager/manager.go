@@ -200,9 +200,11 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}
-	fmt.Println("Write", detectedVersion, "in", targetFilePath) //nolint
+	if err = os.WriteFile(targetFilePath, []byte(detectedVersion), 0644); err == nil {
+		fmt.Println("Written", detectedVersion, "in", targetFilePath) //nolint
+	}
 
-	return os.WriteFile(targetFilePath, []byte(detectedVersion), 0644)
+	return err
 }
 
 func (m VersionManager) detect(requestedVersion string) (string, error) {
@@ -269,10 +271,13 @@ func (m VersionManager) installSpecificVersion(version string) error {
 	}
 
 	if m.conf.DisplayNormal {
-		fmt.Println("Installation of", m.FolderName, version) //nolint
+		fmt.Println("Installing", m.FolderName, version) //nolint
+	}
+	if err = m.retriever.InstallRelease(version, filepath.Join(installPath, version)); err == nil && m.conf.DisplayNormal {
+		fmt.Println("Installation of", m.FolderName, version, "successful") //nolint
 	}
 
-	return m.retriever.InstallRelease(version, filepath.Join(installPath, version))
+	return err
 }
 
 func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {
