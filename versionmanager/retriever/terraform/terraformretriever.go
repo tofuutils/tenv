@@ -42,7 +42,6 @@ const (
 
 	baseFileName = "terraform_"
 	indexJson    = "index.json"
-	Name         = "terraform"
 )
 
 type TerraformRetriever struct {
@@ -61,7 +60,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), Name, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), config.TerraformName, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -81,7 +80,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 			return err
 		}
 
-		if r.conf.Verbose {
+		if r.conf.DisplayVerbose {
 			fmt.Println(apimsg.MsgFetchRelease, versionUrl) //nolint
 		}
 
@@ -109,7 +108,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Verbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
@@ -124,13 +123,13 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	r.conf.InitRemoteConf()
 
-	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), Name) //nolint
+	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), config.TerraformName) //nolint
 	if err != nil {
 		return nil, err
 	}
 
 	if r.conf.Tf.GetListMode() == htmlretriever.ListModeHTML {
-		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.Verbose)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.DisplayVerbose)
 	}
 
 	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
@@ -138,7 +137,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	if r.conf.Verbose {
+	if r.conf.DisplayVerbose {
 		fmt.Println(apimsg.MsgFetchAllReleases, releasesURL) //nolint
 	}
 
@@ -151,7 +150,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
-	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Verbose)
+	dataSums, err := download.Bytes(downloadSumsURL, r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
@@ -160,14 +159,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Verbose)
+	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Verbose)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.DisplayVerbose)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}

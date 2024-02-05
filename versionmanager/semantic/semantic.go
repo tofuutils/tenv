@@ -76,7 +76,7 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 			}
 		}
 
-		if conf.Verbose {
+		if conf.DisplayVerbose {
 			fmt.Println("No", displayName, "version requirement found in files, fallback to latest strategy") //nolint
 		}
 
@@ -130,7 +130,7 @@ func readPredicate(constraintRetriever func(*config.Config) (string, error), con
 
 // the boolean returned as second value indicates if a predicate was found.
 func readTfFiles(conf *config.Config) (func(string) bool, bool, error) {
-	requireds, err := tfparser.GatherRequiredVersion(conf.Verbose)
+	requireds, err := tfparser.GatherRequiredVersion(conf.DisplayVerbose)
 	if err != nil {
 		return nil, false, err
 	}

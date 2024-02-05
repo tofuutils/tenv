@@ -151,7 +151,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 			filePath := versionManager.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
-			if err != nil && conf.Verbose {
+			if err != nil && conf.DisplayVerbose {
 				fmt.Println("Can not read used version :", err) //nolint
 			}
 			usedVersion := string(bytes.TrimSpace(data))
@@ -163,7 +163,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 					fmt.Println(" ", version) //nolint
 				}
 			}
-			if conf.Verbose {
+			if conf.DisplayVerbose {
 				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.") //nolint
 			}
 
@@ -219,7 +219,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 					fmt.Println(version) //nolint
 				}
 			}
-			if conf.Verbose {
+			if conf.DisplayVerbose {
 				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").") //nolint
 				if filterStable {
 					fmt.Println(countSkipped, "result(s) hidden (version not stable).") //nolint

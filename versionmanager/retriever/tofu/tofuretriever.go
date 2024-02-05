@@ -42,7 +42,6 @@ const (
 	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
 	baseFileName = "tofu_"
 	issuer       = "https://token.actions.githubusercontent.com"
-	Name         = "tofu"
 	opentofu     = "opentofu"
 )
 
@@ -82,7 +81,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.DisplayVerbose)
 	}
 	if err != nil {
 		return err
@@ -94,7 +93,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Verbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
@@ -115,14 +114,14 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data, r.conf.Verbose)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data, r.conf.DisplayVerbose)
 	}
 
-	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
+	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.DisplayVerbose)
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Verbose)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
@@ -131,12 +130,12 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.Verbose)
+	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.Verbose)
+	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
@@ -153,18 +152,18 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return nil
 	}
 
-	if r.conf.Verbose {
+	if r.conf.DisplayVerbose {
 		fmt.Println("cosign executable not found, fallback to pgp check") //nolint
 	}
 
-	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.Verbose)
+	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.DisplayVerbose)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Verbose)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.DisplayVerbose)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}
