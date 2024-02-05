@@ -60,7 +60,7 @@ func (r RemoteConfig) GetListURL() string {
 }
 
 func (r RemoteConfig) GetRemoteURL() string {
-	if r.RemoteURL == "" {
+	if r.RemoteURL != "" {
 		return r.RemoteURL
 	}
 
