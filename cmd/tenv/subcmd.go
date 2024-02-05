@@ -31,6 +31,8 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
+const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"
+
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	addDeprecationMsg(&descBuilder, params)
@@ -320,9 +322,15 @@ Available parameter options:
 	return useCmd
 }
 
-func addDeprecationMsg(descBuilder *strings.Builder, params subCmdParams) {
+func addDeprecationHelpMsg(descBuilder *strings.Builder, params subCmdParams) {
 	if params.deprecated {
-		descBuilder.WriteString("Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n")
+		descBuilder.WriteString(deprecationMsg)
+	}
+}
+
+func addDeprecationMsg(params subCmdParams) {
+	if params.deprecated {
+		fmt.Println(deprecationMsg) //nolint
 	}
 }
 
