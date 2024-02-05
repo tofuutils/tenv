@@ -220,7 +220,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 				}
 			}
 			if conf.DisplayVerbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").") //nolint
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", params.remoteEnvName+").") //nolint
 				if filterStable {
 					fmt.Println(countSkipped, "result(s) hidden (version not stable).") //nolint
 				}
