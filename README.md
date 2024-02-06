@@ -31,7 +31,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 
 - Versatile version management: Easily switch between different versions of OpenTofu, Terraform and Terragrunt.
 - [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files.
-- Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)) for verifying OpenTofu signatures. However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
+- Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)), see [signature support](#signature-support).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
 
 <a id="table-of-contents"></a>
@@ -751,21 +751,26 @@ The `terraform` command in this project is a proxy to HashiCorp's `terraform` co
 
 The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed relying on `terragrunt_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
 
-### Terraform support
+<a id="signature-support"></a>
+### signature support
 
-tenv relies on `.terraform-version` files, [TFENV_HASHICORP_PGP_KEY](#tf-env-vars), [TFENV_REMOTE](#tf-env-vars) and [TFENV_TERRAFORM_VERSION](#tf-env-vars) specifically to manage Terraform versions.
+<details><summary><b>OpenTofu signature support</b></summary><br>
 
-`tenv tf` have the same managing subcommands for Terraform versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
+**tenv** checks the sha256 checksum and the signature of the checksum file with [cosign](https://github.com/sigstore/cosign) (if present on your machine) or PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)). However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
 
-tenv checks the Terraform PGP signature (there is no cosign signature available).
+</details>
 
-### Terragrunt support
+<details><summary><b>Terraform signature support</b></summary><br>
 
-tenv relies on `.terragrunt-version` files, [TG_REMOTE](#tg-env-vars) and [TG_VERSION](#tg-env-vars) specifically to manage Terragrunt versions.
+**tenv** checks the sha256 checksum and the PGP signature of the checksum file (via [gopenpgp](https://github.com/ProtonMail/gopenpgp), there is no cosign signature available).
 
-`tenv tg` have the same managing subcommands for Terragrunt versions (`detect`, `install`, `list`, `list-remote`, `reset`, `uninstall` and `use`).
+</details>
 
-tenv checks the sha256 checksum (there is no signature available).
+<details><summary><b>Terragrunt signature support</b></summary><br>
+
+**tenv** checks the sha256 checksum (there is no signature available).
+
+</details>
 
 <a id="contributing"></a>
 ## Contributing
