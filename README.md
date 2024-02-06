@@ -770,7 +770,7 @@ The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` 
 <a id="advanced-remote-configuration"></a>
 ### Advanced remote configuration
 
-This avanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
+This advanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
 
 The yaml file from TENV_REMOTE_CONF can have 3 parts : "tofu", "terraform", "terragrunt".
 
