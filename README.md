@@ -423,6 +423,7 @@ If set to true **tenv** disable unnecessary output.
 
 </details>
 
+
 <details><summary><b>TENV_LOG</b></summary><br>
 
 String (Default: "warn")
@@ -432,7 +433,6 @@ Set **tenv** log level (possibilities sorted by decreasing verbosity : "trace", 
 `tenv` support a `--verbose`, `-v` flag which set log level to "trace".
 
 </details>
-
 
 
 <details><summary><b>TENV_ROOT</b></summary><br>
