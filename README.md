@@ -724,6 +724,8 @@ version = ">= 1.2.0, < 2.0.0"
 
 This would identify the latest version at or above 1.2.0 and below 2.0.0
 
+</details>
+
 <a id="technical-details"></a>
 
 ## Technical details
