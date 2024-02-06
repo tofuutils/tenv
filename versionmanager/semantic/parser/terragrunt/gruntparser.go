@@ -109,7 +109,7 @@ func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, 
 	}
 
 	if val.IsNull() {
-		conf.AppLogger.Info("Empty terragrunt attribute")
+		conf.AppLogger.Debug("Empty terragrunt attribute")
 
 		return "", nil
 	}

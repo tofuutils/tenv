@@ -148,7 +148,7 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 		}
 
 		if val.IsNull() {
-			conf.AppLogger.Info("Empty tf attribute")
+			conf.AppLogger.Debug("Empty tf attribute")
 
 			continue
 		}
