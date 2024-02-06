@@ -667,6 +667,13 @@ terragrunt version v0.54.1
 <a id="version-files"></a>
 ## version files
 
+<a id="default-version-file"></a>
+<details><summary><b>default version file</b></summary><br>
+
+The `TENV_ROOT/<TOOL>/version` file is the tool default version used when no project specific or user specific are found. It can be written with `tenv <tool> use`.
+
+</details>
+
 <a id="opentofu-version-files"></a>
 <details><summary><b>opentofu version files</b></summary><br>
 
