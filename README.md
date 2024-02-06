@@ -667,7 +667,8 @@ terragrunt version v0.54.1
 <a id="version-files"></a>
 ## version files
 
-### opentofu version files
+<a id="opentofu-version-files"></a>
+<details><summary><b>opentofu version files</b></summary><br>
 
 If you put a `.opentofu-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
@@ -676,7 +677,10 @@ Recognize same values as `tenv tofu use` command.
 
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
-### terraform version files
+</details>
+
+<a id="terraform-version-files"></a>
+<details><summary><b>terraform version files</b></summary><br>
 
 If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by `.terraform-version` file.
@@ -685,20 +689,30 @@ Recognize same values as `tenv tf use` command.
 
 See [required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) docs.
 
-### terragrunt version files
+</details>
+
+<a id="terragrunt-version-files"></a>
+<details><summary><b>terragrunt version files</b></summary><br>
 
 If you put a `.terragrunt-version`, a `.tgswitchrc` or a `.tgswitch.toml` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TG_VERSION can be used to override version specified by `.terragrunt-version` file.
 
 Recognize same values as `tenv tg use` command.
 
-### terragrunt.hcl file
+</details>
+
+
+<a id="terragrunt-hcl-file"></a>
+<details><summary><b>terragrunt.hcl file</b></summary><br>
 
 If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, tenv will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
 
-### required_version
+</details>
 
-Will scan through your IAC files (.tf or .tf.json) and identify the latest allowed version as defined in the relevant files.
+<a id="required_version"></a>
+<details><summary><b>required_version</b></summary><br>
+
+the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files.
 
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
