@@ -211,7 +211,7 @@ Available parameter options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to use
 - a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available in TENV_ROOT directory)
-- `latest`, `latest-stable` or `latest-pre` (checked against versions available in TENV_ROOT directory)
+- `latest`, `latest-stable` (old name of `latest`) or `latest-pre` (include unstable version), which are checked against versions available in TENV_ROOT directory
 - `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required.
 
 See [required_version](#required_version) docs.
@@ -232,7 +232,7 @@ Detect the used version of tool for the working directory.
 
 ```console
 $ tenv tofu detect
-No OpenTofu version found in basic files, fallback to latest-allowed strategy
+No version files found for OpenTofu, fallback to latest-allowed strategy
 Scan project to find .tf files
 No OpenTofu version requirement found in project files, fallback to latest strategy
 Found compatible version installed locally : 1.6.1
@@ -734,7 +734,6 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 </details>
 
 <a id="technical-details"></a>
-
 ## Technical details
 
 ### Project binaries
@@ -758,7 +757,7 @@ The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` 
 </details>
 
 <a id="signature-support"></a>
-### signature support
+### Signature support
 
 <details><summary><b>OpenTofu signature support</b></summary><br>
 
