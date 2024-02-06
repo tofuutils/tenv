@@ -364,7 +364,7 @@ Flags:
   -w, --working-dir           create .opentofu-version file in working directory
 
 Global Flags:
-  -q, --quiet              no output (and no log)
+  -q, --quiet              no unnecessary output (and no log)
   -r, --root-path string   local path to install versions of OpenTofu, Terraform and Terragrunt (default "/home/dvaumoron/.tenv")
   -v, --verbose            verbose output (and set log level to Trace)
 ```
@@ -431,6 +431,17 @@ String (Default: "warn")
 Set **tenv** log level (possibilities sorted by decreasing verbosity : "trace", "debug", "info", "warn", "error", "off").
 
 `tenv` support a `--verbose`, `-v` flag which set log level to "trace".
+
+</details>
+
+
+<details><summary><b>TENV_REMOTE_CONF</b></summary><br>
+
+String (Default: `${TENV_ROOT}/remote.yaml`)
+
+The path to a yaml file for [advanced remote configuration](#advanced-remote-configuration) (can be used to call artifact mirror).
+
+`tenv <tool>` subcommands `detect`, `install`, `list-remote` and `use`  support a `--remote-conf`, `-c` flag version.
 
 </details>
 
@@ -755,6 +766,29 @@ The `terraform` command in this project is a proxy to HashiCorp's `terraform` co
 The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed relying on `terragrunt_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
 
 </details>
+
+<a id="advanced-remote-configuration"></a>
+### Advanced remote configuration
+
+This avanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
+
+The yaml file from TENV_REMOTE_CONF can have 3 parts : "tofu", "terraform", "terragrunt".
+
+Each part can have the following string field : "install_mode", "list_mode", "list_url", "url", "new_base_url", "old_base_url", "selector" and "part"
+
+With "install_mode" set to "direct", tenv skip the release information fetching and build download url directly (overridden by `<TOOL>_INSTALL_MODE` env var).
+With "list_mode" set to "html", tenv change the fetching of all releases information from API to parse the parent html page of artifact location, see "selector" and "part" (overridden by `<TOOL>_LIST_MODE` env var).
+
+"url" allows to override the default remote url (overridden by flag or `<TOOL>_REMOTE` env var).
+"list_url" allows to override the remote url only for the releases listing (overridden by `<TOOL>_LIST_URL` env var).
+
+"old_base_url" and "new_base_url" are used as url rewrite rule (if an url start with the prefix, it will be changed to use the new base url).
+
+if "old_base_url" and "new_base_url" are empty, tenv try to guess right behaviour depending previous field.
+
+"selector" is used to gather in a list all matching html node and "part" choose on which node part (attribute name or "#text" for inner text) a version will be extracted (selector default to "a" (html link)) and part default to "href" (link target))
+
+TODO add use case examples
 
 <a id="signature-support"></a>
 ### Signature support
