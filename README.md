@@ -159,7 +159,7 @@ TODO
 
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
 
-Install a requested version of <b>&lt;tool&gt;</b> (into TENV_ROOT</b> directory from <b>&lt;TOOL&gt;_REMOTE</b> url).
+Install a requested version of <b>&lt;tool&gt;</b> (into <b>TENV_ROOT</b> directory from <b>&lt;TOOL&gt;_REMOTE</b> url).
 
 Without a parameter, the version to use is resolved automatically via the relevant `<TOOL>_VERSION` [environment variable](#environment-variables) or [version file](#version-files)
 (searched in the working directory, its parent, user home directory, and `TFENV_ROOT` directory).
@@ -478,7 +478,7 @@ Written 1.6.0 in /home/dvaumoron/.tenv/OpenTofu/version
 
 <details><summary><b>TOFUENV_FORCE_REMOTE</b></summary><br>
 
-Same as TENV_FORCE_REMOTE (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
+Same as TENV_FORCE_REMOTE.
 
 </details>
 
@@ -518,7 +518,9 @@ Same as TENV_GITHUB_TOKEN (compatibility with [tofuenv](https://github.com/tofuu
 
 </details>
 
+
 <details><summary><b>TOFUENV_TOFU_VERSION</b></summary><br>
+
 String (Default: "")
 
 If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#opentofu-version-file) files.
@@ -555,50 +557,43 @@ Same as TENV_AUTO_INSTALL (compatibility with [tfenv](https://github.com/tfutils
 
 
 <details><summary><b>TFENV_FORCE_REMOTE</b></summary><br>
-String (Default: false)
 
-If set to true tenv detection of needed version will skip local check and verify compatibility on remote list.
+Same as TENV_FORCE_REMOTE.
 
-`tenv tf` subcommands `detect` and `use` support a `--force-remote`, `-f` flag version.
 </details>
 
 
 <details><summary><b>TFENV_HASHICORP_PGP_KEY</b></summary><br>
+
 String (Default: "")
 
 Allow to specify a local file path to Hashicorp PGP public key, if not present download https://www.hashicorp.com/.well-known/pgp-key.txt.
 
 `tenv tf` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
+
 </details>
 
 
 <details><summary><b>TFENV_REMOTE</b></summary><br>
+
 String (Default: https://releases.hashicorp.com)
 
 To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
 
 `tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
 </details>
 
 
 <details><summary><b>TFENV_ROOT</b></summary><br>
-Path (Default: `$HOME/.tenv`)
 
-The path to a directory where the local Terraform versions, OpenTofu versions and tenv configuration files exist.
+Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
 
-`tenv tf` support a `--root-path`, `-r` flag version.
 </details>
 
-
-<details><summary><b>TFENV_VERBOSE</b></summary><br>
-String (Default: false)
-
-Active the verbose display of tenv.
-
-`tenv tf` support a `--verbose`, `-v` flag version.
-</details>
 
 <details><summary><b>TFENV_TERRAFORM_VERSION</b></summary><br>
+
 String (Default: "")
 
 If not empty string, this variable overrides Terraform version, specified in [`.terraform-version`](#terraform-version-file) files.
@@ -607,17 +602,20 @@ If not empty string, this variable overrides Terraform version, specified in [`.
 e.g. with :
 
 ```console
-$ terraform version
-Terraform v1.6.0
+$ TENV_QUIET=t dist/terraform_linux_amd64_v1/terraform version
+Terraform v1.7.2
 on linux_amd64
 ```
 
 then :
 
 ```console
-$ TFENV_TERRAFORM_VERSION=1.6.0-rc1 terraform version
-Terraform v1.6.0-rc1
+$ TENV_QUIET=t TFENV_TERRAFORM_VERSION=1.7.0 dist/terraform_linux_amd64_v1/terraform version
+Terraform v1.7.0
 on linux_amd64
+
+Your version of Terraform is out of date! The latest version
+is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.html
 ```
 
 </details>
@@ -626,15 +624,18 @@ on linux_amd64
 ### Terragrunt environment variables
 
 <details><summary><b>TG_REMOTE</b></summary><br>
+
 String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 
 To install Terragrunt from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
 `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
 </details>
 
 
 <details><summary><b>TG_VERSION</b></summary><br>
+
 String (Default: "")
 
 If not empty string, this variable overrides Terragrunt version, specified in [`.terragrunt-version`](#terragrunt-version-file) files.
@@ -643,14 +644,14 @@ If not empty string, this variable overrides Terragrunt version, specified in [`
 e.g. with :
 
 ```console
-$ terragrunt -v
-terragrunt version v0.54.22
+$ TENV_QUIET=t terragrunt -v
+terragrunt version v0.55.1
 ```
 
 then :
 
 ```console
-$ TG_VERSION=0.54.1 terragrunt -v
+$ TENV_QUIET=t TG_VERSION=0.54.1 terragrunt -v
 terragrunt version v0.54.1
 ```
 
@@ -664,12 +665,7 @@ terragrunt version v0.54.1
 If you put a `.opentofu-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
 
-Recognized values (same as `tenv tofu use` command):
-
-- an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available in TOFUENV_ROOT directory)
-- `latest` or `latest-stable` (checked against versions available in TOFUENV_ROOT directory)
-- `latest-allowed` or `min-required` to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
+Recognize same values as `tenv tofu use` command.
 
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
@@ -678,12 +674,7 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 If you put a `.terraform-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by `.terraform-version` file.
 
-Recognized values (same as `tenv tf use` command):
-
-- an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a [version constraint](https://developer.hashicorp.com/terraform/language/expressions/version-constraints) string (checked against versions available in TFENV_ROOT directory)
-- `latest` or `latest-stable` (checked against versions available in TFENV_ROOT directory)
-- `latest-allowed` or `min-required` to scan your Terraform files to detect which version is maximally allowed or minimally required.
+Recognize same values as `tenv tf use` command.
 
 See [required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) docs.
 
@@ -692,12 +683,7 @@ See [required_version](https://developer.hashicorp.com/terraform/language/settin
 If you put a `.terragrunt-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TG_VERSION can be used to override version specified by `.terragrunt-version` file.
 
-Recognized values (same as `tenv tg use` command):
-
-- an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a [version constraint](https://developer.hashicorp.com/terraform/language/expressions/version-constraints) string (checked against versions available in TFENV_ROOT directory)
-- `latest` or `latest-stable` (checked against versions available in TFENV_ROOT directory)
-- `latest-allowed` or `min-required` to scan your Terraform files to detect which version is maximally allowed or minimally required.
+Recognize same values as `tenv tg use` command.
 
 ### .tfswitchrc file
 TODO
