@@ -84,14 +84,14 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" (into TOFUENV_ROOT directory from ")
+	descBuilder.WriteString(" (into TENV_ROOT directory from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
 	descBuilder.WriteString(versionManager.VersionEnvName)
 	descBuilder.WriteString(" or ")
 	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
 	descBuilder.WriteString(` files
-(searched in working directory, user home directory and TOFUENV_ROOT directory).
+(searched in working directory, user home directory and TENV_ROOT directory).
 Use "latest" when none are found.
 
 If a parameter is passed, available options:
@@ -146,7 +146,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions (located in TOFUENV_ROOT directory), sorted in ascending version order.")
+	descBuilder.WriteString(" versions (located in TENV_ROOT directory), sorted in ascending version order.")
 
 	reverseOrder := false
 
@@ -270,7 +270,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" (remove ")
 	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(" file from TOFUENV_ROOT).")
+	descBuilder.WriteString(" file from TENV_ROOT).")
 
 	resetCmd := &cobra.Command{
 		Use:   "reset",
@@ -299,7 +299,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Uninstall a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" (remove it from TOFUENV_ROOT directory).")
+	descBuilder.WriteString(" (remove it from TENV_ROOT directory).")
 
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
@@ -328,14 +328,14 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" version to use (set in TOFUENV_ROOT/")
+	descBuilder.WriteString(" version to use (set in TENV_ROOT/")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(`/version file)
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against version available in TOFUENV_ROOT directory)
-- latest, latest-stable or latest-pre (checked against version available in TOFUENV_ROOT directory)
+- a version constraint string (checked against version available in TENV_ROOT directory)
+- latest, latest-stable or latest-pre (checked against version available in TENV_ROOT directory)
 - latest-allowed or min-required to scan your `)
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
