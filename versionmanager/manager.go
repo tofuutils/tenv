@@ -189,7 +189,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
 	if err = os.RemoveAll(targetPath); err == nil && m.conf.DisplayNormal {
-		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, " successful (directory", targetPath, "removed)") //nolint
+		fmt.Println("Uninstallation of", m.FolderName, cleanedVersion, "successful (directory", targetPath, "removed)") //nolint
 	}
 
 	return err
