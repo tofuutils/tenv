@@ -716,15 +716,15 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 #### tofu
 
-The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-files) file).
+The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-files) file).
 
 #### terraform
 
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or [`.terraform-version`](#terraform-version-files) file).
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or [`.terraform-version`](#terraform-version-files) file).
 
 #### terragrunt
 
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed relying on `terragrunt_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
 
 ### Terraform support
 
