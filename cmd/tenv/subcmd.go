@@ -88,10 +88,8 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
 	descBuilder.WriteString(versionManager.VersionEnvName)
-	descBuilder.WriteString(" or ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(` files
-(searched in working directory, user home directory and TENV_ROOT directory).
+	descBuilder.WriteString(` or version files
+(searched in working directory, its parents, user home directory or TENV_ROOT directory).
 Use "latest" when none are found.
 
 If a parameter is passed, available options:
@@ -268,9 +266,9 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" (remove ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(" file from TENV_ROOT).")
+	descBuilder.WriteString(" (remove TENV_ROOT/")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString("/version file).")
 
 	resetCmd := &cobra.Command{
 		Use:   "reset",
