@@ -50,6 +50,7 @@ const (
 	tenvLogEnvName        = tenvPrefix + logEnvName
 	tenvQuietEnvName      = tenvPrefix + quietEnvName
 	tenvRemoteConfEnvName = tenvPrefix + "REMOTE_CONF"
+	tenvRootPathEnvName   = tenvPrefix + rootPathEnvName
 
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
@@ -126,7 +127,7 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
-	rootPath := getenvFallback(tofuRootPathEnvName, tfRootPathEnvName)
+	rootPath := getenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
 		rootPath = path.Join(userPath, ".tenv")
 	}
