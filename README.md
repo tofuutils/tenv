@@ -414,6 +414,7 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 
 
 <details><summary><b>TENV_QUIET</b></summary><br>
+
 String (Default: false)
 
 If set to true **tenv** disable unnecessary output.
@@ -423,9 +424,10 @@ If set to true **tenv** disable unnecessary output.
 </details>
 
 <details><summary><b>TENV_LOG</b></summary><br>
+
 String (Default: "warn")
 
-Set **tenv** log level.
+Set **tenv** log level (possibilities sorted by decreasing verbosity : "trace", "debug", "info", "warn", "error", "off").
 
 `tenv` support a `--verbose`, `-v` flag which set log level to "trace".
 
