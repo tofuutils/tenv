@@ -690,7 +690,7 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 <details><summary><b>terraform version files</b></summary><br>
 
 If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
-Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by `.terraform-version` file.
+Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by those files.
 
 Recognize same values as `tenv tf use` command.
 
@@ -701,8 +701,8 @@ See [required_version](https://developer.hashicorp.com/terraform/language/settin
 <a id="terragrunt-version-files"></a>
 <details><summary><b>terragrunt version files</b></summary><br>
 
-If you put a `.terragrunt-version`, a `.tgswitchrc` or a `.tgswitch.toml` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
-Note, that TG_VERSION can be used to override version specified by `.terragrunt-version` file.
+If you put a `.terragrunt-version` or a `.tgswitchrc` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it. `tenv` also detect a `version` field in a `.tgswitch.toml` in same places.
+Note, that TG_VERSION can be used to override version specified by those files.
 
 Recognize same values as `tenv tg use` command.
 
