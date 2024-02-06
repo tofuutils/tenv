@@ -455,7 +455,7 @@ Use OpenTofu version 1.6.1 that is not installed, and auto installation is disab
 
 ```console
 $ TOFUENV_AUTO_INSTALL=false tenv use 1.6.1
-Writen 1.6.1 in /home/dvaumoron/.tenv/OpenTofu/version
+Written 1.6.1 in /home/dvaumoron/.tenv/OpenTofu/version
 ```
 
 #### Example: 
