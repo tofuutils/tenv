@@ -377,6 +377,7 @@ Global Flags:
 
 tenv commands support global environment variables and variables by tool for : [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [TerraGrunt](https://terragrunt.gruntwork.io/).
 
+
 <a id="tenv-vars"></a>
 ### Global tenv environment variables
 
@@ -450,7 +451,7 @@ The path to a directory where the local OpenTofu versions, Terraform versions, T
 
 Same as TENV_AUTO_INSTALL (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
 
-#### Example: 
+#### Example 1
 Use OpenTofu version 1.6.1 that is not installed, and auto installation is disabled :
 
 ```console
@@ -458,7 +459,7 @@ $ TOFUENV_AUTO_INSTALL=false tenv use 1.6.1
 Written 1.6.1 in /home/dvaumoron/.tenv/OpenTofu/version
 ```
 
-#### Example: 
+#### Example 2
 Use OpenTofu version 1.6.0 that is not installed, and auto installation stay enabled.
 
 ```console
@@ -523,7 +524,7 @@ Same as TENV_GITHUB_TOKEN (compatibility with [tofuenv](https://github.com/tofuu
 
 String (Default: "")
 
-If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#opentofu-version-file) files.
+If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#opentofu-version-files) files.
 
 `tenv tofu` subcommands `install` and `detect` also respects this variable.
 
@@ -596,7 +597,8 @@ Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv))
 
 String (Default: "")
 
-If not empty string, this variable overrides Terraform version, specified in [`.terraform-version`](#terraform-version-file) files.
+If not empty string, this variable overrides Terraform version, specified in [`.terraform-version`](#terraform-version-files) files.
+
 `tenv tf` subcommands `install` and `detect` also respects this variable.
 
 e.g. with :
@@ -620,6 +622,7 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 
 </details>
 
+
 <a id="tg-env-vars"></a>
 ### Terragrunt environment variables
 
@@ -638,7 +641,8 @@ To install Terragrunt from a remote other than the default (must comply with [Gi
 
 String (Default: "")
 
-If not empty string, this variable overrides Terragrunt version, specified in [`.terragrunt-version`](#terragrunt-version-file) files.
+If not empty string, this variable overrides Terragrunt version, specified in [`.terragrunt-version`](#terragrunt-version-files) files.
+
 `tenv tg` subcommands `install` and `detect` also respects this variable.
 
 e.g. with :
@@ -657,10 +661,11 @@ terragrunt version v0.54.1
 
 </details>
 
+
 <a id="version-files"></a>
 ## version files
 
-### .opentofu-version file
+### opentofu version files
 
 If you put a `.opentofu-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
@@ -669,43 +674,29 @@ Recognize same values as `tenv tofu use` command.
 
 See [required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) docs.
 
-### .terraform-version file
+### terraform version files
 
-If you put a `.terraform-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
+If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by `.terraform-version` file.
 
 Recognize same values as `tenv tf use` command.
 
 See [required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) docs.
 
-### .terragrunt-version file
+### terragrunt version files
 
-If you put a `.terragrunt-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
+If you put a `.terragrunt-version`, a `.tgswitchrc` or a `.tgswitch.toml` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
 Note, that TG_VERSION can be used to override version specified by `.terragrunt-version` file.
 
 Recognize same values as `tenv tg use` command.
 
-### .tfswitchrc file
-TODO
-
-### .tgswitchrc file
-TODO
-
-### .tgswitch.toml file
-TODO
-
 ### terragrunt.hcl file
-or terragrunt.hcl.json
-TODO
 
-### .tf files
-
-or .tf.json files
-TODO
+If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, tenv will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
 
 ### required_version
 
-Will scan through your IAC files and identify the latest allowed version as defined in the relevant files.
+Will scan through your IAC files (.tf or .tf.json) and identify the latest allowed version as defined in the relevant files.
 
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
@@ -725,15 +716,15 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 #### tofu
 
-The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-file) file).
+The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-files) file).
 
 #### terraform
 
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or `.terraform-version` file).
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or [`.terraform-version`](#terraform-version-files) file).
 
 #### terragrunt
 
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg-env-vars) environment variable or `.terragrunt-version` file).
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
 
 ### Terraform support
 
