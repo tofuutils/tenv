@@ -518,62 +518,39 @@ Same as TENV_GITHUB_TOKEN (compatibility with [tofuenv](https://github.com/tofuu
 
 </details>
 
-
-<details><summary><b>TOFUENV_VERBOSE</b></summary><br>
-String (Default: false)
-
-Active the verbose display of **tenv**.
-
-`tenv` support a `--verbose`, `-v` flag version.
-</details>
-
 <details><summary><b>TOFUENV_TOFU_VERSION</b></summary><br>
 String (Default: "")
 
 If not empty string, this variable overrides OpenTofu version, specified in [`.opentofu-version`](#opentofu-version-file) files.
-`tenv` subcommands `install` and `detect` also respects this variable.
+
+`tenv tofu` subcommands `install` and `detect` also respects this variable.
 
 e.g. with :
 
 ```console
-$ tofu version
-OpenTofu v1.6.0
+TENV_QUIET=t dist/tofu_linux_amd64_v1/tofu version
+OpenTofu v1.6.1
 on linux_amd64
 ```
 
 then :
 
 ```console
-$ TOFUENV_TOFU_VERSION=1.6.0-rc1 tofu version
-OpenTofu v1.6.0-rc1
+$ TENV_QUIET=t TOFUENV_TOFU_VERSION=1.6.0 dist/tofu_linux_amd64_v1/tofu version
+OpenTofu v1.6.0
 on linux_amd64
 ```
+
 </details>
 
 
 <a id="tf-env-vars"></a>
 ### Terraform environment variables
+
 <details><summary><b>TFENV_AUTO_INSTALL</b></summary><br>
-String (Default: true)
 
-If set to true tenv will automatically install a missing Terraform version needed (fallback to latest-allowed strategy when no [`.terraform-version`](#terraform-version-file) files are found).
+Same as TENV_AUTO_INSTALL (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
 
-`tenv tf` subcommands `detect` and `use` support a `--no-install`, `-n` disabling flag version.
-
-Example: Use Terraform version 1.6.0-rc1 that is not installed, and auto installation is disabled. (-v flag is equivalent to `TFENV_VERBOSE=true`)
-
-```console
-$ TFENV_AUTO_INSTALL=false tenv tf use -v 1.6.0-rc1
-Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.terraform-version
-```
-
-Example: Use Terraform version 1.6.0-rc1 that is not installed, and auto installation stay enabled.
-
-```console
-$ tenv tf use -v 1.6.0-rc1
-Installation of Terraform 1.6.0-rc1
-Write 1.6.0-rc1 in /home/dvaumoron/.tenv/.terraform-version
-```
 </details>
 
 
