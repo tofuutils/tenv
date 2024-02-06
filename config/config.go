@@ -46,11 +46,13 @@ const (
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
 
-	tenvPrefix            = "TENV_"
-	tenvLogEnvName        = tenvPrefix + logEnvName
-	tenvQuietEnvName      = tenvPrefix + quietEnvName
-	tenvRemoteConfEnvName = tenvPrefix + "REMOTE_CONF"
-	tenvRootPathEnvName   = tenvPrefix + rootPathEnvName
+	tenvPrefix             = "TENV_"
+	tenvAutoInstallEnvName = tenvPrefix + autoInstallEnvName
+	tenvForceRemoteEnvName = tenvPrefix + forceRemoteEnvName
+	tenvLogEnvName         = tenvPrefix + logEnvName
+	tenvQuietEnvName       = tenvPrefix + quietEnvName
+	tenvRemoteConfEnvName  = tenvPrefix + "REMOTE_CONF"
+	tenvRootPathEnvName    = tenvPrefix + rootPathEnvName
 
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
@@ -117,12 +119,12 @@ func InitConfigFromEnv() (Config, error) {
 		Name: TenvName, Level: logLevel,
 	})
 
-	autoInstall, err := getenvBoolFallback(true, tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	autoInstall, err := getenvBoolFallback(true, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	forceRemote, err := getenvBoolFallback(false, tofuForceRemoteEnvName, tfForceRemoteEnvName)
+	forceRemote, err := getenvBoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
 	if err != nil {
 		return Config{}, err
 	}
