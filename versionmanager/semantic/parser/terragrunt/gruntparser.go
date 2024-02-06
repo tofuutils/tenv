@@ -36,7 +36,7 @@ const (
 	jsonName = "terragrunt.hcl.json"
 
 	terraformVersionConstraintName  = "terraform_version_constraint"
-	terragruntVersionConstraintName = "terraform_version_constraint"
+	terragruntVersionConstraintName = "terragrunt_version_constraint"
 )
 
 var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
