@@ -129,7 +129,7 @@ func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
 func (m VersionManager) LocalSet() map[string]struct{} {
 	entries, err := os.ReadDir(m.InstallPath())
 	if err != nil {
-		m.conf.AppLogger.Log(loghelper.LevelWarnOrInfo(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
+		m.conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
 
 		return nil
 	}

@@ -68,7 +68,7 @@ func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConst
 func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		conf.AppLogger.Log(loghelper.LevelWarnOrInfo(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
+		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
 
 		return "", nil
 	}
