@@ -45,7 +45,7 @@ const (
 	quietEnvName       = "QUIET"
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
-	tokenEnvName       = "GITHUB_TOKEN"
+	tokenEnvName       = "GITHUB_TOKEN" //nolint
 
 	tenvPrefix             = "TENV_"
 	tenvAutoInstallEnvName = tenvPrefix + autoInstallEnvName
