@@ -169,7 +169,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	}
 
 	if m.conf.DisplayNormal {
-		fmt.Println("No", m.FolderName, "version found in flat files, fallback to", color.GreenString(defaultStrategy), "strategy") //nolint
+		fmt.Println("No", m.FolderName, "version found in basic files, fallback to", color.GreenString(defaultStrategy), "strategy") //nolint
 	}
 
 	return defaultStrategy, nil
