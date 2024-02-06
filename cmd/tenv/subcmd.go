@@ -92,13 +92,13 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
 	descBuilder.WriteString(` files
 (searched in working directory, user home directory and TOFUENV_ROOT directory).
-Use "latest-stable" when none are found.
+Use "latest" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
 - a version constraint string (checked against version available at `)
 	descBuilder.WriteString(params.remoteEnvName)
-	descBuilder.WriteString(" url)\n- latest or latest-stable (checked against version available at ")
+	descBuilder.WriteString(" url)\n- latest, latest-stable or latest-pre (checked against version available at ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url)\n- latest-allowed or min-required to scan your ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -335,7 +335,7 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
 - a version constraint string (checked against version available in TOFUENV_ROOT directory)
-- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+- latest, latest-stable or latest-pre (checked against version available in TOFUENV_ROOT directory)
 - latest-allowed or min-required to scan your `)
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
