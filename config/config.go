@@ -45,6 +45,7 @@ const (
 	quietEnvName       = "QUIET"
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
+	tokenEnvName       = "GITHUB_TOKEN"
 
 	tenvPrefix             = "TENV_"
 	tenvAutoInstallEnvName = tenvPrefix + autoInstallEnvName
@@ -53,6 +54,7 @@ const (
 	tenvQuietEnvName       = tenvPrefix + quietEnvName
 	tenvRemoteConfEnvName  = tenvPrefix + "REMOTE_CONF"
 	tenvRootPathEnvName    = tenvPrefix + rootPathEnvName
+	tenvTokenEnvName       = tenvPrefix + tokenEnvName
 
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
@@ -81,7 +83,7 @@ const (
 	tofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
 	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
-	tofuTokenEnvName          = tofuenvPrefix + "GITHUB_TOKEN"
+	tofuTokenEnvName          = tofuenvPrefix + tokenEnvName
 	TofuVersionEnvName        = tofuenvPrefix + "TOFU_VERSION"
 )
 
@@ -143,7 +145,7 @@ func InitConfigFromEnv() (Config, error) {
 		AppLogger:      appLogger,
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
-		GithubToken:    os.Getenv(tofuTokenEnvName),
+		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),
 		NoInstall:      !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
