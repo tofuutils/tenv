@@ -22,9 +22,9 @@ import "github.com/hashicorp/go-hclog"
 
 const Error = "error"
 
-func LevelWarnOrInfo(info bool) hclog.Level {
-	if info {
-		return hclog.Info
+func LevelWarnOrDebug(debug bool) hclog.Level {
+	if debug {
+		return hclog.Debug
 	}
 
 	return hclog.Warn
