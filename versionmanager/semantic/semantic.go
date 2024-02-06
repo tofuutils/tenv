@@ -78,7 +78,7 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 		}
 
 		if conf.DisplayNormal {
-			fmt.Println("No", displayName, "version requirement found in files, fallback to", color.GreenString(LatestKey), "strategy") //nolint
+			fmt.Println("No", displayName, "version requirement found in project files, fallback to", color.GreenString(LatestKey), "strategy") //nolint
 		}
 
 		return StableVersion, true, nil // erase min-required case
