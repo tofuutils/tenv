@@ -174,7 +174,7 @@ func (conf *Config) InitRemoteConf() error {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
-		conf.AppLogger.Info("Can not read remote configuration file", loghelper.Error, err)
+		conf.AppLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
 
 		return nil
 	}
