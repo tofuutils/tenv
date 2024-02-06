@@ -258,7 +258,7 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 
 <details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
 
-Uninstall a specific version of OpenTofu (remove it from `<TOOL>_ROOT` directory without interpretation).
+Uninstall a specific version of OpenTofu (remove it from `TENV_ROOT` directory without interpretation).
 
 ```console
 $ tenv tofu uninstall v1.6.0-alpha4
@@ -286,7 +286,7 @@ found 2 OpenTofu version(s) managed by tenv.
 
 <details><summary><b>tenv &lt;tool&gt; list-remote</b></summary><br>
 
-List installable tool versions (from `TOOL_REMOTEHappy_REMOTE url), sorted in ascending version order.
+List installable tool versions (from `<TOOL>_REMOTE` url), sorted in ascending version order.
 
 `tenv <tool> list-remote` has a `--descending`, `-d` flag to sort in descending order.
 
