@@ -417,7 +417,7 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 
 String (Default: false)
 
-If set to true **tenv** disable unnecessary output.
+If set to true **tenv** disable unnecessary output (including log level forced to off).
 
 `tenv` subcommands support a `--quiet`, `-q` flag version.
 
@@ -493,6 +493,27 @@ Written 1.6.0 in /home/dvaumoron/.tenv/OpenTofu/version
 <details><summary><b>TOFUENV_FORCE_REMOTE</b></summary><br>
 
 Same as TENV_FORCE_REMOTE.
+
+</details>
+
+
+<details><summary><b>TOFUENV_INSTALL_MODE</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
+<details><summary><b>TOFUENV_LIST_MODE</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
+<details><summary><b>TOFUENV_LIST_URL</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
 
 </details>
 
@@ -588,6 +609,27 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 </details>
 
 
+<details><summary><b>TFENV_INSTALL_MODE</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
+<details><summary><b>TFENV_LIST_MODE</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
+<details><summary><b>TFENV_LIST_URL</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
 <details><summary><b>TFENV_REMOTE</b></summary><br>
 
 String (Default: https://releases.hashicorp.com)
@@ -638,6 +680,28 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 
 <a id="tg-env-vars"></a>
 ### Terragrunt environment variables
+
+
+<details><summary><b>TG_INSTALL_MODE</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
+<details><summary><b>TG_LIST_MODE</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
+
+<details><summary><b>TG_LIST_URL</b></summary><br>
+
+See [advanced remote configuration](#advanced-remote-configuration)
+
+</details>
+
 
 <details><summary><b>TG_REMOTE</b></summary><br>
 
