@@ -211,6 +211,80 @@ brews:
       name: homebrew-tap
     folder: Formula
     homepage: https://github.com/tofuutils/tenv
-    description: "OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)"
+    description: "OpenTofu, Terraform and Terragrunt version manager, written in Go"
     license: "Apache-2.0"
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+aurs:
+  - name: tenv
+    homepage: https://github.com/tofuutils/tenv
+    description: "OpenTofu, Terraform and Terragrunt version manager, written in Go"
+    maintainers:
+      - "Alexander Sharov <https://github.com/kvendingoldo>"
+    license: "Apache-2.0"
+    private_key: "{{ .Env.AUR_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/tenv.git"
+    skip_upload: false
+    conflicts:
+      - terraform
+      - opentofu
+
+    depends:
+      - cosign-git
+
+    package: |-
+      # bin
+      install -Dm755 "./mybin" "${pkgdir}/usr/bin/mybin"
+
+      # license
+      install -Dm644 "./LICENSE.md" "${pkgdir}/usr/share/licenses/mybin/LICENSE"
+
+      # completions
+      mkdir -p "${pkgdir}/usr/share/bash-completion/completions/"
+      mkdir -p "${pkgdir}/usr/share/zsh/site-functions/"
+      mkdir -p "${pkgdir}/usr/share/fish/vendor_completions.d/"
+      install -Dm644 "./completions/mybin.bash" "${pkgdir}/usr/share/bash-completion/completions/mybin"
+      install -Dm644 "./completions/mybin.zsh" "${pkgdir}/usr/share/zsh/site-functions/_mybin"
+      install -Dm644 "./completions/mybin.fish" "${pkgdir}/usr/share/fish/vendor_completions.d/mybin.fish"
+
+      # man pages
+      install -Dm644 "./manpages/mybin.1.gz" "${pkgdir}/usr/share/man/man1/mybin.1.gz"
+
+    # Git author used to commit to the repository.
+    commit_author:
+      name: tofuutils
+      email: tofuutils@gmail.com
+
+    # Commit message.
+    #
+    # Default: 'Update to {{ .Tag }}'
+    # Templates: allowed
+    commit_msg_template: "pkgbuild updates"
+
+    # If you build for multiple GOAMD64 versions, you may use this to choose which one to use.
+    #
+    # Default: 'v1'.
+    goamd64: v2
+
+    # The value to be passed to `GIT_SSH_COMMAND`.
+    # This is mainly used to specify the SSH private key used to pull/push to
+    # the Git URL.
+    #
+    # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
+    git_ssh_command: "ssh -i {{ .Env.KEY }} -o SomeOption=yes"
+
+    # URL which is determined by the given Token
+    # (github, gitlab or gitea).
+    #
+    # Default: depends on the client
+    # Templates: allowed
+    url_template: "http://github.mycompany.com/foo/bar/releases/{{ .Tag }}/{{ .ArtifactName }}"
+
+    # Directory in which the files will be created inside the repository.
+    # Only useful if you're creating your own AUR with multiple packages in a
+    # single repository.
+    #
+    # Default: .
+    # Templates: allowed
+    # Since: v1.23
+    directory: "."
