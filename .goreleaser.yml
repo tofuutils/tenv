@@ -202,7 +202,7 @@ nfpms:
       signature:
         key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     archlinux:
-      pkgbase: tofuenv
+      pkgbase: tenv
       packager: tofuutils <tofuutils@gmail.com>
 
 brews:
