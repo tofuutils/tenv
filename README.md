@@ -375,7 +375,7 @@ Global Flags:
 <a id="environment-variables"></a>
 ## Environment variables
 
-tenv commands support global environment variables and variables by tool for : [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [TerraGrunt](https://terragrunt.gruntwork.io/).
+**tenv** commands support global environment variables and variables by tool for : [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [TerraGrunt](https://terragrunt.gruntwork.io/).
 
 
 <a id="tenv-vars"></a>
@@ -771,7 +771,7 @@ The `TENV_ROOT/<TOOL>/version` file is the tool default version used when no pro
 <a id="opentofu-version-files"></a>
 <details><summary><b>opentofu version files</b></summary><br>
 
-If you put a `.opentofu-version` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
+If you put a `.opentofu-version` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
 
 Recognize same values as `tenv tofu use` command.
@@ -783,7 +783,7 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 <a id="terraform-version-files"></a>
 <details><summary><b>terraform version files</b></summary><br>
 
-If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it.
+If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
 Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by those files.
 
 Recognize same values as `tenv tf use` command.
@@ -795,7 +795,7 @@ See [required_version](https://developer.hashicorp.com/terraform/language/settin
 <a id="terragrunt-version-files"></a>
 <details><summary><b>terragrunt version files</b></summary><br>
 
-If you put a `.terragrunt-version` or a `.tgswitchrc` file in the working directory, one of its parent directory, or user home directory, tenv detects it and uses the version written in it. `tenv` also detect a `version` field in a `.tgswitch.toml` in same places.
+If you put a `.terragrunt-version` or a `.tgswitchrc` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it. **tenv** also detect a `version` field in a `.tgswitch.toml` in same places.
 Note, that TG_VERSION can be used to override version specified by those files.
 
 Recognize same values as `tenv tg use` command.
@@ -806,7 +806,7 @@ Recognize same values as `tenv tg use` command.
 <a id="terragrunt-hcl-file"></a>
 <details><summary><b>terragrunt.hcl file</b></summary><br>
 
-If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, tenv will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
+If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, **tenv** will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
 
 </details>
 
@@ -834,19 +834,19 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 <details><summary><b>tofu</b></summary><br>
 
-The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by `tenv`. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-files) file).
+The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by **tenv**. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-files) file).
 
 </details>
 
 <details><summary><b>terraform</b></summary><br>
 
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by `tenv`. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or [`.terraform-version`](#terraform-version-files) file).
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by **tenv**. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or [`.terraform-version`](#terraform-version-files) file).
 
 </details>
 
 <details><summary><b>terragrunt</b></summary><br>
 
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by `tenv`. The default resolution strategy is latest-allowed relying on `terragrunt_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by **tenv**. The default resolution strategy is latest-allowed relying on `terragrunt_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
 
 </details>
 
@@ -855,25 +855,25 @@ The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` 
 
 This advanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
 
-The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : "tofu", "terraform", "terragrunt".
+The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : `tofu`, `terraform` and `terragrunt`.
 
 <details><summary><b>yaml fields description</b></summary><br>
 
-Each part can have the following string field : "install_mode", "list_mode", "list_url", "url", "new_base_url", "old_base_url", "selector" and "part"
+Each part can have the following string field : `install_mode`, `list_mode`, `list_url`, `url`, `new_base_url`, `old_base_url`, `selector` and `part`
 
-With "install_mode" set to "direct", tenv skip the release information fetching and build download url directly (overridden by `<TOOL>_INSTALL_MODE` env var).
+With `install_mode` set to "direct", **tenv** skip the release information fetching and build download url directly (overridden by `<TOOL>_INSTALL_MODE` env var).
 
-With "list_mode" set to "html", tenv change the fetching of all releases information from API to parse the parent html page of artifact location, see "selector" and "part" (overridden by `<TOOL>_LIST_MODE` env var).
+With `list_mode` set to "html", **tenv** change the fetching of all releases information from API to parse the parent html page of artifact location, see `selector` and `part` (overridden by `<TOOL>_LIST_MODE` env var).
 
-"url" allows to override the default remote url (overridden by flag or `<TOOL>_REMOTE` env var).
+`url` allows to override the default remote url (overridden by flag or `<TOOL>_REMOTE` env var).
 
-"list_url" allows to override the remote url only for the releases listing (overridden by `<TOOL>_LIST_URL` env var).
+`list_url` allows to override the remote url only for the releases listing (overridden by `<TOOL>_LIST_URL` env var).
 
-"old_base_url" and "new_base_url" are used as url rewrite rule (if an url start with the prefix, it will be changed to use the new base url).
+`old_base_url` and `new_base_url` are used as url rewrite rule (if an url start with the prefix, it will be changed to use the new base url).
 
-If "old_base_url" and "new_base_url" are empty, tenv try to guess right behaviour depending previous field.
+If `old_base_url` and `new_base_url` are empty, **tenv** try to guess right behaviour depending previous field.
 
-"selector" is used to gather in a list all matching html node and "part" choose on which node part (attribute name or "#text" for inner text) a version will be extracted (selector default to "a" (html link) and part default to "href" (link target))
+`selector` is used to gather in a list all matching html node and `part` choose on which node part (attribute name or "#text" for inner text) a version will be extracted (selector default to "a" (html link) and part default to "href" (link target))
 
 </details>
 
