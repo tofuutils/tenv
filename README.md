@@ -404,6 +404,7 @@ If set to true **tenv** detection of needed version will skip local check and ve
 
 
 <details><summary><b>TENV_GITHUB_TOKEN</b></summary><br>
+
 String (Default: "")
 
 Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu and Terragrunt binaries are downloaded from GitHub repository.
@@ -499,21 +500,27 @@ Same as TENV_FORCE_REMOTE.
 
 <details><summary><b>TOFUENV_INSTALL_MODE</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
 
 <details><summary><b>TOFUENV_LIST_MODE</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
 
 <details><summary><b>TOFUENV_LIST_URL</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
@@ -611,21 +618,27 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 
 <details><summary><b>TFENV_INSTALL_MODE</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
 
 <details><summary><b>TFENV_LIST_MODE</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
 
 <details><summary><b>TFENV_LIST_URL</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
@@ -684,21 +697,27 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 
 <details><summary><b>TG_INSTALL_MODE</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
 
 <details><summary><b>TG_LIST_MODE</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
 
 <details><summary><b>TG_LIST_URL</b></summary><br>
 
-See [advanced remote configuration](#advanced-remote-configuration)
+String (Default: "")
+
+See [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
