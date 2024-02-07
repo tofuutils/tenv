@@ -55,7 +55,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			conf.LogLevelUpdate()
 			addDeprecationMsg(conf, params)
 
-			detectedVersion, err := versionManager.Detect()
+			detectedVersion, err := versionManager.Detect(false)
 			if err != nil {
 				return err
 			}
