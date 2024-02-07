@@ -58,19 +58,19 @@ func MakeVersionManager(conf *config.Config, folderName string, predicateReaders
 }
 
 // detect version (can install depending on auto install env var).
-func (m VersionManager) Detect() (string, error) {
+func (m VersionManager) Detect(proxyCall bool) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
 		return "", err
 	}
 
-	return m.detect(configVersion)
+	return m.detect(configVersion, proxyCall)
 }
 
 func (m VersionManager) Install(requestedVersion string) error {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
-		return m.installSpecificVersion(parsedVersion.String())
+		return m.installSpecificVersion(parsedVersion.String(), true)
 	}
 
 	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
@@ -79,7 +79,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 	}
 
 	// noInstall is set to false to force install regardless of conf
-	_, err = m.searchInstallRemote(predicate, reverseOrder, false)
+	_, err = m.searchInstallRemote(predicate, reverseOrder, false, true)
 
 	return err
 }
@@ -196,7 +196,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 }
 
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
-	detectedVersion, err := m.detect(requestedVersion)
+	detectedVersion, err := m.detect(requestedVersion, false)
 	if err != nil {
 		return err
 	}
@@ -212,7 +212,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	return err
 }
 
-func (m VersionManager) detect(requestedVersion string) (string, error) {
+func (m VersionManager) detect(requestedVersion string, proxyCall bool) (string, error) {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String()
@@ -220,7 +220,7 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 			return cleanedVersion, nil
 		}
 
-		return cleanedVersion, m.installSpecificVersion(cleanedVersion)
+		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
 	}
 
 	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
@@ -251,41 +251,46 @@ func (m VersionManager) detect(requestedVersion string) (string, error) {
 		}
 	}
 
-	return m.searchInstallRemote(predicate, reverseOrder, m.conf.NoInstall)
+	return m.searchInstallRemote(predicate, reverseOrder, m.conf.NoInstall, proxyCall)
 }
 
-func (m VersionManager) installSpecificVersion(version string) error {
+func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
 	if version == "" {
 		return errEmptyVersion
 	}
 
 	installPath := m.InstallPath()
-	entries, err := os.ReadDir(installPath)
-	if err != nil {
-		return err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() && version == entry.Name() {
-			if m.conf.DisplayNormal {
-				fmt.Println(m.FolderName, version, "already installed") //nolint
-			}
-
-			return nil
-		}
-	}
-
 	if m.conf.DisplayNormal {
+		entries, err := os.ReadDir(installPath)
+		if err != nil {
+			return err
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() && version == entry.Name() {
+				alreadyMsg := fmt.Sprintln(m.FolderName, version, "already installed")
+				if proxyCall {
+					m.conf.AppLogger.Debug(alreadyMsg)
+				} else {
+					fmt.Println(alreadyMsg) //nolint
+				}
+
+				return nil
+			}
+		}
+
 		fmt.Println("Installing", m.FolderName, version) //nolint
 	}
-	if err = m.retriever.InstallRelease(version, filepath.Join(installPath, version)); err == nil && m.conf.DisplayNormal {
+
+	err := m.retriever.InstallRelease(version, filepath.Join(installPath, version))
+	if err == nil && m.conf.DisplayNormal {
 		fmt.Println("Installation of", m.FolderName, version, "successful") //nolint
 	}
 
 	return err
 }
 
-func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool) (string, error) {
+func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverseOrder bool, noInstall bool, proxyCall bool) (string, error) {
 	versions, err := m.ListRemote(reverseOrder)
 	if err != nil {
 		return "", err
@@ -300,7 +305,7 @@ func (m VersionManager) searchInstallRemote(predicate func(string) bool, reverse
 				return version, nil
 			}
 
-			return version, m.installSpecificVersion(version)
+			return version, m.installSpecificVersion(version, proxyCall)
 		}
 	}
 
