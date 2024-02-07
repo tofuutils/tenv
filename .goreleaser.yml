@@ -172,8 +172,8 @@ checksum:
   algorithm: sha256
 
 nfpms:
-  - file_name_template: '{{ .ProjectName }}_{{- .Tag }}_{{ .Arch }}'
-    maintainer: 'https://github.com/dvaumoron'
+  - file_name_template: "{{ .ProjectName }}_{{- .Tag }}_{{ .Arch }}"
+    maintainer: "https://github.com/dvaumoron"
     homepage: https://github.com/tofuutils/tenv
     description: >-
       tenv helps manage several version of OpenTofu (https://opentofu.org) and Terraform (https://www.terraform.io/),
@@ -194,14 +194,15 @@ nfpms:
     rpm:
       packager: tofuutils <tofuutils@gmail.com>
       signature:
-        key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
+        key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     deb:
       signature:
-        key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
+        key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     apk:
       signature:
-        key_file: "{{ if index .Env \"GPG_KEY_FILE\"  }}{{.Env.GPG_KEY_FILE}}{{ end }}"
+        key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     archlinux:
+      pkgbase: tofuenv
       packager: tofuutils <tofuutils@gmail.com>
 
 brews:
