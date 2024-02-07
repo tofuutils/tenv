@@ -70,7 +70,7 @@ func (m VersionManager) Detect(proxyCall bool) (string, error) {
 func (m VersionManager) Install(requestedVersion string) error {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
-		return m.installSpecificVersion(parsedVersion.String(), true)
+		return m.installSpecificVersion(parsedVersion.String(), false)
 	}
 
 	predicate, reverseOrder, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
@@ -79,7 +79,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 	}
 
 	// noInstall is set to false to force install regardless of conf
-	_, err = m.searchInstallRemote(predicate, reverseOrder, false, true)
+	_, err = m.searchInstallRemote(predicate, reverseOrder, false, false)
 
 	return err
 }
