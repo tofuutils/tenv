@@ -3,11 +3,12 @@ version: 1
 
 before:
   hooks:
+    - go mod tidy
+    - go test ./...
     - go get -u ./cmd/tenv
     - go get -u ./cmd/tofu
     - go get -u ./cmd/terraform
     - go get -u ./cmd/terragrunt
-    - go mod tidy
 
 builds:
   - id: tenv
