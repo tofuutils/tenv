@@ -834,9 +834,9 @@ TOFUENV_INSTALL_MODE=direct
 TOFUENV_LIST_URL=https://api.github.com/repos/opentofu/opentofu/releases
 ```
 
-Exemple 3 & 4, does not create a rewrite rule (the direct install mode build correct download URLs).
+Example 3 & 4, does not create a rewrite rule (the direct install mode build correct download URLs).
 
-Exemple 1 & 4 can be merged in a remote.yaml :
+Example 1 & 4 can be merged in a remote.yaml :
 
 ```yaml
 tofu:
