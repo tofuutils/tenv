@@ -772,7 +772,9 @@ The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` 
 
 This advanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
 
-The yaml file from TENV_REMOTE_CONF can have 3 parts : "tofu", "terraform", "terragrunt".
+The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : "tofu", "terraform", "terragrunt".
+
+<details><summary><b>yaml fields description</b></summary><br>
 
 Each part can have the following string field : "install_mode", "list_mode", "list_url", "url", "new_base_url", "old_base_url", "selector" and "part"
 
@@ -790,7 +792,64 @@ If "old_base_url" and "new_base_url" are empty, tenv try to guess right behaviou
 
 "selector" is used to gather in a list all matching html node and "part" choose on which node part (attribute name or "#text" for inner text) a version will be extracted (selector default to "a" (html link) and part default to "href" (link target))
 
-TODO add use case examples
+</details>
+
+
+<details><summary><b>Examples</b></summary><br>
+
+Those examples assume that a GitHub proxy at https://artifactory.example.com/artifactory/github have the same behavior than [JFrog Artifactory](https://jfrog.com/artifactory) :
+
+- mirror https://github.com/opentofu/opentofu/releases/download/v1.6.0/tofu_1.6.0_linux_amd64.zip at https://artifactory.example.com/artifactory/github/opentofu/opentofu/releases/download/v1.6.0/tofu_1.6.0_linux_amd64.zip.
+- have at https://artifactory.example.com/artifactory/github/opentofu/opentofu/releases/download an html page with links on existing sub folder like "v1.6.0/"
+
+Example 1 : Retrieve Terraform binaries and list available releases from the mirror.
+
+```console
+TFENV_REMOTE=https://artifactory.example.com/artifactory/hashicorp
+TFENV_LIST_MODE=html
+```
+
+Example 2 : Retrieve Terraform binaries from the mirror and list available releases from the Hashicorp releases API.
+
+```console
+TFENV_REMOTE=https://artifactory.example.com/artifactory/hashicorp
+TFENV_LIST_URL=https://releases.hashicorp.com
+```
+
+Example 1 & 2, does not need install mode (by release index.json is figed in mirror without problem), however create a rewrite rule from "https://releases.hashicorp.com" to "https://artifactory.example.com/artifactory/hashicorp" to obtains correct download URLs.
+
+Example 3 : Retrieve OpenTofu binaries and list available releases from the mirror.
+
+```console
+TOFUENV_REMOTE=https://artifactory.example.com/artifactory/github
+TOFUENV_INSTALL_MODE=direct
+TOFUENV_LIST_MODE=html
+```
+
+Example 4 : Retrieve OpenTofu binaries from the mirror and list available releases from the GitHub API.
+
+```console
+TOFUENV_REMOTE=https://artifactory.example.com/artifactory/github
+TOFUENV_INSTALL_MODE=direct
+TOFUENV_LIST_URL=https://api.github.com/repos/opentofu/opentofu/releases
+```
+
+Exemple 3 & 4, does not create a rewrite rule (the direct install mode build correct download URLs).
+
+Exemple 1 & 4 can be merged in a remote.yaml :
+
+```yaml
+tofu:
+  url: "https://artifactory.example.com/artifactory/github"
+  install_mode: "direct"
+  list_mode: "https://api.github.com/repos/opentofu/opentofu/releases"
+terraform:
+  url: "https://artifactory.example.com/artifactory/hashicorp"
+  list_mode: "html"
+```
+
+</details>
+
 
 <a id="signature-support"></a>
 ### Signature support
