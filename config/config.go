@@ -22,7 +22,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 
 	"github.com/hashicorp/go-hclog"
@@ -133,7 +133,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	rootPath := getenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
-		rootPath = path.Join(userPath, ".tenv")
+		rootPath = filepath.Join(userPath, ".tenv")
 	}
 
 	quiet, err := getenvBoolFallback(false, tenvQuietEnvName)
@@ -166,7 +166,7 @@ func (conf *Config) InitRemoteConf() error {
 
 	remoteConfPath := conf.RemoteConfPath
 	if remoteConfPath == "" {
-		remoteConfPath = path.Join(conf.RootPath, "remote.yaml")
+		remoteConfPath = filepath.Join(conf.RootPath, "remote.yaml")
 	}
 
 	data, err := os.ReadFile(remoteConfPath)
