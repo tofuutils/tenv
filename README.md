@@ -925,7 +925,7 @@ Example 1 & 4 can be merged in a remote.yaml :
 tofu:
   url: "https://artifactory.example.com/artifactory/github"
   install_mode: "direct"
-  list_mode: "https://api.github.com/repos/opentofu/opentofu/releases"
+  list_url: "https://api.github.com/repos/opentofu/opentofu/releases"
 terraform:
   url: "https://artifactory.example.com/artifactory/hashicorp"
   list_mode: "html"
