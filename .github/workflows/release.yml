@@ -1,27 +1,35 @@
 ---
-name: 'Release'
+name: "Release"
 
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
+      - "v[0-9]+.[0-9]+.[0-9]+*"
 
 permissions:
   contents: write
 
 jobs:
   goreleaser:
-    name: 'Release the latest tag'
+    name: "Release the latest tag"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: 1.21
+
+      - name: Install Cosign
+        run: |
+          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
+          mv cosign-linux-amd64 /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:
