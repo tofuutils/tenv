@@ -214,3 +214,33 @@ brews:
     description: "OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)"
     license: "Apache-2.0"
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
+chocolateys:
+  - name: tenv
+    # Empty means all IDs.
+    ids: []
+    owners: tofuutils
+    title: tenv
+    authors: tofuutils
+    project_url: https://github.com/tofuutils/tenv
+    use: archive
+    url_template: https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    # App's icon.
+    icon_url: ""
+    copyright: 2024 tofuutils authors
+    license_url: https://github.com/tofuutils/tenv/blob/main/LICENSE
+    require_license_acceptance: false
+    project_source_url: https://github.com/tofuutils/tenv
+    docs_url: https://github.com/tofuutils/tenv/blob/main/README.md
+    tags: "terraform opentofu terragrunt tofuenv tfenv tenv"
+    summary: OpenTofu, Terraform and Terragrunt version manager, written in Go.
+    description: |
+      OpenTofu, Terraform and Terragrunt version manager, written in Go.
+    release_notes: "https://github.com/tofuutils/tenv/releases/tag/v{{ .Version }}"
+    dependencies:
+      - id: nfpm
+        version: 2.20.0
+    api_key: "{{ .Env.CHOCOLATEY_API_KEY }}"
+    source_repo: "https://push.chocolatey.org/"
+    skip_publish: false
+    goamd64: v1
