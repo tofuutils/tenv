@@ -1,5 +1,5 @@
 ---
-name: 'Release'
+name: "Release"
 
 on:
   release:
@@ -16,10 +16,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: 1.21
+
+      - name: Install Cosign
+        run: |
+          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
+          mv cosign-linux-amd64 /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
         with:

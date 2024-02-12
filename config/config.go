@@ -19,27 +19,42 @@
 package config
 
 import (
-	"fmt"
+	"errors"
+	"io/fs"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"gopkg.in/yaml.v3"
 )
 
 const (
+	TenvName       = "tenv"
+	TerraformName  = "terraform"
+	TerragruntName = "terragrunt"
+	TofuName       = "tofu"
+
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
 	installModeEnvName = "INSTALL_MODE"
 	listModeEnvName    = "LIST_MODE"
 	listURLEnvName     = "LIST_URL"
+	logEnvName         = "LOG"
+	quietEnvName       = "QUIET"
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
-	verboseEnvName     = "VERBOSE"
+	tokenEnvName       = "GITHUB_TOKEN" //nolint
 
-	tenvPrefix            = "TENV_"
-	tenvRemoteConfEnvName = tenvPrefix + "REMOTE_CONF"
-	tenvVerboseEnvName    = tenvPrefix + verboseEnvName
+	tenvPrefix             = "TENV_"
+	tenvAutoInstallEnvName = tenvPrefix + autoInstallEnvName
+	tenvForceRemoteEnvName = tenvPrefix + forceRemoteEnvName
+	tenvLogEnvName         = tenvPrefix + logEnvName
+	tenvQuietEnvName       = tenvPrefix + quietEnvName
+	tenvRemoteConfEnvName  = tenvPrefix + "REMOTE_CONF"
+	tenvRootPathEnvName    = tenvPrefix + rootPathEnvName
+	tenvTokenEnvName       = tenvPrefix + tokenEnvName
 
 	tfenvPrefix              = "TFENV_"
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
@@ -50,7 +65,6 @@ const (
 	tfListURLEnvName         = tfenvPrefix + listURLEnvName
 	TfRemoteURLEnvName       = tfenvPrefix + remoteURLEnvName
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
-	tfVerboseEnvName         = tfenvPrefix + verboseEnvName
 	TfVersionEnvName         = tfenvPrefix + "TERRAFORM_VERSION"
 
 	tgPrefix             = "TG_"
@@ -69,12 +83,15 @@ const (
 	tofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
 	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
-	tofuTokenEnvName          = tofuenvPrefix + "GITHUB_TOKEN"
-	tofuVerboseEnvName        = tofuenvPrefix + verboseEnvName
+	tofuTokenEnvName          = tofuenvPrefix + tokenEnvName
 	TofuVersionEnvName        = tofuenvPrefix + "TOFU_VERSION"
 )
 
 type Config struct {
+	AppLogger        hclog.Logger
+	DisplayNormal    bool
+	DisplayVerbose   bool
+	ForceQuiet       bool
 	ForceRemote      bool
 	GithubToken      string
 	NoInstall        bool
@@ -87,7 +104,6 @@ type Config struct {
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
-	Verbose          bool
 }
 
 func InitConfigFromEnv() (Config, error) {
@@ -96,29 +112,40 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
-	autoInstall, err := getenvBoolFallback(true, tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	logLevel := hclog.Warn
+	logLevelStr := os.Getenv(tenvLogEnvName)
+	if logLevelStr != "" {
+		logLevel = hclog.LevelFromString(logLevelStr)
+	}
+	appLogger := hclog.New(&hclog.LoggerOptions{
+		Name: TenvName, Level: logLevel,
+	})
+
+	autoInstall, err := getenvBoolFallback(true, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	forceRemote, err := getenvBoolFallback(false, tofuForceRemoteEnvName, tfForceRemoteEnvName)
+	forceRemote, err := getenvBoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	rootPath := getenvFallback(tofuRootPathEnvName, tfRootPathEnvName)
+	rootPath := getenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
-		rootPath = path.Join(userPath, ".tenv")
+		rootPath = filepath.Join(userPath, ".tenv")
 	}
 
-	verbose, err := getenvBoolFallback(false, tenvVerboseEnvName, tofuVerboseEnvName, tfVerboseEnvName)
+	quiet, err := getenvBoolFallback(false, tenvQuietEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
 	return Config{
+		AppLogger:      appLogger,
+		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
-		GithubToken:    os.Getenv(tofuTokenEnvName),
+		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),
 		NoInstall:      !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
@@ -128,42 +155,52 @@ func InitConfigFromEnv() (Config, error) {
 		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, defaultTofuGithubURL, baseGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
-		Verbose:        verbose,
 	}, nil
 }
 
-func (conf *Config) InitRemoteConf() {
+func (conf *Config) InitRemoteConf() error {
 	if conf.remoteConfLoaded {
-		return
+		return nil
 	}
 	conf.remoteConfLoaded = true
 
 	remoteConfPath := conf.RemoteConfPath
 	if remoteConfPath == "" {
-		remoteConfPath = path.Join(conf.RootPath, "remote.yaml")
+		remoteConfPath = filepath.Join(conf.RootPath, "remote.yaml")
 	}
 
 	data, err := os.ReadFile(remoteConfPath)
 	if err != nil {
-		if conf.Verbose {
-			fmt.Println("Can not read remote conf :", err) //nolint
+		if !errors.Is(err, fs.ErrNotExist) {
+			return err
 		}
+		conf.AppLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
 
-		return
+		return nil
 	}
 
 	var remoteConf map[string]map[string]string
 	if err = yaml.Unmarshal(data, &remoteConf); err != nil {
-		if conf.Verbose {
-			fmt.Println("Can not parse remote conf :", err) //nolint
-		}
-
-		return
+		return err
 	}
 
-	conf.Tf.Data = remoteConf["terraform"]
-	conf.Tg.Data = remoteConf["terragrunt"]
-	conf.Tofu.Data = remoteConf["tofu"]
+	conf.Tf.Data = remoteConf[TerraformName]
+	conf.Tg.Data = remoteConf[TerragruntName]
+	conf.Tofu.Data = remoteConf[TofuName]
+
+	return nil
+}
+
+func (conf *Config) LogLevelUpdate() {
+	if conf.ForceQuiet {
+		conf.DisplayVerbose = false
+		conf.AppLogger.SetLevel(hclog.Off)
+	} else {
+		conf.DisplayNormal = true
+		if conf.DisplayVerbose {
+			conf.AppLogger.SetLevel(hclog.Trace)
+		}
+	}
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {

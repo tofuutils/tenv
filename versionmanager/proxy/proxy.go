@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager"
@@ -35,8 +35,9 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 		os.Exit(1)
 	}
 
+	conf.LogLevelUpdate()
 	versionManager := builderFunc(&conf)
-	detectedVersion, err := versionManager.Detect()
+	detectedVersion, err := versionManager.Detect(true)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
@@ -44,7 +45,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 
 	cmdArgs := os.Args[1:]
 	// proxy to selected version
-	cmd := exec.Command(path.Join(versionManager.InstallPath(), detectedVersion, execName), cmdArgs...)
+	cmd := exec.Command(filepath.Join(versionManager.InstallPath(), detectedVersion, execName), cmdArgs...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

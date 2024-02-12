@@ -39,6 +39,7 @@ const (
 var version = "dev"
 
 type subCmdParams struct {
+	deprecated     bool
 	needToken      bool
 	remoteEnvName  string
 	pRemote        *string
@@ -60,30 +61,33 @@ func main() {
 
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:     "tenv",
+		Use:     config.TenvName,
 		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io/).",
 		Version: version,
 	}
 
 	flags := rootCmd.PersistentFlags()
-	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu and Terraform")
-	flags.BoolVarP(&conf.Verbose, "verbose", "v", conf.Verbose, "verbose output")
+	flags.BoolVarP(&conf.ForceQuiet, "quiet", "q", conf.ForceQuiet, "no unnecessary output (and no log)")
+	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu, Terraform and Terragrunt")
+	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", false, "verbose output (and set log level to Trace)")
 
 	rootCmd.AddCommand(newVersionCmd())
 	tofuParams := subCmdParams{
-		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
+		deprecated: true, // direct use should display a deprecation message
+		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
-	initSubCmds(rootCmd, conf, builder.BuildTofuManager(conf), tofuParams)
+	tofuManager := builder.BuildTofuManager(conf)
+	initSubCmds(rootCmd, conf, tofuManager, tofuParams)
 
 	// Add this in your main function, after the tfCmd and before the tgCmd
 	tofuCmd := &cobra.Command{
-		Use:   "tofu",
+		Use:   config.TofuName,
 		Short: tofuHelp,
 		Long:  tofuHelp,
 	}
-
-	initSubCmds(tofuCmd, conf, builder.BuildTofuManager(conf), tofuParams)
+	tofuParams.deprecated = false // usage with tofu subcommand are ok
+	initSubCmds(tofuCmd, conf, tofuManager, tofuParams)
 
 	rootCmd.AddCommand(tofuCmd)
 
@@ -124,7 +128,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println("tenv", version) //nolint
+			fmt.Println(config.TenvName, version) //nolint
 		},
 	}
 }
@@ -132,9 +136,9 @@ func newVersionCmd() *cobra.Command {
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) {
 	cmd.AddCommand(newDetectCmd(conf, versionManager, params))
 	cmd.AddCommand(newInstallCmd(conf, versionManager, params))
-	cmd.AddCommand(newListCmd(conf, versionManager))
+	cmd.AddCommand(newListCmd(conf, versionManager, params))
 	cmd.AddCommand(newListRemoteCmd(conf, versionManager, params))
-	cmd.AddCommand(newResetCmd(conf, versionManager))
-	cmd.AddCommand(newUninstallCmd(conf, versionManager))
+	cmd.AddCommand(newResetCmd(conf, versionManager, params))
+	cmd.AddCommand(newUninstallCmd(conf, versionManager, params))
 	cmd.AddCommand(newUseCmd(conf, versionManager, params))
 }

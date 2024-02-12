@@ -31,6 +31,8 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
+const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"
+
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Display ")
@@ -38,13 +40,22 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 	descBuilder.WriteString(" current version.")
 	detectHelp := descBuilder.String()
 
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Display ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" current version.")
+
 	detectCmd := &cobra.Command{
 		Use:   "detect",
 		Short: detectHelp,
-		Long:  detectHelp,
+		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			detectedVersion, err := versionManager.Detect()
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
+			detectedVersion, err := versionManager.Detect(false)
 			if err != nil {
 				return err
 			}
@@ -66,23 +77,26 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	shortMsg := descBuilder.String() + "."
+	descBuilder.WriteByte('.')
+	shortMsg := descBuilder.String()
 
-	descBuilder.WriteString(" (into TOFUENV_ROOT directory from ")
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Install a specific version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" (into TENV_ROOT directory from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
 	descBuilder.WriteString(versionManager.VersionEnvName)
-	descBuilder.WriteString(" or ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(` files
-(searched in working directory, user home directory and TOFUENV_ROOT directory).
-Use "latest-stable" when none are found.
+	descBuilder.WriteString(` or version files
+(searched in working directory, its parents, user home directory or TENV_ROOT directory).
+Use "latest" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
 - a version constraint string (checked against version available at `)
 	descBuilder.WriteString(params.remoteEnvName)
-	descBuilder.WriteString(" url)\n- latest or latest-stable (checked against version available at ")
+	descBuilder.WriteString(" url)\n- latest, latest-stable or latest-pre (checked against version available at ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url)\n- latest-allowed or min-required to scan your ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -94,6 +108,9 @@ If a parameter is passed, available options:
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
 			var requestedVersion string
 			if len(args) == 0 {
 				var err error
@@ -116,14 +133,18 @@ If a parameter is passed, available options:
 	return installCmd
 }
 
-func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions")
-	shortMsg := descBuilder.String() + "."
+	descBuilder.WriteString(" versions.")
+	shortMsg := descBuilder.String()
 
-	descBuilder.WriteString(" (located in TOFUENV_ROOT directory), sorted in ascending version order.")
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("List installed ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" versions (located in TENV_ROOT directory), sorted in ascending version order.")
 
 	reverseOrder := false
 
@@ -133,6 +154,9 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
 			versions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
 				return err
@@ -140,7 +164,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 			filePath := versionManager.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
-			if err != nil && conf.Verbose {
+			if err != nil && conf.DisplayVerbose {
 				fmt.Println("Can not read used version :", err) //nolint
 			}
 			usedVersion := string(bytes.TrimSpace(data))
@@ -152,7 +176,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 					fmt.Println(" ", version) //nolint
 				}
 			}
-			if conf.Verbose {
+			if conf.DisplayVerbose {
 				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.") //nolint
 			}
 
@@ -169,10 +193,14 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions")
-	shortMsg := descBuilder.String() + "."
+	descBuilder.WriteString(" versions.")
+	shortMsg := descBuilder.String()
 
-	descBuilder.WriteString(" (from ")
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("List installable ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" versions (from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url), sorted in ascending version order.")
 
@@ -185,6 +213,9 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
 			versions, err := versionManager.ListRemote(reverseOrder)
 			if err != nil {
 				return err
@@ -205,8 +236,8 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 					fmt.Println(version) //nolint
 				}
 			}
-			if conf.Verbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", *params.pRemote+").") //nolint
+			if conf.DisplayVerbose {
+				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", params.remoteEnvName+").") //nolint
 				if filterStable {
 					fmt.Println(countSkipped, "result(s) hidden (version not stable).") //nolint
 				}
@@ -224,15 +255,20 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	return listRemoteCmd
 }
 
-func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	shortMsg := descBuilder.String() + "."
+	descBuilder.WriteByte('.')
+	shortMsg := descBuilder.String()
 
-	descBuilder.WriteString(" (remove ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(" file from TOFUENV_ROOT).")
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Reset used version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" (remove TENV_ROOT/")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString("/version file).")
 
 	resetCmd := &cobra.Command{
 		Use:   "reset",
@@ -240,6 +276,9 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
 			return versionManager.Reset()
 		},
 	}
@@ -247,13 +286,18 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	return resetCmd
 }
 
-func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Uninstall a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	shortMsg := descBuilder.String() + "."
+	descBuilder.WriteByte('.')
+	shortMsg := descBuilder.String()
 
-	descBuilder.WriteString("(remove it from TOFUENV_ROOT directory).")
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Uninstall a specific version of ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" (remove it from TENV_ROOT directory).")
 
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
@@ -261,6 +305,9 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
 			return versionManager.Uninstall(args[0])
 		},
 	}
@@ -272,17 +319,21 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" version to use")
-	shortMsg := descBuilder.String() + "."
+	descBuilder.WriteString(" version to use.")
+	shortMsg := descBuilder.String()
 
-	descBuilder.WriteString(" (set in ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(` file in TOFUENV_ROOT)
+	descBuilder.Reset()
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Switch the default ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" version to use (set in TENV_ROOT/")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(`/version file)
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against version available in TOFUENV_ROOT directory)
-- latest or latest-stable (checked against version available in TOFUENV_ROOT directory)
+- a version constraint string (checked against version available in TENV_ROOT directory)
+- latest, latest-stable or latest-pre (checked against version available in TENV_ROOT directory)
 - latest-allowed or min-required to scan your `)
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
@@ -295,6 +346,9 @@ Available parameter options:
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
+			conf.LogLevelUpdate()
+			addDeprecationMsg(conf, params)
+
 			return versionManager.Use(args[0], workingDir)
 		},
 	}
@@ -311,6 +365,18 @@ Available parameter options:
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
+}
+
+func addDeprecationHelpMsg(descBuilder *strings.Builder, params subCmdParams) {
+	if params.deprecated {
+		descBuilder.WriteString(deprecationMsg)
+	}
+}
+
+func addDeprecationMsg(conf *config.Config, params subCmdParams) {
+	if conf.DisplayNormal && params.deprecated {
+		fmt.Print(deprecationMsg) //nolint
+	}
 }
 
 func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {

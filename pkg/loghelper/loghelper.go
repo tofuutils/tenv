@@ -16,14 +16,16 @@
  *
  */
 
-package main
+package loghelper
 
-import (
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/versionmanager/builder"
-	"github.com/tofuutils/tenv/versionmanager/proxy"
-)
+import "github.com/hashicorp/go-hclog"
 
-func main() {
-	proxy.ExecProxy(builder.BuildTgManager, config.TerragruntName)
+const Error = "error"
+
+func LevelWarnOrDebug(debug bool) hclog.Level {
+	if debug {
+		return hclog.Debug
+	}
+
+	return hclog.Warn
 }

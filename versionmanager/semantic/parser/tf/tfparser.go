@@ -25,6 +25,8 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 )
@@ -54,8 +56,8 @@ func init() {
 	}
 }
 
-func GatherRequiredVersion(verbose bool) ([]string, error) {
-	if verbose {
+func GatherRequiredVersion(conf *config.Config) ([]string, error) {
+	if conf.DisplayNormal {
 		fmt.Println("Scan project to find .tf files") //nolint
 	}
 
@@ -89,7 +91,7 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 				return nil
 			}
 
-			extracted := extractRequiredVersion(parsedFile.Body, verbose)
+			extracted := extractRequiredVersion(parsedFile.Body, conf)
 			requireds = append(requireds, extracted...)
 
 			return nil
@@ -98,23 +100,21 @@ func GatherRequiredVersion(verbose bool) ([]string, error) {
 		return nil
 	})
 
-	if verbose {
+	if conf.AppLogger.IsDebug() {
 		if len(foundFiles) == 0 {
-			fmt.Println("No .tf file found") //nolint
+			conf.AppLogger.Debug("No .tf file found")
 		} else {
-			fmt.Println("Read :", foundFiles) //nolint
+			conf.AppLogger.Debug("Read", "filePaths", foundFiles)
 		}
 	}
 
 	return requireds, err
 }
 
-func extractRequiredVersion(body hcl.Body, verbose bool) []string {
+func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 	rootContent, _, diags := body.PartialContent(terraformPartialSchema)
 	if diags.HasErrors() {
-		if verbose {
-			fmt.Println("Failed to parse tf file :", diags) //nolint
-		}
+		conf.AppLogger.Warn("Failed to parse tf file", loghelper.Error, diags)
 
 		return nil
 	}
@@ -123,9 +123,7 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 	for _, block := range rootContent.Blocks {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
-			if verbose {
-				fmt.Println("Failed to parse tf block :", diags) //nolint
-			}
+			conf.AppLogger.Warn("Failed to parse tf block", loghelper.Error, diags)
 
 			return nil
 		}
@@ -137,34 +135,26 @@ func extractRequiredVersion(body hcl.Body, verbose bool) []string {
 
 		val, diags := attr.Expr.Value(nil)
 		if diags.HasErrors() {
-			if verbose {
-				fmt.Println("Failures parsing tf attribute :", diags) //nolint
-			}
+			conf.AppLogger.Warn("Failures parsing tf attribute", loghelper.Error, diags)
 
 			return nil
 		}
 
 		val, err := convert.Convert(val, cty.String)
 		if err != nil {
-			if verbose {
-				fmt.Println("Failed to convert tf attribute :", err) //nolint
-			}
+			conf.AppLogger.Warn("Failed to convert tf attribute", loghelper.Error, err)
 
 			return nil
 		}
 
 		if val.IsNull() {
-			if verbose {
-				fmt.Println("Empty tf attribute") //nolint
-			}
+			conf.AppLogger.Debug("Empty tf attribute")
 
 			continue
 		}
 
 		if !val.IsWhollyKnown() {
-			if verbose {
-				fmt.Println("Unknown tf attribute") //nolint
-			}
+			conf.AppLogger.Warn("Unknown tf attribute")
 
 			continue
 		}
