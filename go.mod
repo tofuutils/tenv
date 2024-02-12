@@ -6,6 +6,8 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/ProtonMail/gopenpgp/v2 v2.7.4
 	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/fatih/color v1.16.0
+	github.com/hashicorp/go-hclog v1.6.2
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/spf13/cobra v1.8.0
@@ -27,6 +29,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

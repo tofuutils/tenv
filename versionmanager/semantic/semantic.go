@@ -21,6 +21,7 @@ package semantic
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
@@ -76,8 +77,8 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 			}
 		}
 
-		if conf.Verbose {
-			fmt.Println("No", displayName, "version requirement found in files, fallback to latest strategy") //nolint
+		if conf.DisplayNormal {
+			fmt.Println("No", displayName, "version requirement found in project files, fallback to", color.GreenString(LatestKey), "strategy") //nolint
 		}
 
 		return StableVersion, true, nil // erase min-required case
@@ -130,7 +131,7 @@ func readPredicate(constraintRetriever func(*config.Config) (string, error), con
 
 // the boolean returned as second value indicates if a predicate was found.
 func readTfFiles(conf *config.Config) (func(string) bool, bool, error) {
-	requireds, err := tfparser.GatherRequiredVersion(conf.Verbose)
+	requireds, err := tfparser.GatherRequiredVersion(conf)
 	if err != nil {
 		return nil, false, err
 	}

@@ -35,7 +35,6 @@ import (
 const (
 	baseFileName  = "terragrunt_"
 	gruntworkName = "gruntwork-io"
-	Name          = "terragrunt"
 )
 
 type TerragruntRetriever struct {
@@ -47,7 +46,10 @@ func NewTerragruntRetriever(conf *config.Config) *TerragruntRetriever {
 }
 
 func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath string) error {
-	r.conf.InitRemoteConf()
+	err := r.conf.InitRemoteConf()
+	if err != nil {
+		return err
+	}
 
 	tag := versionStr
 	// assume that terragrunt tags start with a 'v'
@@ -55,18 +57,17 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		tag = "v" + versionStr
 	}
 
-	var err error
 	var assetURLs []string
 	fileName, shaFileName := buildAssetNames()
 	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, Name, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Verbose)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.DisplayNormal)
 	}
 	if err != nil {
 		return err
@@ -78,12 +79,12 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Verbose)
+	data, err := download.Bytes(assetURLs[0], r.conf.DisplayNormal)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Verbose)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.DisplayNormal)
 	if err != nil {
 		return err
 	}
@@ -97,22 +98,25 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, Name), data, 0755)
+	return os.WriteFile(filepath.Join(targetPath, config.TerragruntName), data, 0755)
 }
 
 func (r *TerragruntRetriever) ListReleases() ([]string, error) {
-	r.conf.InitRemoteConf()
+	err := r.conf.InitRemoteConf()
+	if err != nil {
+		return nil, err
+	}
 
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(r.conf.Tg.GetListURL(), gruntworkName, Name, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(r.conf.Tg.GetListURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.Verbose)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.DisplayNormal)
 	}
 
-	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Verbose)
+	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.DisplayNormal)
 }
 
 func buildAssetNames() (string, string) {

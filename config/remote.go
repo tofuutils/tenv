@@ -30,19 +30,20 @@ const (
 )
 
 type RemoteConfig struct {
-	Data           map[string]string
+	Data           map[string]string // values from conf file
 	defaultBaseURL string
 	defaultURL     string
-	installMode    string
-	listMode       string
-	listURL        string
-	RemoteURL      string
+	installMode    string // value from env
+	listMode       string // value from env
+	listURL        string // value from env
+	RemoteURL      string // value from flag
+	RemoteURLEnv   string // value from env
 }
 
 func makeRemoteConfig(remoteURLEnvName string, listURLEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
 	return RemoteConfig{
 		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, installMode: os.Getenv(installModeEnvName), listMode: os.Getenv(listModeEnvName),
-		listURL: os.Getenv(listURLEnvName), RemoteURL: os.Getenv(remoteURLEnvName),
+		listURL: os.Getenv(listURLEnvName), RemoteURLEnv: os.Getenv(remoteURLEnvName),
 	}
 }
 
@@ -59,7 +60,11 @@ func (r RemoteConfig) GetListURL() string {
 }
 
 func (r RemoteConfig) GetRemoteURL() string {
-	return r.getValueForcedDefault("url", r.RemoteURL, r.defaultURL)
+	if r.RemoteURL != "" {
+		return r.RemoteURL
+	}
+
+	return r.getValueForcedDefault("url", r.RemoteURLEnv, r.defaultURL)
 }
 
 func (r RemoteConfig) GetRewriteRule() []string {
@@ -109,14 +114,6 @@ func (r RemoteConfig) GetRewriteRule() []string {
 	return []string{oldBase, newBase}
 }
 
-func MapGetDefault(m map[string]string, key string, defaultValue string) string {
-	if value := m[key]; value != "" {
-		return value
-	}
-
-	return defaultValue
-}
-
 func (r RemoteConfig) getValueForced(name string, forcedValue string) string {
 	if forcedValue != "" {
 		return forcedValue
@@ -131,4 +128,12 @@ func (r RemoteConfig) getValueForcedDefault(name string, forcedValue string, def
 	}
 
 	return MapGetDefault(r.Data, name, defaultValue)
+}
+
+func MapGetDefault(m map[string]string, key string, defaultValue string) string {
+	if value := m[key]; value != "" {
+		return value
+	}
+
+	return defaultValue
 }

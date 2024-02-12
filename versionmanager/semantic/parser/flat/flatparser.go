@@ -20,16 +20,20 @@ package flatparser
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
+
+	"github.com/fatih/color"
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
-func RetrieveVersion(filePath string, verbose bool) (string, error) {
+func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		if verbose {
-			fmt.Println("Failed to read file :", err) //nolint
-		}
+		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
 
 		return "", nil
 	}
@@ -38,8 +42,8 @@ func RetrieveVersion(filePath string, verbose bool) (string, error) {
 	if resolvedVersion == "" {
 		return "", nil
 	}
-	if verbose {
-		fmt.Println("Resolved version from", filePath, ":", resolvedVersion) //nolint
+	if conf.DisplayNormal {
+		fmt.Println("Resolved version from", filePath, ":", color.GreenString(resolvedVersion)) //nolint
 	}
 
 	return resolvedVersion, nil
