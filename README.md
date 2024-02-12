@@ -146,7 +146,7 @@ You can use dockerized version of tenv via the following command:
 ```sh
 docker run -v ${HOME}/.tenv:/.tenv -u $(id -u) ghcr.io/tofuutils/tenv:latest -r /.tenv help
 ```
-
+The docker container is not meant as a way to run tenv for CI pipelines, for local use, you should use one of the [packaged binaries](#manual-installation).
 <a id="usage"></a>
 
 ## Usage
