@@ -223,7 +223,6 @@ chocolateys:
     title: tenv
     authors: tofuutils
     project_url: https://github.com/tofuutils/tenv
-    use: archive
     url_template: https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     # App's icon.
     icon_url: ""
