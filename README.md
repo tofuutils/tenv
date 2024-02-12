@@ -144,7 +144,7 @@ Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `
 You can use dockerized version of tenv via the following command:
 
 ```sh
-docker run -v ${HOME}/.tenv:/.tenv -u $(id -u) ghcr.io/tofuutils/tenv:latest -r /.tenv help
+docker run --rm --it ghcr.io/tofuutils/tenv:latest help
 ```
 The docker container is not meant as a way to run tenv for CI pipelines, for local use, you should use one of the [packaged binaries](#manual-installation).
 <a id="usage"></a>
