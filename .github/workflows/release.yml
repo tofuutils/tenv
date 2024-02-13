@@ -6,13 +6,12 @@ on:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+*"
 
-permissions:
-  contents: write
-
 jobs:
   goreleaser:
-    name: "Release the latest tag"
+    name: 'Build and release packages'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,3 +37,56 @@ jobs:
           args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
+  docker-ghcr:
+    name: 'Build and release docker image to github container registry'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: lowercase
+        id: lowercase
+        run: echo "actor=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ghcr.io/${{ steps.lowercase.outputs.actor }}/tenv:${{ github.ref_name }}, ghcr.io/${{ steps.lowercase.outputs.actor }}/tenv:latest
+  docker-dockerhub:
+    name: 'Build and release docker image to dockerhub'
+    runs-on: ubuntu-latest
+    env:
+      registry_url: "registry.hub.docker.com"
+      image_repo: "tofuutils/tenv"
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.registry_url }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.registry_url }}/${{ env.image_repo }}:latest, ${{ env.registry_url }}/${{ env.image_repo }}:${{ github.ref_name }}
