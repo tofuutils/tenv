@@ -139,15 +139,19 @@ sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
 Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
 
 <a id="docker-installation"></a>
+
 #### Docker Installation
-You can use dockerized version of tenv via the following commands:
+
+You can use dockerized version of tenv via the following command:
 
 ```sh
-TODO
+docker run --rm --it ghcr.io/tofuutils/tenv:latest help
 ```
-
+The docker container is not meant as a way to run tenv for CI pipelines, for local use, you should use one of the [packaged binaries](#manual-installation).
 <a id="usage"></a>
+
 ## Usage
+
 **tenv** supports [OpenTofu](https://opentofu.org), [Terragrunt](https://terragrunt.gruntwork.io/) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
 | tool   | env vars                   | description                                    |
