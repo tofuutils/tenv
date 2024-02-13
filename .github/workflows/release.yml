@@ -56,14 +56,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: lowercase
-        id: lowercase
-        run: echo "actor=$(echo ${{ github.actor }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       - name: Build and push docker image
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ghcr.io/${{ steps.lowercase.outputs.actor }}/tenv:${{ github.ref_name }}, ghcr.io/${{ steps.lowercase.outputs.actor }}/tenv:latest
+          tags: ghcr.io/tofuutils/tenv:${{ github.ref_name }}, ghcr.io/tofuutils/tenv:latest
   docker-dockerhub:
     name: 'Build and release docker image to dockerhub'
     runs-on: ubuntu-latest
