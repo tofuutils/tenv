@@ -43,7 +43,7 @@ func TestCosignCheckCorrect(t *testing.T) {
 	t.Parallel()
 
 	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer); err != nil {
-		t.Error("Unexpected error : ", err)
+		t.Error("Unexpected error :", err)
 	}
 }
 

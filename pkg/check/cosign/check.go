@@ -22,9 +22,13 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"strings"
 )
 
-const cosignExecName = "cosign"
+const (
+	cosignExecName = "cosign"
+	verified       = "Verified OK\n"
+)
 
 var (
 	ErrCheck        = errors.New("cosign check failed")
@@ -61,7 +65,13 @@ func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, ce
 	}
 	cmd := exec.Command(cosignExecName, cmdArgs...)
 
-	if err = cmd.Run(); err != nil {
+	var returnedDataBuffer strings.Builder
+	cmd.Stdout = &returnedDataBuffer
+	cmd.Stderr = &returnedDataBuffer
+
+	cmd.Run()
+	returnedData := returnedDataBuffer.String()
+	if returnedData != verified {
 		return ErrCheck
 	}
 
