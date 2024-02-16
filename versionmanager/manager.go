@@ -259,7 +259,7 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
-			alreadyMsg := fmt.Sprintln(m.FolderName, version, "already installed")
+			alreadyMsg := fmt.Sprint(m.FolderName, version, "already installed")
 			if proxyCall {
 				m.conf.AppLogger.Debug(alreadyMsg)
 			} else {
