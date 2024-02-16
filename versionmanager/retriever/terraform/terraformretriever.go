@@ -92,7 +92,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 			return err
 		}
 
-		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, runtime.GOARCH, value)
+		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, r.conf.Arch, value)
 		if err != nil {
 			return err
 		}
