@@ -19,7 +19,6 @@
 package tofuretriever
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"runtime"
@@ -84,7 +83,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.DisplayNormal)
+		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Display)
 	}
 	if err != nil {
 		return err
@@ -96,7 +95,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.DisplayNormal)
+	data, err := download.Bytes(assetURLs[0], r.conf.Display)
 	if err != nil {
 		return err
 	}
@@ -120,14 +119,14 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data, r.conf.DisplayNormal)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data, r.conf.Display)
 	}
 
-	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.DisplayNormal)
+	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Display)
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.DisplayNormal)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Display)
 	if err != nil {
 		return err
 	}
@@ -136,12 +135,12 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.DisplayNormal)
+	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.Display)
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.DisplayNormal)
+	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.Display)
 	if err != nil {
 		return err
 	}
@@ -153,25 +152,21 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 	}
 
 	if !stable {
-		if r.conf.DisplayNormal {
-			fmt.Println("skip signature check : cosign executable not found and pgp check not available for unstable version") //nolint
-		}
+		r.conf.Display("skip signature check : cosign executable not found and pgp check not available for unstable version")
 
 		return nil
 	}
 
-	if r.conf.DisplayNormal {
-		fmt.Println("cosign executable not found, fallback to pgp check") //nolint
-	}
+	r.conf.Display("cosign executable not found, fallback to pgp check")
 
-	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.DisplayNormal)
+	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.Display)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.DisplayNormal)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Display)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}
