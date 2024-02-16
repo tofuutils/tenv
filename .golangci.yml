@@ -28,7 +28,7 @@ linters:
     - ifshort # deprecated
     - maligned # deprecated
     - golint # deprecated
-    - interfacer  #deprecated
+    - interfacer #deprecated
     - scopelint # deprecated
     - exhaustivestruct # deprecated
 

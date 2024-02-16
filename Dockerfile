@@ -28,10 +28,10 @@ COPY ./go.mod ./go.sum ${GOPATH}/src/github.com/tofuutils/tenv/
 
 WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
 RUN go get -u ./cmd/tenv \
- && go get -u ./cmd/tofu \
- && go get -u ./cmd/terraform \
- && go get -u ./cmd/terragrunt \
- && go mod tidy
+    && go get -u ./cmd/tofu \
+    && go get -u ./cmd/terraform \
+    && go get -u ./cmd/terragrunt \
+    && go mod tidy
 
 RUN go build -ldflags="-s -w" -o tenv ./cmd/tenv
 RUN go build -ldflags="-s -w" -o tofu ./cmd/tofu
