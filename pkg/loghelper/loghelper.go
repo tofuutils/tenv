@@ -35,7 +35,7 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	return hclog.Warn
 }
 
-func NoDisplay(a ...any) {}
+func NoDisplay(...any) {}
 
 func StdErrDisplay(a ...any) {
 	fmt.Fprintln(os.Stderr, a...)
