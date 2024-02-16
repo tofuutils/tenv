@@ -21,7 +21,6 @@ package github
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -41,15 +40,13 @@ const (
 
 var errContinue = errors.New("continue")
 
-func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, verbose bool) ([]string, error) {
+func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(...any)) ([]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
 	}
 
-	if verbose {
-		fmt.Println(apimsg.MsgFetchRelease, releaseUrl) //nolint
-	}
+	display(apimsg.MsgFetchRelease, releaseUrl)
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 	value, err := apiGetRequest(releaseUrl, authorizationHeader)
@@ -93,10 +90,8 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	}
 }
 
-func ListReleases(githubReleaseURL string, githubToken string, verbose bool) ([]string, error) {
-	if verbose {
-		fmt.Println(apimsg.MsgFetchAllReleases, githubReleaseURL) //nolint
-	}
+func ListReleases(githubReleaseURL string, githubToken string, display func(...any)) ([]string, error) {
+	display(apimsg.MsgFetchAllReleases, githubReleaseURL)
 
 	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)

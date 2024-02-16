@@ -19,8 +19,6 @@
 package semantic
 
 import (
-	"fmt"
-
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
@@ -77,9 +75,7 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 			}
 		}
 
-		if conf.DisplayNormal {
-			fmt.Println("No", displayName, "version requirement found in project files, fallback to", color.GreenString(LatestKey), "strategy") //nolint
-		}
+		conf.Display("No", displayName, "version requirement found in project files, fallback to", color.GreenString(LatestKey), "strategy")
 
 		return StableVersion, true, nil // erase min-required case
 	case LatestKey, LatestStableKey:

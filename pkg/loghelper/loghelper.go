@@ -18,7 +18,12 @@
 
 package loghelper
 
-import "github.com/hashicorp/go-hclog"
+import (
+	"fmt"
+	"os"
+
+	"github.com/hashicorp/go-hclog"
+)
 
 const Error = "error"
 
@@ -28,4 +33,10 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	}
 
 	return hclog.Warn
+}
+
+func NoDisplay(a ...any) {}
+
+func StdErrDisplay(a ...any) {
+	fmt.Fprintln(os.Stderr, a...) //nolint
 }

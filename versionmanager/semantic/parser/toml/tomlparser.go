@@ -20,7 +20,6 @@ package tomlparser
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 
@@ -49,9 +48,7 @@ func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	if resolvedVersion == "" {
 		return "", nil
 	}
-	if conf.DisplayNormal {
-		fmt.Println("Resolved version from", filePath, ":", color.GreenString(resolvedVersion)) //nolint
-	}
+	conf.Display("Resolved version from", filePath, ":", color.GreenString(resolvedVersion))
 
 	return resolvedVersion, nil
 }

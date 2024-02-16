@@ -19,7 +19,6 @@
 package download
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -39,10 +38,8 @@ func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ..
 	return transformedURLs, nil
 }
 
-func Bytes(url string, verbose bool) ([]byte, error) {
-	if verbose {
-		fmt.Println("Downloading", url) //nolint
-	}
+func Bytes(url string, display func(...any)) ([]byte, error) {
+	display("Downloading", url)
 
 	response, err := http.Get(url) //nolint
 	if err != nil {
