@@ -58,7 +58,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	}
 
 	var assetURLs []string
-	fileName, shaFileName := buildAssetNames()
+	fileName, shaFileName := buildAssetNames(r.conf.Arch)
 	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
@@ -119,12 +119,12 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Display)
 }
 
-func buildAssetNames() (string, string) {
+func buildAssetNames(arch string) (string, string) {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
-	nameBuilder.WriteString(runtime.GOARCH)
+	nameBuilder.WriteString(arch)
 	if runtime.GOOS == "windows" {
 		nameBuilder.WriteString(".exe")
 	}
