@@ -19,7 +19,6 @@
 package htmlretriever
 
 import (
-	"fmt"
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
@@ -43,10 +42,8 @@ func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error)
 	return download.ApplyUrlTranformer(joinTransformer, assetNames...)
 }
 
-func ListReleases(baseURL string, remoteConf map[string]string, verbose bool) ([]string, error) {
-	if verbose {
-		fmt.Println(apimsg.MsgFetchAllReleases, baseURL) //nolint
-	}
+func ListReleases(baseURL string, remoteConf map[string]string, display func(...any)) ([]string, error) {
+	display(apimsg.MsgFetchAllReleases, baseURL)
 
 	selector := config.MapGetDefault(remoteConf, "selector", "a")
 	extractor := htmlquery.SelectionExtractor(config.MapGetDefault(remoteConf, "part", "href"))

@@ -374,8 +374,8 @@ func addDeprecationHelpMsg(descBuilder *strings.Builder, params subCmdParams) {
 }
 
 func addDeprecationMsg(conf *config.Config, params subCmdParams) {
-	if conf.DisplayNormal && params.deprecated {
-		fmt.Print(deprecationMsg) //nolint
+	if params.deprecated {
+		conf.Display(deprecationMsg)
 	}
 }
 

@@ -95,7 +95,7 @@ const (
 type Config struct {
 	AppLogger        hclog.Logger
 	Arch             string
-	DisplayNormal    bool
+	Display          func(...any)
 	DisplayVerbose   bool
 	ForceQuiet       bool
 	ForceRemote      bool
@@ -205,10 +205,11 @@ func (conf *Config) InitRemoteConf() error {
 
 func (conf *Config) LogLevelUpdate() {
 	if conf.ForceQuiet {
+		conf.Display = loghelper.NoDisplay
 		conf.DisplayVerbose = false
 		conf.AppLogger.SetLevel(hclog.Off)
 	} else {
-		conf.DisplayNormal = true
+		conf.Display = loghelper.StdErrDisplay
 		if conf.DisplayVerbose {
 			conf.AppLogger.SetLevel(hclog.Trace)
 		}
