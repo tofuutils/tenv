@@ -385,6 +385,17 @@ Global Flags:
 <a id="tenv-vars"></a>
 ### Global tenv environment variables
 
+<details><summary><b>TENV_ARCH</b></summary><br>
+
+String (Default: current tenv binaries architecture)
+
+Allow to override the default architecture for binaries downloading during installation.
+
+`tenv <tool>` subcommands `detect`, `install` and `use` support a `--arch`, `-a`  flag version.
+
+</details>
+
+
 <details><summary><b>TENV_AUTO_INSTALL</b></summary><br>
 
 String (Default: true)
@@ -464,6 +475,13 @@ The path to a directory where the local OpenTofu versions, Terraform versions, T
 
 <a id="tofu-env-vars"></a>
 ### OpenTofu environment variables
+
+<details><summary><b>TOFUENV_ARCH</b></summary><br>
+
+Same as TENV_ARCH (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
+
+</details>
+
 
 <details><summary><b>TOFUENV_AUTO_INSTALL</b></summary><br>
 
@@ -594,6 +612,13 @@ on linux_amd64
 
 <a id="tf-env-vars"></a>
 ### Terraform environment variables
+
+<details><summary><b>TFENV_ARCH</b></summary><br>
+
+Same as TENV_ARCH (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
+
+</details>
+
 
 <details><summary><b>TFENV_AUTO_INSTALL</b></summary><br>
 

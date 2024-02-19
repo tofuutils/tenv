@@ -23,6 +23,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 
 	"github.com/hashicorp/go-hclog"
@@ -36,6 +37,7 @@ const (
 	TerragruntName = "terragrunt"
 	TofuName       = "tofu"
 
+	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
 	forceRemoteEnvName = "FORCE_REMOTE"
 	installModeEnvName = "INSTALL_MODE"
@@ -48,6 +50,7 @@ const (
 	tokenEnvName       = "GITHUB_TOKEN" //nolint
 
 	tenvPrefix             = "TENV_"
+	tenvArchEnvName        = tenvPrefix + archEnvName
 	tenvAutoInstallEnvName = tenvPrefix + autoInstallEnvName
 	tenvForceRemoteEnvName = tenvPrefix + forceRemoteEnvName
 	tenvLogEnvName         = tenvPrefix + logEnvName
@@ -57,6 +60,7 @@ const (
 	tenvTokenEnvName       = tenvPrefix + tokenEnvName
 
 	tfenvPrefix              = "TFENV_"
+	tfArchEnvName            = tfenvPrefix + archEnvName
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
 	tfForceRemoteEnvName     = tfenvPrefix + forceRemoteEnvName
 	tfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
@@ -75,6 +79,7 @@ const (
 	TgVersionEnvName     = tgPrefix + "VERSION"
 
 	tofuenvPrefix             = "TOFUENV_"
+	tofuArchEnvName           = tofuenvPrefix + archEnvName
 	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
 	tofuForceRemoteEnvName    = tofuenvPrefix + forceRemoteEnvName
 	tofuInstallModeEnvName    = tofuenvPrefix + installModeEnvName
@@ -89,6 +94,7 @@ const (
 
 type Config struct {
 	AppLogger        hclog.Logger
+	Arch             string
 	Display          func(...any)
 	DisplayVerbose   bool
 	ForceQuiet       bool
@@ -121,6 +127,11 @@ func InitConfigFromEnv() (Config, error) {
 		Name: TenvName, Level: logLevel,
 	})
 
+	arch := getenvFallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
+	if arch == "" {
+		arch = runtime.GOARCH
+	}
+
 	autoInstall, err := getenvBoolFallback(true, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
 		return Config{}, err
@@ -143,6 +154,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	return Config{
 		AppLogger:      appLogger,
+		Arch:           arch,
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),

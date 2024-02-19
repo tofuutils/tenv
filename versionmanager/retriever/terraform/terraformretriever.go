@@ -69,7 +69,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
 	if r.conf.Tf.GetInstallMode() == htmlretriever.InstallModeDirect {
-		fileName, shaFileName, shaSigFileName = buildAssetNames(version)
+		fileName, shaFileName, shaSigFileName = buildAssetNames(version, r.conf.Arch)
 		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, fileName, shaFileName, shaSigFileName)
 		if err != nil {
 			return err
@@ -89,7 +89,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 			return err
 		}
 
-		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, runtime.GOARCH, value)
+		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, r.conf.Arch, value)
 		if err != nil {
 			return err
 		}
@@ -197,7 +197,7 @@ func apiGetRequest(callURL string) (any, error) {
 	return value, err
 }
 
-func buildAssetNames(version string) (string, string, string) {
+func buildAssetNames(version string, arch string) (string, string, string) {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(version)
@@ -206,7 +206,7 @@ func buildAssetNames(version string) (string, string, string) {
 
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
-	nameBuilder.WriteString(runtime.GOARCH)
+	nameBuilder.WriteString(arch)
 	nameBuilder.WriteString(".zip")
 
 	return nameBuilder.String(), sumsAssetName, sumsAssetName + ".sig"

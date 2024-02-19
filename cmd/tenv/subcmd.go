@@ -66,9 +66,9 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 	}
 
 	flags := detectCmd.Flags()
-	addForceRemoteAndNoInstallFlags(flags, conf, params)
-	addKeyFlag(flags, params)
-	addRemoteUrlFlag(flags, conf, params)
+	addInstallationFlags(flags, conf, params)
+	addOptionalInstallationFlags(flags, conf, params)
+	addRemoteFlags(flags, conf, params)
 
 	return detectCmd
 }
@@ -127,8 +127,8 @@ If a parameter is passed, available options:
 	}
 
 	flags := installCmd.Flags()
-	addKeyFlag(flags, params)
-	addRemoteUrlFlag(flags, conf, params)
+	addInstallationFlags(flags, conf, params)
+	addRemoteFlags(flags, conf, params)
 
 	return installCmd
 }
@@ -249,7 +249,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 	flags := listRemoteCmd.Flags()
 	addDescendingFlag(flags, &reverseOrder)
-	addRemoteUrlFlag(flags, conf, params)
+	addRemoteFlags(flags, conf, params)
 	flags.BoolVarP(&filterStable, "stable", "s", false, "display only stable version")
 
 	return listRemoteCmd
@@ -359,9 +359,9 @@ Available parameter options:
 	descBuilder.WriteString(" file in working directory")
 
 	flags := useCmd.Flags()
-	addForceRemoteAndNoInstallFlags(flags, conf, params)
-	addKeyFlag(flags, params)
-	addRemoteUrlFlag(flags, conf, params)
+	addInstallationFlags(flags, conf, params)
+	addOptionalInstallationFlags(flags, conf, params)
+	addRemoteFlags(flags, conf, params)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
 
 	return useCmd
@@ -383,7 +383,14 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 	flags.BoolVarP(pReverseOrder, "descending", "d", false, "display list in descending version order")
 }
 
-func addForceRemoteAndNoInstallFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
+func addInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
+	flags.StringVarP(&conf.Arch, "arch", "a", conf.Arch, "specify arch for binaries downloading")
+	if params.pPublicKeyPath != nil {
+		flags.StringVarP(params.pPublicKeyPath, "key-file", "k", "", "local path to PGP public key file (replace check against remote one)")
+	}
+}
+
+func addOptionalInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("force search on versions available at ")
 	descBuilder.WriteString(params.remoteEnvName)
@@ -393,13 +400,7 @@ func addForceRemoteAndNoInstallFlags(flags *pflag.FlagSet, conf *config.Config, 
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 }
 
-func addKeyFlag(flags *pflag.FlagSet, params subCmdParams) {
-	if params.pPublicKeyPath != nil {
-		flags.StringVarP(params.pPublicKeyPath, "key-file", "k", "", "local path to PGP public key file (replace check against remote one)")
-	}
-}
-
-func addRemoteUrlFlag(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
+func addRemoteFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
 	flags.StringVarP(&conf.RemoteConfPath, "remote-conf", "c", conf.RemoteConfPath, "path to remote configuration file (advanced settings)")
 	if params.needToken {
 		flags.StringVarP(&conf.GithubToken, "github-token", "t", conf.GithubToken, "GitHub token (increases GitHub REST API rate limits)")
