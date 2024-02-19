@@ -75,7 +75,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	stable := v.Prerelease() == ""
 
 	var assetURLs []string
-	assetNames := buildAssetNames(versionStr, stable)
+	assetNames := buildAssetNames(versionStr, r.conf.Arch, stable)
 	if r.conf.Tofu.GetInstallMode() == htmlretriever.InstallModeDirect {
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
@@ -183,7 +183,7 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
 }
 
-func buildAssetNames(version string, stable bool) []string {
+func buildAssetNames(version string, arch string, stable bool) []string {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(version)
@@ -192,7 +192,7 @@ func buildAssetNames(version string, stable bool) []string {
 
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
-	nameBuilder.WriteString(runtime.GOARCH)
+	nameBuilder.WriteString(arch)
 	nameBuilder.WriteString(".zip")
 
 	if stable {
