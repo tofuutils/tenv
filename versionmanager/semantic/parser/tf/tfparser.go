@@ -19,7 +19,6 @@
 package tfparser
 
 import (
-	"fmt"
 	"io/fs"
 	"path/filepath"
 
@@ -57,9 +56,7 @@ func init() {
 }
 
 func GatherRequiredVersion(conf *config.Config) ([]string, error) {
-	if conf.DisplayNormal {
-		fmt.Println("Scan project to find .tf files") //nolint
-	}
+	conf.Display("Scan project to find .tf files")
 
 	var requireds []string
 	var foundFiles []string

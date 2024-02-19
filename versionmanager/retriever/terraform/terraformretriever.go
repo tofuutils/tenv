@@ -20,7 +20,6 @@ package terraformretriever
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -83,9 +82,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 			return err
 		}
 
-		if r.conf.DisplayNormal {
-			fmt.Println(apimsg.MsgFetchRelease, versionUrl) //nolint
-		}
+		r.conf.Display(apimsg.MsgFetchRelease, versionUrl)
 
 		value, err := apiGetRequest(versionUrl)
 		if err != nil {
@@ -111,7 +108,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.DisplayNormal)
+	data, err := download.Bytes(assetURLs[0], r.conf.Display)
 	if err != nil {
 		return err
 	}
@@ -135,7 +132,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	}
 
 	if r.conf.Tf.GetListMode() == htmlretriever.ListModeHTML {
-		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.DisplayNormal)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.Display)
 	}
 
 	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
@@ -143,9 +140,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	if r.conf.DisplayNormal {
-		fmt.Println(apimsg.MsgFetchAllReleases, releasesURL) //nolint
-	}
+	r.conf.Display(apimsg.MsgFetchAllReleases, releasesURL)
 
 	value, err := apiGetRequest(releasesURL)
 	if err != nil {
@@ -156,7 +151,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
-	dataSums, err := download.Bytes(downloadSumsURL, r.conf.DisplayNormal)
+	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Display)
 	if err != nil {
 		return err
 	}
@@ -165,14 +160,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.DisplayNormal)
+	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Display)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.DisplayNormal)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Display)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}

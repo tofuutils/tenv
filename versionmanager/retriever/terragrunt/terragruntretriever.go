@@ -67,7 +67,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.DisplayNormal)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Display)
 	}
 	if err != nil {
 		return err
@@ -79,12 +79,12 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.DisplayNormal)
+	data, err := download.Bytes(assetURLs[0], r.conf.Display)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.DisplayNormal)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Display)
 	if err != nil {
 		return err
 	}
@@ -113,10 +113,10 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.DisplayNormal)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.Display)
 	}
 
-	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.DisplayNormal)
+	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Display)
 }
 
 func buildAssetNames(arch string) (string, string) {
