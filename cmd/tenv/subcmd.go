@@ -20,8 +20,8 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -37,12 +37,6 @@ const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, y
 
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Display ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" current version.")
-	detectHelp := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -50,7 +44,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 	detectCmd := &cobra.Command{
 		Use:   "detect",
-		Short: detectHelp,
+		Short: loghelper.Concat("Display ", versionManager.FolderName, " current version."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -61,7 +55,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			if err != nil {
 				return err
 			}
-			fmt.Println(versionManager.FolderName, detectedVersion, "will be run from this directory.") //nolint
+			loghelper.StdDisplay(loghelper.Concat(versionManager.FolderName, " ", detectedVersion, " will be run from this directory."))
 
 			return nil
 		},
@@ -77,12 +71,6 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Install a specific version of ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteByte('.')
-	shortMsg := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -106,7 +94,7 @@ If a parameter is passed, available options:
 
 	installCmd := &cobra.Command{
 		Use:   "install [version]",
-		Short: shortMsg,
+		Short: loghelper.Concat("Install a specific version of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
@@ -135,12 +123,6 @@ If a parameter is passed, available options:
 
 func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("List installed ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions.")
-	shortMsg := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -150,7 +132,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 	listCmd := &cobra.Command{
 		Use:   "list",
-		Short: shortMsg,
+		Short: loghelper.Concat("List installed ", versionManager.FolderName, " versions."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -165,19 +147,19 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			filePath := versionManager.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
 			if err != nil && conf.DisplayVerbose {
-				fmt.Println("Can not read used version :", err) //nolint
+				loghelper.StdDisplay("Can not read used version : " + err.Error())
 			}
 			usedVersion := string(bytes.TrimSpace(data))
 
 			for _, version := range versions {
 				if usedVersion == version {
-					fmt.Println("*", version, "(set by", filePath+")") //nolint
+					loghelper.StdDisplay(loghelper.Concat("* ", version, " (set by ", filePath, ")"))
 				} else {
-					fmt.Println(" ", version) //nolint
+					loghelper.StdDisplay("  " + version)
 				}
 			}
 			if conf.DisplayVerbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) managed by tenv.") //nolint
+				loghelper.StdDisplay(loghelper.Concat("found ", strconv.Itoa(len(versions)), " ", versionManager.FolderName, " version(s) managed by tenv."))
 			}
 
 			return nil
@@ -191,12 +173,6 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("List installable ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" versions.")
-	shortMsg := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -209,7 +185,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 	listRemoteCmd := &cobra.Command{
 		Use:   "list-remote",
-		Short: shortMsg,
+		Short: loghelper.Concat("List installable ", versionManager.FolderName, " versions."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -231,15 +207,15 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 				}
 
 				if _, installed := localSet[version]; installed {
-					fmt.Println(version, "(installed)") //nolint
+					loghelper.StdDisplay(version + " (installed)")
 				} else {
-					fmt.Println(version) //nolint
+					loghelper.StdDisplay(version)
 				}
 			}
 			if conf.DisplayVerbose {
-				fmt.Println("found", len(versions), versionManager.FolderName, "version(s) (on", params.remoteEnvName+").") //nolint
+				loghelper.StdDisplay(loghelper.Concat("found ", strconv.Itoa(len(versions)), " ", versionManager.FolderName, " version(s) (on ", params.remoteEnvName, ")."))
 				if filterStable {
-					fmt.Println(countSkipped, "result(s) hidden (version not stable).") //nolint
+					loghelper.StdDisplay(strconv.Itoa(countSkipped) + " result(s) hidden (version not stable).")
 				}
 			}
 
@@ -257,12 +233,6 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 
 func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Reset used version of ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteByte('.')
-	shortMsg := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -272,7 +242,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 
 	resetCmd := &cobra.Command{
 		Use:   "reset",
-		Short: shortMsg,
+		Short: loghelper.Concat("Reset used version of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
@@ -288,12 +258,6 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 
 func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Uninstall a specific version of ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteByte('.')
-	shortMsg := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Uninstall a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -301,7 +265,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
-		Short: shortMsg,
+		Short: loghelper.Concat("Uninstall a specific version of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
@@ -317,12 +281,6 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 
 func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Switch the default ")
-	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" version to use.")
-	shortMsg := descBuilder.String()
-
-	descBuilder.Reset()
 	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -342,7 +300,7 @@ Available parameter options:
 
 	useCmd := &cobra.Command{
 		Use:   "use version",
-		Short: shortMsg,
+		Short: loghelper.Concat("Switch the default ", versionManager.FolderName, " version to use."),
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
@@ -353,16 +311,11 @@ Available parameter options:
 		},
 	}
 
-	descBuilder.Reset()
-	descBuilder.WriteString("create ")
-	descBuilder.WriteString(versionManager.VersionFiles[0].Name)
-	descBuilder.WriteString(" file in working directory")
-
 	flags := useCmd.Flags()
 	addInstallationFlags(flags, conf, params)
 	addOptionalInstallationFlags(flags, conf, params)
 	addRemoteFlags(flags, conf, params)
-	flags.BoolVarP(&workingDir, "working-dir", "w", false, descBuilder.String())
+	flags.BoolVarP(&workingDir, "working-dir", "w", false, loghelper.Concat("create ", versionManager.VersionFiles[0].Name, " file in working directory"))
 
 	return useCmd
 }
@@ -391,12 +344,7 @@ func addInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subC
 }
 
 func addOptionalInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
-	var descBuilder strings.Builder
-	descBuilder.WriteString("force search on versions available at ")
-	descBuilder.WriteString(params.remoteEnvName)
-	descBuilder.WriteString(" url")
-
-	flags.BoolVarP(&conf.ForceRemote, "force-remote", "f", conf.ForceRemote, descBuilder.String())
+	flags.BoolVarP(&conf.ForceRemote, "force-remote", "f", conf.ForceRemote, loghelper.Concat("force search on versions available at ", params.remoteEnvName, " url"))
 	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
 }
 

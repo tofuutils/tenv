@@ -21,6 +21,7 @@ package loghelper
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
@@ -28,9 +29,9 @@ import (
 
 const Error = "error"
 
-func BuildDisplayFunc(writer io.Writer, usedColor *color.Color) func(...any) {
-	return func(a ...any) {
-		usedColor.Fprintln(writer, a...)
+func BuildDisplayFunc(writer io.Writer, usedColor *color.Color) func(string) {
+	return func(msg string) {
+		usedColor.Fprintln(writer, msg)
 	}
 }
 
@@ -42,7 +43,7 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	return hclog.Warn
 }
 
-func MultiDisplay(display func(...any)) func([]string) {
+func MultiDisplay(display func(string)) func([]string) {
 	return func(msgs []string) {
 		for _, msg := range msgs {
 			display(msg)
@@ -58,8 +59,17 @@ func MultiLogDebug(logger hclog.Logger) func([]string) {
 	}
 }
 
-func NoDisplay(...any) {}
+func NoDisplay(string) {}
 
-func StdDisplay(a ...any) {
-	fmt.Println(a...) //nolint
+func StdDisplay(msg string) {
+	fmt.Println(msg) //nolint
+}
+
+func Concat(parts ...string) string {
+	var builder strings.Builder
+	for _, part := range parts {
+		builder.WriteString(part)
+	}
+
+	return builder.String()
 }

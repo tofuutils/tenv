@@ -96,7 +96,7 @@ const (
 type Config struct {
 	AppLogger        hclog.Logger
 	Arch             string
-	Display          func(...any)
+	Display          func(string)
 	DisplayVerbose   bool
 	ForceQuiet       bool
 	ForceRemote      bool

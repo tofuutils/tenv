@@ -20,7 +20,6 @@ package versionmanager
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -154,7 +153,7 @@ func (m VersionManager) Reset() error {
 	versionFilePath := m.RootVersionFilePath()
 	err := os.RemoveAll(versionFilePath)
 	if err == nil {
-		m.conf.Display("Removed", versionFilePath)
+		m.conf.Display("Removed " + versionFilePath)
 	}
 
 	return err
@@ -168,7 +167,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (types.DetectionInfo, er
 	if detectionInfo, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || detectionInfo.Version != "" {
 		return detectionInfo, err
 	}
-	detectionMsgs := []string{fmt.Sprint("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}
+	detectionMsgs := []string{loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}
 
 	return types.DetectionInfo{Version: defaultStrategy, DetectionMsgs: detectionMsgs}, nil
 }
@@ -187,7 +186,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
 	if err = os.RemoveAll(targetPath); err == nil {
-		m.conf.Display("Uninstallation of", m.FolderName, cleanedVersion, "successful (directory", targetPath, "removed)")
+		m.conf.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", cleanedVersion, " successful (directory ", targetPath, " removed)"))
 	}
 
 	return err
@@ -204,7 +203,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 		targetFilePath = m.RootVersionFilePath()
 	}
 	if err = os.WriteFile(targetFilePath, []byte(detectedVersion), 0644); err == nil {
-		m.conf.Display("Written", detectedVersion, "in", targetFilePath)
+		m.conf.Display(loghelper.Concat("Written ", detectedVersion, " in ", targetFilePath))
 	}
 
 	return err
@@ -240,7 +239,7 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 
 		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
-				recordedMsgs := append(predicateInfo.RecordedMsgs, fmt.Sprint("Found compatible version installed locally : ", version))
+				recordedMsgs := append(predicateInfo.RecordedMsgs, "Found compatible version installed locally : "+version)
 				multiDisplay(recordedMsgs)
 
 				return version, nil
@@ -275,7 +274,7 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []st
 
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
-			recordedMsgs = append(recordedMsgs, fmt.Sprint(m.FolderName, " ", version, " already installed"))
+			recordedMsgs = append(recordedMsgs, loghelper.Concat(m.FolderName, " ", version, " already installed"))
 			multiDisplay(recordedMsgs)
 
 			return nil
@@ -284,11 +283,11 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []st
 
 	// Always normal display when installation is need
 	loghelper.MultiDisplay(m.conf.Display)(recordedMsgs)
-	m.conf.Display("Installing", m.FolderName, version)
+	m.conf.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
 	err = m.retriever.InstallRelease(version, filepath.Join(installPath, version))
 	if err == nil {
-		m.conf.Display("Installation of", m.FolderName, version, "successful")
+		m.conf.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
 	}
 
 	return err
@@ -305,7 +304,7 @@ func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, n
 	recordedMsgs := predicateInfo.RecordedMsgs
 	for _, version := range versions {
 		if predicateInfo.Predicate(version) {
-			recordedMsgs = append(recordedMsgs, fmt.Sprint("Found compatible version remotely : ", version))
+			recordedMsgs = append(recordedMsgs, "Found compatible version remotely : "+version)
 			if noInstall {
 				multiDisplay(recordedMsgs)
 

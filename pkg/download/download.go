@@ -38,8 +38,8 @@ func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ..
 	return transformedURLs, nil
 }
 
-func Bytes(url string, display func(...any)) ([]byte, error) {
-	display("Downloading", url)
+func Bytes(url string, display func(string)) ([]byte, error) {
+	display("Downloading " + url)
 
 	response, err := http.Get(url) //nolint
 	if err != nil {

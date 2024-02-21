@@ -82,7 +82,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 			return err
 		}
 
-		r.conf.Display(apimsg.MsgFetchRelease, versionUrl)
+		r.conf.Display(apimsg.MsgFetchRelease + versionUrl)
 
 		value, err := apiGetRequest(versionUrl)
 		if err != nil {
@@ -140,7 +140,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	r.conf.Display(apimsg.MsgFetchAllReleases, releasesURL)
+	r.conf.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
 	value, err := apiGetRequest(releasesURL)
 	if err != nil {

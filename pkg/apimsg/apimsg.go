@@ -21,8 +21,8 @@ package apimsg
 import "errors"
 
 const (
-	MsgFetchAllReleases = "Fetching all releases information from"
-	MsgFetchRelease     = "Fetching release information from"
+	MsgFetchAllReleases = "Fetching all releases information from "
+	MsgFetchRelease     = "Fetching release information from "
 )
 
 var (
