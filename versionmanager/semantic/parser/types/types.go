@@ -16,31 +16,34 @@
  *
  */
 
-package flatparser
+package types
 
 import (
-	"bytes"
-	"errors"
-	"io/fs"
-	"os"
+	"fmt"
 
 	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/loghelper"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
-func RetrieveVersion(filePath string, conf *config.Config) (types.DetectionInfo, error) {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
+type DetectionInfo struct {
+	Version       string
+	DetectionMsgs []string
+}
 
-		return types.DetectionInfo{}, nil
-	}
+func MakeDetectionInfo(version string, source string) DetectionInfo {
+	detectionMsgs := []string{fmt.Sprint("Resolved version from ", source, " : ", version)}
 
-	resolvedVersion := string(bytes.TrimSpace(data))
-	if resolvedVersion == "" {
-		return types.DetectionInfo{}, nil
-	}
+	return DetectionInfo{Version: version, DetectionMsgs: detectionMsgs}
+}
 
-	return types.MakeDetectionInfo(resolvedVersion, filePath), nil
+type PredicateInfo struct {
+	Predicate     func(string) bool
+	ReverseOrder  bool
+	DetectionMsgs []string
+}
+
+type PredicateReader = func(*config.Config) (func(string) bool, error)
+
+type VersionFile struct {
+	Name   string
+	Parser func(string, *config.Config) (DetectionInfo, error)
 }

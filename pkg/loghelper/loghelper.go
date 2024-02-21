@@ -20,12 +20,20 @@ package loghelper
 
 import (
 	"fmt"
+	"io"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
 )
 
 const Error = "error"
+
+func BuildDisplayFunc(writer io.Writer, usedColor *color.Color) func(...any) {
+	return func(a ...any) {
+		usedColor.Fprintln(writer, a...)
+	}
+}
 
 func LevelWarnOrDebug(debug bool) hclog.Level {
 	if debug {
@@ -33,6 +41,18 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	}
 
 	return hclog.Warn
+}
+
+func MultiDisplayOrLogDebug(debug bool, logger hclog.Logger, display func(...any), msgs []string) {
+	if debug {
+		for _, msg := range msgs {
+			logger.Debug(msg)
+		}
+	} else {
+		for _, msg := range msgs {
+			display(msg)
+		}
+	}
 }
 
 func NoDisplay(...any) {}

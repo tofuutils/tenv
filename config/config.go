@@ -26,6 +26,7 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	"gopkg.in/yaml.v3"
@@ -203,13 +204,17 @@ func (conf *Config) InitRemoteConf() error {
 	return nil
 }
 
-func (conf *Config) LogLevelUpdate() {
+func (conf *Config) LogLevelUpdate(proxyCall bool) {
 	if conf.ForceQuiet {
 		conf.Display = loghelper.NoDisplay
 		conf.DisplayVerbose = false
 		conf.AppLogger.SetLevel(hclog.Off)
 	} else {
-		conf.Display = loghelper.StdErrDisplay
+		if proxyCall {
+			conf.Display = loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
+		} else {
+			conf.Display = loghelper.StdErrDisplay
+		}
 		if conf.DisplayVerbose {
 			conf.AppLogger.SetLevel(hclog.Trace)
 		}

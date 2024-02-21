@@ -24,29 +24,25 @@ import (
 
 	"github.com/tofuutils/tenv/config"
 	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
+	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
-type VersionFile struct {
-	Name   string
-	Parser func(string, *config.Config) (string, error)
-}
-
-func RetrieveVersion(versionFiles []VersionFile, rootVersionFilePath string, conf *config.Config) (string, error) {
+func RetrieveVersion(versionFiles []types.VersionFile, rootVersionFilePath string, conf *config.Config) (types.DetectionInfo, error) {
 	for _, versionFile := range versionFiles {
-		if version, err := versionFile.Parser(versionFile.Name, conf); err != nil || version != "" {
-			return version, err
+		if versionInfo, err := versionFile.Parser(versionFile.Name, conf); err != nil || versionInfo.Version != "" {
+			return versionInfo, err
 		}
 	}
 
 	previousPath, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return types.DetectionInfo{}, err
 	}
 
 	userPathNotDone := true
 	for currentPath := filepath.Dir(previousPath); currentPath != previousPath; previousPath, currentPath = currentPath, filepath.Dir(currentPath) {
-		if version, err := retrieveVersionFromDir(versionFiles, currentPath, conf); err != nil || version != "" {
-			return version, err
+		if versionInfo, err := retrieveVersionFromDir(versionFiles, currentPath, conf); err != nil || versionInfo.Version != "" {
+			return versionInfo, err
 		}
 
 		if currentPath == conf.UserPath {
@@ -55,20 +51,20 @@ func RetrieveVersion(versionFiles []VersionFile, rootVersionFilePath string, con
 	}
 
 	if userPathNotDone {
-		if version, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf); err != nil || version != "" {
-			return version, err
+		if versionInfo, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf); err != nil || versionInfo.Version != "" {
+			return versionInfo, err
 		}
 	}
 
 	return flatparser.RetrieveVersion(rootVersionFilePath, conf)
 }
 
-func retrieveVersionFromDir(versionFiles []VersionFile, dirPath string, conf *config.Config) (string, error) {
+func retrieveVersionFromDir(versionFiles []types.VersionFile, dirPath string, conf *config.Config) (types.DetectionInfo, error) {
 	for _, versionFile := range versionFiles {
-		if version, err := versionFile.Parser(filepath.Join(dirPath, versionFile.Name), conf); err != nil || version != "" {
-			return version, err
+		if detectionInfo, err := versionFile.Parser(filepath.Join(dirPath, versionFile.Name), conf); err != nil || detectionInfo.Version != "" {
+			return detectionInfo, err
 		}
 	}
 
-	return "", nil
+	return types.DetectionInfo{}, nil
 }

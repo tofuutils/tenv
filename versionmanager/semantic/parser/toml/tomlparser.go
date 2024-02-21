@@ -24,31 +24,30 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/fatih/color"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
 const versionName = "version"
 
-func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
+func RetrieveVersion(filePath string, conf *config.Config) (types.DetectionInfo, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read tgswitch file", loghelper.Error, err)
 
-		return "", nil
+		return types.DetectionInfo{}, nil
 	}
 
 	var parsed map[string]string
 	if _, err = toml.Decode(string(data), &parsed); err != nil {
-		return "", err
+		return types.DetectionInfo{}, err
 	}
 
 	resolvedVersion := parsed[versionName]
 	if resolvedVersion == "" {
-		return "", nil
+		return types.DetectionInfo{}, nil
 	}
-	conf.Display("Resolved version from", filePath, ":", color.GreenString(resolvedVersion))
 
-	return resolvedVersion, nil
+	return types.MakeDetectionInfo(resolvedVersion, filePath), nil
 }
