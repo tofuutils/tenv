@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/versionmanager"
 )
 
@@ -37,7 +38,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 
 	conf.LogLevelUpdate(true)
 	versionManager := builderFunc(&conf)
-	detectedVersion, err := versionManager.Detect(true)
+	detectedVersion, err := versionManager.Detect(loghelper.MultiLogDebug(conf.AppLogger))
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
@@ -54,5 +55,6 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 			os.Exit(exitError.ExitCode())
 		}
 		fmt.Println("Failure during", execName, "call :", err) //nolint
+		os.Exit(1)
 	}
 }

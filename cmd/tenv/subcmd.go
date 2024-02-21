@@ -27,6 +27,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/versionmanager"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
@@ -56,7 +57,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			conf.LogLevelUpdate(false)
 			addDeprecationMsg(conf, params)
 
-			detectedVersion, err := versionManager.Detect(false)
+			detectedVersion, err := versionManager.Detect(loghelper.MultiDisplay(conf.Display))
 			if err != nil {
 				return err
 			}

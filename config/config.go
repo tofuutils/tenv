@@ -156,6 +156,7 @@ func InitConfigFromEnv() (Config, error) {
 	return Config{
 		AppLogger:      appLogger,
 		Arch:           arch,
+		Display:        loghelper.StdDisplay,
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),
@@ -212,8 +213,6 @@ func (conf *Config) LogLevelUpdate(proxyCall bool) {
 	} else {
 		if proxyCall {
 			conf.Display = loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
-		} else {
-			conf.Display = loghelper.StdErrDisplay
 		}
 		if conf.DisplayVerbose {
 			conf.AppLogger.SetLevel(hclog.Trace)

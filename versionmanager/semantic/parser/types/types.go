@@ -36,12 +36,12 @@ func MakeDetectionInfo(version string, source string) DetectionInfo {
 }
 
 type PredicateInfo struct {
-	Predicate     func(string) bool
-	ReverseOrder  bool
-	DetectionMsgs []string
+	Predicate    func(string) bool
+	ReverseOrder bool
+	RecordedMsgs []string
 }
 
-type PredicateReader = func(*config.Config) (func(string) bool, error)
+type PredicateReader = func(*config.Config) (func(string) bool, []string, error)
 
 type VersionFile struct {
 	Name   string

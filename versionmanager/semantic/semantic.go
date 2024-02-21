@@ -58,10 +58,9 @@ func CmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-// the boolean returned as second value indicates to reverse order for filtering.
 func ParsePredicate(behaviourOrConstraint types.DetectionInfo, displayName string, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
 	reverseOrder := true
-	detectionMsgs := behaviourOrConstraint.DetectionMsgs
+	recordedMsgs := behaviourOrConstraint.DetectionMsgs
 	switch behaviourOrConstraint.Version {
 	case MinRequiredKey:
 		reverseOrder = false // start with older
@@ -69,29 +68,30 @@ func ParsePredicate(behaviourOrConstraint types.DetectionInfo, displayName strin
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
 		for _, reader := range predicateReaders {
-			predicate, err := reader(conf)
+			predicate, msgs, err := reader(conf)
+			recordedMsgs = append(recordedMsgs, msgs...)
 			if err != nil {
-				return types.PredicateInfo{}, err
+				return types.PredicateInfo{RecordedMsgs: recordedMsgs}, err
 			}
 			if predicate != nil {
-				return types.PredicateInfo{Predicate: predicate, ReverseOrder: reverseOrder, DetectionMsgs: detectionMsgs}, nil
+				return types.PredicateInfo{Predicate: predicate, ReverseOrder: reverseOrder, RecordedMsgs: recordedMsgs}, nil
 			}
 		}
 
-		detectionMsgs = append(detectionMsgs, fmt.Sprint("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
+		recordedMsgs = append(recordedMsgs, fmt.Sprint("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
 
 		fallthrough // fallback to latest
 	case LatestKey, LatestStableKey:
-		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true, DetectionMsgs: detectionMsgs}, nil
+		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true, RecordedMsgs: recordedMsgs}, nil
 	case LatestPreKey:
-		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true, DetectionMsgs: detectionMsgs}, nil
+		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true, RecordedMsgs: recordedMsgs}, nil
 	default:
 		constraint, err := version.NewConstraint(behaviourOrConstraint.Version)
 		if err != nil {
-			return types.PredicateInfo{}, err
+			return types.PredicateInfo{RecordedMsgs: recordedMsgs}, err
 		}
 
-		return types.PredicateInfo{Predicate: predicateFromConstraint(constraint), ReverseOrder: true, DetectionMsgs: detectionMsgs}, nil
+		return types.PredicateInfo{Predicate: predicateFromConstraint(constraint), ReverseOrder: true, RecordedMsgs: recordedMsgs}, nil
 	}
 }
 
@@ -113,46 +113,47 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, error) {
+func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, []string, error) {
 	constraintStr, err := constraintRetriever(conf)
 	if err != nil || constraintStr == "" {
-		return nil, err
+		return nil, nil, err
 	}
 
 	constraint, err := version.NewConstraint(constraintStr)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return predicateFromConstraint(constraint), nil
+	return predicateFromConstraint(constraint), nil, nil
 }
 
-// the boolean returned as second value indicates if a predicate was found.
-func readTfFiles(conf *config.Config) (func(string) bool, error) {
+func readTfFiles(conf *config.Config) (func(string) bool, []string, error) {
+	msgs := []string{"Scan project to find .tf files"}
+
 	requireds, err := tfparser.GatherRequiredVersion(conf)
 	if err != nil {
-		return nil, err
+		return nil, msgs, err
 	}
 
 	var constraint version.Constraints
 	for _, required := range requireds {
 		temp, err := version.NewConstraint(required)
 		if err != nil {
-			return nil, err
+			return nil, msgs, err
 		}
 		constraint = append(constraint, temp...)
 	}
 	if len(constraint) == 0 {
-		return nil, nil
+		return nil, msgs, nil
 	}
 
-	return predicateFromConstraint(constraint), nil
+	return predicateFromConstraint(constraint), msgs, nil
 }
 
-func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, error) {
+func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, []string, error) {
 	return readPredicate(terragruntparser.RetrieveTerraformVersionConstraint, conf)
 }
 
-func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, error) {
+func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, []string, error) {
 	return readPredicate(terragruntparser.RetrieveTerraguntVersionConstraint, conf)
 }

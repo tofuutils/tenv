@@ -56,8 +56,6 @@ func init() {
 }
 
 func GatherRequiredVersion(conf *config.Config) ([]string, error) {
-	conf.Display("Scan project to find .tf files")
-
 	var requireds []string
 	var foundFiles []string
 	parser := hclparse.NewParser()

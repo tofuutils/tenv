@@ -21,7 +21,6 @@ package loghelper
 import (
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
@@ -43,20 +42,24 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	return hclog.Warn
 }
 
-func MultiDisplayOrLogDebug(debug bool, logger hclog.Logger, display func(...any), msgs []string) {
-	if debug {
-		for _, msg := range msgs {
-			logger.Debug(msg)
-		}
-	} else {
+func MultiDisplay(display func(...any)) func([]string) {
+	return func(msgs []string) {
 		for _, msg := range msgs {
 			display(msg)
 		}
 	}
 }
 
+func MultiLogDebug(logger hclog.Logger) func([]string) {
+	return func(msgs []string) {
+		for _, msg := range msgs {
+			logger.Debug(msg)
+		}
+	}
+}
+
 func NoDisplay(...any) {}
 
-func StdErrDisplay(a ...any) {
-	fmt.Fprintln(os.Stderr, a...)
+func StdDisplay(a ...any) {
+	fmt.Println(a...) //nolint
 }
