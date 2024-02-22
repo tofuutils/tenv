@@ -51,7 +51,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			conf.LogLevelUpdate(false)
 			addDeprecationMsg(conf, params)
 
-			detectedVersion, err := versionManager.Detect(loghelper.MultiDisplay(conf.Display))
+			detectedVersion, err := versionManager.Detect(loghelper.MultiDisplay(conf.AppLogger, conf.Display))
 			if err != nil {
 				return err
 			}
@@ -192,7 +192,8 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 			conf.LogLevelUpdate(false)
 			addDeprecationMsg(conf, params)
 
-			versions, err := versionManager.ListRemote(reverseOrder)
+			versions, recordeds, err := versionManager.ListRemote(reverseOrder)
+			loghelper.MultiDisplay(conf.AppLogger, conf.Display)(recordeds)
 			if err != nil {
 				return err
 			}

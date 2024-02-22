@@ -19,10 +19,9 @@
 package semantic
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
 	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
@@ -78,7 +77,7 @@ func ParsePredicate(behaviourOrConstraint types.DetectionInfo, displayName strin
 			}
 		}
 
-		recordedMsgs = append(recordedMsgs, fmt.Sprint("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
+		recordedMsgs = append(recordedMsgs, loghelper.RecordedMessage{Message: loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy")})
 
 		fallthrough // fallback to latest
 	case LatestKey, LatestStableKey:
@@ -113,7 +112,7 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, []string, error) {
+func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
 	constraintStr, err := constraintRetriever(conf)
 	if err != nil || constraintStr == "" {
 		return nil, nil, err
@@ -127,33 +126,31 @@ func readPredicate(constraintRetriever func(*config.Config) (string, error), con
 	return predicateFromConstraint(constraint), nil, nil
 }
 
-func readTfFiles(conf *config.Config) (func(string) bool, []string, error) {
-	msgs := []string{"Scan project to find .tf files"}
-
-	requireds, err := tfparser.GatherRequiredVersion(conf)
+func readTfFiles(conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
+	requireds, recordeds, err := tfparser.GatherRequiredVersion(conf)
 	if err != nil {
-		return nil, msgs, err
+		return nil, recordeds, err
 	}
 
 	var constraint version.Constraints
 	for _, required := range requireds {
 		temp, err := version.NewConstraint(required)
 		if err != nil {
-			return nil, msgs, err
+			return nil, recordeds, err
 		}
 		constraint = append(constraint, temp...)
 	}
 	if len(constraint) == 0 {
-		return nil, msgs, nil
+		return nil, recordeds, nil
 	}
 
-	return predicateFromConstraint(constraint), msgs, nil
+	return predicateFromConstraint(constraint), recordeds, nil
 }
 
-func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, []string, error) {
+func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
 	return readPredicate(terragruntparser.RetrieveTerraformVersionConstraint, conf)
 }
 
-func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, []string, error) {
+func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
 	return readPredicate(terragruntparser.RetrieveTerraguntVersionConstraint, conf)
 }

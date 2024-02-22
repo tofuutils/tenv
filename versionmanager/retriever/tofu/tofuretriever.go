@@ -26,11 +26,13 @@ import (
 
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	cosigncheck "github.com/tofuutils/tenv/pkg/check/cosign"
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
@@ -107,22 +109,29 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	return zip.UnzipToDir(data, targetPath)
 }
 
-func (r *TofuRetriever) ListReleases() ([]string, error) {
+func (r *TofuRetriever) ListReleases() ([]string, []loghelper.RecordedMessage, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	listURL := r.conf.Tofu.GetListURL()
 	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(r.conf.Tofu.GetListURL(), opentofu, opentofu, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download) //nolint
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data, r.conf.Display)
+		recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + baseURL}}
+		releases, err := htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data)
+
+		return releases, recordeds, err
 	}
 
-	return github.ListReleases(r.conf.Tofu.GetListURL(), r.conf.GithubToken, r.conf.Display)
+	recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + listURL}}
+	releases, err := github.ListReleases(listURL, r.conf.GithubToken)
+
+	return releases, recordeds, err
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {

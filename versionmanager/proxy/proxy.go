@@ -38,7 +38,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 
 	conf.LogLevelUpdate(true)
 	versionManager := builderFunc(&conf)
-	detectedVersion, err := versionManager.Detect(loghelper.MultiLogDebug(conf.AppLogger))
+	detectedVersion, err := versionManager.Detect(loghelper.MultiLog(conf.AppLogger))
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)

@@ -26,9 +26,11 @@ import (
 	"strings"
 
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
@@ -101,22 +103,29 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	return os.WriteFile(filepath.Join(targetPath, config.TerragruntName), data, 0755)
 }
 
-func (r *TerragruntRetriever) ListReleases() ([]string, error) {
+func (r *TerragruntRetriever) ListReleases() ([]string, []loghelper.RecordedMessage, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	listURL := r.conf.Tg.GetListURL()
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(r.conf.Tg.GetListURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.Display)
+		recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + baseURL}}
+		releases, err := htmlretriever.ListReleases(baseURL, r.conf.Tg.Data)
+
+		return releases, recordeds, err
 	}
 
-	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Display)
+	recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + listURL}}
+	releases, err := github.ListReleases(listURL, r.conf.GithubToken)
+
+	return releases, recordeds, err
 }
 
 func buildAssetNames(arch string) (string, string) {

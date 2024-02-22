@@ -22,6 +22,7 @@ import (
 	"io/fs"
 	"path/filepath"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/tofuutils/tenv/config"
@@ -55,7 +56,9 @@ func init() {
 	}
 }
 
-func GatherRequiredVersion(conf *config.Config) ([]string, error) {
+func GatherRequiredVersion(conf *config.Config) ([]string, []loghelper.RecordedMessage, error) {
+	recordeds := []loghelper.RecordedMessage{{Message: "Scan project to find .tf files"}}
+
 	var requireds []string
 	var foundFiles []string
 	parser := hclparse.NewParser()
@@ -86,8 +89,9 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 				return nil
 			}
 
-			extracted := extractRequiredVersion(parsedFile.Body, conf)
+			extracted, recordeds2 := extractRequiredVersion(parsedFile.Body)
 			requireds = append(requireds, extracted...)
+			recordeds = append(recordeds, recordeds2...)
 
 			return nil
 		}
@@ -97,30 +101,31 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 
 	if conf.AppLogger.IsDebug() {
 		if len(foundFiles) == 0 {
-			conf.AppLogger.Debug("No .tf file found")
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Debug, Message: "No .tf file found"})
 		} else {
-			conf.AppLogger.Debug("Read", "filePaths", foundFiles)
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Debug, Message: "Read", Args: []any{"filePaths", foundFiles}})
 		}
 	}
 
-	return requireds, err
+	return requireds, recordeds, err
 }
 
-func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
+func extractRequiredVersion(body hcl.Body) ([]string, []loghelper.RecordedMessage) {
 	rootContent, _, diags := body.PartialContent(terraformPartialSchema)
 	if diags.HasErrors() {
-		conf.AppLogger.Warn("Failed to parse tf file", loghelper.Error, diags)
+		recordeds := []loghelper.RecordedMessage{{Level: hclog.Warn, Message: "Failed to parse tf file", Args: []any{loghelper.Error, diags}}}
 
-		return nil
+		return nil, recordeds
 	}
 
+	var recordeds []loghelper.RecordedMessage
 	requireds := make([]string, 0, 1)
 	for _, block := range rootContent.Blocks {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
-			conf.AppLogger.Warn("Failed to parse tf block", loghelper.Error, diags)
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Failed to parse tf block", Args: []any{loghelper.Error, diags}})
 
-			return nil
+			return nil, recordeds
 		}
 
 		attr, exists := content.Attributes[requiredVersionName]
@@ -130,31 +135,31 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 
 		val, diags := attr.Expr.Value(nil)
 		if diags.HasErrors() {
-			conf.AppLogger.Warn("Failures parsing tf attribute", loghelper.Error, diags)
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Failed to parse tf attribute", Args: []any{loghelper.Error, diags}})
 
-			return nil
+			return nil, recordeds
 		}
 
 		val, err := convert.Convert(val, cty.String)
 		if err != nil {
-			conf.AppLogger.Warn("Failed to convert tf attribute", loghelper.Error, err)
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Failed to convert tf attribute", Args: []any{loghelper.Error, err}})
 
-			return nil
+			return nil, recordeds
 		}
 
 		if val.IsNull() {
-			conf.AppLogger.Debug("Empty tf attribute")
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Debug, Message: "Empty tf attribute"})
 
 			continue
 		}
 
 		if !val.IsWhollyKnown() {
-			conf.AppLogger.Warn("Unknown tf attribute")
+			recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Unknown tf attribute"})
 
 			continue
 		}
 		requireds = append(requireds, val.AsString())
 	}
 
-	return requireds
+	return requireds, recordeds
 }

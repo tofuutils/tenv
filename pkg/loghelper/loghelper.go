@@ -29,6 +29,12 @@ import (
 
 const Error = "error"
 
+type RecordedMessage struct {
+	Level   hclog.Level
+	Message string
+	Args    []any
+}
+
 func BuildDisplayFunc(writer io.Writer, usedColor *color.Color) func(string) {
 	return func(msg string) {
 		usedColor.Fprintln(writer, msg)
@@ -43,18 +49,26 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	return hclog.Warn
 }
 
-func MultiDisplay(display func(string)) func([]string) {
-	return func(msgs []string) {
-		for _, msg := range msgs {
-			display(msg)
+func MultiDisplay(logger hclog.Logger, display func(string)) func([]RecordedMessage) {
+	return func(recordeds []RecordedMessage) {
+		for _, recorded := range recordeds {
+			if recorded.Level == hclog.NoLevel {
+				display(recorded.Message)
+			} else {
+				logger.Log(recorded.Level, recorded.Message, recorded.Args...)
+			}
 		}
 	}
 }
 
-func MultiLogDebug(logger hclog.Logger) func([]string) {
-	return func(msgs []string) {
-		for _, msg := range msgs {
-			logger.Debug(msg)
+func MultiLog(logger hclog.Logger) func([]RecordedMessage) {
+	return func(recordeds []RecordedMessage) {
+		for _, recorded := range recordeds {
+			if recorded.Level == hclog.NoLevel {
+				logger.Debug(recorded.Message, recorded.Args...)
+			} else {
+				logger.Log(recorded.Level, recorded.Message, recorded.Args...)
+			}
 		}
 	}
 }

@@ -90,9 +90,7 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	}
 }
 
-func ListReleases(githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
-	display(apimsg.MsgFetchAllReleases + githubReleaseURL)
-
+func ListReleases(githubReleaseURL string, githubToken string) ([]string, error) {
 	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 

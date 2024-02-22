@@ -19,18 +19,17 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
 type DetectionInfo struct {
 	Version       string
-	DetectionMsgs []string
+	DetectionMsgs []loghelper.RecordedMessage
 }
 
 func MakeDetectionInfo(version string, source string) DetectionInfo {
-	detectionMsgs := []string{fmt.Sprint("Resolved version from ", source, " : ", version)}
+	detectionMsgs := []loghelper.RecordedMessage{{Message: loghelper.Concat("Resolved version from ", source, " : ", version)}}
 
 	return DetectionInfo{Version: version, DetectionMsgs: detectionMsgs}
 }
@@ -38,10 +37,10 @@ func MakeDetectionInfo(version string, source string) DetectionInfo {
 type PredicateInfo struct {
 	Predicate    func(string) bool
 	ReverseOrder bool
-	RecordedMsgs []string
+	RecordedMsgs []loghelper.RecordedMessage
 }
 
-type PredicateReader = func(*config.Config) (func(string) bool, []string, error)
+type PredicateReader = func(*config.Config) (func(string) bool, []loghelper.RecordedMessage, error)
 
 type VersionFile struct {
 	Name   string

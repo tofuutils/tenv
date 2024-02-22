@@ -32,6 +32,7 @@ import (
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
@@ -120,34 +121,39 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 	return zip.UnzipToDir(data, targetPath)
 }
 
-func (r *TerraformRetriever) ListReleases() ([]string, error) {
+func (r *TerraformRetriever) ListReleases() ([]string, []loghelper.RecordedMessage, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), config.TerraformName) //nolint
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if r.conf.Tf.GetListMode() == htmlretriever.ListModeHTML {
-		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.Display)
+		recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + baseURL}}
+		releases, err := htmlretriever.ListReleases(baseURL, r.conf.Tf.Data)
+
+		return releases, recordeds, err
 	}
 
 	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	r.conf.Display(apimsg.MsgFetchAllReleases + releasesURL)
+	recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + releasesURL}}
 
 	value, err := apiGetRequest(releasesURL)
 	if err != nil {
-		return nil, err
+		return nil, recordeds, err
 	}
 
-	return extractReleases(value)
+	releases, err := extractReleases(value)
+
+	return releases, recordeds, err
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {

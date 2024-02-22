@@ -40,7 +40,7 @@ var (
 
 type ReleaseInfoRetriever interface {
 	InstallRelease(version string, targetPath string) error
-	ListReleases() ([]string, error)
+	ListReleases() ([]string, []loghelper.RecordedMessage, error)
 }
 
 type VersionManager struct {
@@ -57,7 +57,7 @@ func MakeVersionManager(conf *config.Config, folderName string, predicateReaders
 }
 
 // detect version (can install depending on auto install env var).
-func (m VersionManager) Detect(multiDisplay func([]string)) (string, error) {
+func (m VersionManager) Detect(multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
 		multiDisplay(configVersion.DetectionMsgs)
@@ -69,7 +69,7 @@ func (m VersionManager) Detect(multiDisplay func([]string)) (string, error) {
 }
 
 func (m VersionManager) Install(requestedVersion types.DetectionInfo) error {
-	multiDisplay := loghelper.MultiDisplay(m.conf.Display)
+	multiDisplay := loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display)
 
 	parsedVersion, err := version.NewVersion(requestedVersion.Version)
 	if err == nil {
@@ -119,16 +119,16 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 	return versions, nil
 }
 
-func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
-	versions, err := m.retriever.ListReleases()
+func (m VersionManager) ListRemote(reverseOrder bool) ([]string, []loghelper.RecordedMessage, error) {
+	versions, recordeds, err := m.retriever.ListReleases()
 	if err != nil {
-		return nil, err
+		return nil, recordeds, err
 	}
 
 	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
 
-	return versions, nil
+	return versions, recordeds, nil
 }
 
 func (m VersionManager) LocalSet() map[string]struct{} {
@@ -167,7 +167,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (types.DetectionInfo, er
 	if detectionInfo, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || detectionInfo.Version != "" {
 		return detectionInfo, err
 	}
-	detectionMsgs := []string{loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}
+	detectionMsgs := []loghelper.RecordedMessage{{Message: loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}}
 
 	return types.DetectionInfo{Version: defaultStrategy, DetectionMsgs: detectionMsgs}, nil
 }
@@ -193,7 +193,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 }
 
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
-	detectedVersion, err := m.detect(types.DetectionInfo{Version: requestedVersion}, loghelper.MultiDisplay(m.conf.Display))
+	detectedVersion, err := m.detect(types.DetectionInfo{Version: requestedVersion}, loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display))
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	return err
 }
 
-func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDisplay func([]string)) (string, error) {
+func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
 	parsedVersion, err := version.NewVersion(requestedVersion.Version)
 	if err == nil {
 		cleanedVersion := parsedVersion.String()
@@ -239,7 +239,7 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 
 		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
-				recordedMsgs := append(predicateInfo.RecordedMsgs, "Found compatible version installed locally : "+version)
+				recordedMsgs := append(predicateInfo.RecordedMsgs, loghelper.RecordedMessage{Message: "Found compatible version installed locally : " + version})
 				multiDisplay(recordedMsgs)
 
 				return version, nil
@@ -251,13 +251,13 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 
 			return "", errNoCompatible
 		}
-		predicateInfo.RecordedMsgs = append(predicateInfo.RecordedMsgs, "No compatible version found locally, search a remote one...")
+		predicateInfo.RecordedMsgs = append(predicateInfo.RecordedMsgs, loghelper.RecordedMessage{Message: "No compatible version found locally, search a remote one..."})
 	}
 
 	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, multiDisplay)
 }
 
-func (m VersionManager) installSpecificVersion(version string, recordedMsgs []string, multiDisplay func([]string)) error {
+func (m VersionManager) installSpecificVersion(version string, recordedMsgs []loghelper.RecordedMessage, multiDisplay func([]loghelper.RecordedMessage)) error {
 	if version == "" {
 		multiDisplay(recordedMsgs)
 
@@ -274,7 +274,7 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []st
 
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
-			recordedMsgs = append(recordedMsgs, loghelper.Concat(m.FolderName, " ", version, " already installed"))
+			recordedMsgs = append(recordedMsgs, loghelper.RecordedMessage{Message: loghelper.Concat(m.FolderName, " ", version, " already installed")})
 			multiDisplay(recordedMsgs)
 
 			return nil
@@ -282,7 +282,7 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []st
 	}
 
 	// Always normal display when installation is need
-	loghelper.MultiDisplay(m.conf.Display)(recordedMsgs)
+	loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display)(recordedMsgs)
 	m.conf.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
 	err = m.retriever.InstallRelease(version, filepath.Join(installPath, version))
@@ -293,18 +293,18 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []st
 	return err
 }
 
-func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, multiDisplay func([]string)) (string, error) {
-	versions, err := m.ListRemote(predicateInfo.ReverseOrder)
+func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
+	versions, recordeds, err := m.ListRemote(predicateInfo.ReverseOrder)
+	recordedMsgs := append(predicateInfo.RecordedMsgs, recordeds...)
 	if err != nil {
-		multiDisplay(predicateInfo.RecordedMsgs)
+		multiDisplay(recordedMsgs)
 
 		return "", err
 	}
 
-	recordedMsgs := predicateInfo.RecordedMsgs
 	for _, version := range versions {
 		if predicateInfo.Predicate(version) {
-			recordedMsgs = append(recordedMsgs, "Found compatible version remotely : "+version)
+			recordedMsgs = append(recordedMsgs, loghelper.RecordedMessage{Message: "Found compatible version remotely : " + version})
 			if noInstall {
 				multiDisplay(recordedMsgs)
 
