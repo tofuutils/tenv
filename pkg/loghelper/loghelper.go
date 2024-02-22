@@ -121,6 +121,15 @@ func BuildDisplayFunc(writer io.Writer, usedColor *color.Color) func(string) {
 	}
 }
 
+func Concat(parts ...string) string {
+	var builder strings.Builder
+	for _, part := range parts {
+		builder.WriteString(part)
+	}
+
+	return builder.String()
+}
+
 func LevelWarnOrDebug(debug bool) hclog.Level {
 	if debug {
 		return hclog.Debug
@@ -133,13 +142,4 @@ func NoDisplay(string) {}
 
 func StdDisplay(msg string) {
 	fmt.Println(msg) //nolint
-}
-
-func Concat(parts ...string) string {
-	var builder strings.Builder
-	for _, part := range parts {
-		builder.WriteString(part)
-	}
-
-	return builder.String()
 }
