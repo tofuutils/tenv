@@ -207,7 +207,7 @@ func (conf *Config) InitRemoteConf() error {
 func (conf *Config) InitDisplayer(proxyCall bool) {
 	if conf.ForceQuiet {
 		conf.appLogger.SetLevel(hclog.Off)
-		conf.Displayer = loghelper.NewBasicDisplayer(conf.appLogger, loghelper.NoDisplay)
+		conf.Displayer = loghelper.MakeBasicDisplayer(conf.appLogger, loghelper.NoDisplay)
 		conf.DisplayVerbose = false
 	} else {
 		if conf.DisplayVerbose {
@@ -215,9 +215,9 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 		}
 		if proxyCall {
 			display := loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
-			conf.Displayer = loghelper.NewRecordingDisplayer(loghelper.NewBasicDisplayer(conf.appLogger, display))
+			conf.Displayer = loghelper.NewRecordingDisplayer(loghelper.MakeBasicDisplayer(conf.appLogger, display))
 		} else {
-			conf.Displayer = loghelper.NewBasicDisplayer(conf.appLogger, loghelper.StdDisplay)
+			conf.Displayer = loghelper.MakeBasicDisplayer(conf.appLogger, loghelper.StdDisplay)
 		}
 	}
 }
