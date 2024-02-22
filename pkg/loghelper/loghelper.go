@@ -36,28 +36,28 @@ type Displayer interface {
 	Flush(logMode bool)
 }
 
-type basicDisplayer struct {
+type BasicDisplayer struct {
 	display func(string)
 	logger  hclog.Logger
 }
 
-func MakeBasicDisplayer(logger hclog.Logger, display func(string)) basicDisplayer {
-	return basicDisplayer{display: display, logger: logger}
+func MakeBasicDisplayer(logger hclog.Logger, display func(string)) BasicDisplayer {
+	return BasicDisplayer{display: display, logger: logger}
 }
 
-func (bd basicDisplayer) Display(msg string) {
+func (bd BasicDisplayer) Display(msg string) {
 	bd.display(msg)
 }
 
-func (bd basicDisplayer) IsDebug() bool {
+func (bd BasicDisplayer) IsDebug() bool {
 	return bd.logger.IsDebug()
 }
 
-func (bd basicDisplayer) Log(level hclog.Level, msg string, args ...any) {
+func (bd BasicDisplayer) Log(level hclog.Level, msg string, args ...any) {
 	bd.logger.Log(level, msg, args...)
 }
 
-func (bd basicDisplayer) Flush(bool) {
+func (bd BasicDisplayer) Flush(bool) {
 }
 
 type logWrapper struct {
@@ -100,15 +100,15 @@ func (rw *recordingWrapper) Flush(logMode bool) {
 	}
 }
 
-type stateWrapper struct {
+type StateWrapper struct {
 	Displayer
 }
 
-func NewRecordingDisplayer(displayer Displayer) *stateWrapper {
-	return &stateWrapper{Displayer: &recordingWrapper{Displayer: displayer}}
+func NewRecordingDisplayer(displayer Displayer) *StateWrapper {
+	return &StateWrapper{Displayer: &recordingWrapper{Displayer: displayer}}
 }
 
-func (sw *stateWrapper) Flush(logMode bool) {
+func (sw *StateWrapper) Flush(logMode bool) {
 	sw.Displayer.Flush(logMode)
 	if rw, ok := sw.Displayer.(*recordingWrapper); ok {
 		sw.Displayer = rw.Displayer // following call will be direct
