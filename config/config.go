@@ -94,7 +94,6 @@ const (
 )
 
 type Config struct {
-	appLogger        hclog.Logger
 	Arch             string
 	Displayer        loghelper.Displayer
 	DisplayVerbose   bool
@@ -118,15 +117,6 @@ func InitConfigFromEnv() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-
-	logLevel := hclog.Warn
-	logLevelStr := os.Getenv(tenvLogEnvName)
-	if logLevelStr != "" {
-		logLevel = hclog.LevelFromString(logLevelStr)
-	}
-	appLogger := hclog.New(&hclog.LoggerOptions{
-		Name: TenvName, Level: logLevel,
-	})
 
 	arch := getenvFallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
 	if arch == "" {
@@ -154,7 +144,6 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	return Config{
-		appLogger:      appLogger,
 		Arch:           arch,
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
@@ -169,6 +158,34 @@ func InitConfigFromEnv() (Config, error) {
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
 	}, nil
+}
+
+func (conf *Config) InitDisplayer(proxyCall bool) {
+	if conf.ForceQuiet {
+		appLogger := hclog.New(&hclog.LoggerOptions{
+			Name: TenvName, Level: hclog.Off,
+		})
+		conf.Displayer = loghelper.MakeBasicDisplayer(appLogger, loghelper.NoDisplay)
+		conf.DisplayVerbose = false
+	} else {
+		logLevel := hclog.Trace
+		if !conf.DisplayVerbose {
+			logLevel = hclog.Warn
+			if logLevelStr := os.Getenv(tenvLogEnvName); logLevelStr != "" {
+				logLevel = hclog.LevelFromString(logLevelStr)
+			}
+		}
+		appLogger := hclog.New(&hclog.LoggerOptions{
+			Name: TenvName, Level: logLevel,
+		})
+
+		if proxyCall {
+			display := loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
+			conf.Displayer = loghelper.NewRecordingDisplayer(loghelper.MakeBasicDisplayer(appLogger, display))
+		} else {
+			conf.Displayer = loghelper.MakeBasicDisplayer(appLogger, loghelper.StdDisplay)
+		}
+	}
 }
 
 func (conf *Config) InitRemoteConf() error {
@@ -187,7 +204,7 @@ func (conf *Config) InitRemoteConf() error {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
-		conf.appLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
+		conf.Displayer.Log(hclog.Debug, "Can not read remote configuration file", loghelper.Error, err)
 
 		return nil
 	}
@@ -202,24 +219,6 @@ func (conf *Config) InitRemoteConf() error {
 	conf.Tofu.Data = remoteConf[TofuName]
 
 	return nil
-}
-
-func (conf *Config) InitDisplayer(proxyCall bool) {
-	if conf.ForceQuiet {
-		conf.appLogger.SetLevel(hclog.Off)
-		conf.Displayer = loghelper.MakeBasicDisplayer(conf.appLogger, loghelper.NoDisplay)
-		conf.DisplayVerbose = false
-	} else {
-		if conf.DisplayVerbose {
-			conf.appLogger.SetLevel(hclog.Trace)
-		}
-		if proxyCall {
-			display := loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
-			conf.Displayer = loghelper.NewRecordingDisplayer(loghelper.MakeBasicDisplayer(conf.appLogger, display))
-		} else {
-			conf.Displayer = loghelper.MakeBasicDisplayer(conf.appLogger, loghelper.StdDisplay)
-		}
-	}
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
