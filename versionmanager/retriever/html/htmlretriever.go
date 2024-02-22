@@ -23,7 +23,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/apimsg"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/htmlquery"
 	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
@@ -42,9 +41,7 @@ func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error)
 	return download.ApplyUrlTranformer(joinTransformer, assetNames...)
 }
 
-func ListReleases(baseURL string, remoteConf map[string]string, display func(...any)) ([]string, error) {
-	display(apimsg.MsgFetchAllReleases, baseURL)
-
+func ListReleases(baseURL string, remoteConf map[string]string) ([]string, error) {
 	selector := config.MapGetDefault(remoteConf, "selector", "a")
 	extractor := htmlquery.SelectionExtractor(config.MapGetDefault(remoteConf, "part", "href"))
 	versionExtractor := func(s *goquery.Selection) string {

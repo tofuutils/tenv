@@ -35,7 +35,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 		os.Exit(1)
 	}
 
-	conf.LogLevelUpdate()
+	conf.InitDisplayer(true)
 	versionManager := builderFunc(&conf)
 	detectedVersion, err := versionManager.Detect(true)
 	if err != nil {
@@ -54,5 +54,6 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 			os.Exit(exitError.ExitCode())
 		}
 		fmt.Println("Failure during", execName, "call :", err) //nolint
+		os.Exit(1)
 	}
 }

@@ -16,16 +16,27 @@
  *
  */
 
-package apimsg
+package types
 
-import "errors"
-
-const (
-	MsgFetchAllReleases = "Fetching all releases information from "
-	MsgFetchRelease     = "Fetching release information from "
+import (
+	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
-var (
-	ErrAsset  = errors.New("searched asset not found")
-	ErrReturn = errors.New("unexpected value returned by API")
-)
+func DisplayDetectionInfo(displayer loghelper.Displayer, version string, source string) string {
+	displayer.Display(loghelper.Concat("Resolved version from ", source, " : ", version))
+
+	return version
+}
+
+type PredicateInfo struct {
+	Predicate    func(string) bool
+	ReverseOrder bool
+}
+
+type PredicateReader = func(*config.Config) (func(string) bool, error)
+
+type VersionFile struct {
+	Name   string
+	Parser func(string, *config.Config) (string, error)
+}

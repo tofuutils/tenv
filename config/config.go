@@ -26,6 +26,7 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	"gopkg.in/yaml.v3"
@@ -93,9 +94,9 @@ const (
 )
 
 type Config struct {
-	AppLogger        hclog.Logger
+	appLogger        hclog.Logger
 	Arch             string
-	Display          func(...any)
+	Displayer        loghelper.Displayer
 	DisplayVerbose   bool
 	ForceQuiet       bool
 	ForceRemote      bool
@@ -153,7 +154,7 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	return Config{
-		AppLogger:      appLogger,
+		appLogger:      appLogger,
 		Arch:           arch,
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
@@ -186,7 +187,7 @@ func (conf *Config) InitRemoteConf() error {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
-		conf.AppLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
+		conf.appLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
 
 		return nil
 	}
@@ -203,15 +204,20 @@ func (conf *Config) InitRemoteConf() error {
 	return nil
 }
 
-func (conf *Config) LogLevelUpdate() {
+func (conf *Config) InitDisplayer(proxyCall bool) {
 	if conf.ForceQuiet {
-		conf.Display = loghelper.NoDisplay
+		conf.appLogger.SetLevel(hclog.Off)
+		conf.Displayer = loghelper.MakeBasicDisplayer(conf.appLogger, loghelper.NoDisplay)
 		conf.DisplayVerbose = false
-		conf.AppLogger.SetLevel(hclog.Off)
 	} else {
-		conf.Display = loghelper.StdErrDisplay
 		if conf.DisplayVerbose {
-			conf.AppLogger.SetLevel(hclog.Trace)
+			conf.appLogger.SetLevel(hclog.Trace)
+		}
+		if proxyCall {
+			display := loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
+			conf.Displayer = loghelper.NewRecordingDisplayer(loghelper.MakeBasicDisplayer(conf.appLogger, display))
+		} else {
+			conf.Displayer = loghelper.MakeBasicDisplayer(conf.appLogger, loghelper.StdDisplay)
 		}
 	}
 }
