@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
@@ -67,7 +68,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Display)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	}
 	if err != nil {
 		return err
@@ -79,12 +80,12 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Display)
+	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Display)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -107,16 +108,21 @@ func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
+	listURL := r.conf.Tg.GetListURL()
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
-		baseURL, err := url.JoinPath(r.conf.Tg.GetListURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, r.conf.Display)
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
+
+		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data)
 	}
 
-	return github.ListReleases(r.conf.Tg.GetListURL(), r.conf.GithubToken, r.conf.Display)
+	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
+
+	return github.ListReleases(listURL, r.conf.GithubToken)
 }
 
 func buildAssetNames(arch string) (string, string) {

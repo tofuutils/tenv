@@ -19,11 +19,12 @@
 package semantic
 
 import (
-	"github.com/fatih/color"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
+	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
 const (
@@ -35,8 +36,8 @@ const (
 )
 
 var (
-	TfPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTfVersionFromTerragruntFile, readTfFiles} //nolint
-	TgPredicateReaders = []func(*config.Config) (func(string) bool, bool, error){readTgVersionFromTerragruntFile}              //nolint
+	TfPredicateReaders = []types.PredicateReader{readTfVersionFromTerragruntFile, readTfFiles} //nolint
+	TgPredicateReaders = []types.PredicateReader{readTgVersionFromTerragruntFile}              //nolint
 )
 
 func CmpVersion(v1Str string, v2Str string) int {
@@ -56,8 +57,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-// the boolean returned as second value indicates to reverse order for filtering.
-func ParsePredicate(behaviourOrConstraint string, displayName string, predicateReaders []func(*config.Config) (func(string) bool, bool, error), conf *config.Config) (func(string) bool, bool, error) {
+func ParsePredicate(behaviourOrConstraint string, displayName string, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
 	reverseOrder := true
 	switch behaviourOrConstraint {
 	case MinRequiredKey:
@@ -66,29 +66,29 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
 		for _, reader := range predicateReaders {
-			predicate, found, err := reader(conf)
+			predicate, err := reader(conf)
 			if err != nil {
-				return nil, false, err
+				return types.PredicateInfo{}, err
 			}
-			if found {
-				return predicate, reverseOrder, nil
+			if predicate != nil {
+				return types.PredicateInfo{Predicate: predicate, ReverseOrder: reverseOrder}, nil
 			}
 		}
 
-		conf.Display("No", displayName, "version requirement found in project files, fallback to", color.GreenString(LatestKey), "strategy")
+		conf.Displayer.Display(loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
 
-		return StableVersion, true, nil // erase min-required case
+		fallthrough // fallback to latest
 	case LatestKey, LatestStableKey:
-		return StableVersion, true, nil
+		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true}, nil
 	case LatestPreKey:
-		return alwaysTrue, true, nil
+		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true}, nil
 	default:
 		constraint, err := version.NewConstraint(behaviourOrConstraint)
 		if err != nil {
-			return nil, false, err
+			return types.PredicateInfo{}, err
 		}
 
-		return predicateFromConstraint(constraint), true, nil
+		return types.PredicateInfo{Predicate: predicateFromConstraint(constraint), ReverseOrder: true}, nil
 	}
 }
 
@@ -110,49 +110,45 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-// the boolean returned as second value indicates if a predicate was found.
-func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, bool, error) {
+func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, error) {
 	constraintStr, err := constraintRetriever(conf)
 	if err != nil || constraintStr == "" {
-		return nil, false, err
+		return nil, err
 	}
 
 	constraint, err := version.NewConstraint(constraintStr)
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
-	return predicateFromConstraint(constraint), true, nil
+	return predicateFromConstraint(constraint), nil
 }
 
-// the boolean returned as second value indicates if a predicate was found.
-func readTfFiles(conf *config.Config) (func(string) bool, bool, error) {
+func readTfFiles(conf *config.Config) (func(string) bool, error) {
 	requireds, err := tfparser.GatherRequiredVersion(conf)
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
 	var constraint version.Constraints
 	for _, required := range requireds {
 		temp, err := version.NewConstraint(required)
 		if err != nil {
-			return nil, false, err
+			return nil, err
 		}
 		constraint = append(constraint, temp...)
 	}
 	if len(constraint) == 0 {
-		return nil, false, nil
+		return nil, nil //nolint
 	}
 
-	return predicateFromConstraint(constraint), true, nil
+	return predicateFromConstraint(constraint), nil
 }
 
-// the boolean returned as second value indicates if a predicate was found.
-func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, bool, error) {
+func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, error) {
 	return readPredicate(terragruntparser.RetrieveTerraformVersionConstraint, conf)
 }
 
-// the boolean returned as second value indicates if a predicate was found.
-func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, bool, error) {
+func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, error) {
 	return readPredicate(terragruntparser.RetrieveTerraguntVersionConstraint, conf)
 }

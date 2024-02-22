@@ -24,15 +24,15 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
 func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
+		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
 
 		return "", nil
 	}
@@ -41,7 +41,6 @@ func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	if resolvedVersion == "" {
 		return "", nil
 	}
-	conf.Display("Resolved version from", filePath, ":", color.GreenString(resolvedVersion))
 
-	return resolvedVersion, nil
+	return types.DisplayDetectionInfo(conf.Displayer, resolvedVersion, filePath), nil
 }

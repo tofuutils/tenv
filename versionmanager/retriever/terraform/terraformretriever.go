@@ -82,7 +82,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 			return err
 		}
 
-		r.conf.Display(apimsg.MsgFetchRelease, versionUrl)
+		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
 
 		value, err := apiGetRequest(versionUrl)
 		if err != nil {
@@ -108,7 +108,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Display)
+	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,9 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	}
 
 	if r.conf.Tf.GetListMode() == htmlretriever.ListModeHTML {
-		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, r.conf.Display)
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
+
+		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data)
 	}
 
 	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
@@ -140,7 +142,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	r.conf.Display(apimsg.MsgFetchAllReleases, releasesURL)
+	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
 	value, err := apiGetRequest(releasesURL)
 	if err != nil {
@@ -151,7 +153,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 }
 
 func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
-	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Display)
+	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -160,14 +162,14 @@ func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downlo
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Display)
+	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Display)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Displayer.Display)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}

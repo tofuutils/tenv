@@ -40,13 +40,13 @@ const (
 
 var errContinue = errors.New("continue")
 
-func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(...any)) ([]string, error) {
+func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
 	}
 
-	display(apimsg.MsgFetchRelease, releaseUrl)
+	display(apimsg.MsgFetchRelease + releaseUrl)
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 	value, err := apiGetRequest(releaseUrl, authorizationHeader)
@@ -90,9 +90,7 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	}
 }
 
-func ListReleases(githubReleaseURL string, githubToken string, display func(...any)) ([]string, error) {
-	display(apimsg.MsgFetchAllReleases, githubReleaseURL)
-
+func ListReleases(githubReleaseURL string, githubToken string) ([]string, error) {
 	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 

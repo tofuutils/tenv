@@ -23,6 +23,7 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/tofuutils/tenv/config"
@@ -68,7 +69,7 @@ func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConst
 func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
+		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
 
 		return "", nil
 	}
@@ -77,14 +78,15 @@ func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, 
 	if diags.HasErrors() {
 		return "", diags
 	}
-	conf.AppLogger.Debug("Read", "fileName", fileName)
+
+	conf.Displayer.Log(hclog.Debug, "Read", "fileName", fileName)
 	if parsedFile == nil {
 		return "", nil
 	}
 
 	content, _, diags := parsedFile.Body.PartialContent(versionPartialShema)
 	if diags.HasErrors() {
-		conf.AppLogger.Warn("Failed to parse terragrunt file", loghelper.Error, diags)
+		conf.Displayer.Log(hclog.Warn, "Failed to parse terragrunt file", loghelper.Error, diags)
 
 		return "", nil
 	}
@@ -96,26 +98,26 @@ func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, 
 
 	val, diags := attr.Expr.Value(nil)
 	if diags.HasErrors() {
-		conf.AppLogger.Warn("Failures parsing terragrunt attribute", loghelper.Error, diags)
+		conf.Displayer.Log(hclog.Warn, "Failed to parse terragrunt attribute", loghelper.Error, diags)
 
 		return "", nil
 	}
 
 	val, err = convert.Convert(val, cty.String)
 	if err != nil {
-		conf.AppLogger.Warn("Failed to convert terragrunt attribute", loghelper.Error, err)
+		conf.Displayer.Log(hclog.Warn, "Failed to convert terragrunt attribute", loghelper.Error, err)
 
 		return "", nil
 	}
 
 	if val.IsNull() {
-		conf.AppLogger.Debug("Empty terragrunt attribute")
+		conf.Displayer.Log(hclog.Debug, "Empty terragrunt attribute")
 
 		return "", nil
 	}
 
 	if !val.IsWhollyKnown() {
-		conf.AppLogger.Warn("Unknown terragrunt attribute")
+		conf.Displayer.Log(hclog.Warn, "Unknown terragrunt attribute")
 
 		return "", nil
 	}

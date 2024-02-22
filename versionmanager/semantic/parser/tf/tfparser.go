@@ -22,6 +22,7 @@ import (
 	"io/fs"
 	"path/filepath"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/tofuutils/tenv/config"
@@ -41,7 +42,7 @@ type extDescription struct {
 var exts = []extDescription{{value: ".tf", parseHCL: true}, {value: ".tf.json", parseHCL: false}} //nolint
 
 var terraformPartialSchema = &hcl.BodySchema{ //nolint
-	Blocks: []hcl.BlockHeaderSchema{{Type: "terraform"}},
+	Blocks: []hcl.BlockHeaderSchema{{Type: config.TerraformName}},
 }
 
 var versionPartialSchema = &hcl.BodySchema{ //nolint
@@ -56,7 +57,7 @@ func init() {
 }
 
 func GatherRequiredVersion(conf *config.Config) ([]string, error) {
-	conf.Display("Scan project to find .tf files")
+	conf.Displayer.Display("Scan project to find .tf files")
 
 	var requireds []string
 	var foundFiles []string
@@ -97,11 +98,11 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 		return nil
 	})
 
-	if conf.AppLogger.IsDebug() {
+	if conf.Displayer.IsDebug() {
 		if len(foundFiles) == 0 {
-			conf.AppLogger.Debug("No .tf file found")
+			conf.Displayer.Log(hclog.Debug, "No .tf file found")
 		} else {
-			conf.AppLogger.Debug("Read", "filePaths", foundFiles)
+			conf.Displayer.Log(hclog.Debug, "Read", "filePaths", foundFiles)
 		}
 	}
 
@@ -111,7 +112,7 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 	rootContent, _, diags := body.PartialContent(terraformPartialSchema)
 	if diags.HasErrors() {
-		conf.AppLogger.Warn("Failed to parse tf file", loghelper.Error, diags)
+		conf.Displayer.Log(hclog.Warn, "Failed to parse tf file", loghelper.Error, diags)
 
 		return nil
 	}
@@ -120,7 +121,7 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 	for _, block := range rootContent.Blocks {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
-			conf.AppLogger.Warn("Failed to parse tf block", loghelper.Error, diags)
+			conf.Displayer.Log(hclog.Warn, "Failed to parse tf block", loghelper.Error, diags)
 
 			return nil
 		}
@@ -132,26 +133,26 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 
 		val, diags := attr.Expr.Value(nil)
 		if diags.HasErrors() {
-			conf.AppLogger.Warn("Failures parsing tf attribute", loghelper.Error, diags)
+			conf.Displayer.Log(hclog.Warn, "Failed to parse tf attribute", loghelper.Error, diags)
 
 			return nil
 		}
 
 		val, err := convert.Convert(val, cty.String)
 		if err != nil {
-			conf.AppLogger.Warn("Failed to convert tf attribute", loghelper.Error, err)
+			conf.Displayer.Log(hclog.Warn, "Failed to convert tf attribute", loghelper.Error, err)
 
 			return nil
 		}
 
 		if val.IsNull() {
-			conf.AppLogger.Debug("Empty tf attribute")
+			conf.Displayer.Log(hclog.Debug, "Empty tf attribute")
 
 			continue
 		}
 
 		if !val.IsWhollyKnown() {
-			conf.AppLogger.Warn("Unknown tf attribute")
+			conf.Displayer.Log(hclog.Warn, "Unknown tf attribute")
 
 			continue
 		}
