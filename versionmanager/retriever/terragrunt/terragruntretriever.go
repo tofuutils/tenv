@@ -30,7 +30,6 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
-	"github.com/tofuutils/tenv/pkg/loghelper"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
@@ -69,7 +68,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Display)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	}
 	if err != nil {
 		return err
@@ -81,12 +80,12 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Display)
+	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Display)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -103,29 +102,27 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	return os.WriteFile(filepath.Join(targetPath, config.TerragruntName), data, 0755)
 }
 
-func (r *TerragruntRetriever) ListReleases() ([]string, []loghelper.RecordedMessage, error) {
+func (r *TerragruntRetriever) ListReleases() ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	listURL := r.conf.Tg.GetListURL()
 	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
 		baseURL, err := url.JoinPath(listURL, gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
-		recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + baseURL}}
-		releases, err := htmlretriever.ListReleases(baseURL, r.conf.Tg.Data)
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return releases, recordeds, err
+		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data)
 	}
 
-	recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + listURL}}
-	releases, err := github.ListReleases(listURL, r.conf.GithubToken)
+	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
-	return releases, recordeds, err
+	return github.ListReleases(listURL, r.conf.GithubToken)
 }
 
 func buildAssetNames(arch string) (string, string) {

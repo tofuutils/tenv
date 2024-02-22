@@ -48,82 +48,79 @@ var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: terragruntVersionConstraintName}},
 }
 
-func RetrieveTerraformVersionConstraint(conf *config.Config) (string, []loghelper.RecordedMessage, error) {
+func RetrieveTerraformVersionConstraint(conf *config.Config) (string, error) {
 	return retrieveVersionConstraint(terraformVersionPartialSchema, terraformVersionConstraintName, conf)
 }
 
-func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, []loghelper.RecordedMessage, error) {
+func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, error) {
 	return retrieveVersionConstraint(terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
 }
 
-func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, []loghelper.RecordedMessage, error) {
+func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	parser := hclparse.NewParser()
-	constraint, recordeds, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, conf)
+	constraint, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, conf)
 	if err != nil || constraint != "" {
-		return constraint, recordeds, err
+		return constraint, err
 	}
 
-	constraint, recordeds2, err := retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, conf)
-	recordeds = append(recordeds, recordeds2...)
-
-	return constraint, recordeds, err
+	return retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, conf)
 }
 
-func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, []loghelper.RecordedMessage, error) {
+func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		recordeds := []loghelper.RecordedMessage{{Level: loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), Message: "Failed to read terragrunt file", Args: []any{loghelper.Error, err}}}
+		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
 
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	parsedFile, diags := fileParser(data, fileName)
 	if diags.HasErrors() {
-		return "", nil, diags
+		return "", diags
 	}
 
-	recordeds := []loghelper.RecordedMessage{{Level: hclog.Debug, Message: "Read", Args: []any{"fileName", fileName}}}
+	conf.Displayer.Log(hclog.Debug, "Read", "fileName", fileName)
 	if parsedFile == nil {
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	content, _, diags := parsedFile.Body.PartialContent(versionPartialShema)
 	if diags.HasErrors() {
-		recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Failed to parse terragrunt file", Args: []any{loghelper.Error, diags}})
+		conf.Displayer.Log(hclog.Warn, "Failed to parse terragrunt file", loghelper.Error, diags)
 
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	attr, exists := content.Attributes[versionConstraintName]
 	if !exists {
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	val, diags := attr.Expr.Value(nil)
 	if diags.HasErrors() {
-		recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Failed to parse terragrunt attribute", Args: []any{loghelper.Error, diags}})
+		conf.Displayer.Log(hclog.Warn, "Failed to parse terragrunt attribute", loghelper.Error, diags)
 
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	val, err = convert.Convert(val, cty.String)
 	if err != nil {
-		recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Failed to convert terragrunt attribute", Args: []any{loghelper.Error, err}})
+		conf.Displayer.Log(hclog.Warn, "Failed to convert terragrunt attribute", loghelper.Error, err)
 
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	if val.IsNull() {
-		recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Debug, Message: "Empty terragrunt attribute"})
+		conf.Displayer.Log(hclog.Debug, "Empty terragrunt attribute")
 
-		return "", recordeds, nil
+		return "", nil
 	}
 
 	if !val.IsWhollyKnown() {
-		recordeds = append(recordeds, loghelper.RecordedMessage{Level: hclog.Warn, Message: "Unknown terragrunt attribute"})
+		conf.Displayer.Log(hclog.Warn, "Unknown terragrunt attribute")
 
-		return "", recordeds, nil
+		return "", nil
 	}
 
-	return val.AsString(), recordeds, nil
+	return val.AsString(), nil
 }

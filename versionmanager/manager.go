@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 	"slices"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
@@ -40,7 +41,7 @@ var (
 
 type ReleaseInfoRetriever interface {
 	InstallRelease(version string, targetPath string) error
-	ListReleases() ([]string, []loghelper.RecordedMessage, error)
+	ListReleases() ([]string, error)
 }
 
 type VersionManager struct {
@@ -57,34 +58,30 @@ func MakeVersionManager(conf *config.Config, folderName string, predicateReaders
 }
 
 // detect version (can install depending on auto install env var).
-func (m VersionManager) Detect(multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
+func (m VersionManager) Detect(proxyCall bool) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
-		multiDisplay(configVersion.Messages)
+		m.conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
 
-	return m.detect(configVersion, multiDisplay)
+	return m.detect(configVersion, proxyCall)
 }
 
-func (m VersionManager) Install(requestedVersion types.DetectionInfo) error {
-	multiDisplay := loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display)
-
-	parsedVersion, err := version.NewVersion(requestedVersion.Version)
+func (m VersionManager) Install(requestedVersion string) error {
+	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
-		return m.installSpecificVersion(parsedVersion.String(), requestedVersion.Messages, multiDisplay)
+		return m.installSpecificVersion(parsedVersion.String(), false)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
 	if err != nil {
-		multiDisplay(predicateInfo.Messages)
-
 		return err
 	}
 
 	// noInstall is set to false to force install regardless of conf
-	_, err = m.searchInstallRemote(predicateInfo, false, multiDisplay)
+	_, err = m.searchInstallRemote(predicateInfo, false, false)
 
 	return err
 }
@@ -94,7 +91,7 @@ func (m VersionManager) Install(requestedVersion types.DetectionInfo) error {
 func (m VersionManager) InstallPath() string {
 	dir := filepath.Join(m.conf.RootPath, m.FolderName)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		m.conf.AppLogger.Warn("Can not create installation directory", loghelper.Error, err)
+		m.conf.Displayer.Log(hclog.Warn, "Can not create installation directory", loghelper.Error, err)
 	}
 
 	return dir
@@ -119,22 +116,22 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 	return versions, nil
 }
 
-func (m VersionManager) ListRemote(reverseOrder bool) ([]string, []loghelper.RecordedMessage, error) {
-	versions, recordeds, err := m.retriever.ListReleases()
+func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
+	versions, err := m.retriever.ListReleases()
 	if err != nil {
-		return nil, recordeds, err
+		return nil, err
 	}
 
 	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
 
-	return versions, recordeds, nil
+	return versions, nil
 }
 
 func (m VersionManager) LocalSet() map[string]struct{} {
 	entries, err := os.ReadDir(m.InstallPath())
 	if err != nil {
-		m.conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
+		m.conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
 
 		return nil
 	}
@@ -153,23 +150,23 @@ func (m VersionManager) Reset() error {
 	versionFilePath := m.RootVersionFilePath()
 	err := os.RemoveAll(versionFilePath)
 	if err == nil {
-		m.conf.Display("Removed " + versionFilePath)
+		m.conf.Displayer.Display("Removed " + versionFilePath)
 	}
 
 	return err
 }
 
-func (m VersionManager) Resolve(defaultStrategy string) (types.DetectionInfo, error) {
+func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
-		return types.MakeDetectionInfo(forcedVersion, m.VersionEnvName), nil
+		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
 	}
 
-	if detectionInfo, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || detectionInfo.Version != "" {
-		return detectionInfo, err
+	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || version != "" {
+		return version, err
 	}
-	detectionMessages := []loghelper.RecordedMessage{{Message: loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}}
+	m.conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
 
-	return types.DetectionInfo{Version: defaultStrategy, Messages: detectionMessages}, nil
+	return defaultStrategy, nil
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
@@ -186,14 +183,14 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
 	if err = os.RemoveAll(targetPath); err == nil {
-		m.conf.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", cleanedVersion, " successful (directory ", targetPath, " removed)"))
+		m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", cleanedVersion, " successful (directory ", targetPath, " removed)"))
 	}
 
 	return err
 }
 
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
-	detectedVersion, err := m.detect(types.DetectionInfo{Version: requestedVersion}, loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display))
+	detectedVersion, err := m.detect(requestedVersion, false)
 	if err != nil {
 		return err
 	}
@@ -203,28 +200,28 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 		targetFilePath = m.RootVersionFilePath()
 	}
 	if err = os.WriteFile(targetFilePath, []byte(detectedVersion), 0644); err == nil {
-		m.conf.Display(loghelper.Concat("Written ", detectedVersion, " in ", targetFilePath))
+		m.conf.Displayer.Display(loghelper.Concat("Written ", detectedVersion, " in ", targetFilePath))
 	}
 
 	return err
 }
 
-func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
-	parsedVersion, err := version.NewVersion(requestedVersion.Version)
+func (m VersionManager) detect(requestedVersion string, proxyCall bool) (string, error) {
+	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String()
 		if m.conf.NoInstall {
-			multiDisplay(requestedVersion.Messages)
+			m.conf.Displayer.Flush(proxyCall)
 
 			return cleanedVersion, nil
 		}
 
-		return cleanedVersion, m.installSpecificVersion(cleanedVersion, requestedVersion.Messages, multiDisplay)
+		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
 	if err != nil {
-		multiDisplay(predicateInfo.Messages)
+		m.conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
@@ -232,34 +229,34 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 	if !m.conf.ForceRemote {
 		versions, err := m.ListLocal(predicateInfo.ReverseOrder)
 		if err != nil {
-			multiDisplay(predicateInfo.Messages)
+			m.conf.Displayer.Flush(proxyCall)
 
 			return "", err
 		}
 
 		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
-				recordeds := append(predicateInfo.Messages, loghelper.RecordedMessage{Message: "Found compatible version installed locally : " + version})
-				multiDisplay(recordeds)
+				m.conf.Displayer.Display("Found compatible version installed locally : " + version)
+				m.conf.Displayer.Flush(proxyCall)
 
 				return version, nil
 			}
 		}
 
 		if m.conf.NoInstall {
-			multiDisplay(predicateInfo.Messages)
+			m.conf.Displayer.Flush(proxyCall)
 
 			return "", errNoCompatible
 		}
-		predicateInfo.Messages = append(predicateInfo.Messages, loghelper.RecordedMessage{Message: "No compatible version found locally, search a remote one..."})
+		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
 	}
 
-	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, multiDisplay)
+	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
 }
 
-func (m VersionManager) installSpecificVersion(version string, recordeds []loghelper.RecordedMessage, multiDisplay func([]loghelper.RecordedMessage)) error {
+func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
 	if version == "" {
-		multiDisplay(recordeds)
+		m.conf.Displayer.Flush(proxyCall)
 
 		return errEmptyVersion
 	}
@@ -267,54 +264,53 @@ func (m VersionManager) installSpecificVersion(version string, recordeds []loghe
 	installPath := m.InstallPath()
 	entries, err := os.ReadDir(installPath)
 	if err != nil {
-		multiDisplay(recordeds)
+		m.conf.Displayer.Flush(proxyCall)
 
 		return err
 	}
 
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
-			recordeds = append(recordeds, loghelper.RecordedMessage{Message: loghelper.Concat(m.FolderName, " ", version, " already installed")})
-			multiDisplay(recordeds)
+			m.conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
+			m.conf.Displayer.Flush(proxyCall)
 
 			return nil
 		}
 	}
 
 	// Always normal display when installation is need
-	loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display)(recordeds)
-	m.conf.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
+	m.conf.Displayer.Flush(false)
+	m.conf.Displayer.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
 	err = m.retriever.InstallRelease(version, filepath.Join(installPath, version))
 	if err == nil {
-		m.conf.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
+		m.conf.Displayer.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
 	}
 
 	return err
 }
 
-func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
-	versions, recordeds2, err := m.ListRemote(predicateInfo.ReverseOrder)
-	recordeds := append(predicateInfo.Messages, recordeds2...)
+func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, proxyCall bool) (string, error) {
+	versions, err := m.ListRemote(predicateInfo.ReverseOrder)
 	if err != nil {
-		multiDisplay(recordeds)
+		m.conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
 
 	for _, version := range versions {
 		if predicateInfo.Predicate(version) {
-			recordeds = append(recordeds, loghelper.RecordedMessage{Message: "Found compatible version remotely : " + version})
+			m.conf.Displayer.Display("Found compatible version remotely : " + version)
 			if noInstall {
-				multiDisplay(recordeds)
+				m.conf.Displayer.Flush(proxyCall)
 
 				return version, nil
 			}
 
-			return version, m.installSpecificVersion(version, recordeds, multiDisplay)
+			return version, m.installSpecificVersion(version, proxyCall)
 		}
 	}
-	multiDisplay(recordeds)
+	m.conf.Displayer.Flush(proxyCall)
 
 	return "", errNoCompatible
 }

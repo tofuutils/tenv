@@ -32,7 +32,6 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
-	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
@@ -85,7 +84,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
 	} else {
-		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Display)
+		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	}
 	if err != nil {
 		return err
@@ -97,7 +96,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Display)
+	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -109,33 +108,31 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	return zip.UnzipToDir(data, targetPath)
 }
 
-func (r *TofuRetriever) ListReleases() ([]string, []loghelper.RecordedMessage, error) {
+func (r *TofuRetriever) ListReleases() ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	listURL := r.conf.Tofu.GetListURL()
 	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
 		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download) //nolint
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
-		recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + baseURL}}
-		releases, err := htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data)
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return releases, recordeds, err
+		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data)
 	}
 
-	recordeds := []loghelper.RecordedMessage{{Message: apimsg.MsgFetchAllReleases + listURL}}
-	releases, err := github.ListReleases(listURL, r.conf.GithubToken)
+	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
-	return releases, recordeds, err
+	return github.ListReleases(listURL, r.conf.GithubToken)
 }
 
 func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Display)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -144,12 +141,12 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 		return err
 	}
 
-	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.Display)
+	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.Display)
+	dataSumsCert, err := download.Bytes(assetURLs[2], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
@@ -161,21 +158,21 @@ func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, da
 	}
 
 	if !stable {
-		r.conf.Display("skip signature check : cosign executable not found and pgp check not available for unstable version")
+		r.conf.Displayer.Display("skip signature check : cosign executable not found and pgp check not available for unstable version")
 
 		return nil
 	}
 
-	r.conf.Display("cosign executable not found, fallback to pgp check")
+	r.conf.Displayer.Display("cosign executable not found, fallback to pgp check")
 
-	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.Display)
+	dataSumsSig, err = download.Bytes(assetURLs[4], r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Display)
+		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Displayer.Display)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}

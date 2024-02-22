@@ -94,9 +94,9 @@ const (
 )
 
 type Config struct {
-	AppLogger        hclog.Logger
+	appLogger        hclog.Logger
 	Arch             string
-	Display          func(string)
+	Displayer        loghelper.Displayer
 	DisplayVerbose   bool
 	ForceQuiet       bool
 	ForceRemote      bool
@@ -154,9 +154,8 @@ func InitConfigFromEnv() (Config, error) {
 	}
 
 	return Config{
-		AppLogger:      appLogger,
+		appLogger:      appLogger,
 		Arch:           arch,
-		Display:        loghelper.StdDisplay,
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),
@@ -188,7 +187,7 @@ func (conf *Config) InitRemoteConf() error {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
-		conf.AppLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
+		conf.appLogger.Debug("Can not read remote configuration file", loghelper.Error, err)
 
 		return nil
 	}
@@ -207,15 +206,18 @@ func (conf *Config) InitRemoteConf() error {
 
 func (conf *Config) LogLevelUpdate(proxyCall bool) {
 	if conf.ForceQuiet {
-		conf.Display = loghelper.NoDisplay
+		conf.appLogger.SetLevel(hclog.Off)
+		conf.Displayer = loghelper.NewBasicDisplayer(conf.appLogger, loghelper.NoDisplay)
 		conf.DisplayVerbose = false
-		conf.AppLogger.SetLevel(hclog.Off)
 	} else {
-		if proxyCall {
-			conf.Display = loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
-		}
 		if conf.DisplayVerbose {
-			conf.AppLogger.SetLevel(hclog.Trace)
+			conf.appLogger.SetLevel(hclog.Trace)
+		}
+		if proxyCall {
+			display := loghelper.BuildDisplayFunc(os.Stderr, color.New(color.FgGreen))
+			conf.Displayer = loghelper.NewRecordingDisplayer(loghelper.NewBasicDisplayer(conf.appLogger, display))
+		} else {
+			conf.Displayer = loghelper.NewBasicDisplayer(conf.appLogger, loghelper.StdDisplay)
 		}
 	}
 }

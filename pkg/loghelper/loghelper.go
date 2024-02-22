@@ -29,10 +29,90 @@ import (
 
 const Error = "error"
 
-type RecordedMessage struct {
+type Displayer interface {
+	Display(msg string)
+	IsDebug() bool
+	Log(level hclog.Level, msg string, args ...any)
+	Flush(logMode bool)
+}
+
+type basicDisplayer struct {
+	display func(string)
+	logger  hclog.Logger
+}
+
+func NewBasicDisplayer(logger hclog.Logger, display func(string)) Displayer {
+	return basicDisplayer{display: display, logger: logger}
+}
+
+func (bd basicDisplayer) Display(msg string) {
+	bd.display(msg)
+}
+
+func (bd basicDisplayer) IsDebug() bool {
+	return bd.logger.IsDebug()
+}
+
+func (bd basicDisplayer) Log(level hclog.Level, msg string, args ...any) {
+	bd.logger.Log(level, msg, args...)
+}
+
+func (bd basicDisplayer) Flush(bool) {
+}
+
+type logWrapper struct {
+	Displayer
+}
+
+func (lw logWrapper) Display(msg string) {
+	lw.Displayer.Log(hclog.Debug, msg)
+}
+
+type recordedMessage struct {
 	Level   hclog.Level
 	Message string
 	Args    []any
+}
+
+type recordingWrapper struct {
+	Displayer
+	recordeds []recordedMessage
+}
+
+func (rw *recordingWrapper) Display(msg string) {
+	rw.recordeds = append(rw.recordeds, recordedMessage{Message: msg})
+}
+
+func (rw *recordingWrapper) Log(level hclog.Level, msg string, args ...any) {
+	rw.recordeds = append(rw.recordeds, recordedMessage{Level: level, Message: msg, Args: args})
+}
+
+func (rw *recordingWrapper) Flush(logMode bool) {
+	if logMode {
+		rw.Displayer = logWrapper{Displayer: rw.Displayer}
+	}
+	for _, recorded := range rw.recordeds {
+		if recorded.Level == hclog.NoLevel {
+			rw.Displayer.Display(recorded.Message)
+		} else {
+			rw.Displayer.Log(recorded.Level, recorded.Message, recorded.Args...)
+		}
+	}
+}
+
+type stateWrapper struct {
+	Displayer
+}
+
+func NewRecordingDisplayer(displayer Displayer) Displayer {
+	return &stateWrapper{Displayer: &recordingWrapper{Displayer: displayer}}
+}
+
+func (sw *stateWrapper) Flush(logMode bool) {
+	sw.Displayer.Flush(logMode)
+	if rw, ok := sw.Displayer.(*recordingWrapper); ok {
+		sw.Displayer = rw.Displayer // following call will be direct
+	}
 }
 
 func BuildDisplayFunc(writer io.Writer, usedColor *color.Color) func(string) {
@@ -47,30 +127,6 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 	}
 
 	return hclog.Warn
-}
-
-func MultiDisplay(logger hclog.Logger, display func(string)) func([]RecordedMessage) {
-	return func(recordeds []RecordedMessage) {
-		for _, recorded := range recordeds {
-			if recorded.Level == hclog.NoLevel {
-				display(recorded.Message)
-			} else {
-				logger.Log(recorded.Level, recorded.Message, recorded.Args...)
-			}
-		}
-	}
-}
-
-func MultiLog(logger hclog.Logger) func([]RecordedMessage) {
-	return func(recordeds []RecordedMessage) {
-		for _, recorded := range recordeds {
-			if recorded.Level == hclog.NoLevel {
-				logger.Debug(recorded.Message, recorded.Args...)
-			} else {
-				logger.Log(recorded.Level, recorded.Message, recorded.Args...)
-			}
-		}
-	}
 }
 
 func NoDisplay(string) {}

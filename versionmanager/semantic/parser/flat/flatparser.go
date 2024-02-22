@@ -29,18 +29,18 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
-func RetrieveVersion(filePath string, conf *config.Config) (types.DetectionInfo, error) {
+func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
+		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
 
-		return types.DetectionInfo{}, nil
+		return "", nil
 	}
 
 	resolvedVersion := string(bytes.TrimSpace(data))
 	if resolvedVersion == "" {
-		return types.DetectionInfo{}, nil
+		return "", nil
 	}
 
-	return types.MakeDetectionInfo(resolvedVersion, filePath), nil
+	return types.DisplayDetectionInfo(conf.Displayer, resolvedVersion, filePath), nil
 }

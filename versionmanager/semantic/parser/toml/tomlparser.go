@@ -31,23 +31,23 @@ import (
 
 const versionName = "version"
 
-func RetrieveVersion(filePath string, conf *config.Config) (types.DetectionInfo, error) {
+func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		conf.AppLogger.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read tgswitch file", loghelper.Error, err)
+		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read tgswitch file", loghelper.Error, err)
 
-		return types.DetectionInfo{}, nil
+		return "", nil
 	}
 
 	var parsed map[string]string
 	if _, err = toml.Decode(string(data), &parsed); err != nil {
-		return types.DetectionInfo{}, err
+		return "", err
 	}
 
 	resolvedVersion := parsed[versionName]
 	if resolvedVersion == "" {
-		return types.DetectionInfo{}, nil
+		return "", nil
 	}
 
-	return types.MakeDetectionInfo(resolvedVersion, filePath), nil
+	return types.DisplayDetectionInfo(conf.Displayer, resolvedVersion, filePath), nil
 }

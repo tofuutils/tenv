@@ -30,7 +30,6 @@ import (
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/versionmanager"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
 const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"
@@ -51,7 +50,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			conf.LogLevelUpdate(false)
 			addDeprecationMsg(conf, params)
 
-			detectedVersion, err := versionManager.Detect(loghelper.MultiDisplay(conf.AppLogger, conf.Display))
+			detectedVersion, err := versionManager.Detect(false)
 			if err != nil {
 				return err
 			}
@@ -102,15 +101,15 @@ If a parameter is passed, available options:
 			addDeprecationMsg(conf, params)
 
 			if len(args) == 0 {
-				detectionInfo, err := versionManager.Resolve(semantic.LatestKey)
+				version, err := versionManager.Resolve(semantic.LatestKey)
 				if err != nil {
 					return err
 				}
 
-				return versionManager.Install(detectionInfo)
+				return versionManager.Install(version)
 			}
 
-			return versionManager.Install(types.DetectionInfo{Version: args[0]})
+			return versionManager.Install(args[0])
 		},
 	}
 
@@ -192,8 +191,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 			conf.LogLevelUpdate(false)
 			addDeprecationMsg(conf, params)
 
-			versions, recordeds, err := versionManager.ListRemote(reverseOrder)
-			loghelper.MultiDisplay(conf.AppLogger, conf.Display)(recordeds)
+			versions, err := versionManager.ListRemote(reverseOrder)
 			if err != nil {
 				return err
 			}
@@ -329,7 +327,7 @@ func addDeprecationHelpMsg(descBuilder *strings.Builder, params subCmdParams) {
 
 func addDeprecationMsg(conf *config.Config, params subCmdParams) {
 	if params.deprecated {
-		conf.Display(deprecationMsg)
+		conf.Displayer.Display(deprecationMsg)
 	}
 }
 
