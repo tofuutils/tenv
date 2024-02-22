@@ -30,9 +30,11 @@ import (
 
 const (
 	rootVersionHelp = "Display tenv current version."
-	tfHelp          = "subcommand to manage several versions of Terraform (https://www.terraform.io)."
-	tgHelp          = "subcommand to manage several versions of Terragrunt (https://terragrunt.gruntwork.io/)."
-	tofuHelp        = "subcommand to manage several versions of OpenTofu (https://opentofu.org)."
+
+	helpPrefix = "Subcommand to manage several versions of "
+	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
+	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io/)."
+	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
 )
 
 // can be overridden with ldflags.
