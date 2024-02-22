@@ -204,7 +204,7 @@ func (conf *Config) InitRemoteConf() error {
 	return nil
 }
 
-func (conf *Config) LogLevelUpdate(proxyCall bool) {
+func (conf *Config) InitDisplayer(proxyCall bool) {
 	if conf.ForceQuiet {
 		conf.appLogger.SetLevel(hclog.Off)
 		conf.Displayer = loghelper.NewBasicDisplayer(conf.appLogger, loghelper.NoDisplay)
