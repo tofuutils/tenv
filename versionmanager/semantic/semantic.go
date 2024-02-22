@@ -139,7 +139,7 @@ func readTfFiles(conf *config.Config) (func(string) bool, error) {
 		constraint = append(constraint, temp...)
 	}
 	if len(constraint) == 0 {
-		return nil, nil
+		return nil, nil //nolint
 	}
 
 	return predicateFromConstraint(constraint), nil

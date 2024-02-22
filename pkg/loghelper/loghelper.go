@@ -41,7 +41,7 @@ type basicDisplayer struct {
 	logger  hclog.Logger
 }
 
-func NewBasicDisplayer(logger hclog.Logger, display func(string)) Displayer {
+func NewBasicDisplayer(logger hclog.Logger, display func(string)) Displayer { //nolint
 	return basicDisplayer{display: display, logger: logger}
 }
 
@@ -104,7 +104,7 @@ type stateWrapper struct {
 	Displayer
 }
 
-func NewRecordingDisplayer(displayer Displayer) Displayer {
+func NewRecordingDisplayer(displayer Displayer) Displayer { //nolint
 	return &stateWrapper{Displayer: &recordingWrapper{Displayer: displayer}}
 }
 
