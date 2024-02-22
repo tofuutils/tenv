@@ -24,20 +24,20 @@ import (
 )
 
 type DetectionInfo struct {
-	Version       string
-	DetectionMsgs []loghelper.RecordedMessage
+	Version  string
+	Messages []loghelper.RecordedMessage
 }
 
 func MakeDetectionInfo(version string, source string) DetectionInfo {
-	detectionMsgs := []loghelper.RecordedMessage{{Message: loghelper.Concat("Resolved version from ", source, " : ", version)}}
+	detectionMessages := []loghelper.RecordedMessage{{Message: loghelper.Concat("Resolved version from ", source, " : ", version)}}
 
-	return DetectionInfo{Version: version, DetectionMsgs: detectionMsgs}
+	return DetectionInfo{Version: version, Messages: detectionMessages}
 }
 
 type PredicateInfo struct {
 	Predicate    func(string) bool
 	ReverseOrder bool
-	RecordedMsgs []loghelper.RecordedMessage
+	Messages     []loghelper.RecordedMessage
 }
 
 type PredicateReader = func(*config.Config) (func(string) bool, []loghelper.RecordedMessage, error)

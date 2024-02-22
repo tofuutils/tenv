@@ -60,7 +60,7 @@ func MakeVersionManager(conf *config.Config, folderName string, predicateReaders
 func (m VersionManager) Detect(multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
-		multiDisplay(configVersion.DetectionMsgs)
+		multiDisplay(configVersion.Messages)
 
 		return "", err
 	}
@@ -73,12 +73,12 @@ func (m VersionManager) Install(requestedVersion types.DetectionInfo) error {
 
 	parsedVersion, err := version.NewVersion(requestedVersion.Version)
 	if err == nil {
-		return m.installSpecificVersion(parsedVersion.String(), requestedVersion.DetectionMsgs, multiDisplay)
+		return m.installSpecificVersion(parsedVersion.String(), requestedVersion.Messages, multiDisplay)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
 	if err != nil {
-		multiDisplay(predicateInfo.RecordedMsgs)
+		multiDisplay(predicateInfo.Messages)
 
 		return err
 	}
@@ -169,7 +169,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (types.DetectionInfo, er
 	}
 	detectionMsgs := []loghelper.RecordedMessage{{Message: loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}}
 
-	return types.DetectionInfo{Version: defaultStrategy, DetectionMsgs: detectionMsgs}, nil
+	return types.DetectionInfo{Version: defaultStrategy, Messages: detectionMsgs}, nil
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
@@ -214,17 +214,17 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 	if err == nil {
 		cleanedVersion := parsedVersion.String()
 		if m.conf.NoInstall {
-			multiDisplay(requestedVersion.DetectionMsgs)
+			multiDisplay(requestedVersion.Messages)
 
 			return cleanedVersion, nil
 		}
 
-		return cleanedVersion, m.installSpecificVersion(cleanedVersion, requestedVersion.DetectionMsgs, multiDisplay)
+		return cleanedVersion, m.installSpecificVersion(cleanedVersion, requestedVersion.Messages, multiDisplay)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
 	if err != nil {
-		multiDisplay(predicateInfo.RecordedMsgs)
+		multiDisplay(predicateInfo.Messages)
 
 		return "", err
 	}
@@ -232,14 +232,14 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 	if !m.conf.ForceRemote {
 		versions, err := m.ListLocal(predicateInfo.ReverseOrder)
 		if err != nil {
-			multiDisplay(predicateInfo.RecordedMsgs)
+			multiDisplay(predicateInfo.Messages)
 
 			return "", err
 		}
 
 		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
-				recordedMsgs := append(predicateInfo.RecordedMsgs, loghelper.RecordedMessage{Message: "Found compatible version installed locally : " + version})
+				recordedMsgs := append(predicateInfo.Messages, loghelper.RecordedMessage{Message: "Found compatible version installed locally : " + version})
 				multiDisplay(recordedMsgs)
 
 				return version, nil
@@ -247,11 +247,11 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 		}
 
 		if m.conf.NoInstall {
-			multiDisplay(predicateInfo.RecordedMsgs)
+			multiDisplay(predicateInfo.Messages)
 
 			return "", errNoCompatible
 		}
-		predicateInfo.RecordedMsgs = append(predicateInfo.RecordedMsgs, loghelper.RecordedMessage{Message: "No compatible version found locally, search a remote one..."})
+		predicateInfo.Messages = append(predicateInfo.Messages, loghelper.RecordedMessage{Message: "No compatible version found locally, search a remote one..."})
 	}
 
 	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, multiDisplay)
@@ -295,7 +295,7 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []lo
 
 func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
 	versions, recordeds, err := m.ListRemote(predicateInfo.ReverseOrder)
-	recordedMsgs := append(predicateInfo.RecordedMsgs, recordeds...)
+	recordedMsgs := append(predicateInfo.Messages, recordeds...)
 	if err != nil {
 		multiDisplay(recordedMsgs)
 

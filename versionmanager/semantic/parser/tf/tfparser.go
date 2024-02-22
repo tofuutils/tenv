@@ -42,7 +42,7 @@ type extDescription struct {
 var exts = []extDescription{{value: ".tf", parseHCL: true}, {value: ".tf.json", parseHCL: false}} //nolint
 
 var terraformPartialSchema = &hcl.BodySchema{ //nolint
-	Blocks: []hcl.BlockHeaderSchema{{Type: "terraform"}},
+	Blocks: []hcl.BlockHeaderSchema{{Type: config.TerraformName}},
 }
 
 var versionPartialSchema = &hcl.BodySchema{ //nolint

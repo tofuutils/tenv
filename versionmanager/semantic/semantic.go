@@ -59,7 +59,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 
 func ParsePredicate(behaviourOrConstraint types.DetectionInfo, displayName string, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
 	reverseOrder := true
-	recordedMsgs := behaviourOrConstraint.DetectionMsgs
+	recordeds := behaviourOrConstraint.Messages
 	switch behaviourOrConstraint.Version {
 	case MinRequiredKey:
 		reverseOrder = false // start with older
@@ -68,29 +68,29 @@ func ParsePredicate(behaviourOrConstraint types.DetectionInfo, displayName strin
 	case LatestAllowedKey:
 		for _, reader := range predicateReaders {
 			predicate, msgs, err := reader(conf)
-			recordedMsgs = append(recordedMsgs, msgs...)
+			recordeds = append(recordeds, msgs...)
 			if err != nil {
-				return types.PredicateInfo{RecordedMsgs: recordedMsgs}, err
+				return types.PredicateInfo{Messages: recordeds}, err
 			}
 			if predicate != nil {
-				return types.PredicateInfo{Predicate: predicate, ReverseOrder: reverseOrder, RecordedMsgs: recordedMsgs}, nil
+				return types.PredicateInfo{Predicate: predicate, ReverseOrder: reverseOrder, Messages: recordeds}, nil
 			}
 		}
 
-		recordedMsgs = append(recordedMsgs, loghelper.RecordedMessage{Message: loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy")})
+		recordeds = append(recordeds, loghelper.RecordedMessage{Message: loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy")})
 
 		fallthrough // fallback to latest
 	case LatestKey, LatestStableKey:
-		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true, RecordedMsgs: recordedMsgs}, nil
+		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true, Messages: recordeds}, nil
 	case LatestPreKey:
-		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true, RecordedMsgs: recordedMsgs}, nil
+		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true, Messages: recordeds}, nil
 	default:
 		constraint, err := version.NewConstraint(behaviourOrConstraint.Version)
 		if err != nil {
-			return types.PredicateInfo{RecordedMsgs: recordedMsgs}, err
+			return types.PredicateInfo{Messages: recordeds}, err
 		}
 
-		return types.PredicateInfo{Predicate: predicateFromConstraint(constraint), ReverseOrder: true, RecordedMsgs: recordedMsgs}, nil
+		return types.PredicateInfo{Predicate: predicateFromConstraint(constraint), ReverseOrder: true, Messages: recordeds}, nil
 	}
 }
 
@@ -112,18 +112,18 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
-	constraintStr, err := constraintRetriever(conf)
+func readPredicate(constraintRetriever func(*config.Config) (string, []loghelper.RecordedMessage, error), conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
+	constraintStr, recordeds, err := constraintRetriever(conf)
 	if err != nil || constraintStr == "" {
-		return nil, nil, err
+		return nil, recordeds, err
 	}
 
 	constraint, err := version.NewConstraint(constraintStr)
 	if err != nil {
-		return nil, nil, err
+		return nil, recordeds, err
 	}
 
-	return predicateFromConstraint(constraint), nil, nil
+	return predicateFromConstraint(constraint), recordeds, nil
 }
 
 func readTfFiles(conf *config.Config) (func(string) bool, []loghelper.RecordedMessage, error) {
