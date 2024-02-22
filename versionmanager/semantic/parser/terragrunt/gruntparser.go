@@ -58,15 +58,15 @@ func RetrieveTerraguntVersionConstraint(conf *config.Config) (string, []loghelpe
 
 func retrieveVersionConstraint(versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, []loghelper.RecordedMessage, error) {
 	parser := hclparse.NewParser()
-	constraint, recorded, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, conf)
+	constraint, recordeds, err := retrieveVersionConstraintFromFile(hclName, parser.ParseHCL, versionPartialShema, versionConstraintName, conf)
 	if err != nil || constraint != "" {
-		return constraint, recorded, err
+		return constraint, recordeds, err
 	}
 
-	constraint, recorded2, err := retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, conf)
-	recorded = append(recorded, recorded2...)
+	constraint, recordeds2, err := retrieveVersionConstraintFromFile(jsonName, parser.ParseJSON, versionPartialShema, versionConstraintName, conf)
+	recordeds = append(recordeds, recordeds2...)
 
-	return constraint, recorded, err
+	return constraint, recordeds, err
 }
 
 func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, []loghelper.RecordedMessage, error) {

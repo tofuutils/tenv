@@ -167,9 +167,9 @@ func (m VersionManager) Resolve(defaultStrategy string) (types.DetectionInfo, er
 	if detectionInfo, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || detectionInfo.Version != "" {
 		return detectionInfo, err
 	}
-	detectionMsgs := []loghelper.RecordedMessage{{Message: loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}}
+	detectionMessages := []loghelper.RecordedMessage{{Message: loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy")}}
 
-	return types.DetectionInfo{Version: defaultStrategy, Messages: detectionMsgs}, nil
+	return types.DetectionInfo{Version: defaultStrategy, Messages: detectionMessages}, nil
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
@@ -239,8 +239,8 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 
 		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
-				recordedMsgs := append(predicateInfo.Messages, loghelper.RecordedMessage{Message: "Found compatible version installed locally : " + version})
-				multiDisplay(recordedMsgs)
+				recordeds := append(predicateInfo.Messages, loghelper.RecordedMessage{Message: "Found compatible version installed locally : " + version})
+				multiDisplay(recordeds)
 
 				return version, nil
 			}
@@ -257,9 +257,9 @@ func (m VersionManager) detect(requestedVersion types.DetectionInfo, multiDispla
 	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, multiDisplay)
 }
 
-func (m VersionManager) installSpecificVersion(version string, recordedMsgs []loghelper.RecordedMessage, multiDisplay func([]loghelper.RecordedMessage)) error {
+func (m VersionManager) installSpecificVersion(version string, recordeds []loghelper.RecordedMessage, multiDisplay func([]loghelper.RecordedMessage)) error {
 	if version == "" {
-		multiDisplay(recordedMsgs)
+		multiDisplay(recordeds)
 
 		return errEmptyVersion
 	}
@@ -267,22 +267,22 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []lo
 	installPath := m.InstallPath()
 	entries, err := os.ReadDir(installPath)
 	if err != nil {
-		multiDisplay(recordedMsgs)
+		multiDisplay(recordeds)
 
 		return err
 	}
 
 	for _, entry := range entries {
 		if entry.IsDir() && version == entry.Name() {
-			recordedMsgs = append(recordedMsgs, loghelper.RecordedMessage{Message: loghelper.Concat(m.FolderName, " ", version, " already installed")})
-			multiDisplay(recordedMsgs)
+			recordeds = append(recordeds, loghelper.RecordedMessage{Message: loghelper.Concat(m.FolderName, " ", version, " already installed")})
+			multiDisplay(recordeds)
 
 			return nil
 		}
 	}
 
 	// Always normal display when installation is need
-	loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display)(recordedMsgs)
+	loghelper.MultiDisplay(m.conf.AppLogger, m.conf.Display)(recordeds)
 	m.conf.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
 	err = m.retriever.InstallRelease(version, filepath.Join(installPath, version))
@@ -294,27 +294,27 @@ func (m VersionManager) installSpecificVersion(version string, recordedMsgs []lo
 }
 
 func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, multiDisplay func([]loghelper.RecordedMessage)) (string, error) {
-	versions, recordeds, err := m.ListRemote(predicateInfo.ReverseOrder)
-	recordedMsgs := append(predicateInfo.Messages, recordeds...)
+	versions, recordeds2, err := m.ListRemote(predicateInfo.ReverseOrder)
+	recordeds := append(predicateInfo.Messages, recordeds2...)
 	if err != nil {
-		multiDisplay(recordedMsgs)
+		multiDisplay(recordeds)
 
 		return "", err
 	}
 
 	for _, version := range versions {
 		if predicateInfo.Predicate(version) {
-			recordedMsgs = append(recordedMsgs, loghelper.RecordedMessage{Message: "Found compatible version remotely : " + version})
+			recordeds = append(recordeds, loghelper.RecordedMessage{Message: "Found compatible version remotely : " + version})
 			if noInstall {
-				multiDisplay(recordedMsgs)
+				multiDisplay(recordeds)
 
 				return version, nil
 			}
 
-			return version, m.installSpecificVersion(version, recordedMsgs, multiDisplay)
+			return version, m.installSpecificVersion(version, recordeds, multiDisplay)
 		}
 	}
-	multiDisplay(recordedMsgs)
+	multiDisplay(recordeds)
 
 	return "", errNoCompatible
 }
