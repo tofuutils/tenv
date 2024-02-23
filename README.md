@@ -890,7 +890,7 @@ The yaml file from TENV_REMOTE_CONF path can have one part for each supported pr
 
 Each part can have the following string field : `install_mode`, `list_mode`, `list_url`, `url`, `new_base_url`, `old_base_url`, `selector` and `part`
 
-With `install_mode` set to "direct", **tenv** skip the release information fetching and build download url directly (overridden by `<TOOL>_INSTALL_MODE` env var).
+With `install_mode` set to "direct", **tenv** skip the release information fetching and generate download url instead of reading them from API (overridden by `<TOOL>_INSTALL_MODE` env var).
 
 With `list_mode` set to "html", **tenv** change the fetching of all releases information from API to parse the parent html page of artifact location, see `selector` and `part` (overridden by `<TOOL>_LIST_MODE` env var).
 
