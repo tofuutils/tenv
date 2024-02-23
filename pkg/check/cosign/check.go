@@ -25,9 +25,10 @@ import (
 	"strings"
 )
 
-const cosignExecName = "cosign"
-
-var verified = "Verified OK"
+const (
+	cosignExecName = "cosign"
+	verified       = "Verified OK"
+)
 
 var (
 	ErrCheck        = errors.New("cosign check failed")

@@ -39,31 +39,31 @@ var dataSig []byte
 //go:embed testdata/tofu_1.6.0_SHA256SUMS.pem
 var dataCert []byte
 
-func TestCosignCheckCorrect(t *testing.T) {
+func TestCosignCheckCorrect(t *testing.T) { //nolint
 	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer); err != nil {
 		t.Error("Unexpected error :", err)
 	}
 }
 
-func TestCosignCheckErrorCert(t *testing.T) {
+func TestCosignCheckErrorCert(t *testing.T) { //nolint
 	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer) == nil {
 		t.Error("Should fail on erroneous certificate")
 	}
 }
 
-func TestCosignCheckErrorIdentity(t *testing.T) {
+func TestCosignCheckErrorIdentity(t *testing.T) { //nolint
 	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer) == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
-func TestCosignCheckErrorIssuer(t *testing.T) {
+func TestCosignCheckErrorIssuer(t *testing.T) { //nolint
 	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com") == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
-func TestCosignCheckErrorSig(t *testing.T) {
+func TestCosignCheckErrorSig(t *testing.T) { //nolint
 	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer) == nil {
 		t.Error("Should fail on erroneous signature")
 	}
