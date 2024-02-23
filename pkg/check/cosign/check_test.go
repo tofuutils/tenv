@@ -40,40 +40,30 @@ var dataSig []byte
 var dataCert []byte
 
 func TestCosignCheckCorrect(t *testing.T) {
-	t.Parallel()
-
 	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer); err != nil {
 		t.Error("Unexpected error :", err)
 	}
 }
 
 func TestCosignCheckErrorCert(t *testing.T) {
-	t.Parallel()
-
 	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer) == nil {
 		t.Error("Should fail on erroneous certificate")
 	}
 }
 
 func TestCosignCheckErrorIdentity(t *testing.T) {
-	t.Parallel()
-
 	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer) == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorIssuer(t *testing.T) {
-	t.Parallel()
-
 	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com") == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorSig(t *testing.T) {
-	t.Parallel()
-
 	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer) == nil {
 		t.Error("Should fail on erroneous signature")
 	}
