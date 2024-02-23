@@ -25,16 +25,16 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 )
 
-//go:embed testdata/tofu_1.6.0_linux_arm64.zip
+//go:embed testdata/hello.txt
 var data []byte
 
-//go:embed testdata/tofu_1.6.0_SHA256SUMS
+//go:embed testdata/hello_SHA256SUMS
 var dataSums []byte
 
 func TestSha256CheckCorrect(t *testing.T) {
 	t.Parallel()
 
-	if err := sha256check.Check(data, dataSums, "tofu_1.6.0_linux_arm64.zip"); err != nil {
+	if err := sha256check.Check(data, dataSums, "hello.txt"); err != nil {
 		t.Error("Unexpected error : ", err)
 	}
 }
@@ -42,7 +42,7 @@ func TestSha256CheckCorrect(t *testing.T) {
 func TestSha256CheckError(t *testing.T) {
 	t.Parallel()
 
-	if err := sha256check.Check(data, dataSums, "tofu_1.6.0_linux_amd64.zip"); err == nil {
+	if err := sha256check.Check(data, dataSums, "hello2.txt"); err == nil {
 		t.Error("Should fail on non corresponding file and fileName")
 	} else if err != sha256check.ErrCheck {
 		t.Error("Incorrect error reported, get :", err)
@@ -52,9 +52,9 @@ func TestSha256CheckError(t *testing.T) {
 func TestSha256Extract(t *testing.T) {
 	t.Parallel()
 
-	if err := sha256check.Check(data, dataSums, "any_name.zip"); err == nil {
-		t.Fatal("Should fail on non exiting fileName")
+	if err := sha256check.Check(data, dataSums, "any_name.txt"); err == nil {
+		t.Error("Should fail on non exiting fileName")
 	} else if err != sha256check.ErrNoSum {
-		t.Fatal("Incorrect error reported, get :", err)
+		t.Error("Incorrect error reported, get :", err)
 	}
 }
