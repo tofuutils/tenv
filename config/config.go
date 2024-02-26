@@ -40,6 +40,7 @@ const (
 
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
+	defaultVersion     = "DEFAULT_" + version
 	forceRemoteEnvName = "FORCE_REMOTE"
 	installModeEnvName = "INSTALL_MODE"
 	listModeEnvName    = "LIST_MODE"
@@ -49,6 +50,7 @@ const (
 	remoteURLEnvName   = "REMOTE"
 	rootPathEnvName    = "ROOT"
 	tokenEnvName       = "GITHUB_TOKEN" //nolint
+	version            = "VERSION"
 
 	tenvPrefix             = "TENV_"
 	tenvArchEnvName        = tenvPrefix + archEnvName
@@ -61,8 +63,10 @@ const (
 	tenvTokenEnvName       = tenvPrefix + tokenEnvName
 
 	tfenvPrefix              = "TFENV_"
+	tfenvTerraformPrefix     = tfenvPrefix + "TERRAFORM_"
 	tfArchEnvName            = tfenvPrefix + archEnvName
 	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
+	TfDefaultVersionEnvName  = tfenvTerraformPrefix + defaultVersion
 	tfForceRemoteEnvName     = tfenvPrefix + forceRemoteEnvName
 	tfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
 	tfInstallModeEnvName     = tfenvPrefix + installModeEnvName
@@ -70,18 +74,21 @@ const (
 	tfListURLEnvName         = tfenvPrefix + listURLEnvName
 	TfRemoteURLEnvName       = tfenvPrefix + remoteURLEnvName
 	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
-	TfVersionEnvName         = tfenvPrefix + "TERRAFORM_VERSION"
+	TfVersionEnvName         = tfenvTerraformPrefix + version
 
-	tgPrefix             = "TG_"
-	tgInstallModeEnvName = tgPrefix + installModeEnvName
-	tgListModeEnvName    = tgPrefix + listModeEnvName
-	tgListURLEnvName     = tgPrefix + listURLEnvName
-	TgRemoteURLEnvName   = tgPrefix + remoteURLEnvName
-	TgVersionEnvName     = tgPrefix + "VERSION"
+	tgPrefix                = "TG_"
+	TgDefaultVersionEnvName = tgPrefix + defaultVersion
+	tgInstallModeEnvName    = tgPrefix + installModeEnvName
+	tgListModeEnvName       = tgPrefix + listModeEnvName
+	tgListURLEnvName        = tgPrefix + listURLEnvName
+	TgRemoteURLEnvName      = tgPrefix + remoteURLEnvName
+	TgVersionEnvName        = tgPrefix + version
 
 	tofuenvPrefix             = "TOFUENV_"
+	tofuenvTofuPrefix         = tofuenvPrefix + "TOFU_"
 	tofuArchEnvName           = tofuenvPrefix + archEnvName
 	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
+	TofuDefaultVersionEnvName = tofuenvTofuPrefix + defaultVersion
 	tofuForceRemoteEnvName    = tofuenvPrefix + forceRemoteEnvName
 	tofuInstallModeEnvName    = tofuenvPrefix + installModeEnvName
 	tofuListModeEnvName       = tofuenvPrefix + listModeEnvName
@@ -90,7 +97,7 @@ const (
 	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName          = tofuenvPrefix + tokenEnvName
-	TofuVersionEnvName        = tofuenvPrefix + "TOFU_VERSION"
+	TofuVersionEnvName        = tofuenvTofuPrefix + version
 )
 
 type Config struct {
