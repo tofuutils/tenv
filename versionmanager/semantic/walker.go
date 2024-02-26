@@ -38,24 +38,22 @@ func RetrieveVersion(versionFiles []types.VersionFile, conf *config.Config) (str
 		return "", err
 	}
 
-	userPathNotDone := true
+	userPathDone := false
 	for currentPath := filepath.Dir(previousPath); currentPath != previousPath; previousPath, currentPath = currentPath, filepath.Dir(currentPath) {
 		if version, err := retrieveVersionFromDir(versionFiles, currentPath, conf); err != nil || version != "" {
 			return version, err
 		}
 
 		if currentPath == conf.UserPath {
-			userPathNotDone = false
+			userPathDone = true
 		}
 	}
 
-	if userPathNotDone {
-		if version, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf); err != nil || version != "" {
-			return version, err
-		}
+	if userPathDone {
+		return "", nil
 	}
 
-	return "", nil
+	return retrieveVersionFromDir(versionFiles, conf.UserPath, conf)
 }
 
 func retrieveVersionFromDir(versionFiles []types.VersionFile, dirPath string, conf *config.Config) (string, error) {
