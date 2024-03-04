@@ -22,7 +22,6 @@ import (
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
-	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
 	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
@@ -35,10 +34,7 @@ const (
 	MinRequiredKey   = "min-required"
 )
 
-var (
-	TfPredicateReaders = []types.PredicateReader{readTfVersionFromTerragruntFile, readTfFiles} //nolint
-	TgPredicateReaders = []types.PredicateReader{readTgVersionFromTerragruntFile}              //nolint
-)
+var TfPredicateReaders = []types.PredicateReader{readTfFiles} //nolint
 
 func CmpVersion(v1Str string, v2Str string) int {
 	v1, err1 := version.NewVersion(v1Str) //nolint
@@ -110,20 +106,6 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func readPredicate(constraintRetriever func(*config.Config) (string, error), conf *config.Config) (func(string) bool, error) {
-	constraintStr, err := constraintRetriever(conf)
-	if err != nil || constraintStr == "" {
-		return nil, err
-	}
-
-	constraint, err := version.NewConstraint(constraintStr)
-	if err != nil {
-		return nil, err
-	}
-
-	return predicateFromConstraint(constraint), nil
-}
-
 func readTfFiles(conf *config.Config) (func(string) bool, error) {
 	requireds, err := tfparser.GatherRequiredVersion(conf)
 	if err != nil {
@@ -143,12 +125,4 @@ func readTfFiles(conf *config.Config) (func(string) bool, error) {
 	}
 
 	return predicateFromConstraint(constraint), nil
-}
-
-func readTfVersionFromTerragruntFile(conf *config.Config) (func(string) bool, error) {
-	return readPredicate(terragruntparser.RetrieveTerraformVersionConstraint, conf)
-}
-
-func readTgVersionFromTerragruntFile(conf *config.Config) (func(string) bool, error) {
-	return readPredicate(terragruntparser.RetrieveTerraguntVersionConstraint, conf)
 }
