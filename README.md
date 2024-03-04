@@ -30,9 +30,19 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 ### Key Features
 
 - Versatile version management: Easily switch between different versions of OpenTofu, Terraform and Terragrunt.
-- [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files.
+- [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files (see [required_version](#required_version) and [Terragrunt hcl](#terragrunt-hcl-file)).
 - Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)), see [signature support](#signature-support).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
+
+<a id="difference-with-asdf"></a>
+### Difference with asf
+
+[asdf](https://asdf-vm.com/) share the same goals than **tenv** : simplify the usage of several version of tools.
+
+asdf is generic and extensible with a plugin system, key **tenv** differences :
+
+- **tenv** is more specific and has features dedicated to OpenTofu, Terraform an Terragrunt, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
+- **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
 
 <a id="table-of-contents"></a>
 ## Table of Contents
