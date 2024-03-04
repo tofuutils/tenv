@@ -48,8 +48,13 @@ func main() {
 	if detectedVersion == "" {
 		terraformManager := builder.BuildTfManager(&conf)
 		detectedVersion, err = terraformManager.ResolveWithoutFallback()
-		if err != nil || detectedVersion == "" {
+		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint
+			os.Exit(1)
+		}
+
+		if detectedVersion == "" {
+			fmt.Println("No version files found corresponding to opentofu or terraform") //nolint
 			os.Exit(1)
 		}
 
