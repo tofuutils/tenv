@@ -67,7 +67,7 @@ func main() {
 		detectedVersion, err = tofuManager.Evaluate(detectedVersion, true)
 	}
 	if err != nil {
-		fmt.Println("Failed to evaluate the requested version in a version allowing to call", execName, ":", err) //nolint
+		fmt.Println("Failed to evaluate the requested version in a specific version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
 	}
 
