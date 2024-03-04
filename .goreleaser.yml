@@ -9,6 +9,7 @@ before:
     - go get -u ./cmd/tofu
     - go get -u ./cmd/terraform
     - go get -u ./cmd/terragrunt
+    - go get -u ./cmd/tf
 
 builds:
   - id: tenv
@@ -35,11 +36,11 @@ builds:
 
     ignore:
       - goos: darwin
-        goarch: 386
+        goarch: "386"
       - goos: darwin
         goarch: arm
       - goos: solaris
-        goarch: 386
+        goarch: "386"
       - goos: solaris
         goarch: arm
       - goos: solaris
@@ -67,11 +68,11 @@ builds:
 
     ignore:
       - goos: darwin
-        goarch: 386
+        goarch: "386"
       - goos: darwin
         goarch: arm
       - goos: solaris
-        goarch: 386
+        goarch: "386"
       - goos: solaris
         goarch: arm
       - goos: solaris
@@ -99,11 +100,11 @@ builds:
 
     ignore:
       - goos: darwin
-        goarch: 386
+        goarch: "386"
       - goos: darwin
         goarch: arm
       - goos: solaris
-        goarch: 386
+        goarch: "386"
       - goos: solaris
         goarch: arm
       - goos: solaris
@@ -131,11 +132,43 @@ builds:
 
     ignore:
       - goos: darwin
-        goarch: 386
+        goarch: "386"
       - goos: darwin
         goarch: arm
       - goos: solaris
-        goarch: 386
+        goarch: "386"
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
+  - id: tf
+    binary: tf
+    main: ./cmd/tf
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
+    ignore:
+      - goos: darwin
+        goarch: "386"
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: "386"
       - goos: solaris
         goarch: arm
       - goos: solaris

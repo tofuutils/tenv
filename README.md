@@ -916,6 +916,13 @@ The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` 
 
 </details>
 
+<details><summary><b>tf</b></summary><br>
+
+The `tf` command is a proxy to `tofu` or `terraform` depending on the version files present in project.
+
+</details>
+
+
 <a id="advanced-remote-configuration"></a>
 ### Advanced remote configuration
 

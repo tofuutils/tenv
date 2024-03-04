@@ -59,7 +59,7 @@ func MakeVersionManager(conf *config.Config, folderName string, predicateReaders
 	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
 }
 
-// detect version (can install depending on auto install env var).
+// Detect version (resolve and evaluate, can install depending on auto install env var).
 func (m VersionManager) Detect(proxyCall bool) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
@@ -68,7 +68,56 @@ func (m VersionManager) Detect(proxyCall bool) (string, error) {
 		return "", err
 	}
 
-	return m.detect(configVersion, proxyCall)
+	return m.Evaluate(configVersion, proxyCall)
+}
+
+// Evaluate version resolution strategy or version constraint (can install depending on auto install env var).
+func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (string, error) {
+	parsedVersion, err := version.NewVersion(requestedVersion)
+	if err == nil {
+		cleanedVersion := parsedVersion.String()
+		if m.conf.NoInstall {
+			m.conf.Displayer.Flush(proxyCall)
+
+			return cleanedVersion, nil
+		}
+
+		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
+	}
+
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
+	if err != nil {
+		m.conf.Displayer.Flush(proxyCall)
+
+		return "", err
+	}
+
+	if !m.conf.ForceRemote {
+		versions, err := m.ListLocal(predicateInfo.ReverseOrder)
+		if err != nil {
+			m.conf.Displayer.Flush(proxyCall)
+
+			return "", err
+		}
+
+		for _, version := range versions {
+			if predicateInfo.Predicate(version) {
+				m.conf.Displayer.Display("Found compatible version installed locally : " + version)
+				m.conf.Displayer.Flush(proxyCall)
+
+				return version, nil
+			}
+		}
+
+		if m.conf.NoInstall {
+			m.conf.Displayer.Flush(proxyCall)
+
+			return "", errNoCompatible
+		}
+		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
+	}
+
+	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
 }
 
 func (m VersionManager) Install(requestedVersion string) error {
@@ -158,12 +207,9 @@ func (m VersionManager) Reset() error {
 	return err
 }
 
+// Search the requested version in version files.
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
-	}
-
-	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+	if version, err := m.ResolveWithoutFallback(); err != nil || version != "" {
 		return version, err
 	}
 
@@ -177,6 +223,19 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	m.conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
 
 	return defaultStrategy, nil
+}
+
+// Search the requested version in version files.
+func (m VersionManager) ResolveWithoutFallback() (string, error) {
+	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
+		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
+	}
+
+	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+		return version, err
+	}
+
+	return "", nil
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
@@ -200,7 +259,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 }
 
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
-	detectedVersion, err := m.detect(requestedVersion, false)
+	detectedVersion, err := m.Evaluate(requestedVersion, false)
 	if err != nil {
 		return err
 	}
@@ -214,54 +273,6 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	}
 
 	return err
-}
-
-func (m VersionManager) detect(requestedVersion string, proxyCall bool) (string, error) {
-	parsedVersion, err := version.NewVersion(requestedVersion)
-	if err == nil {
-		cleanedVersion := parsedVersion.String()
-		if m.conf.NoInstall {
-			m.conf.Displayer.Flush(proxyCall)
-
-			return cleanedVersion, nil
-		}
-
-		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
-	}
-
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
-	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
-
-		return "", err
-	}
-
-	if !m.conf.ForceRemote {
-		versions, err := m.ListLocal(predicateInfo.ReverseOrder)
-		if err != nil {
-			m.conf.Displayer.Flush(proxyCall)
-
-			return "", err
-		}
-
-		for _, version := range versions {
-			if predicateInfo.Predicate(version) {
-				m.conf.Displayer.Display("Found compatible version installed locally : " + version)
-				m.conf.Displayer.Flush(proxyCall)
-
-				return version, nil
-			}
-		}
-
-		if m.conf.NoInstall {
-			m.conf.Displayer.Flush(proxyCall)
-
-			return "", errNoCompatible
-		}
-		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
-	}
-
-	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
 }
 
 func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
