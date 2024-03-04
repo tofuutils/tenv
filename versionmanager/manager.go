@@ -209,15 +209,16 @@ func (m VersionManager) Reset() error {
 
 // Search the requested version in version files.
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	if version, err := m.ResolveWithoutFallback(); err != nil || version != "" {
+	version, err := m.ResolveWithoutFallback()
+	if err != nil || version != "" {
 		return version, err
 	}
 
-	if fallBackVersion := os.Getenv(m.defaultVersionEnvName); fallBackVersion != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, fallBackVersion, m.defaultVersionEnvName), nil
+	if version = os.Getenv(m.defaultVersionEnvName); version != "" {
+		return types.DisplayDetectionInfo(m.conf.Displayer, version, m.defaultVersionEnvName), nil
 	}
 
-	if version, err := flatparser.RetrieveVersion(m.RootVersionFilePath(), m.conf); err != nil || version != "" {
+	if version, err = flatparser.RetrieveVersion(m.RootVersionFilePath(), m.conf); err != nil || version != "" {
 		return version, err
 	}
 	m.conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
@@ -231,11 +232,7 @@ func (m VersionManager) ResolveWithoutFallback() (string, error) {
 		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
 	}
 
-	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
-		return version, err
-	}
-
-	return "", nil
+	return semantic.RetrieveVersion(m.VersionFiles, m.conf)
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
