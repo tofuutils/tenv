@@ -552,7 +552,7 @@ See [advanced remote configuration](#advanced-remote-configuration).
 
 String (Default: "")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+Allow to override the remote url only for the releases listing, see [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
@@ -686,7 +686,7 @@ See [advanced remote configuration](#advanced-remote-configuration).
 
 String (Default: "")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+Allow to override the remote url only for the releases listing, see [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
@@ -774,7 +774,7 @@ See [advanced remote configuration](#advanced-remote-configuration).
 
 String (Default: "")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+Allow to override the remote url only for the releases listing, see [advanced remote configuration](#advanced-remote-configuration).
 
 </details>
 
