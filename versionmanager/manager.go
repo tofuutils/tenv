@@ -209,11 +209,7 @@ func (m VersionManager) Reset() error {
 
 // Search the requested version in version files.
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
-	}
-
-	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+	if version, err := m.ResolveWithoutFallback(); err != nil || version != "" {
 		return version, err
 	}
 
@@ -227,6 +223,19 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	m.conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
 
 	return defaultStrategy, nil
+}
+
+// Search the requested version in version files.
+func (m VersionManager) ResolveWithoutFallback() (string, error) {
+	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
+		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
+	}
+
+	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+		return version, err
+	}
+
+	return "", nil
 }
 
 // (made lazy method : not always useful and allows flag override for root path).

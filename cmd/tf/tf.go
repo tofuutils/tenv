@@ -28,8 +28,6 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/builder"
 )
 
-const notFound = "not-found"
-
 func main() {
 	conf, err := config.InitConfigFromEnv()
 	if err != nil {
@@ -39,7 +37,7 @@ func main() {
 
 	conf.InitDisplayer(true)
 	tofuManager := builder.BuildTofuManager(&conf)
-	detectedVersion, err := tofuManager.Resolve(notFound)
+	detectedVersion, err := tofuManager.ResolveWithoutFallback()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
 		os.Exit(1)
@@ -47,10 +45,10 @@ func main() {
 
 	execName := ""
 	installPath := ""
-	if detectedVersion == notFound {
+	if detectedVersion == "" {
 		terraformManager := builder.BuildTfManager(&conf)
-		detectedVersion, err = terraformManager.Resolve(notFound)
-		if err != nil || detectedVersion == notFound {
+		detectedVersion, err = terraformManager.ResolveWithoutFallback()
+		if err != nil || detectedVersion == "" {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint
 			os.Exit(1)
 		}
