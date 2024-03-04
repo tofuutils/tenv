@@ -21,11 +21,10 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
-	"path/filepath"
 
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager/builder"
+	"github.com/tofuutils/tenv/versionmanager/proxy"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 )
 
@@ -73,17 +72,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	cmdArgs := os.Args[1:]
-	// proxy to selected version
-	cmd := exec.Command(filepath.Join(installPath, detectedVersion, execName), cmdArgs...)
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	if err = cmd.Run(); err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			os.Exit(exitError.ExitCode())
-		}
-		fmt.Println("Failure during", execName, "call :", err) //nolint
-		os.Exit(1)
-	}
+	proxy.RunProxyCmd(installPath, detectedVersion, execName)
 }

@@ -44,13 +44,17 @@ func ExecProxy(builderFunc func(*config.Config, terragruntparser.TerragruntParse
 		os.Exit(1)
 	}
 
+	RunProxyCmd(versionManager.InstallPath(), detectedVersion, execName)
+}
+
+func RunProxyCmd(installPath string, detectedVersion string, execName string) {
 	cmdArgs := os.Args[1:]
 	// proxy to selected version
-	cmd := exec.Command(filepath.Join(versionManager.InstallPath(), detectedVersion, execName), cmdArgs...)
+	cmd := exec.Command(filepath.Join(installPath, detectedVersion, execName), cmdArgs...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
-	if err = cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			os.Exit(exitError.ExitCode())
 		}
