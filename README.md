@@ -35,7 +35,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 - Intuitive installation: Simple installation process with Homebrew and manual options.
 
 <a id="difference-with-asdf"></a>
-### Difference with asf
+### Difference with asdf
 
 [asdf](https://asdf-vm.com/) share the same goals than **tenv** : simplify the usage of several version of tools.
 
