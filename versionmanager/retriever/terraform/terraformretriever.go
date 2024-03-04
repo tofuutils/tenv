@@ -47,11 +47,11 @@ type TerraformRetriever struct {
 	conf *config.Config
 }
 
-func NewTerraformRetriever(conf *config.Config) *TerraformRetriever {
-	return &TerraformRetriever{conf: conf}
+func MakeTerraformRetriever(conf *config.Config) TerraformRetriever {
+	return TerraformRetriever{conf: conf}
 }
 
-func (r *TerraformRetriever) InstallRelease(version string, targetPath string) error {
+func (r TerraformRetriever) InstallRelease(version string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -120,7 +120,7 @@ func (r *TerraformRetriever) InstallRelease(version string, targetPath string) e
 	return zip.UnzipToDir(data, targetPath)
 }
 
-func (r *TerraformRetriever) ListReleases() ([]string, error) {
+func (r TerraformRetriever) ListReleases() ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
@@ -152,7 +152,7 @@ func (r *TerraformRetriever) ListReleases() ([]string, error) {
 	return extractReleases(value)
 }
 
-func (r *TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
+func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
 	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err

@@ -32,7 +32,7 @@ import (
 )
 
 func BuildTfManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	tfRetriever := terraformretriever.NewTerraformRetriever(conf)
+	tfRetriever := terraformretriever.MakeTerraformRetriever(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".terraform-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tfswitchrc", Parser: flatparser.RetrieveVersion},
@@ -44,7 +44,7 @@ func BuildTfManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 }
 
 func BuildTgManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	tgRetriever := terragruntretriever.NewTerragruntRetriever(conf)
+	tgRetriever := terragruntretriever.MakeTerragruntRetriever(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".terragrunt-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tgswitchrc", Parser: flatparser.RetrieveVersion},
@@ -57,7 +57,7 @@ func BuildTgManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 }
 
 func BuildTofuManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	tofuRetriever := tofuretriever.NewTofuRetriever(conf)
+	tofuRetriever := tofuretriever.MakeTofuRetriever(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".opentofu-version", Parser: flatparser.RetrieveVersion},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},

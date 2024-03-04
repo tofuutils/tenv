@@ -72,5 +72,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	proxy.RunProxyCmd(installPath, detectedVersion, execName)
+	proxy.RunCmd(installPath, detectedVersion, execName)
 }

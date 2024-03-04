@@ -25,5 +25,5 @@ import (
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTgManager, config.TerragruntName)
+	proxy.Exec(builder.BuildTgManager, config.TerragruntName)
 }

@@ -25,5 +25,5 @@ import (
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTfManager, config.TerraformName)
+	proxy.Exec(builder.BuildTfManager, config.TerraformName)
 }

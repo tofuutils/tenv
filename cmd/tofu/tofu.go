@@ -25,5 +25,5 @@ import (
 )
 
 func main() {
-	proxy.ExecProxy(builder.BuildTofuManager, config.TofuName)
+	proxy.Exec(builder.BuildTofuManager, config.TofuName)
 }

@@ -49,11 +49,11 @@ type TofuRetriever struct {
 	conf *config.Config
 }
 
-func NewTofuRetriever(conf *config.Config) *TofuRetriever {
-	return &TofuRetriever{conf: conf}
+func MakeTofuRetriever(conf *config.Config) TofuRetriever {
+	return TofuRetriever{conf: conf}
 }
 
-func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) error {
+func (r TofuRetriever) InstallRelease(versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func (r *TofuRetriever) InstallRelease(versionStr string, targetPath string) err
 	return zip.UnzipToDir(data, targetPath)
 }
 
-func (r *TofuRetriever) ListReleases() ([]string, error) {
+func (r TofuRetriever) ListReleases() ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func (r *TofuRetriever) ListReleases() ([]string, error) {
 	return github.ListReleases(listURL, r.conf.GithubToken)
 }
 
-func (r *TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {
+func (r TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {
 	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
 	if err != nil {
 		return err

@@ -42,11 +42,11 @@ type TerragruntRetriever struct {
 	conf *config.Config
 }
 
-func NewTerragruntRetriever(conf *config.Config) *TerragruntRetriever {
-	return &TerragruntRetriever{conf: conf}
+func MakeTerragruntRetriever(conf *config.Config) TerragruntRetriever {
+	return TerragruntRetriever{conf: conf}
 }
 
-func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath string) error {
+func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (r *TerragruntRetriever) InstallRelease(versionStr string, targetPath strin
 	return os.WriteFile(filepath.Join(targetPath, config.TerragruntName), data, 0755)
 }
 
-func (r *TerragruntRetriever) ListReleases() ([]string, error) {
+func (r TerragruntRetriever) ListReleases() ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
