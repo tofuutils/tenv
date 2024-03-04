@@ -42,7 +42,7 @@ type TerragruntRetriever struct {
 	conf *config.Config
 }
 
-func MakeTerragruntRetriever(conf *config.Config) TerragruntRetriever {
+func Make(conf *config.Config) TerragruntRetriever {
 	return TerragruntRetriever{conf: conf}
 }
 

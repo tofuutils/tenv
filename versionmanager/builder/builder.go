@@ -32,7 +32,7 @@ import (
 )
 
 func BuildTfManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	tfRetriever := terraformretriever.MakeTerraformRetriever(conf)
+	tfRetriever := terraformretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".terraform-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tfswitchrc", Parser: flatparser.RetrieveVersion},
@@ -40,11 +40,11 @@ func BuildTfManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
 
-	return versionmanager.MakeVersionManager(conf, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, config.TfDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, config.TfDefaultVersionEnvName, versionFiles)
 }
 
 func BuildTgManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	tgRetriever := terragruntretriever.MakeTerragruntRetriever(conf)
+	tgRetriever := terragruntretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".terragrunt-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tgswitchrc", Parser: flatparser.RetrieveVersion},
@@ -53,16 +53,16 @@ func BuildTgManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromJSON},
 	}
 
-	return versionmanager.MakeVersionManager(conf, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	tofuRetriever := tofuretriever.MakeTofuRetriever(conf)
+	tofuRetriever := tofuretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".opentofu-version", Parser: flatparser.RetrieveVersion},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
 
-	return versionmanager.MakeVersionManager(conf, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, config.TofuDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, config.TofuDefaultVersionEnvName, versionFiles)
 }

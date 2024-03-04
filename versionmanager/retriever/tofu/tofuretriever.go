@@ -49,7 +49,7 @@ type TofuRetriever struct {
 	conf *config.Config
 }
 
-func MakeTofuRetriever(conf *config.Config) TofuRetriever {
+func Make(conf *config.Config) TofuRetriever {
 	return TofuRetriever{conf: conf}
 }
 

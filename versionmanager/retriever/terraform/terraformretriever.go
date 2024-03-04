@@ -47,7 +47,7 @@ type TerraformRetriever struct {
 	conf *config.Config
 }
 
-func MakeTerraformRetriever(conf *config.Config) TerraformRetriever {
+func Make(conf *config.Config) TerraformRetriever {
 	return TerraformRetriever{conf: conf}
 }
 
