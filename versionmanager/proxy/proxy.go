@@ -26,9 +26,10 @@ import (
 
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager"
+	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 )
 
-func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, execName string) {
+func ExecProxy(builderFunc func(*config.Config, terragruntparser.TerragruntParser) versionmanager.VersionManager, execName string) {
 	conf, err := config.InitConfigFromEnv()
 	if err != nil {
 		fmt.Println("Configuration error :", err) //nolint
@@ -36,7 +37,7 @@ func ExecProxy(builderFunc func(*config.Config) versionmanager.VersionManager, e
 	}
 
 	conf.InitDisplayer(true)
-	versionManager := builderFunc(&conf)
+	versionManager := builderFunc(&conf, terragruntparser.Make())
 	detectedVersion, err := versionManager.Detect(true)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint

@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 )
@@ -48,36 +49,44 @@ var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: terragruntVersionConstraintName}},
 }
 
-func RetrieveTerraformVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionConstraintFromFile(filePath, hclparse.NewParser().ParseHCL, terraformVersionPartialSchema, terraformVersionConstraintName, conf)
+type TerragruntParser struct {
+	parser *hclparse.Parser
 }
 
-func RetrieveTerraformVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionConstraintFromFile(filePath, hclparse.NewParser().ParseJSON, terraformVersionPartialSchema, terraformVersionConstraintName, conf)
+func Make() TerragruntParser {
+	return TerragruntParser{parser: hclparse.NewParser()}
 }
 
-func RetrieveTerragruntVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionConstraintFromFile(filePath, hclparse.NewParser().ParseHCL, terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
+func (p TerragruntParser) RetrieveTerraformVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseHCL, terraformVersionPartialSchema, terraformVersionConstraintName, conf)
 }
 
-func RetrieveTerragruntVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionConstraintFromFile(filePath, hclparse.NewParser().ParseJSON, terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
+func (p TerragruntParser) RetrieveTerraformVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseJSON, terraformVersionPartialSchema, terraformVersionConstraintName, conf)
 }
 
-func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
-	data, err := os.ReadFile(fileName)
+func (p TerragruntParser) RetrieveTerragruntVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseHCL, terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
+}
+
+func (p TerragruntParser) RetrieveTerragruntVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseJSON, terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
+}
+
+func retrieveVersionConstraintFromFile(filePath string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read terragrunt file", loghelper.Error, err)
 
 		return "", nil
 	}
 
-	parsedFile, diags := fileParser(data, fileName)
+	parsedFile, diags := fileParser(data, filePath)
 	if diags.HasErrors() {
 		return "", diags
 	}
 
-	conf.Displayer.Log(hclog.Debug, "Read", "fileName", fileName)
+	conf.Displayer.Log(hclog.Debug, "Read", "fileName", filePath)
 	if parsedFile == nil {
 		return "", nil
 	}
@@ -120,5 +129,5 @@ func retrieveVersionConstraintFromFile(fileName string, fileParser func([]byte, 
 		return "", nil
 	}
 
-	return val.AsString(), nil
+	return types.DisplayDetectionInfo(conf.Displayer, val.AsString(), filePath), nil
 }

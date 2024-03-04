@@ -26,6 +26,7 @@ import (
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager"
 	"github.com/tofuutils/tenv/versionmanager/builder"
+	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 )
 
 const (
@@ -79,7 +80,8 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
-	tofuManager := builder.BuildTofuManager(conf)
+	gruntParser := terragruntparser.Make()
+	tofuManager := builder.BuildTofuManager(conf, gruntParser)
 	initSubCmds(rootCmd, conf, tofuManager, tofuParams)
 
 	// Add this in your main function, after the tfCmd and before the tgCmd
@@ -103,7 +105,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 		needToken: false, remoteEnvName: config.TfRemoteURLEnvName,
 		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
-	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf), tfParams)
+	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf, gruntParser), tfParams)
 
 	rootCmd.AddCommand(tfCmd)
 
@@ -116,7 +118,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	tgParams := subCmdParams{
 		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.Tg.RemoteURL,
 	}
-	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf), tgParams)
+	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf, gruntParser), tgParams)
 
 	rootCmd.AddCommand(tgCmd)
 

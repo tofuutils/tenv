@@ -26,6 +26,7 @@ import (
 
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager/builder"
+	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 )
 
 func main() {
@@ -36,7 +37,8 @@ func main() {
 	}
 
 	conf.InitDisplayer(true)
-	tofuManager := builder.BuildTofuManager(&conf)
+	gruntParser := terragruntparser.Make()
+	tofuManager := builder.BuildTofuManager(&conf, gruntParser)
 	detectedVersion, err := tofuManager.ResolveWithoutFallback()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
@@ -46,7 +48,7 @@ func main() {
 	execName := ""
 	installPath := ""
 	if detectedVersion == "" {
-		terraformManager := builder.BuildTfManager(&conf)
+		terraformManager := builder.BuildTfManager(&conf, gruntParser)
 		detectedVersion, err = terraformManager.ResolveWithoutFallback()
 		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint
