@@ -583,6 +583,15 @@ Same as TENV_GITHUB_TOKEN (compatibility with [tofuenv](https://github.com/tofuu
 </details>
 
 
+<details><summary><b>TOFUENV_TOFU_DEFAULT_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides OpenTofu fallback version, specified in ${TENV_ROOT}/OpenTofu/version file.
+
+</details>
+
+
 <details><summary><b>TOFUENV_TOFU_VERSION</b></summary><br>
 
 String (Default: "")
@@ -690,6 +699,15 @@ Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv))
 </details>
 
 
+<details><summary><b>TFENV_TERRAFORM_DEFAULT_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terraform fallback version, specified in ${TENV_ROOT}/Terraform/version file.
+
+</details>
+
+
 <details><summary><b>TFENV_TERRAFORM_VERSION</b></summary><br>
 
 String (Default: "")
@@ -758,6 +776,15 @@ String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 To install Terragrunt from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
 `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+</details>
+
+
+<details><summary><b>TG_DEFAULT_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terragrunt fallback version, specified in ${TENV_ROOT}/Terragrunt/version file.
 
 </details>
 
