@@ -23,11 +23,10 @@ import (
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/config"
-	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
-func RetrieveVersion(versionFiles []types.VersionFile, rootVersionFilePath string, conf *config.Config) (string, error) {
+func RetrieveVersion(versionFiles []types.VersionFile, conf *config.Config) (string, error) {
 	for _, versionFile := range versionFiles {
 		if version, err := versionFile.Parser(versionFile.Name, conf); err != nil || version != "" {
 			return version, err
@@ -39,24 +38,22 @@ func RetrieveVersion(versionFiles []types.VersionFile, rootVersionFilePath strin
 		return "", err
 	}
 
-	userPathNotDone := true
+	userPathDone := false
 	for currentPath := filepath.Dir(previousPath); currentPath != previousPath; previousPath, currentPath = currentPath, filepath.Dir(currentPath) {
 		if version, err := retrieveVersionFromDir(versionFiles, currentPath, conf); err != nil || version != "" {
 			return version, err
 		}
 
 		if currentPath == conf.UserPath {
-			userPathNotDone = false
+			userPathDone = true
 		}
 	}
 
-	if userPathNotDone {
-		if version, err := retrieveVersionFromDir(versionFiles, conf.UserPath, conf); err != nil || version != "" {
-			return version, err
-		}
+	if userPathDone {
+		return "", nil
 	}
 
-	return flatparser.RetrieveVersion(rootVersionFilePath, conf)
+	return retrieveVersionFromDir(versionFiles, conf.UserPath, conf)
 }
 
 func retrieveVersionFromDir(versionFiles []types.VersionFile, dirPath string, conf *config.Config) (string, error) {

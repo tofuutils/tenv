@@ -31,6 +31,7 @@ import (
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
 )
 
@@ -45,16 +46,17 @@ type ReleaseInfoRetriever interface {
 }
 
 type VersionManager struct {
-	conf             *config.Config
-	FolderName       string
-	predicateReaders []types.PredicateReader
-	retriever        ReleaseInfoRetriever
-	VersionEnvName   string
-	VersionFiles     []types.VersionFile
+	conf                  *config.Config
+	FolderName            string
+	predicateReaders      []types.PredicateReader
+	retriever             ReleaseInfoRetriever
+	VersionEnvName        string
+	defaultVersionEnvName string
+	VersionFiles          []types.VersionFile
 }
 
-func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []types.PredicateReader, retriever ReleaseInfoRetriever, versionEnvName string, versionFiles []types.VersionFile) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, VersionFiles: versionFiles}
+func MakeVersionManager(conf *config.Config, folderName string, predicateReaders []types.PredicateReader, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
+	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
 }
 
 // detect version (can install depending on auto install env var).
@@ -161,7 +163,15 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
 	}
 
-	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.RootVersionFilePath(), m.conf); err != nil || version != "" {
+	if version, err := semantic.RetrieveVersion(m.VersionFiles, m.conf); err != nil || version != "" {
+		return version, err
+	}
+
+	if fallBackVersion := os.Getenv(m.defaultVersionEnvName); fallBackVersion != "" {
+		return types.DisplayDetectionInfo(m.conf.Displayer, fallBackVersion, m.defaultVersionEnvName), nil
+	}
+
+	if version, err := flatparser.RetrieveVersion(m.RootVersionFilePath(), m.conf); err != nil || version != "" {
 		return version, err
 	}
 	m.conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
