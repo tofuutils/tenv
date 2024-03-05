@@ -43,7 +43,7 @@ func newConstraintCmd(conf *config.Config, versionManager versionmanager.Version
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(`/constraint file).
 
-The default contraint is active with latest-allowed, min-required or custom constraint, 
+The default contraint is active with latest-allowed, min-required or custom constraint.
 
 Calling this command without expression reset the default constraint.
 `)
