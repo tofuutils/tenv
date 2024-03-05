@@ -138,6 +138,7 @@ func newVersionCmd() *cobra.Command {
 }
 
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) {
+	cmd.AddCommand(newConstraintCmd(conf, versionManager, params))
 	cmd.AddCommand(newDetectCmd(conf, versionManager, params))
 	cmd.AddCommand(newInstallCmd(conf, versionManager, params))
 	cmd.AddCommand(newListCmd(conf, versionManager, params))

@@ -40,6 +40,7 @@ const (
 
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
+	defaultConstraint  = "DEFAULT_CONSTRAINT"
 	defaultVersion     = "DEFAULT_" + version
 	forceRemoteEnvName = "FORCE_REMOTE"
 	installModeEnvName = "INSTALL_MODE"
@@ -62,42 +63,45 @@ const (
 	tenvRootPathEnvName    = tenvPrefix + rootPathEnvName
 	tenvTokenEnvName       = tenvPrefix + tokenEnvName
 
-	tfenvPrefix              = "TFENV_"
-	tfenvTerraformPrefix     = tfenvPrefix + "TERRAFORM_"
-	tfArchEnvName            = tfenvPrefix + archEnvName
-	tfAutoInstallEnvName     = tfenvPrefix + autoInstallEnvName
-	TfDefaultVersionEnvName  = tfenvTerraformPrefix + defaultVersion
-	tfForceRemoteEnvName     = tfenvPrefix + forceRemoteEnvName
-	tfHashicorpPGPKeyEnvName = tfenvPrefix + "HASHICORP_PGP_KEY"
-	tfInstallModeEnvName     = tfenvPrefix + installModeEnvName
-	tfListModeEnvName        = tfenvPrefix + listModeEnvName
-	tfListURLEnvName         = tfenvPrefix + listURLEnvName
-	TfRemoteURLEnvName       = tfenvPrefix + remoteURLEnvName
-	tfRootPathEnvName        = tfenvPrefix + rootPathEnvName
-	TfVersionEnvName         = tfenvTerraformPrefix + version
+	tfenvPrefix                = "TFENV_"
+	tfenvTerraformPrefix       = tfenvPrefix + "TERRAFORM_"
+	tfArchEnvName              = tfenvPrefix + archEnvName
+	tfAutoInstallEnvName       = tfenvPrefix + autoInstallEnvName
+	TfDefaultConstraintEnvName = tfenvTerraformPrefix + defaultConstraint
+	TfDefaultVersionEnvName    = tfenvTerraformPrefix + defaultVersion
+	tfForceRemoteEnvName       = tfenvPrefix + forceRemoteEnvName
+	tfHashicorpPGPKeyEnvName   = tfenvPrefix + "HASHICORP_PGP_KEY"
+	tfInstallModeEnvName       = tfenvPrefix + installModeEnvName
+	tfListModeEnvName          = tfenvPrefix + listModeEnvName
+	tfListURLEnvName           = tfenvPrefix + listURLEnvName
+	TfRemoteURLEnvName         = tfenvPrefix + remoteURLEnvName
+	tfRootPathEnvName          = tfenvPrefix + rootPathEnvName
+	TfVersionEnvName           = tfenvTerraformPrefix + version
 
-	tgPrefix                = "TG_"
-	TgDefaultVersionEnvName = tgPrefix + defaultVersion
-	tgInstallModeEnvName    = tgPrefix + installModeEnvName
-	tgListModeEnvName       = tgPrefix + listModeEnvName
-	tgListURLEnvName        = tgPrefix + listURLEnvName
-	TgRemoteURLEnvName      = tgPrefix + remoteURLEnvName
-	TgVersionEnvName        = tgPrefix + version
+	tgPrefix                   = "TG_"
+	TgDefaultConstraintEnvName = tgPrefix + defaultConstraint
+	TgDefaultVersionEnvName    = tgPrefix + defaultVersion
+	tgInstallModeEnvName       = tgPrefix + installModeEnvName
+	tgListModeEnvName          = tgPrefix + listModeEnvName
+	tgListURLEnvName           = tgPrefix + listURLEnvName
+	TgRemoteURLEnvName         = tgPrefix + remoteURLEnvName
+	TgVersionEnvName           = tgPrefix + version
 
-	tofuenvPrefix             = "TOFUENV_"
-	tofuenvTofuPrefix         = tofuenvPrefix + "TOFU_"
-	tofuArchEnvName           = tofuenvPrefix + archEnvName
-	tofuAutoInstallEnvName    = tofuenvPrefix + autoInstallEnvName
-	TofuDefaultVersionEnvName = tofuenvTofuPrefix + defaultVersion
-	tofuForceRemoteEnvName    = tofuenvPrefix + forceRemoteEnvName
-	tofuInstallModeEnvName    = tofuenvPrefix + installModeEnvName
-	tofuListModeEnvName       = tofuenvPrefix + listModeEnvName
-	tofuListURLEnvName        = tofuenvPrefix + listURLEnvName
-	tofuOpenTofuPGPKeyEnvName = tofuenvPrefix + "OPENTOFU_PGP_KEY"
-	TofuRemoteURLEnvName      = tofuenvPrefix + remoteURLEnvName
-	tofuRootPathEnvName       = tofuenvPrefix + rootPathEnvName
-	tofuTokenEnvName          = tofuenvPrefix + tokenEnvName
-	TofuVersionEnvName        = tofuenvTofuPrefix + version
+	tofuenvPrefix                = "TOFUENV_"
+	tofuenvTofuPrefix            = tofuenvPrefix + "TOFU_"
+	tofuArchEnvName              = tofuenvPrefix + archEnvName
+	tofuAutoInstallEnvName       = tofuenvPrefix + autoInstallEnvName
+	TofuDefaultConstraintEnvName = tofuenvTofuPrefix + defaultConstraint
+	TofuDefaultVersionEnvName    = tofuenvTofuPrefix + defaultVersion
+	tofuForceRemoteEnvName       = tofuenvPrefix + forceRemoteEnvName
+	tofuInstallModeEnvName       = tofuenvPrefix + installModeEnvName
+	tofuListModeEnvName          = tofuenvPrefix + listModeEnvName
+	tofuListURLEnvName           = tofuenvPrefix + listURLEnvName
+	tofuOpenTofuPGPKeyEnvName    = tofuenvPrefix + "OPENTOFU_PGP_KEY"
+	TofuRemoteURLEnvName         = tofuenvPrefix + remoteURLEnvName
+	tofuRootPathEnvName          = tofuenvPrefix + rootPathEnvName
+	tofuTokenEnvName             = tofuenvPrefix + tokenEnvName
+	TofuVersionEnvName           = tofuenvTofuPrefix + version
 )
 
 type Config struct {

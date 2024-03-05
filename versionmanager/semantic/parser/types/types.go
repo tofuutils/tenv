@@ -23,6 +23,10 @@ import (
 	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
+type ConstraintInfo interface {
+	ReadDefaultConstraint() string
+}
+
 func DisplayDetectionInfo(displayer loghelper.Displayer, version string, source string) string {
 	displayer.Display(loghelper.Concat("Resolved version from ", source, " : ", version))
 
@@ -34,9 +38,9 @@ type PredicateInfo struct {
 	ReverseOrder bool
 }
 
-type PredicateReader = func(*config.Config) (func(string) bool, error)
+type PredicateReader = func(ConstraintInfo, *config.Config) (func(string) bool, error)
 
 type VersionFile struct {
 	Name   string
-	Parser func(string, *config.Config) (string, error)
+	Parser func(filePath string, conf *config.Config) (string, error)
 }

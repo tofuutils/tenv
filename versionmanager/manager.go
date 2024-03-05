@@ -19,6 +19,7 @@
 package versionmanager
 
 import (
+	"bytes"
 	"errors"
 	"io/fs"
 	"os"
@@ -47,6 +48,7 @@ type ReleaseInfoRetriever interface {
 
 type VersionManager struct {
 	conf                  *config.Config
+	constraintEnvName     string
 	FolderName            string
 	predicateReaders      []types.PredicateReader
 	retriever             ReleaseInfoRetriever
@@ -55,8 +57,8 @@ type VersionManager struct {
 	VersionFiles          []types.VersionFile
 }
 
-func Make(conf *config.Config, folderName string, predicateReaders []types.PredicateReader, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
-	return VersionManager{conf: conf, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
+func Make(conf *config.Config, constraintEnvName string, folderName string, predicateReaders []types.PredicateReader, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
+	return VersionManager{conf: conf, constraintEnvName: constraintEnvName, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
 }
 
 // Detect version (resolve and evaluate, can install depending on auto install env var).
@@ -85,7 +87,7 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
 	}
 
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.predicateReaders, m.conf)
 	if err != nil {
 		m.conf.Displayer.Flush(proxyCall)
 
@@ -121,12 +123,12 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 }
 
 func (m VersionManager) Install(requestedVersion string) error {
-	parsedVersion, err := version.NewVersion(requestedVersion)
+	parsedVersion, err := version.NewVersion(requestedVersion) // check the use of a parsable version
 	if err == nil {
 		return m.installSpecificVersion(parsedVersion.String(), false)
 	}
 
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m.predicateReaders, m.conf)
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.predicateReaders, m.conf)
 	if err != nil {
 		return err
 	}
@@ -197,14 +199,27 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 	return versionSet
 }
 
-func (m VersionManager) Reset() error {
-	versionFilePath := m.RootVersionFilePath()
-	err := os.RemoveAll(versionFilePath)
-	if err == nil {
-		m.conf.Displayer.Display("Removed " + versionFilePath)
+func (m VersionManager) ReadDefaultConstraint() string {
+	if constraint := os.Getenv(m.constraintEnvName); constraint != "" {
+		return constraint
 	}
 
-	return err
+	data, err := os.ReadFile(m.RootConstraintFilePath())
+	if err != nil {
+		m.conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
+
+		return ""
+	}
+
+	return string(bytes.TrimSpace(data))
+}
+
+func (m VersionManager) ResetConstraint() error {
+	return removeFile(m.RootConstraintFilePath(), m.conf)
+}
+
+func (m VersionManager) ResetVersion() error {
+	return removeFile(m.RootVersionFilePath(), m.conf)
 }
 
 // Search the requested version in version files.
@@ -236,8 +251,27 @@ func (m VersionManager) ResolveWithoutFallback() (string, error) {
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
+func (m VersionManager) RootConstraintFilePath() string {
+	return filepath.Join(m.conf.RootPath, m.FolderName, "constraint")
+}
+
+// (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
 	return filepath.Join(m.conf.RootPath, m.FolderName, "version")
+}
+
+func (m VersionManager) SetConstraint(constraint string) error {
+	_, err := version.NewConstraint(constraint) // check the use of a parsable constraint
+	if err != nil {
+		return err
+	}
+
+	targetFilePath := m.RootConstraintFilePath()
+	if err = os.WriteFile(targetFilePath, []byte(constraint), 0644); err == nil {
+		m.conf.Displayer.Display(loghelper.Concat("Written ", constraint, " in ", targetFilePath))
+	}
+
+	return err
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
@@ -331,4 +365,13 @@ func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, n
 	m.conf.Displayer.Flush(proxyCall)
 
 	return "", errNoCompatible
+}
+
+func removeFile(filePath string, conf *config.Config) error {
+	err := os.RemoveAll(filePath)
+	if err == nil {
+		conf.Displayer.Display("Removed " + filePath)
+	}
+
+	return err
 }
