@@ -173,7 +173,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
 
-Install a requested version of <b>&lt;tool&gt;</b> (into <b>TENV_ROOT</b> directory from <b>&lt;TOOL&gt;_REMOTE</b> url).
+Install a requested version of the tool (into `TENV_ROOT` directory from `<TOOL>_REMOTE` url).
 
 Without a parameter, the version to use is resolved automatically via the relevant `<TOOL>_VERSION` [environment variable](#environment-variables) or [version file](#version-files)
 (searched in the working directory, its parent, user home directory, and `TFENV_ROOT` directory).
@@ -272,7 +272,7 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 
 <details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
 
-Uninstall a specific version of OpenTofu (remove it from `TENV_ROOT` directory without interpretation).
+Uninstall a specific version of the tool (remove it from `TENV_ROOT` directory without interpretation).
 
 ```console
 $ tenv tofu uninstall v1.6.0-alpha4
@@ -322,6 +322,25 @@ Fetching all releases information from https://api.github.com/repos/opentofu/ope
 1.6.0-rc1
 1.6.0 (installed)
 1.6.1 (installed)
+```
+
+</details>
+
+
+<details><summary><b>tenv &lt;tool&gt; constraint [expression]</b></summary><br>
+
+Set or reset a default constraint expression for the tool.
+
+```console
+$ tenv tf constraint "<= 1.5.7"
+Written <= 1.5.7 in /home/dvaumoron/.tenv/Terraform/constraint
+```
+
+Or without expression :
+
+```console
+$ tenv tg constraint
+Removed /home/dvaumoron/.tenv/Terragrunt/constraint
 ```
 
 </details>
@@ -593,6 +612,15 @@ Same as TENV_GITHUB_TOKEN (compatibility with [tofuenv](https://github.com/tofuu
 </details>
 
 
+<details><summary><b>TOFUENV_TOFU_DEFAULT_CONSTRAINT</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides OpenTofu default constraint, specified in ${TENV_ROOT}/OpenTofu/constraint file.
+
+</details>
+
+
 <details><summary><b>TOFUENV_TOFU_DEFAULT_VERSION</b></summary><br>
 
 String (Default: "")
@@ -709,6 +737,15 @@ Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv))
 </details>
 
 
+<details><summary><b>TFENV_TERRAFORM_DEFAULT_CONSTRAINT</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terraform default constraint, specified in ${TENV_ROOT}/Terraform/constraint file.
+
+</details>
+
+
 <details><summary><b>TFENV_TERRAFORM_DEFAULT_VERSION</b></summary><br>
 
 String (Default: "")
@@ -786,6 +823,14 @@ String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 To install Terragrunt from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
 
 `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+</details>
+
+<details><summary><b>TG_DEFAULT_CONSTRAINT</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terragrunt default constraint, specified in ${TENV_ROOT}/Terragrunt/constraint file.
 
 </details>
 

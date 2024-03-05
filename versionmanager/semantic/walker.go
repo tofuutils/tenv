@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 func RetrieveVersion(versionFiles []types.VersionFile, conf *config.Config) (string, error) {

@@ -34,6 +34,39 @@ import (
 
 const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"
 
+func newConstraintCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	var descBuilder strings.Builder
+	addDeprecationHelpMsg(&descBuilder, params)
+	descBuilder.WriteString("Set a default constraint expression for ")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(" (set in TENV_ROOT/")
+	descBuilder.WriteString(versionManager.FolderName)
+	descBuilder.WriteString(`/constraint file).
+
+Without expression reset the default constraint.
+
+The default constraint is added while using latest-allowed, min-required or custom constraint.`)
+
+	constraintCmd := &cobra.Command{
+		Use:   "constraint [expression]",
+		Short: loghelper.Concat("Set a default constraint expression for ", versionManager.FolderName, "."),
+		Long:  descBuilder.String(),
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			conf.InitDisplayer(false)
+			addDeprecationMsg(conf, params)
+
+			if len(args) == 0 || args[0] == "" {
+				return versionManager.ResetConstraint()
+			}
+
+			return versionManager.SetConstraint(args[0])
+		},
+	}
+
+	return constraintCmd
+}
+
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	addDeprecationHelpMsg(&descBuilder, params)
@@ -83,7 +116,7 @@ Use "latest" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
-- a version constraint string (checked against version available at `)
+- a version constraint expression (checked against version available at `)
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url)\n- latest, latest-stable or latest-pre (checked against version available at ")
 	descBuilder.WriteString(params.remoteEnvName)
@@ -248,7 +281,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
-			return versionManager.Reset()
+			return versionManager.ResetVersion()
 		},
 	}
 
@@ -289,7 +322,7 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against version available in TENV_ROOT directory)
+- a version constraint expression (checked against version available in TENV_ROOT directory)
 - latest, latest-stable or latest-pre (checked against version available in TENV_ROOT directory)
 - latest-allowed or min-required to scan your `)
 	descBuilder.WriteString(versionManager.FolderName)

@@ -28,7 +28,7 @@ import (
 	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tomlparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/toml"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 func BuildTfManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
@@ -40,7 +40,7 @@ func BuildTfManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
 
-	return versionmanager.Make(conf, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, config.TfDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.TfDefaultConstraintEnvName, "Terraform", semantic.TfPredicateReaders, tfRetriever, config.TfVersionEnvName, config.TfDefaultVersionEnvName, versionFiles)
 }
 
 func BuildTgManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
@@ -53,7 +53,7 @@ func BuildTgManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromJSON},
 	}
 
-	return versionmanager.Make(conf, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.TgDefaultConstraintEnvName, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
@@ -64,5 +64,5 @@ func BuildTofuManager(conf *config.Config, gruntParser terragruntparser.Terragru
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
 
-	return versionmanager.Make(conf, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, config.TofuDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.TofuDefaultConstraintEnvName, "OpenTofu", semantic.TfPredicateReaders, tofuRetriever, config.TofuVersionEnvName, config.TofuDefaultVersionEnvName, versionFiles)
 }

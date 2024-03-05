@@ -19,11 +19,12 @@
 package semantic
 
 import (
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 const (
@@ -53,7 +54,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-func ParsePredicate(behaviourOrConstraint string, displayName string, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
+func ParsePredicate(behaviourOrConstraint string, displayName string, constraintInfo types.ConstraintInfo, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
 	reverseOrder := true
 	switch behaviourOrConstraint {
 	case MinRequiredKey:
@@ -62,7 +63,7 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 		fallthrough // same predicate retrieving
 	case LatestAllowedKey:
 		for _, reader := range predicateReaders {
-			predicate, err := reader(conf)
+			predicate, err := reader(constraintInfo, conf)
 			if err != nil {
 				return types.PredicateInfo{}, err
 			}
@@ -79,7 +80,7 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, predicateR
 	case LatestPreKey:
 		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true}, nil
 	default:
-		constraint, err := version.NewConstraint(behaviourOrConstraint)
+		constraint, err := addDefaultConstraint(constraintInfo, conf, behaviourOrConstraint)
 		if err != nil {
 			return types.PredicateInfo{}, err
 		}
@@ -94,6 +95,24 @@ func StableVersion(versionStr string) bool {
 	return err == nil && v.Prerelease() == ""
 }
 
+func addDefaultConstraint(constraintInfo types.ConstraintInfo, conf *config.Config, requireds ...string) (version.Constraints, error) {
+	if defaultConstraint := constraintInfo.ReadDefaultConstraint(); defaultConstraint != "" {
+		requireds = append(requireds, defaultConstraint)
+	}
+	conf.Displayer.Log(hclog.Debug, "Find", "constraints", requireds)
+
+	var constraint version.Constraints
+	for _, required := range requireds {
+		temp, err := version.NewConstraint(required)
+		if err != nil {
+			return nil, err
+		}
+		constraint = append(constraint, temp...)
+	}
+
+	return constraint, nil
+}
+
 func alwaysTrue(string) bool {
 	return true
 }
@@ -106,22 +125,15 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func readTfFiles(conf *config.Config) (func(string) bool, error) {
+func readTfFiles(constraintInfo types.ConstraintInfo, conf *config.Config) (func(string) bool, error) {
 	requireds, err := tfparser.GatherRequiredVersion(conf)
 	if err != nil {
 		return nil, err
 	}
 
-	var constraint version.Constraints
-	for _, required := range requireds {
-		temp, err := version.NewConstraint(required)
-		if err != nil {
-			return nil, err
-		}
-		constraint = append(constraint, temp...)
-	}
-	if len(constraint) == 0 {
-		return nil, nil //nolint
+	constraint, err := addDefaultConstraint(constraintInfo, conf, requireds...)
+	if err != nil || len(constraint) == 0 {
+		return nil, err
 	}
 
 	return predicateFromConstraint(constraint), nil
