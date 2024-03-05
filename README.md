@@ -741,7 +741,7 @@ Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv))
 
 String (Default: "")
 
-If not empty string, this variable overrides Terraform default contraint, specified in ${TENV_ROOT}/Terraform/constraint file.
+If not empty string, this variable overrides Terraform default constraint, specified in ${TENV_ROOT}/Terraform/constraint file.
 
 </details>
 

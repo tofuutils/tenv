@@ -45,7 +45,7 @@ func newConstraintCmd(conf *config.Config, versionManager versionmanager.Version
 
 Without expression reset the default constraint.
 
-The default contraint is added while using latest-allowed, min-required or custom constraint.`)
+The default constraint is added while using latest-allowed, min-required or custom constraint.`)
 
 	constraintCmd := &cobra.Command{
 		Use:   "constraint [expression]",
