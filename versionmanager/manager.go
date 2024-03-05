@@ -77,7 +77,7 @@ func (m VersionManager) Detect(proxyCall bool) (string, error) {
 func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (string, error) {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
-		cleanedVersion := parsedVersion.String()
+		cleanedVersion := parsedVersion.String() // use a parsable version
 		if m.conf.NoInstall {
 			m.conf.Displayer.Flush(proxyCall)
 
@@ -123,9 +123,9 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 }
 
 func (m VersionManager) Install(requestedVersion string) error {
-	parsedVersion, err := version.NewVersion(requestedVersion) // check the use of a parsable version
+	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
-		return m.installSpecificVersion(parsedVersion.String(), false)
+		return m.installSpecificVersion(parsedVersion.String(), false) // use a parsable version
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.predicateReaders, m.conf)
@@ -266,16 +266,11 @@ func (m VersionManager) SetConstraint(constraint string) error {
 		return err
 	}
 
-	targetFilePath := m.RootConstraintFilePath()
-	if err = os.WriteFile(targetFilePath, []byte(constraint), 0644); err == nil {
-		m.conf.Displayer.Display(loghelper.Concat("Written ", constraint, " in ", targetFilePath))
-	}
-
-	return err
+	return writeFile(m.RootConstraintFilePath(), constraint, m.conf)
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
-	parsedVersion, err := version.NewVersion(requestedVersion)
+	parsedVersion, err := version.NewVersion(requestedVersion) // check the use of a parsable version
 	if err != nil {
 		return err
 	}
@@ -299,11 +294,8 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	if !workingDir {
 		targetFilePath = m.RootVersionFilePath()
 	}
-	if err = os.WriteFile(targetFilePath, []byte(detectedVersion), 0644); err == nil {
-		m.conf.Displayer.Display(loghelper.Concat("Written ", detectedVersion, " in ", targetFilePath))
-	}
 
-	return err
+	return writeFile(targetFilePath, detectedVersion, m.conf)
 }
 
 func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
@@ -371,6 +363,15 @@ func removeFile(filePath string, conf *config.Config) error {
 	err := os.RemoveAll(filePath)
 	if err == nil {
 		conf.Displayer.Display("Removed " + filePath)
+	}
+
+	return err
+}
+
+func writeFile(filePath string, content string, conf *config.Config) error {
+	err := os.WriteFile(filePath, []byte(content), 0644)
+	if err == nil {
+		conf.Displayer.Display(loghelper.Concat("Written ", content, " in ", filePath))
 	}
 
 	return err
