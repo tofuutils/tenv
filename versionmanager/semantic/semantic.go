@@ -24,7 +24,7 @@ import (
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 const (

@@ -28,7 +28,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/loghelper"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 )

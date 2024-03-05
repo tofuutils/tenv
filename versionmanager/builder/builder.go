@@ -28,7 +28,7 @@ import (
 	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
 	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 	tomlparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/toml"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 func BuildTfManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {

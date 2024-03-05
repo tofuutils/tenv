@@ -33,7 +33,7 @@ import (
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
 	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
-	"github.com/tofuutils/tenv/versionmanager/semantic/parser/types"
+	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 var (
