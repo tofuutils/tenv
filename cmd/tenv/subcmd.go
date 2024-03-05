@@ -43,10 +43,9 @@ func newConstraintCmd(conf *config.Config, versionManager versionmanager.Version
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(`/constraint file).
 
-The default contraint is active with latest-allowed, min-required or custom constraint.
+Without expression reset the default constraint.
 
-Calling this command without expression reset the default constraint.
-`)
+The default contraint is added while using latest-allowed, min-required or custom constraint.`)
 
 	constraintCmd := &cobra.Command{
 		Use:   "constraint [expression]",
@@ -117,7 +116,7 @@ Use "latest" when none are found.
 
 If a parameter is passed, available options:
 - an exact Semver 2.0.0 version string to install
-- a version constraint string (checked against version available at `)
+- a version constraint expression (checked against version available at `)
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url)\n- latest, latest-stable or latest-pre (checked against version available at ")
 	descBuilder.WriteString(params.remoteEnvName)
@@ -323,7 +322,7 @@ func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against version available in TENV_ROOT directory)
+- a version constraint expression (checked against version available in TENV_ROOT directory)
 - latest, latest-stable or latest-pre (checked against version available in TENV_ROOT directory)
 - latest-allowed or min-required to scan your `)
 	descBuilder.WriteString(versionManager.FolderName)
