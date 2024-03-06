@@ -60,15 +60,18 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 
 	var assetURLs []string
 	fileName, shaFileName := buildAssetNames(r.conf.Arch)
-	if r.conf.Tg.GetInstallMode() == htmlretriever.InstallModeDirect {
+	switch r.conf.Tg.GetInstallMode() {
+	case config.InstallModeDirect:
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
-	} else {
+	case config.ModeAPI:
 		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Tg.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
+	default:
+		return config.ErrInstallMode
 	}
 	if err != nil {
 		return err
@@ -109,7 +112,8 @@ func (r TerragruntRetriever) ListReleases() ([]string, error) {
 	}
 
 	listURL := r.conf.Tg.GetListURL()
-	if r.conf.Tg.GetListMode() == htmlretriever.ListModeHTML {
+	switch r.conf.Tg.GetListMode() {
+	case config.ListModeHTML:
 		baseURL, err := url.JoinPath(listURL, gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
@@ -118,11 +122,13 @@ func (r TerragruntRetriever) ListReleases() ([]string, error) {
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
 		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data)
+	case config.ModeAPI:
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
+
+		return github.ListReleases(listURL, r.conf.GithubToken)
+	default:
+		return nil, config.ErrListMode
 	}
-
-	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
-
-	return github.ListReleases(listURL, r.conf.GithubToken)
 }
 
 func buildAssetNames(arch string) (string, string) {

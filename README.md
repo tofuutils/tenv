@@ -523,7 +523,7 @@ Written 1.6.1 in /home/dvaumoron/.tenv/OpenTofu/version
 ```
 
 #### Example 2
-Use OpenTofu version 1.6.0 that is not installed, and auto installation stay enabled.
+Use OpenTofu version 1.6.0 that is not installed, and auto installation stay enabled :
 
 ```console
 $ tenv tofu use 1.6.0
@@ -549,18 +549,24 @@ Same as TENV_FORCE_REMOTE.
 
 <details><summary><b>TOFUENV_INSTALL_MODE</b></summary><br>
 
-String (Default: "")
+String (Default: "api")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+"api" install mode retrieve download url of OpenTofu from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_REMOTE must comply with it).
+"direct" install mode generate download url of OpenTofu based on TOFUENV_REMOTE.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
 
 <details><summary><b>TOFUENV_LIST_MODE</b></summary><br>
 
-String (Default: "")
+String (Default: "api")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+"api" list mode retrieve information of OpenTofu releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_LIST_URL must comply with it).
+"html" list mode extract information of OpenTofu releases from parsing an html page in TOFUENV_LIST_URL.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -569,7 +575,12 @@ See [advanced remote configuration](#advanced-remote-configuration).
 
 String (Default: "")
 
-Allow to override the remote url only for the releases listing, see [advanced remote configuration](#advanced-remote-configuration).
+Allow to override the remote url only for the releases listing, default value depend on TOFUENV_LIST_MODE :
+
+- with "api" mode use default API URL (https://api.github.com/repos/opentofu/opentofu/releases)
+- with "html" mode same as TOFUENV_REMOTE
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -589,9 +600,11 @@ Allow to specify a local file path to OpenTofu PGP public key, if not present do
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
-To install OpenTofu from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28)).
+URL to install OpenTofu, when TOFUENV_REMOTE differ from its default value, TOFUENV_INSTALL_MODE is set to direct (assume an artifact proxy usage, however releases listing continue to use API).
 
 `tenv tofu` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -692,18 +705,24 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 
 <details><summary><b>TFENV_INSTALL_MODE</b></summary><br>
 
-String (Default: "")
+String (Default: "api")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+"api" install mode retrieve download url of Terraform from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_REMOTE must comply with it).
+"direct" install mode generate download url of Terraform based on TFENV_REMOTE.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
 
 <details><summary><b>TFENV_LIST_MODE</b></summary><br>
 
-String (Default: "")
+String (Default: "api")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+"api" list mode retrieve information of Terraform releases from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_LIST_URL must comply with it).
+"html" list mode extract information of Terraform releases from parsing an html page in TFENV_LIST_URL.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -712,7 +731,12 @@ See [advanced remote configuration](#advanced-remote-configuration).
 
 String (Default: "")
 
-Allow to override the remote url only for the releases listing, see [advanced remote configuration](#advanced-remote-configuration).
+Allow to override the remote url only for the releases listing, default value depend on TFENV_LIST_MODE :
+
+- with "api" mode use default API URL (https://releases.hashicorp.com)
+- with "html" mode same as TFENV_REMOTE
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -721,9 +745,11 @@ Allow to override the remote url only for the releases listing, see [advanced re
 
 String (Default: https://releases.hashicorp.com)
 
-To install Terraform from a remote other than the default (must comply with [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1))
+URL to install Terraform (can differ from its default, an artifact proxy will not disturb the retrieving of release index.json, however releases listing continue to use API).
 
 `tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -789,18 +815,24 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 
 <details><summary><b>TG_INSTALL_MODE</b></summary><br>
 
-String (Default: "")
+String (Default: "api")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+"api" install mode retrieve download url of Terragrunt from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TG_REMOTE must comply with it).
+"direct" install mode generate download url of Terragrunt based on TG_REMOTE.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
 
 <details><summary><b>TG_LIST_MODE</b></summary><br>
 
-String (Default: "")
+String (Default: "api")
 
-See [advanced remote configuration](#advanced-remote-configuration).
+"api" list mode retrieve information of Terragrunt releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28).
+"html" list mode extract information of Terragrunt releases from parsing an html page in TG_LIST_URL.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -809,7 +841,12 @@ See [advanced remote configuration](#advanced-remote-configuration).
 
 String (Default: "")
 
-Allow to override the remote url only for the releases listing, see [advanced remote configuration](#advanced-remote-configuration).
+Allow to override the remote url only for the releases listing, default value depend on TG_LIST_MODE :
+
+- with "api" mode use default API URL (https://api.github.com/repos/gruntwork-io/terragrunt/releases)
+- with "html" mode same as TG_REMOTE
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
@@ -818,9 +855,11 @@ Allow to override the remote url only for the releases listing, see [advanced re
 
 String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 
-To install Terragrunt from a remote other than the default (must comply with [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28))
+URL to install Terragrunt, when TG_REMOTE differ from its default value, TG_INSTALL_MODE is set to "direct" (assume an artifact proxy usage, however releases listing continue to use API).
 
 `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
 
