@@ -175,10 +175,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 
 Install a requested version of the tool (into `TENV_ROOT` directory from `<TOOL>_REMOTE` url).
 
-Without a parameter, the version to use is resolved automatically via the relevant `<TOOL>_VERSION` [environment variable](#environment-variables) or [version file](#version-files)
-(searched in the working directory, its parent, user home directory, and `TFENV_ROOT` directory).
-
-Will default to "latest" when no specified version is found.
+Without a parameter, the version to use is resolved automatically (see resolution order in [tools description](#technical-details), with `latest` as default in place of `latest-allowed`).
 
 If a parameter is passed, available options include:
 
