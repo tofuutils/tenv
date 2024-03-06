@@ -924,7 +924,7 @@ If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, **
 <a id="required_version"></a>
 <details><summary><b>required_version</b></summary><br>
 
-the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files.
+the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files are found.
 
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
@@ -945,21 +945,62 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 <details><summary><b>tofu</b></summary><br>
 
-The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by **tenv**. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TOFUENV_TOFU_VERSION](#tofu-env-vars) environment variable or [`.opentofu-version`](#opentofu-version-files) file).
+The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by **tenv**.
+
+The version resolution order is :
+
+- TOFUENV_TOFU_VERSION environment variable
+- `.opentofu-version` file
+- `terraform_version_constraint` from `terragrunt.hcl` file
+- `terraform_version_constraint` from `terragrunt.hcl.json` file
+- TOFUENV_TOFU_DEFAULT_VERSION environment variable
+- `${TENV_ROOT}/OpenTofu/version` file (can be written with `tenv tofu use`)
+- `latest-allowed`
+
+The `latest-allowed` strategy rely on [required_version](#required_version) from .tf or .tf.json files with a fallback to `latest` when no constraint are found. Moreover it is possible to add a default constraint with TOFUENV_TOFU_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/OpenTofu/constraint` file (can be written with `tenv tofu constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid the fallback to `latest` when there is no .tf or .tf.json files.
 
 </details>
 
 <details><summary><b>terraform</b></summary><br>
 
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by **tenv**. The default resolution strategy is latest-allowed relying on `terraform_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file or [required_version](#required_version) from .tf files (without [TFENV_TERRAFORM_VERSION](#tf-env-vars) environment variable or [`.terraform-version`](#terraform-version-files) file).
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by **tenv**. 
+
+The version resolution order is :
+
+- TFENV_TERRAFORM_VERSION environment variable
+- `.terraform-version` file
+- `.tfswitchrc` file
+- `terraform_version_constraint` from `terragrunt.hcl` file
+- `terraform_version_constraint` from `terragrunt.hcl.json` file
+- TFENV_TERRAFORM_DEFAULT_VERSION environment variable
+- `${TENV_ROOT}/Terraform/version` file (can be written with `tenv tf use`)
+- `latest-allowed`
+
+The `latest-allowed` strategy rely on [required_version](#required_version) from .tf or .tf.json files with a fallback to `latest` when no constraint are found. Moreover it is possible to add a default constraint with TFENV_TERRAFORM_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/Terraform/constraint` file (can be written with `tenv tf constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid the fallback to `latest` when there is no .tf or .tf.json files.
 
 </details>
+
 
 <details><summary><b>terragrunt</b></summary><br>
 
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by **tenv**. The default resolution strategy is latest-allowed relying on `terragrunt_version_constraint` from [terragunt.hcl](#terragrunthcl-file) file (without [TG_VERSION](#tg-env-vars) environment variable or [`.terragrunt-version`](#terragrunt-version-files) file).
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by **tenv**. 
+
+The version resolution order is :
+
+- TG_VERSION environment variable
+- `.terragrunt-version` file
+- `.tgswitchrc` file
+- `version` from `tgswitch.toml` file
+- `terragrunt_version_constraint` from `terragrunt.hcl` file
+- `terragrunt_version_constraint` from `terragrunt.hcl.json` file
+- TG_DEFAULT_VERSION environment variable
+- `${TENV_ROOT}/Terragrunt/version` file (can be written with `tenv tg use`)
+- `latest-allowed`
+
+The `latest-allowed` strategy has no information for Terragrunt and will fallback to `latest` unless there is default constraint. Adding a default constraint could be done with TG_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/Terragrunt/constraint` file (can be written with `tenv tg constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid there fallback to `latest`.
 
 </details>
+
 
 <details><summary><b>tf</b></summary><br>
 
