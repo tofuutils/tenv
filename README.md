@@ -551,8 +551,8 @@ Same as TENV_FORCE_REMOTE.
 
 String (Default: "api")
 
-"api" install mode retrieve download url of OpenTofu from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_REMOTE must comply with it).
-"direct" install mode generate download url of OpenTofu based on TOFUENV_REMOTE.
+- "api" install mode retrieve download url of OpenTofu from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_REMOTE must comply with it).
+- "direct" install mode generate download url of OpenTofu based on TOFUENV_REMOTE.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -563,8 +563,8 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: "api")
 
-"api" list mode retrieve information of OpenTofu releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_LIST_URL must comply with it).
-"html" list mode extract information of OpenTofu releases from parsing an html page in TOFUENV_LIST_URL.
+- "api" list mode retrieve information of OpenTofu releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_LIST_URL must comply with it).
+- "html" list mode extract information of OpenTofu releases from parsing an html page in TOFUENV_LIST_URL.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -707,8 +707,8 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 
 String (Default: "api")
 
-"api" install mode retrieve download url of Terraform from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_REMOTE must comply with it).
-"direct" install mode generate download url of Terraform based on TFENV_REMOTE.
+- "api" install mode retrieve download url of Terraform from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_REMOTE must comply with it).
+- "direct" install mode generate download url of Terraform based on TFENV_REMOTE.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -719,8 +719,8 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: "api")
 
-"api" list mode retrieve information of Terraform releases from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_LIST_URL must comply with it).
-"html" list mode extract information of Terraform releases from parsing an html page in TFENV_LIST_URL.
+- "api" list mode retrieve information of Terraform releases from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_LIST_URL must comply with it).
+- "html" list mode extract information of Terraform releases from parsing an html page in TFENV_LIST_URL.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -817,8 +817,8 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 
 String (Default: "api")
 
-"api" install mode retrieve download url of Terragrunt from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TG_REMOTE must comply with it).
-"direct" install mode generate download url of Terragrunt based on TG_REMOTE.
+- "api" install mode retrieve download url of Terragrunt from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TG_REMOTE must comply with it).
+- "direct" install mode generate download url of Terragrunt based on TG_REMOTE.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -829,8 +829,8 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: "api")
 
-"api" list mode retrieve information of Terragrunt releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28).
-"html" list mode extract information of Terragrunt releases from parsing an html page in TG_LIST_URL.
+- "api" list mode retrieve information of Terragrunt releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28).
+- "html" list mode extract information of Terragrunt releases from parsing an html page in TG_LIST_URL.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
