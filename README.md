@@ -914,14 +914,14 @@ Recognize same values as `tenv tg use` command.
 <a id="terragrunt-hcl-file"></a>
 <details><summary><b>terragrunt.hcl file</b></summary><br>
 
-If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, **tenv** will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
+If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, one of its parent directory, or user home directory, **tenv** will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
 
 </details>
 
 <a id="required_version"></a>
 <details><summary><b>required_version</b></summary><br>
 
-the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files are found.
+the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files anno default constraint are found.
 
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
@@ -1002,6 +1002,16 @@ The `latest-allowed` strategy has no information for Terragrunt and will fallbac
 <details><summary><b>tf</b></summary><br>
 
 The `tf` command is a proxy to `tofu` or `terraform` depending on the version files present in project.
+
+The version resolution order is :
+
+- `.opentofu-version` file (launch `tofu`)
+- `terraform_version_constraint` from `terragrunt.hcl` file (launch `tofu`)
+- `terraform_version_constraint` from `terragrunt.hcl.json` file (launch `tofu`)
+- `.terraform-version` file (launch `terraform`)
+- `.tfswitchrc` file  (launch `terraform`)
+- fail with a message
+
 
 </details>
 
