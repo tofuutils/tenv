@@ -44,8 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	execName := ""
-	installPath := ""
+	execName, installPath := "", ""
 	if detectedVersion == "" {
 		terraformManager := builder.BuildTfManager(&conf, gruntParser)
 		detectedVersion, err = terraformManager.ResolveWithVersionFiles()
