@@ -122,7 +122,7 @@ func (r RemoteConfig) GetRewriteRule() []string {
 	}
 
 	if oneDisabled {
-		return nil // build correct url (install mode activated)
+		return nil // build correct url (direct install mode)
 	}
 
 	if oldBase == "" {
