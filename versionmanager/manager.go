@@ -224,7 +224,12 @@ func (m VersionManager) ResetVersion() error {
 
 // Search the requested version in version files.
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	version, err := m.ResolveWithoutFallback()
+	version := os.Getenv(m.VersionEnvName)
+	if version != "" {
+		return types.DisplayDetectionInfo(m.conf.Displayer, version, m.VersionEnvName), nil
+	}
+
+	version, err := m.ResolveWithVersionFiles()
 	if err != nil || version != "" {
 		return version, err
 	}
@@ -242,11 +247,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 }
 
 // Search the requested version in version files.
-func (m VersionManager) ResolveWithoutFallback() (string, error) {
-	if forcedVersion := os.Getenv(m.VersionEnvName); forcedVersion != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, forcedVersion, m.VersionEnvName), nil
-	}
-
+func (m VersionManager) ResolveWithVersionFiles() (string, error) {
 	return semantic.RetrieveVersion(m.VersionFiles, m.conf)
 }
 
