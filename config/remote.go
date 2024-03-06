@@ -136,14 +136,6 @@ func (r RemoteConfig) GetRewriteRule() []string {
 	return []string{oldBase, newBase}
 }
 
-func (r RemoteConfig) getValueForced(name string, forcedValue string) string {
-	if forcedValue != "" {
-		return forcedValue
-	}
-
-	return r.Data[name]
-}
-
 func (r RemoteConfig) getValueForcedDefault(name string, forcedValue string, defaultValue string) string {
 	if forcedValue != "" {
 		return forcedValue
