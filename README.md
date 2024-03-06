@@ -91,6 +91,7 @@ If you need to enable cosign checks, install `cosign` tool via one of the follow
 ```sh
 brew install cosign
 ```
+
 </details>
 
 
@@ -99,6 +100,7 @@ brew install cosign
 ```sh
 apk add cosign
 ```
+
 </details>
 
 
@@ -109,6 +111,7 @@ LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/late
 curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-${LATEST_VERSION}-1.x86_64.rpm"
 sudo rpm -ivh cosign-${LATEST_VERSION}.x86_64.rpm
 ```
+
 </details>
 <details><summary><b>Linux: dkpg</b></summary><br>
 
@@ -132,6 +135,7 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 brew tap tofuutils/tap
 brew install tenv
 ```
+
 </details>
 
 <details><summary><b>Ubuntu</b></summary><br>
@@ -1098,7 +1102,7 @@ TFENV_REMOTE=https://artifactory.example.com/artifactory/hashicorp
 TFENV_LIST_MODE=html
 ```
 
-Example 2 : Retrieve Terraform binaries from the mirror and list available releases from the Hashicorp releases API.
+Example 2 : Retrieve Terraform binaries from the mirror and list available releases from the Hashicorp releases API (TFENV_LIST_URL is optional because it default to https://releases.hashicorp.com with the default list mode "api").
 
 ```console
 TFENV_REMOTE=https://artifactory.example.com/artifactory/hashicorp
@@ -1107,7 +1111,7 @@ TFENV_LIST_URL=https://releases.hashicorp.com
 
 Example 1 & 2, does not need install mode (by release index.json is figed in mirror without problem), however create a rewrite rule from "https://releases.hashicorp.com" to "https://artifactory.example.com/artifactory/hashicorp" to obtains correct download URLs.
 
-Example 3 : Retrieve OpenTofu binaries and list available releases from the mirror.
+Example 3 : Retrieve OpenTofu binaries and list available releases from the mirror (TOFUENV_INSTALL_MODE is optional because overloading TOFUENV_REMOTE already set it to "direct").
 
 ```console
 TOFUENV_REMOTE=https://artifactory.example.com/artifactory/github
@@ -1115,7 +1119,7 @@ TOFUENV_INSTALL_MODE=direct
 TOFUENV_LIST_MODE=html
 ```
 
-Example 4 : Retrieve OpenTofu binaries from the mirror and list available releases from the GitHub API.
+Example 4 : Retrieve OpenTofu binaries from the mirror and list available releases from the GitHub API (TOFUENV_INSTALL_MODE is optional because overloading TOFUENV_REMOTE already set it to "direct", and TOFUENV_LIST_URL is optional because it default to https://api.github.com/repos/opentofu/opentofu/releases with the default list mode "api").
 
 ```console
 TOFUENV_REMOTE=https://artifactory.example.com/artifactory/github
