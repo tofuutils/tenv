@@ -921,7 +921,7 @@ If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, on
 <a id="required_version"></a>
 <details><summary><b>required_version</b></summary><br>
 
-the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files anno default constraint are found.
+the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files and no default constraint are found.
 
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
