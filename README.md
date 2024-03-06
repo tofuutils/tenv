@@ -600,7 +600,7 @@ Allow to specify a local file path to OpenTofu PGP public key, if not present do
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
-URL to install OpenTofu, when TOFUENV_REMOTE differ from its default value, TOFUENV_INSTALL_MODE is set to direct (assume an artifact proxy usage).
+URL to install OpenTofu, when TOFUENV_REMOTE differ from its default value, TOFUENV_INSTALL_MODE is set to direct (assume an artifact proxy usage, however releases listing continue to use API).
 
 `tenv tofu` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
@@ -745,7 +745,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: https://releases.hashicorp.com)
 
-URL to install Terraform (can differ from its default, an artifact proxy will not disturb the retrieving of release index.json).
+URL to install Terraform (can differ from its default, an artifact proxy will not disturb the retrieving of release index.json, however releases listing continue to use API).
 
 `tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
@@ -855,7 +855,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 
-URL to install Terragrunt, when TG_REMOTE differ from its default value, TG_INSTALL_MODE is set to "direct" (assume an artifact proxy usage).
+URL to install Terragrunt, when TG_REMOTE differ from its default value, TG_INSTALL_MODE is set to "direct" (assume an artifact proxy usage, however releases listing continue to use API).
 
 `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
