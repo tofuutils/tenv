@@ -76,15 +76,18 @@ func (r TofuRetriever) InstallRelease(versionStr string, targetPath string) erro
 
 	var assetURLs []string
 	assetNames := buildAssetNames(versionStr, r.conf.Arch, stable)
-	if r.conf.Tofu.GetInstallMode() == htmlretriever.InstallModeDirect {
+	switch r.conf.Tofu.GetInstallMode() {
+	case config.InstallModeDirect:
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
-	} else {
+	case config.ModeAPI:
 		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
+	default:
+		return config.ErrInstallMode
 	}
 	if err != nil {
 		return err
@@ -115,7 +118,8 @@ func (r TofuRetriever) ListReleases() ([]string, error) {
 	}
 
 	listURL := r.conf.Tofu.GetListURL()
-	if r.conf.Tofu.GetListMode() == htmlretriever.ListModeHTML {
+	switch r.conf.Tofu.GetListMode() {
+	case config.ListModeHTML:
 		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
@@ -124,11 +128,13 @@ func (r TofuRetriever) ListReleases() ([]string, error) {
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
 		return htmlretriever.ListReleases(baseURL, r.conf.Tofu.Data)
+	case config.ModeAPI:
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
+
+		return github.ListReleases(listURL, r.conf.GithubToken)
+	default:
+		return nil, config.ErrListMode
 	}
-
-	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
-
-	return github.ListReleases(listURL, r.conf.GithubToken)
 }
 
 func (r TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string) error {

@@ -18,15 +18,27 @@
 
 package config
 
-import "os"
+import (
+	"errors"
+	"os"
+)
 
 const (
+	InstallModeDirect = "direct"
+	ListModeHTML      = "html"
+	ModeAPI           = "api"
+
 	baseGithubURL              = "https://github.com"
 	defaultGithubURL           = "https://api.github.com/repos/"
 	defaultHashicorpURL        = "https://releases.hashicorp.com"
 	defaultTerragruntGithubURL = defaultGithubURL + "gruntwork-io/terragrunt" + slashReleases
 	defaultTofuGithubURL       = defaultGithubURL + "opentofu/opentofu" + slashReleases
 	slashReleases              = "/releases"
+)
+
+var (
+	ErrInstallMode = errors.New("unknown install mode")
+	ErrListMode    = errors.New("unknown list mode")
 )
 
 type RemoteConfig struct {
@@ -48,15 +60,25 @@ func makeRemoteConfig(remoteURLEnvName string, listURLEnvName string, installMod
 }
 
 func (r RemoteConfig) GetInstallMode() string {
-	return r.getValueForced("install_mode", r.installMode)
+	defaultInstallMode := ModeAPI
+	if r.defaultBaseURL == baseGithubURL && r.GetRemoteURL() != r.defaultURL {
+		defaultInstallMode = InstallModeDirect
+	}
+
+	return r.getValueForcedDefault("install_mode", r.installMode, defaultInstallMode)
 }
 
 func (r RemoteConfig) GetListMode() string {
-	return r.getValueForced("list_mode", r.listMode)
+	return r.getValueForcedDefault("list_mode", r.listMode, ModeAPI)
 }
 
 func (r RemoteConfig) GetListURL() string {
-	return r.getValueForcedDefault("list_url", r.listURL, r.GetRemoteURL())
+	defaultListURL := r.defaultURL
+	if r.GetListMode() == ListModeHTML {
+		defaultListURL = r.GetRemoteURL()
+	}
+
+	return r.getValueForcedDefault("list_url", r.listURL, defaultListURL)
 }
 
 func (r RemoteConfig) GetRemoteURL() string {
@@ -74,16 +96,16 @@ func (r RemoteConfig) GetRewriteRule() []string {
 		return []string{oldBase, newBase}
 	}
 
-	emptyListMode := r.GetListMode() == ""
+	defaultListMode := r.GetListMode() == ModeAPI
 	listURL := r.GetListURL()
 	remoteURL := r.GetRemoteURL()
 	sameURL := remoteURL == listURL
-	if emptyListMode && sameURL {
+	if defaultListMode && sameURL {
 		return nil // no special behaviour, no rewriting
 	}
 
-	oneDisabled := emptyListMode || sameURL
-	if r.GetInstallMode() == "" {
+	oneDisabled := defaultListMode || sameURL
+	if r.GetInstallMode() == ModeAPI {
 		if oldBase == "" {
 			oldBase = r.defaultBaseURL
 		}

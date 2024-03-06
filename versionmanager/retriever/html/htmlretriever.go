@@ -28,11 +28,6 @@ import (
 	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
-const (
-	InstallModeDirect = "direct"
-	ListModeHTML      = "html"
-)
-
 func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error) {
 	joinTransformer := func(assetName string) (string, error) {
 		return url.JoinPath(baseAssetURL, assetName) //nolint

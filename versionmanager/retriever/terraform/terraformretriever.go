@@ -68,7 +68,8 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 	}
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
-	if r.conf.Tf.GetInstallMode() == htmlretriever.InstallModeDirect {
+	switch r.conf.Tf.GetInstallMode() {
+	case config.InstallModeDirect:
 		fileName, shaFileName, shaSigFileName = buildAssetNames(version, r.conf.Arch)
 		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, fileName, shaFileName, shaSigFileName)
 		if err != nil {
@@ -76,7 +77,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		}
 
 		downloadURL, downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1], assetURLs[2]
-	} else {
+	case config.ModeAPI:
 		versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
 		if err != nil {
 			return err
@@ -100,6 +101,8 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		}
 
 		downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1]
+	default:
+		return config.ErrInstallMode
 	}
 
 	urlTranformer := download.UrlTranformer(r.conf.Tf.GetRewriteRule())
@@ -131,25 +134,28 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	if r.conf.Tf.GetListMode() == htmlretriever.ListModeHTML {
+	switch r.conf.Tf.GetListMode() {
+	case config.ListModeHTML:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
 		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data)
+	case config.ModeAPI:
+		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
+		if err != nil {
+			return nil, err
+		}
+
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
+
+		value, err := apiGetRequest(releasesURL)
+		if err != nil {
+			return nil, err
+		}
+
+		return extractReleases(value)
+	default:
+		return nil, config.ErrListMode
 	}
-
-	releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
-	if err != nil {
-		return nil, err
-	}
-
-	r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
-
-	value, err := apiGetRequest(releasesURL)
-	if err != nil {
-		return nil, err
-	}
-
-	return extractReleases(value)
 }
 
 func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
