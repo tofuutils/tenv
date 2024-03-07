@@ -656,7 +656,7 @@ If not empty string, this variable overrides OpenTofu version, specified in [`.o
 e.g. with :
 
 ```console
-TENV_QUIET=t dist/tofu_linux_amd64_v1/tofu version
+$ tofu version
 OpenTofu v1.6.1
 on linux_amd64
 ```
@@ -664,7 +664,7 @@ on linux_amd64
 then :
 
 ```console
-$ TENV_QUIET=t TOFUENV_TOFU_VERSION=1.6.0 dist/tofu_linux_amd64_v1/tofu version
+$ TOFUENV_TOFU_VERSION=1.6.0 tofu version
 OpenTofu v1.6.0
 on linux_amd64
 ```
@@ -794,7 +794,7 @@ If not empty string, this variable overrides Terraform version, specified in [`.
 e.g. with :
 
 ```console
-$ TENV_QUIET=t dist/terraform_linux_amd64_v1/terraform version
+$ terraform version
 Terraform v1.7.2
 on linux_amd64
 ```
@@ -802,7 +802,7 @@ on linux_amd64
 then :
 
 ```console
-$ TENV_QUIET=t TFENV_TERRAFORM_VERSION=1.7.0 dist/terraform_linux_amd64_v1/terraform version
+$ TFENV_TERRAFORM_VERSION=1.7.0 terraform version
 Terraform v1.7.0
 on linux_amd64
 
@@ -896,14 +896,14 @@ If not empty string, this variable overrides Terragrunt version, specified in [`
 e.g. with :
 
 ```console
-$ TENV_QUIET=t terragrunt -v
+$ terragrunt -v
 terragrunt version v0.55.1
 ```
 
 then :
 
 ```console
-$ TENV_QUIET=t TG_VERSION=0.54.1 terragrunt -v
+$ TG_VERSION=0.54.1 terragrunt -v
 terragrunt version v0.54.1
 ```
 
