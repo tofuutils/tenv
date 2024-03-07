@@ -132,7 +132,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println(config.TenvName, version) //nolint
+			fmt.Println(config.TenvName, "version", version) //nolint
 		},
 	}
 }
