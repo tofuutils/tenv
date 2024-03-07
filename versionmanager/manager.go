@@ -222,7 +222,7 @@ func (m VersionManager) ResetVersion() error {
 	return removeFile(m.RootVersionFilePath(), m.conf)
 }
 
-// Search the requested version in version files.
+// Search the requested version in version files (with fallbacks and env var overloading).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	version := os.Getenv(m.VersionEnvName)
 	if version != "" {
