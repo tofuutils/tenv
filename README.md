@@ -833,7 +833,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: "api")
 
-- "api" list mode retrieve information of Terragrunt releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28).
+- "api" list mode retrieve information of Terragrunt releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TG_LIST_URL must comply with it).
 - "html" list mode extract information of Terragrunt releases from parsing an html page in TG_LIST_URL.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
