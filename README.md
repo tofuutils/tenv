@@ -103,7 +103,7 @@ apk add cosign
 
 </details>
 
-<details><summary><b>ArchLinux</b></summary><br>
+<details><summary><b>Arch Linux</b></summary><br>
 
 ```sh
 sudo pacman -S cosign
@@ -136,9 +136,9 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 
 <a id="automatic-installation"></a>
 #### Automatic Installation
-<details><summary><b>ArchLinux (AUR)</b></summary><br>
+<details><summary><b>Arch Linux (AUR)</b></summary><br>
 
-This package is available on the ArchLinux User Repository.
+This package is available on the Arch Linux User Repository.
 It can be installed using the yay AUR helper:
 ```sh
 yay tenv-bin
