@@ -103,6 +103,13 @@ apk add cosign
 
 </details>
 
+<details><summary><b>Arch Linux</b></summary><br>
+
+```sh
+sudo pacman -S cosign
+```
+
+</details>
 
 <details><summary><b>Linux: RPM</b></summary><br>
 
@@ -129,6 +136,16 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 
 <a id="automatic-installation"></a>
 #### Automatic Installation
+<details><summary><b>Arch Linux (AUR)</b></summary><br>
+
+This package is available on the Arch Linux User Repository.
+It can be installed using the yay AUR helper:
+```sh
+yay tenv-bin
+```
+
+</details>
+
 <details><summary><b>MacOS (Homebrew)</b></summary><br>
 
 ```console
