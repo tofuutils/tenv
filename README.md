@@ -1098,7 +1098,7 @@ With `list_mode` set to "html", **tenv** change the fetching of all releases inf
 
 `old_base_url` and `new_base_url` are used as url rewrite rule (if an url start with the prefix, it will be changed to use the new base url).
 
-If `old_base_url` and `new_base_url` are empty, **tenv** try to guess right behaviour depending previous field.
+If `old_base_url` and `new_base_url` are empty, **tenv** try to guess right behaviour based on previous fields.
 
 `selector` is used to gather in a list all matching html node and `part` choose on which node part (attribute name or "#text" for inner text) a version will be extracted (selector default to "a" (html link) and part default to "href" (link target))
 
