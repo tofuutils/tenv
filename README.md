@@ -41,7 +41,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 
 asdf is generic and extensible with a plugin system, key **tenv** differences :
 
-- **tenv** is more specific and has features dedicated to OpenTofu, Terraform an Terragrunt, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
+- **tenv** is more specific and has features dedicated to OpenTofu, Terraform and Terragrunt, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
 - **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
 
 <a id="table-of-contents"></a>
