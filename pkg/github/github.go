@@ -25,7 +25,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 
 	"github.com/tofuutils/tenv/pkg/apimsg"
 	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
@@ -147,11 +146,7 @@ func buildAuthorizationHeader(token string) string {
 		return ""
 	}
 
-	var authorizationBuilder strings.Builder
-	authorizationBuilder.WriteString("Bearer ")
-	authorizationBuilder.WriteString(token)
-
-	return authorizationBuilder.String()
+	return "Bearer " + token
 }
 
 func extractAssets(assets map[string]string, searchedAssetNameSet map[string]struct{}, waited int, value any) error {
