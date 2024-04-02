@@ -19,8 +19,8 @@
 package tfparser
 
 import (
-	"io/fs"
-	"path/filepath"
+	"os"
+	"strings"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
@@ -35,7 +35,6 @@ const requiredVersionName = "required_version"
 
 type extDescription struct {
 	value    string
-	len      int
 	parseHCL bool
 }
 
@@ -49,64 +48,60 @@ var versionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: requiredVersionName}},
 }
 
-func init() {
-	for i, desc := range exts {
-		desc.len = len(desc.value)
-		exts[i] = desc // override with updated copy
-	}
-}
-
 func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 	conf.Displayer.Display("Scan project to find .tf files")
 
-	var requireds []string
 	var foundFiles []string
+	if conf.Displayer.IsDebug() {
+		defer func() {
+			if len(foundFiles) == 0 {
+				conf.Displayer.Log(hclog.Debug, "No .tf file found")
+			} else {
+				conf.Displayer.Log(hclog.Debug, "Read", "filePaths", foundFiles)
+			}
+		}()
+	}
+
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		return nil, err
+	}
+
+	var requireds []string
+	var parsedFile *hcl.File
+	var diags hcl.Diagnostics
 	parser := hclparse.NewParser()
-	err := filepath.WalkDir(".", func(path string, entry fs.DirEntry, err error) error {
-		if err != nil || entry.IsDir() {
-			return err
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
 		}
 
-		pathLen := len(path)
-		var parsedFile *hcl.File
-		var diags hcl.Diagnostics
+		name := entry.Name()
 		for _, extDesc := range exts {
-			if start := pathLen - extDesc.len; start < 0 || path[start:] != extDesc.value {
+			if !strings.HasSuffix(name, extDesc.value) {
 				continue
 			}
 
-			foundFiles = append(foundFiles, path)
+			foundFiles = append(foundFiles, name)
 
 			if extDesc.parseHCL {
-				parsedFile, diags = parser.ParseHCLFile(path)
+				parsedFile, diags = parser.ParseHCLFile(name)
 			} else {
-				parsedFile, diags = parser.ParseJSONFile(path)
+				parsedFile, diags = parser.ParseJSONFile(name)
 			}
 			if diags.HasErrors() {
-				return diags
+				return nil, diags
 			}
 			if parsedFile == nil {
-				return nil
+				continue
 			}
 
 			extracted := extractRequiredVersion(parsedFile.Body, conf)
 			requireds = append(requireds, extracted...)
-
-			return nil
-		}
-
-		return nil
-	})
-
-	if conf.Displayer.IsDebug() {
-		if len(foundFiles) == 0 {
-			conf.Displayer.Log(hclog.Debug, "No .tf file found")
-		} else {
-			conf.Displayer.Log(hclog.Debug, "Read", "filePaths", foundFiles)
 		}
 	}
 
-	return requireds, err
+	return requireds, nil
 }
 
 func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
