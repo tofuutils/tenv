@@ -20,6 +20,7 @@ package tfparser
 
 import (
 	"os"
+	"strings"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
@@ -34,7 +35,6 @@ const requiredVersionName = "required_version"
 
 type extDescription struct {
 	value    string
-	len      int
 	parseHCL bool
 }
 
@@ -46,13 +46,6 @@ var terraformPartialSchema = &hcl.BodySchema{ //nolint
 
 var versionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: requiredVersionName}},
-}
-
-func init() {
-	for i, desc := range exts {
-		desc.len = len(desc.value)
-		exts[i] = desc // override with updated copy
-	}
 }
 
 func GatherRequiredVersion(conf *config.Config) ([]string, error) {
@@ -85,7 +78,7 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 
 		name := entry.Name()
 		for _, extDesc := range exts {
-			if start := len(name) - extDesc.len; start < 0 || name[start:] != extDesc.value {
+			if !strings.HasSuffix(name, extDesc.value) {
 				continue
 			}
 
