@@ -186,11 +186,11 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 
 **tenv** supports [OpenTofu](https://opentofu.org), [Terragrunt](https://terragrunt.gruntwork.io/) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
-| tool   | env vars                   | description                                    |
-| ------ | -------------------------- | ---------------------------------------------- |
-| `tofu` | [TOFUENV_](#tofu-env-vars) | [OpenTofu](https://opentofu.org)               |
-| `tf`   | [TFENV_](#tf-env-vars)     | [Terraform](https://www.terraform.io/)         |
-| `tg`   | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
+| tool (alias)        | env vars                   | description                                    |
+| ------------------- | -------------------------- | ---------------------------------------------- |
+| `tofu` (`opentofu`) | [TOFUENV_](#tofu-env-vars) | [OpenTofu](https://opentofu.org)               |
+| `tf` (`terraform`)  | [TFENV_](#tf-env-vars)     | [Terraform](https://www.terraform.io/)         |
+| `tg` (`terragrunt`) | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
 
 
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
