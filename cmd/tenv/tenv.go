@@ -86,9 +86,10 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 	// Add this in your main function, after the tfCmd and before the tgCmd
 	tofuCmd := &cobra.Command{
-		Use:   config.TofuName,
-		Short: tofuHelp,
-		Long:  tofuHelp,
+		Use:     config.TofuName,
+		Aliases: []string{"opentofu"},
+		Short:   tofuHelp,
+		Long:    tofuHelp,
 	}
 	tofuParams.deprecated = false // usage with tofu subcommand are ok
 	initSubCmds(tofuCmd, conf, tofuManager, tofuParams)
@@ -96,9 +97,10 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd.AddCommand(tofuCmd)
 
 	tfCmd := &cobra.Command{
-		Use:   "tf",
-		Short: tfHelp,
-		Long:  tfHelp,
+		Use:     "tf",
+		Aliases: []string{config.TerraformName},
+		Short:   tfHelp,
+		Long:    tfHelp,
 	}
 
 	tfParams := subCmdParams{
@@ -110,9 +112,10 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd.AddCommand(tfCmd)
 
 	tgCmd := &cobra.Command{
-		Use:   "tg",
-		Short: tgHelp,
-		Long:  tgHelp,
+		Use:     "tg",
+		Aliases: []string{config.TerragruntName},
+		Short:   tgHelp,
+		Long:    tgHelp,
 	}
 
 	tgParams := subCmdParams{
