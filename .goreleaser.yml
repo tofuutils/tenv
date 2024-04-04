@@ -242,7 +242,7 @@ brews:
   - repository:
       owner: tofuutils
       name: homebrew-tap
-    folder: Formula
+    directory: Formula
     homepage: https://github.com/tofuutils/tenv
     description: "OpenTofu and Terraform version manager (inspired by tofuenv, written in Go)"
     license: "Apache-2.0"
