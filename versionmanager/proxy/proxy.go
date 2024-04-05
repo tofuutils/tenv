@@ -24,6 +24,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -74,7 +75,17 @@ func RunCmd(installPath string, detectedVersion string, execName string) {
 		done(calledExitCode)
 	}()
 
-	if err = cmd.Run(); err != nil {
+	if err = cmd.Start(); err != nil {
+		exitWithErrorMsg(execName, err, &exitCode)
+
+		return
+	}
+
+	signalChan := make(chan os.Signal)
+	signal.Notify(signalChan, os.Interrupt)
+	go transmitIncreasingSignal(signalChan, cmd.Process)
+
+	if err = cmd.Wait(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			calledExitCode = exitError.ExitCode()
 
@@ -151,6 +162,18 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
 			err = fmt.Errorf("exited with code %d", calledExitCode)
 		}
 	}, nil
+}
+
+func transmitIncreasingSignal(signalReceiver <-chan os.Signal, process *os.Process) {
+	first := true
+	for range signalReceiver {
+		if first {
+			process.Signal(os.Interrupt)
+			first = false
+		} else {
+			process.Signal(os.Kill)
+		}
+	}
 }
 
 func writeMultiline(file *os.File, key string, value string) error {
