@@ -104,51 +104,51 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
 	}
 
 	cmd.Stdin = os.Stdin
-	if gha {
-		outputPath := os.Getenv("GITHUB_OUTPUT")
-
-		outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			return nil, err
-		}
-
-		var errBuffer, outBuffer strings.Builder
-		cmd.Stderr = &errBuffer
-		cmd.Stdout = &outBuffer
+	if !gha {
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
 
 		return func(calledExitCode int) {
-			var err error
-			defer func() {
-				if err != nil {
-					exitWithErrorMsg(execName, err, pExitCode)
-				}
-			}()
-			defer outputFile.Close()
-
-			if err = writeMultiline(outputFile, "stderr", errBuffer.String()); err != nil {
-				return
-			}
-
-			if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
-				return
-			}
-
-			if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(calledExitCode)); err != nil {
-				return
-			}
-
-			if calledExitCode != 0 && calledExitCode != 2 {
-				err = fmt.Errorf("exited with code %d", calledExitCode)
+			if calledExitCode != 0 {
+				*pExitCode = calledExitCode
 			}
 		}, nil
 	}
 
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	outputPath := os.Getenv("GITHUB_OUTPUT")
+
+	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	var errBuffer, outBuffer strings.Builder
+	cmd.Stderr = &errBuffer
+	cmd.Stdout = &outBuffer
 
 	return func(calledExitCode int) {
-		if calledExitCode != 0 {
-			*pExitCode = calledExitCode
+		var err error
+		defer func() {
+			if err != nil {
+				exitWithErrorMsg(execName, err, pExitCode)
+			}
+		}()
+		defer outputFile.Close()
+
+		if err = writeMultiline(outputFile, "stderr", errBuffer.String()); err != nil {
+			return
+		}
+
+		if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
+			return
+		}
+
+		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(calledExitCode)); err != nil {
+			return
+		}
+
+		if calledExitCode != 0 && calledExitCode != 2 {
+			err = fmt.Errorf("exited with code %d", calledExitCode)
 		}
 	}, nil
 }
