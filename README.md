@@ -521,6 +521,24 @@ The path to a directory where the local OpenTofu versions, Terraform versions, T
 </details>
 
 
+<details><summary><b>GITHUB_ACTIONS</b></summary><br>
+
+String (Default: false)
+
+If set to true **tenv** proxies exposes proxied output `stdout`, `stderr`, and `exitcode` by writing them into GITHUB_OUTPUT in [multiline format](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings). GitHub Actions set it (see [default environment variables](https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables)).
+
+</details>
+
+
+<details><summary><b>GITHUB_OUTPUT</b></summary><br>
+
+String (Default: "")
+
+Needed when GITHUB_ACTIONS is set to true, path to a file to write proxied output.
+
+</details>
+
+
 <a id="tofu-env-vars"></a>
 ### OpenTofu environment variables
 
