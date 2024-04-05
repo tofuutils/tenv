@@ -233,8 +233,8 @@ func (conf *Config) InitRemoteConf() error {
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
-	if verboseStr := getenvFallback(keys...); verboseStr != "" {
-		return strconv.ParseBool(verboseStr)
+	if valueStr := getenvFallback(keys...); valueStr != "" {
+		return strconv.ParseBool(valueStr)
 	}
 
 	return defaultValue, nil
