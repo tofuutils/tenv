@@ -90,9 +90,8 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	}
 	gruntParser := terragruntparser.Make()
 	tofuManager := builder.BuildTofuManager(conf, gruntParser)
-	initSubCmds(rootCmd, conf, tofuManager, tofuParams)
+	initSubCmds(rootCmd, conf, tofuManager, tofuParams) // add tofu management at root level
 
-	// Add this in your main function, after the tfCmd and before the tgCmd
 	tofuCmd := &cobra.Command{
 		Use:     config.TofuName,
 		Aliases: []string{"opentofu"},
@@ -102,7 +101,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	tofuParams.deprecated = false // usage with tofu subcommand are ok
 	initSubCmds(tofuCmd, conf, tofuManager, tofuParams)
 
-	rootCmd.AddCommand(tofuCmd)
+	rootCmd.AddCommand(tofuCmd) // add tofu management as subcommand
 
 	tfCmd := &cobra.Command{
 		Use:     "tf",
