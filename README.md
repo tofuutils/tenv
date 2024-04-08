@@ -445,6 +445,12 @@ export PATH=$(tenv update-path)
 
 Display tenv current version.
 
+```console
+$ tenv version
+tenv version v1.7.0
+```
+
+
 </details>
 
 
