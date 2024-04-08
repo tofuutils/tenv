@@ -95,6 +95,14 @@ brew install cosign
 </details>
 
 
+<details><summary><b>Windows (Chocolatey)</b></summary><br>
+
+```sh
+choco install cosign
+```
+
+</details>
+
 <details><summary><b>Alpine Linux</b></summary><br>
 
 ```sh
@@ -151,6 +159,14 @@ yay tenv-bin
 ```console
 brew tap tofuutils/tap
 brew install tenv
+```
+
+</details>
+
+<details><summary><b>Windows (Chocolatey)</b></summary><br>
+
+```console
+choco install tenv
 ```
 
 </details>
@@ -1078,7 +1094,7 @@ The `latest-allowed` strategy rely on [required_version](#required_version) from
 
 <details><summary><b>terraform</b></summary><br>
 
-The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by **tenv**. 
+The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by **tenv**.
 
 The version resolution order is :
 
@@ -1098,7 +1114,7 @@ The `latest-allowed` strategy rely on [required_version](#required_version) from
 
 <details><summary><b>terragrunt</b></summary><br>
 
-The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by **tenv**. 
+The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by **tenv**.
 
 The version resolution order is :
 
