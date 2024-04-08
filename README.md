@@ -193,7 +193,6 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 | `tg` (`terragrunt`) | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
 
 
-
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
 
 Install a requested version of the tool (into `TENV_ROOT` directory from `<TOOL>_REMOTE` url).
