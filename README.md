@@ -433,7 +433,7 @@ With GITHUB_ACTIONS set to true, write tenv directory location to GITHUB_PATH.
 Can be used with export :
 
 ```console
-export PATH=$(dist/tenv_linux_amd64_v1/tenv update-path)
+export PATH=$(tenv update-path)
 ```
 
 </details>
