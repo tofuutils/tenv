@@ -159,13 +159,12 @@ func newUpdatePathCmd() *cobra.Command {
 				return nil
 			}
 
-			pathEnv := os.Getenv(pathEnvName)
-			execDirPath := filepath.Dir(execPath)
 			gha, err := config.GetenvBool(false, config.GithubActionsEnvName)
 			if err != nil {
 				return err
 			}
 
+			execDirPath := filepath.Dir(execPath)
 			if gha {
 				pathfilePath := os.Getenv("GITHUB_PATH")
 				if pathfilePath != "" {
@@ -175,7 +174,7 @@ func newUpdatePathCmd() *cobra.Command {
 					}
 					defer pathfile.Close()
 
-					_, err = pathfile.Write([]byte(execDirPath))
+					_, err = pathfile.Write(append([]byte(execDirPath), '\n'))
 					if err != nil {
 						return err
 					}
@@ -185,7 +184,7 @@ func newUpdatePathCmd() *cobra.Command {
 			var pathBuilder strings.Builder
 			pathBuilder.WriteString(execDirPath)
 			pathBuilder.WriteRune(os.PathListSeparator)
-			pathBuilder.WriteString(pathEnv)
+			pathBuilder.WriteString(os.Getenv(pathEnvName))
 			fmt.Println(pathBuilder.String()) //nolint
 
 			return nil
