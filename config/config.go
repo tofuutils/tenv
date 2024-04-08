@@ -38,6 +38,8 @@ const (
 	TerragruntName = "terragrunt"
 	TofuName       = "tofu"
 
+	GithubActionsEnvName = "GITHUB_ACTIONS"
+
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
 	defaultConstraint  = "DEFAULT_CONSTRAINT"
@@ -230,6 +232,14 @@ func (conf *Config) InitRemoteConf() error {
 	conf.Tofu.Data = remoteConf[TofuName]
 
 	return nil
+}
+
+func GetenvBool(defaultValue bool, key string) (bool, error) {
+	if valueStr := os.Getenv(key); valueStr != "" {
+		return strconv.ParseBool(valueStr)
+	}
+
+	return defaultValue, nil
 }
 
 func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {

@@ -21,6 +21,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tofuutils/tenv/config"
@@ -30,12 +32,16 @@ import (
 )
 
 const (
+	versionName     = "version"
 	rootVersionHelp = "Display tenv current version."
+	updatePathHelp  = "Display PATH updated with tenv dir location first."
 
 	helpPrefix = "Subcommand to manage several versions of "
 	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
-	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io/)."
+	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io)."
 	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
+
+	pathEnvName = "PATH"
 )
 
 // can be overridden with ldflags.
@@ -75,6 +81,8 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", false, "verbose output (and set log level to Trace)")
 
 	rootCmd.AddCommand(newVersionCmd())
+	rootCmd.AddCommand(newUpdatePathCmd())
+
 	tofuParams := subCmdParams{
 		deprecated: true, // direct use should display a deprecation message
 		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
@@ -130,12 +138,58 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "version",
+		Use:   versionName,
 		Short: rootVersionHelp,
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println(config.TenvName, "version", version) //nolint
+			fmt.Println(config.TenvName, versionName, version) //nolint
+		},
+	}
+}
+
+func newUpdatePathCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "update-path",
+		Short: updatePathHelp,
+		Long:  updatePathHelp,
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			execPath, err := os.Executable()
+			if err != nil {
+				return nil
+			}
+
+			pathEnv := os.Getenv(pathEnvName)
+			execDirPath := filepath.Dir(execPath)
+			gha, err := config.GetenvBool(false, config.GithubActionsEnvName)
+			if err != nil {
+				return err
+			}
+
+			if gha {
+				pathfilePath := os.Getenv("GITHUB_PATH")
+				if pathfilePath != "" {
+					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+					if err != nil {
+						return err
+					}
+					defer pathfile.Close()
+
+					_, err = pathfile.Write([]byte(execDirPath))
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			var pathBuilder strings.Builder
+			pathBuilder.WriteString(execDirPath)
+			pathBuilder.WriteRune(os.PathListSeparator)
+			pathBuilder.WriteString(pathEnv)
+			fmt.Println(pathBuilder.String()) //nolint
+
+			return nil
 		},
 	}
 }

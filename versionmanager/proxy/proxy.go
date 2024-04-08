@@ -100,16 +100,8 @@ func exitWithErrorMsg(execName string, err error, pExitCode *int) {
 	*pExitCode = 1
 }
 
-func getenvBool(defaultValue bool, key string) (bool, error) {
-	if valueStr := os.Getenv(key); valueStr != "" {
-		return strconv.ParseBool(valueStr)
-	}
-
-	return defaultValue, nil
-}
-
 func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
-	gha, err := getenvBool(false, "GITHUB_ACTIONS")
+	gha, err := config.GetenvBool(false, config.GithubActionsEnvName)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +119,6 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
 	}
 
 	outputPath := os.Getenv("GITHUB_OUTPUT")
-
 	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
