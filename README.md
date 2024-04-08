@@ -379,6 +379,7 @@ Usage:
   tenv tf detect [flags]
 
 Flags:
+  -a, --arch string          specify arch for binaries downloading (default "amd64")
   -f, --force-remote         force search on versions available at TFENV_REMOTE url
   -h, --help                 help for detect
   -k, --key-file string      local path to PGP public key file (replace check against remote one)
@@ -387,9 +388,9 @@ Flags:
   -u, --remote-url string    remote url to install from
 
 Global Flags:
-  -q, --quiet              no output (and no log)
+  -q, --quiet              no unnecessary output (and no log)
   -r, --root-path string   local path to install versions of OpenTofu, Terraform and Terragrunt (default "/home/dvaumoron/.tenv")
-  -v, --verbose            verbose output
+  -v, --verbose            verbose output (and set log level to Trace)
 ```
 
 ```console
@@ -398,7 +399,7 @@ Switch the default OpenTofu version to use (set in TENV_ROOT/OpenTofu/version fi
 
 Available parameter options:
 - an exact Semver 2.0.0 version string to use
-- a version constraint string (checked against version available in TENV_ROOT directory)
+- a version constraint expression (checked against version available in TENV_ROOT directory)
 - latest, latest-stable or latest-pre (checked against version available in TENV_ROOT directory)
 - latest-allowed or min-required to scan your OpenTofu files to detect which version is maximally allowed or minimally required.
 
@@ -406,6 +407,7 @@ Usage:
   tenv tofu use version [flags]
 
 Flags:
+  -a, --arch string           specify arch for binaries downloading (default "amd64")
   -f, --force-remote          force search on versions available at TOFUENV_REMOTE url
   -t, --github-token string   GitHub token (increases GitHub REST API rate limits)
   -h, --help                  help for use
