@@ -424,6 +424,28 @@ Global Flags:
 </details>
 
 
+<details><summary><b>tenv update-path</b></summary><br>
+
+Display PATH updated with tenv directory location first.
+
+With GITHUB_ACTIONS set to true, write tenv directory location to GITHUB_PATH.
+
+Can be used with export :
+
+```console
+export PATH=$(dist/tenv_linux_amd64_v1/tenv update-path)
+```
+
+</details>
+
+
+<details><summary><b>tenv version</b></summary><br>
+
+Display tenv current version.
+
+</details>
+
+
 <a id="environment-variables"></a>
 ## Environment variables
 
@@ -535,6 +557,15 @@ If set to true **tenv** proxies exposes proxied output `stdout`, `stderr`, and `
 String (Default: "")
 
 Needed when GITHUB_ACTIONS is set to true, path to a file to write proxied output.
+
+</details>
+
+
+<details><summary><b>GITHUB_PATH</b></summary><br>
+
+String (Default: "")
+
+Used by `tenv update-path` when GITHUB_ACTIONS is set to true, path to a file to write tenv directory location.
 
 </details>
 

@@ -21,6 +21,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tofuutils/tenv/config"
@@ -30,12 +32,16 @@ import (
 )
 
 const (
+	versionName     = "version"
 	rootVersionHelp = "Display tenv current version."
+	updatePathHelp  = "Display PATH updated with tenv directory location first."
 
 	helpPrefix = "Subcommand to manage several versions of "
 	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
-	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io/)."
+	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io)."
 	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
+
+	pathEnvName = "PATH"
 )
 
 // can be overridden with ldflags.
@@ -65,7 +71,7 @@ func main() {
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     config.TenvName,
-		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io/).",
+		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io).",
 		Version: version,
 	}
 
@@ -75,6 +81,8 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", false, "verbose output (and set log level to Trace)")
 
 	rootCmd.AddCommand(newVersionCmd())
+	rootCmd.AddCommand(newUpdatePathCmd())
+
 	tofuParams := subCmdParams{
 		deprecated: true, // direct use should display a deprecation message
 		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
@@ -82,9 +90,8 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	}
 	gruntParser := terragruntparser.Make()
 	tofuManager := builder.BuildTofuManager(conf, gruntParser)
-	initSubCmds(rootCmd, conf, tofuManager, tofuParams)
+	initSubCmds(rootCmd, conf, tofuManager, tofuParams) // add tofu management at root level
 
-	// Add this in your main function, after the tfCmd and before the tgCmd
 	tofuCmd := &cobra.Command{
 		Use:     config.TofuName,
 		Aliases: []string{"opentofu"},
@@ -94,7 +101,7 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	tofuParams.deprecated = false // usage with tofu subcommand are ok
 	initSubCmds(tofuCmd, conf, tofuManager, tofuParams)
 
-	rootCmd.AddCommand(tofuCmd)
+	rootCmd.AddCommand(tofuCmd) // add tofu management as subcommand
 
 	tfCmd := &cobra.Command{
 		Use:     "tf",
@@ -130,12 +137,57 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "version",
+		Use:   versionName,
 		Short: rootVersionHelp,
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println(config.TenvName, "version", version) //nolint
+			fmt.Println(config.TenvName, versionName, version) //nolint
+		},
+	}
+}
+
+func newUpdatePathCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "update-path",
+		Short: updatePathHelp,
+		Long:  updatePathHelp,
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+			execPath, err := os.Executable()
+			if err != nil {
+				return nil
+			}
+
+			gha, err := config.GetenvBool(false, config.GithubActionsEnvName)
+			if err != nil {
+				return err
+			}
+
+			execDirPath := filepath.Dir(execPath)
+			if gha {
+				pathfilePath := os.Getenv("GITHUB_PATH")
+				if pathfilePath != "" {
+					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+					if err != nil {
+						return err
+					}
+					defer pathfile.Close()
+
+					_, err = pathfile.Write(append([]byte(execDirPath), '\n'))
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			var pathBuilder strings.Builder
+			pathBuilder.WriteString(execDirPath)
+			pathBuilder.WriteRune(os.PathListSeparator)
+			pathBuilder.WriteString(os.Getenv(pathEnvName))
+			fmt.Println(pathBuilder.String()) //nolint
+
+			return nil
 		},
 	}
 }
