@@ -193,6 +193,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 | `tg` (`terragrunt`) | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
 
 
+
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
 
 Install a requested version of the tool (into `TENV_ROOT` directory from `<TOOL>_REMOTE` url).
@@ -424,6 +425,22 @@ Global Flags:
 </details>
 
 
+<details><summary><b>tenv update-path</b></summary><br>
+
+Display PATH updated with tenv directory location first.
+
+With GITHUB_ACTIONS set to true, write tenv directory location to GITHUB_PATH.
+
+</details>
+
+
+<details><summary><b>tenv version</b></summary><br>
+
+Display tenv current version.
+
+</details>
+
+
 <a id="environment-variables"></a>
 ## Environment variables
 
@@ -535,6 +552,15 @@ If set to true **tenv** proxies exposes proxied output `stdout`, `stderr`, and `
 String (Default: "")
 
 Needed when GITHUB_ACTIONS is set to true, path to a file to write proxied output.
+
+</details>
+
+
+<details><summary><b>GITHUB_PATH</b></summary><br>
+
+String (Default: "")
+
+Used by `tenv update-path` when GITHUB_ACTIONS is set to true, path to a file to write tenv directory location.
 
 </details>
 
