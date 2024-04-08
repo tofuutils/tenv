@@ -34,7 +34,7 @@ import (
 const (
 	versionName     = "version"
 	rootVersionHelp = "Display tenv current version."
-	updatePathHelp  = "Display PATH updated with tenv dir location first."
+	updatePathHelp  = "Display PATH updated with tenv directory location first."
 
 	helpPrefix = "Subcommand to manage several versions of "
 	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
