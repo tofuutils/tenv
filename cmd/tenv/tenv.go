@@ -71,7 +71,7 @@ func main() {
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     config.TenvName,
-		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io/).",
+		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io).",
 		Version: version,
 	}
 
