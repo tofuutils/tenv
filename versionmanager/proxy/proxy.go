@@ -21,6 +21,7 @@ package proxy
 import (
 	"errors"
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -125,8 +126,8 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
 	}
 
 	var errBuffer, outBuffer strings.Builder
-	cmd.Stderr = &errBuffer
-	cmd.Stdout = &outBuffer
+	cmd.Stderr = io.MultiWriter(&errBuffer, os.Stderr)
+	cmd.Stdout = io.MultiWriter(&outBuffer, os.Stdout)
 
 	return func(calledExitCode int) {
 		var err error
