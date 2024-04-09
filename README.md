@@ -122,7 +122,7 @@ sudo pacman -S cosign
 <details><summary><b>Linux: RPM</b></summary><br>
 
 ```sh
-LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v\", ")
+LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
 curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-${LATEST_VERSION}-1.x86_64.rpm"
 sudo rpm -ivh cosign-${LATEST_VERSION}.x86_64.rpm
 ```
@@ -131,7 +131,7 @@ sudo rpm -ivh cosign-${LATEST_VERSION}.x86_64.rpm
 <details><summary><b>Linux: dkpg</b></summary><br>
 
 ```sh
-LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v\", ")
+LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
 curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_VERSION}_amd64.deb"
 sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 ```
@@ -174,7 +174,7 @@ choco install tenv
 <details><summary><b>Ubuntu</b></summary><br>
 
 ```sh
-LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest|jq -r .tag_name)
+LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
 curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb"
 sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
 ```
