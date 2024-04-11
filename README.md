@@ -444,11 +444,9 @@ Global Flags:
 
 <details><summary><b>tenv update-path</b></summary><br>
 
-Display PATH updated with tenv directory location first.
+Display PATH updated with tenv directory location first. With GITHUB_ACTIONS set to true, write tenv directory location to GITHUB_PATH.
 
-With GITHUB_ACTIONS set to true, write tenv directory location to GITHUB_PATH.
-
-Can be used with export :
+This command can be used when one of the managed tool is already installed on your system and hide the corresponding proxy (in that case `which tenv` and `which <tool>` will indicate different locations). The following shell call should resolve such issues :
 
 ```console
 export PATH=$(tenv update-path)
