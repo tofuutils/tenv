@@ -19,6 +19,9 @@
 package semantic
 
 import (
+	"regexp"
+	"strings"
+
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
@@ -33,6 +36,9 @@ const (
 	LatestStableKey  = "latest-stable"
 	LatestKey        = "latest"
 	MinRequiredKey   = "min-required"
+
+	LatestPrefix = "latest:"
+	MinPrefix    = "min:"
 )
 
 var TfPredicateReaders = []types.PredicateReader{readTfFiles} //nolint
@@ -56,12 +62,12 @@ func CmpVersion(v1Str string, v2Str string) int {
 
 func ParsePredicate(behaviourOrConstraint string, displayName string, constraintInfo types.ConstraintInfo, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
 	reverseOrder := true
-	switch behaviourOrConstraint {
-	case MinRequiredKey:
+	switch {
+	case behaviourOrConstraint == MinRequiredKey:
 		reverseOrder = false // start with older
 
 		fallthrough // same predicate retrieving
-	case LatestAllowedKey:
+	case behaviourOrConstraint == LatestAllowedKey:
 		for _, reader := range predicateReaders {
 			predicate, err := reader(constraintInfo, conf)
 			if err != nil {
@@ -75,10 +81,23 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, constraint
 		conf.Displayer.Display(loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
 
 		fallthrough // fallback to latest
-	case LatestKey, LatestStableKey:
+	case behaviourOrConstraint == LatestKey, behaviourOrConstraint == LatestStableKey:
 		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true}, nil
-	case LatestPreKey:
+	case behaviourOrConstraint == LatestPreKey:
 		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true}, nil
+	case strings.HasPrefix(behaviourOrConstraint, MinPrefix):
+		reverseOrder = false // start with older
+
+		fallthrough // same behaviour
+	case strings.HasPrefix(behaviourOrConstraint, LatestPrefix):
+		conf.Displayer.Display("Use of regexp is discouraged, try version constraint instead")
+
+		re, err := regexp.Compile(behaviourOrConstraint[strings.Index(behaviourOrConstraint, ":")+1:])
+		if err != nil {
+			return types.PredicateInfo{}, err
+		}
+
+		return types.PredicateInfo{Predicate: re.MatchString, ReverseOrder: reverseOrder}, nil
 	default:
 		constraint, err := addDefaultConstraint(constraintInfo, conf, behaviourOrConstraint)
 		if err != nil {

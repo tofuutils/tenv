@@ -217,11 +217,11 @@ Without a parameter, the version to use is resolved automatically (see resolutio
 
 If a parameter is passed, available options include:
 
-- an exact [Semver 2.0.0](https://semver.org/) version string to install
-- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available at `<TOOL>_REMOTE` url)
-- `latest`, `latest-stable` (old name of `latest`) or `latest-pre` (include unstable version), which are checked against versions available at `<TOOL>_REMOTE` url)
-- `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required.
-  See [required_version](#required_version) docs.
+- an exact [Semver 2.0.0](https://semver.org/) version string to install.
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available at `<TOOL>_REMOTE` url).
+- `latest`, `latest-stable` (old name of `latest`) or `latest-pre` (include unstable version), which are checked against versions available at `<TOOL>_REMOTE` url.
+- `latest:<re>` or `min:<re>` to get first version matching with `<re>` as a [regexp](https://github.com/google/re2/wiki/Syntax) after a descending or ascending version sort.
+- `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required. See [required_version](#required_version) docs.
 
 ```console
 tenv tofu install
@@ -258,12 +258,11 @@ Switch the default tool version to use (set in `TENV_ROOT/<TOOL>/version` file).
 
 Available parameter options:
 
-- an exact [Semver 2.0.0](https://semver.org/) version string to use
-- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available in TENV_ROOT directory)
-- `latest`, `latest-stable` (old name of `latest`) or `latest-pre` (include unstable version), which are checked against versions available in TENV_ROOT directory
-- `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required.
-
-See [required_version](#required_version) docs.
+- an exact [Semver 2.0.0](https://semver.org/) version string to use.
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string (checked against versions available in TENV_ROOT directory).
+- `latest`, `latest-stable` (old name of `latest`) or `latest-pre` (include unstable version), which are checked against versions available in TENV_ROOT directory.
+- `latest:<re>` or `min:<re>` to get first version matching with `<re>` as a [regexp](https://github.com/google/re2/wiki/Syntax) after a descending or ascending version sort.
+- `latest-allowed` or `min-required` to scan your IAC files to detect which version is maximally allowed or minimally required. See [required_version](#required_version) docs.
 
 ```console
 tenv tofu use v1.6.0-beta5
