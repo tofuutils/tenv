@@ -120,9 +120,9 @@ If a parameter is passed, available options:
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url)\n- latest, latest-stable or latest-pre (checked against version available at ")
 	descBuilder.WriteString(params.remoteEnvName)
-	descBuilder.WriteString(" url)\n- latest-allowed or min-required to scan your ")
+	descBuilder.WriteString(" url)\n- latest:<re> or min:<re> to get first version matching with <re> as a regexp after a version sort\n- latest-allowed or min-required to scan your ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
+	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required")
 
 	installCmd := &cobra.Command{
 		Use:   "install [version]",
@@ -324,9 +324,10 @@ Available parameter options:
 - an exact Semver 2.0.0 version string to use
 - a version constraint expression (checked against version available in TENV_ROOT directory)
 - latest, latest-stable or latest-pre (checked against version available in TENV_ROOT directory)
+- latest:<re> or min:<re> to get first version matching with <re> as a regexp after a version sort
 - latest-allowed or min-required to scan your `)
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required.")
+	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required")
 
 	workingDir := false
 
