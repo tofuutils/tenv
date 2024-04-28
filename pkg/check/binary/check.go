@@ -22,27 +22,32 @@ import (
 	"os"
 )
 
-func Check(filePath string) (bool, error) {
-	file, err := os.Open(filePath)
+func Check(filename string) (bool, error) {
+	file, err := os.Open(filename)
 	if err != nil {
 		return false, err
 	}
 	defer file.Close()
 
-	buf := make([]byte, 512)
-	_, err = file.Read(buf)
+	const maxBytes = 8000 // Read up to 8000 bytes for analysis
+	bytes := make([]byte, maxBytes)
+	n, err := file.Read(bytes)
 	if err != nil {
 		return false, err
 	}
 
-	for _, b := range buf {
-		if b == 0 {
-			return true, nil
-		}
-		if b < 7 || (b > 14 && b < 32) {
-			return true, nil
+	// Check for the presence of a null byte within the read bytes
+	for i := 0; i < n; i++ {
+		if bytes[i] == 0 {
+			return true, nil // Null byte found, file is binary
 		}
 	}
 
+	// If no null byte found, check for a UTF-8 encoding signature (BOM)
+	if n >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF {
+		return false, nil // UTF-8 encoded text file
+	}
+
+	// If no null byte or UTF-8 BOM found, assume it's a text file
 	return false, nil
 }
