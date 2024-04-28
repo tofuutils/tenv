@@ -26,6 +26,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	bincheck "github.com/tofuutils/tenv/pkg/check/binary"
 )
 
 // ensure the directory exists with a MkdirAll call.
@@ -44,6 +46,26 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 	for _, file := range zipReader.File {
 		if err = copyZipFileToDir(file, dirPath); err != nil {
 			return err
+		}
+
+		files, err := os.ReadDir(dirPath)
+		if err != nil {
+			return err
+		}
+
+		for _, file := range files {
+			filePath := filepath.Join(dirPath, file.Name())
+
+			isBinary, err := bincheck.Check(filePath)
+			if err != nil {
+				return err
+			}
+
+			if !isBinary {
+				if err = os.Remove(filePath); err != nil {
+					return err
+				}
+			}
 		}
 	}
 
