@@ -31,20 +31,20 @@ func Check(filename string) (bool, error) {
 
 	const maxBytes = 8000 // Read up to 8000 bytes for analysis
 	bytes := make([]byte, maxBytes)
-	n, err := file.Read(bytes)
+	numberOfBytes, err := file.Read(bytes)
 	if err != nil {
 		return false, err
 	}
 
 	// Check for the presence of a null byte within the read bytes
-	for i := 0; i < n; i++ {
+	for i := 0; i < numberOfBytes; i++ {
 		if bytes[i] == 0 {
 			return true, nil // Null byte found, file is binary
 		}
 	}
 
 	// If no null byte found, check for a UTF-8 encoding signature (BOM)
-	if n >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF {
+	if numberOfBytes >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF {
 		return false, nil // UTF-8 encoded text file
 	}
 
