@@ -25,3 +25,8 @@ bin/terraform-*
 # Idea
 .idea
 .DS_Store
+
+tenv
+terraform
+terragrunt
+tofu
