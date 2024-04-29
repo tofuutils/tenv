@@ -24,11 +24,13 @@ jobs:
           release_tag=${{ github.event.release.tag_name }}
           release_version="${release_tag#v}"
           
+          echo "[INFO] Download release's checksums"
           curl \
             -SsL \
             -o /tmp/checksums.txt \
             https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_checksums.txt
-                    
+          
+          echo "[INFO] Update chocolateyinstall.ps1"
           choco_url="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_i386.zip"
           choco_url64="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_x86_64.zip"
           choco_sum="$(grep "tenv_${release_tag}_Windows_i386.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"          
@@ -39,6 +41,7 @@ jobs:
           sed -i "s~\$checksum = '.*'~\$checksum = '${choco_sum}'~g" tenv/tools/chocolateyinstall.ps1
           sed -i "s~\$checksum64 = '.*'~\$checksum64 = '${choco_sum64}'~g" tenv/tools/chocolateyinstall.ps1
 
+          echo "[INFO] Push changes back to git"
           git config user.name tofuutils
           git config user.email tofuutils@github.com
           git add -A
