@@ -1,0 +1,56 @@
+
+
+name: tenv
+summary: Version manager for OpenTofu, Terraform and Terragrunt, written in Go.
+description: |
+  tenv is a versatile version manager for [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [Terragrunt](https://terragrunt.gruntwork.io/),
+  written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools,
+  ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
+
+  tenv is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
+adopt-info: tenv
+version: git
+base: core22
+confinement: devmode #strict
+parts:
+  tenv:
+    plugin: go
+    source: .
+    build-snaps: [ go ]
+    build-packages: [ pkg-config, libzstd-dev ]
+    build-environment:
+      - CGO_ENABLED: 0
+      - CGO_LDFLAGS_ALLOW: ".*"
+#  tenv:
+#    plugin: go
+#    source-type: git
+#    source: https://github.com/get-woke/woke
+#    override-pull: |
+#      snapcraftctl pull
+#      snapcraftctl set-version \
+#      "$(git describe --long --tags --always --match=v*.*.* | sed 's/v//')"
+apps:
+  tenv:
+    command: cmd/tenv
+    plugs:
+      - home
+      - dot-config-woke
+      - network
+      - removable-media
+  golang-classic-example:
+    command: bin/main
+
+grade: devel #stable
+architectures:
+  - build-on: amd64
+  - build-on: armhf
+  - build-on: arm64
+
+#plugs:
+#  dot-config-woke:
+#    interface: personal-files
+#    read:
+#      - $HOME/.config/woke.yaml
+#      - $HOME/.config/woke.yml
+#      - $HOME/.woke.yaml
+#      - $HOME/.woke.yml
