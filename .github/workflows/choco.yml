@@ -37,10 +37,10 @@ jobs:
           choco_sum="$(grep "tenv_${release_tag}_Windows_i386.zip" /tmp/checksums.txt | cut -d ' ' -f 1)"          
           choco_sum64="$(grep "tenv_${release_tag}_Windows_x86_64.zip" /tmp/checksums.txt | cut -d ' ' -f 1)"      
 
-          sed -i "s/\$url = '.*'/\$url = '${choco_url}'/" tenv/tools/chocolateyinstall.ps1
-          sed -i "s/\$url64 = '.*'/\$url64 = '${choco_url64}'/" tenv/tools/chocolateyinstall.ps1
-          sed -i "s/\$checksum = '.*'/\$checksum = '${choco_sum}'/" tenv/tools/chocolateyinstall.ps1
-          sed -i "s/\$checksum64 = '.*'/\$checksum64 = '${choco_sum64}'/" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$url = '.*'/\$url = '${choco_url}'/g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$url64 = '.*'/\$url64 = '${choco_url64}'/g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$checksum = '.*'/\$checksum = '${choco_sum}'/g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$checksum64 = '.*'/\$checksum64 = '${choco_sum64}'/g" tenv/tools/chocolateyinstall.ps1
 
           git add -A
           git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
