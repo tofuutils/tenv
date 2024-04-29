@@ -3,7 +3,7 @@ name: "Chocolatey Release Pipeline"
 
 on:
   release:
-    types: [published, released]
+    types: [released]
 
 jobs:
   build:
