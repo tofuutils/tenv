@@ -31,7 +31,7 @@ jobs:
             -o /tmp/checksums.txt
                     
           choco_url="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_i386.zip"
-          choco_url64="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_x86_64.zip'
+          choco_url64="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_x86_64.zip"g
           choco_sum="$(grep 'tenv_${release_tag}_Windows_i386.zip' /tmp/checksums.txt | cut -d ' ' -f 1)"          
           choco_sum64="$(grep 'tenv_${release_tag}_Windows_x86_64.zip' /tmp/checksums.txt | cut -d ' ' -f 1)"      
 
