@@ -1,0 +1,49 @@
+---
+name: "Chocolatey Release Pipeline"
+
+on:
+#  release:
+#    types: [published]
+  push:
+    branches:
+      - 'feat/add-automatic-choco-release'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout tofuutils/chocolatey-packages'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+          repository: tofuutils/chocolatey-packages
+          ssh-key: ${{ secrets.CHOCOLATEY_SSH_KEY }}
+
+      - name: Update chocolatey checksums
+        run: |
+          set -x
+          release_tag=${{ github.event.release.tag_name }}
+          release_version="${release_tag#v}"
+          
+          release_tag="v1.9.0"
+          release_version="${release_tag#v}"
+          
+          curl https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_checksums.txt \
+            -o /tmp/checksums.txt
+          
+          git clone git@github.com:tofuutils/chocolatey-packages.git
+                    
+          choco_url="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_i386.zip"
+          choco_url64="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_x86_64.zip'
+          choco_sum="$(grep 'tenv_${release_tag}_Windows_i386.zip' /tmp/checksums.txt | cut -d ' ' -f 1)"          
+          choco_sum64="$(grep 'tenv_${release_tag}_Windows_x86_64.zip' /tmp/checksums.txt | cut -d ' ' -f 1)"      
+
+          sed -i "s/\$url = '.*'/\$url = '${choco_url}'/" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$url64 = '.*'/\$url64 = '${choco_url64}'/" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$checksum = '.*'/\$checksum = '${choco_sum}'/" tenv/tools/chocolateyinstall.ps1
+          sed -i "s/\$checksum64 = '.*'/\$checksum64 = '${choco_sum64}'/" tenv/tools/chocolateyinstall.ps1
+
+          git add -A
+          git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
+          git tag -a ${release_version} -m "${release_version}
+          git push origin --tags main
