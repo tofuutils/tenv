@@ -37,12 +37,14 @@ jobs:
           choco_sum="$(grep "tenv_${release_tag}_Windows_i386.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"          
           choco_sum64="$(grep "tenv_${release_tag}_Windows_x86_64.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"      
 
-          sed -i "s/\$url = '.*'/\$url = '${choco_url}'/g" tenv/tools/chocolateyinstall.ps1
-          sed -i "s/\$url64 = '.*'/\$url64 = '${choco_url64}'/g" tenv/tools/chocolateyinstall.ps1
-          sed -i "s/\$checksum = '.*'/\$checksum = '${choco_sum}'/g" tenv/tools/chocolateyinstall.ps1
-          sed -i "s/\$checksum64 = '.*'/\$checksum64 = '${choco_sum64}'/g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$url = '.*'~\$url = '${choco_url}'~g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$url64 = '.*'~\$url64 = '${choco_url64}'~g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$checksum = '.*'~\$checksum = '${choco_sum}'~g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$checksum64 = '.*'~\$checksum64 = '${choco_sum64}'~g" tenv/tools/chocolateyinstall.ps1
 
           git add -A
           git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
           git tag -a ${release_version} -m "${release_version}
           git push origin --tags main
+          
+          sed -i 's/$url = '\''.*'\''/$url = '\''https://github.com/tofuutils/tenv/releases/download/v1.9.0/tenv_v1.9.0_Windows_i386.zip'\''/g' tenv/tools/chocolateyinstall.ps1
