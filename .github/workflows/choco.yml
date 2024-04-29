@@ -3,7 +3,7 @@ name: "Chocolatey Release Pipeline"
 
 on:
   release:
-    types: [published, created, released]
+    types: [published, released]
 
 jobs:
   build:
@@ -43,5 +43,5 @@ jobs:
           git config user.email tofuutils@github.com
           git add -A
           git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
-          git tag -a ${release_version} -m "${release_version}
+          git tag -a ${release_version} -m "${release_version}"
           git push origin --tags main
