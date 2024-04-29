@@ -1,0 +1,47 @@
+---
+name: "Chocolatey Release Pipeline"
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout tofuutils/chocolatey-packages'
+        uses: actions/checkout@v4
+        with:
+          repository: tofuutils/chocolatey-packages
+          ssh-key: ${{ secrets.CHOCOLATEY_SSH_KEY }}
+
+      - name: Update chocolatey checksums
+        run: |
+          echo "[INFO] Wait until all artefacts will be uploaded"
+          sleep 300
+          
+          release_tag=${{ github.event.release.tag_name }}
+          release_version="${release_tag#v}"
+          
+          curl \
+            -SsL \
+            -o /tmp/checksums.txt \
+            https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_checksums.txt
+                    
+          choco_url="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_i386.zip"
+          choco_url64="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_x86_64.zip"
+          choco_sum="$(grep "tenv_${release_tag}_Windows_i386.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"          
+          choco_sum64="$(grep "tenv_${release_tag}_Windows_x86_64.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"      
+
+          sed -i "s~\$url = '.*'~\$url = '${choco_url}'~g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$url64 = '.*'~\$url64 = '${choco_url64}'~g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$checksum = '.*'~\$checksum = '${choco_sum}'~g" tenv/tools/chocolateyinstall.ps1
+          sed -i "s~\$checksum64 = '.*'~\$checksum64 = '${choco_sum64}'~g" tenv/tools/chocolateyinstall.ps1
+
+          git config user.name tofuutils
+          git config user.email tofuutils@github.com
+          git add -A
+          git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
+          git tag -a ${release_version} -m "${release_version}
+          git push origin --tags main
