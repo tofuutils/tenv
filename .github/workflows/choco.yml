@@ -29,8 +29,6 @@ jobs:
           
           curl https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_checksums.txt \
             -o /tmp/checksums.txt
-          
-          git clone git@github.com:tofuutils/chocolatey-packages.git
                     
           choco_url="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_i386.zip"
           choco_url64="https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Windows_x86_64.zip'
