@@ -41,7 +41,10 @@ jobs:
           sed -i "s~\$url64 = '.*'~\$url64 = '${choco_url64}'~g" tenv/tools/chocolateyinstall.ps1
           sed -i "s~\$checksum = '.*'~\$checksum = '${choco_sum}'~g" tenv/tools/chocolateyinstall.ps1
           sed -i "s~\$checksum64 = '.*'~\$checksum64 = '${choco_sum64}'~g" tenv/tools/chocolateyinstall.ps1
+          cat tenv/tools/chocolateyinstall.ps1
 
+          git config user.name tofuutils
+          git config user.email tofuutils@github.com
           git add -A
           git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
           git tag -a ${release_version} -m "${release_version}
