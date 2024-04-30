@@ -37,7 +37,7 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 
 	continueB := true
 	for continueB {
-		if _, err := os.OpenFile(lockPath, os.O_WRONLY|os.O_CREATE, 0644); err == nil {
+		if _, err := os.OpenFile(lockPath, os.O_WRONLY|os.O_CREATE, 0644); err == nil { //nolint
 			continueB = false
 		} else {
 			displayer.Log(hclog.Debug, msgWrite, loghelper.Error, err)
