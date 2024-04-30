@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/lockfile"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
@@ -305,6 +306,9 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 
 		return errEmptyVersion
 	}
+
+	deleteLock := lockfile.Write(m.conf.RootPath, m.conf.Displayer)
+	defer deleteLock()
 
 	installPath := m.InstallPath()
 	entries, err := os.ReadDir(installPath)
