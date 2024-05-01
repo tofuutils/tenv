@@ -43,9 +43,9 @@ func TestParallelWriteRead(t *testing.T) {
 	parallelDirPath := filepath.Join(os.TempDir(), "parallel")
 	parallelFilePath := filepath.Join(parallelDirPath, "rw_test")
 	appLogger := hclog.New(&hclog.LoggerOptions{
-		Name: "lockfile_test", Level: hclog.Trace,
+		Name: "lockfile_test", Level: hclog.Off,
 	})
-	displayer := loghelper.MakeBasicDisplayer(appLogger, loghelper.StdDisplay)
+	displayer := loghelper.MakeBasicDisplayer(appLogger, loghelper.NoDisplay)
 
 	err := os.RemoveAll(parallelDirPath)
 	if err != nil {
