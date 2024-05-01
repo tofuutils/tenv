@@ -51,6 +51,11 @@ func TestParallelWriteRead(t *testing.T) {
 	if err != nil {
 		t.Fatal("Unexpected error during test init :", err)
 	}
+
+	defer func() {
+		os.RemoveAll(parallelDirPath)
+	}()
+
 	if err = os.MkdirAll(parallelDirPath, 0755); err != nil {
 		t.Fatal("Unexpected error during test init (2) :", err)
 	}
@@ -88,10 +93,6 @@ func TestParallelWriteRead(t *testing.T) {
 	if !slices.Equal(res1, data1) || !slices.Equal(res2, data2) || !slices.Equal(res3, data3) {
 		t.Error("Readed data does not match writted data")
 	}
-
-	defer func() {
-		os.RemoveAll(parallelDirPath)
-	}()
 }
 
 func writeReadFile(dirPath string, filePath string, data []byte, displayer loghelper.Displayer) ([]byte, error) {
