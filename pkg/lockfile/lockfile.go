@@ -40,7 +40,7 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 		if _, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644); err == nil { //nolint
 			continueB = false
 		} else {
-			displayer.Log(hclog.Debug, msgWrite, loghelper.Error, err)
+			displayer.Log(hclog.Info, msgWrite, loghelper.Error, err)
 			time.Sleep(time.Second)
 		}
 	}
