@@ -35,12 +35,11 @@ const (
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 
-	continueB := true
-	for continueB {
-		if _, err := os.OpenFile(lockPath, os.O_WRONLY|os.O_CREATE, 0644); err == nil { //nolint
+	for continueB := true; continueB; {
+		if _, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644); err == nil { //nolint
 			continueB = false
 		} else {
-			displayer.Log(hclog.Debug, msgWrite, loghelper.Error, err)
+			displayer.Log(hclog.Info, msgWrite, loghelper.Error, err)
 			time.Sleep(time.Second)
 		}
 	}
