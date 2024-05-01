@@ -277,6 +277,9 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
+	deleteLock := lockfile.Write(m.conf.RootPath, m.conf.Displayer)
+	defer deleteLock()
+
 	cleanedVersion := parsedVersion.String()
 	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
 	if err = os.RemoveAll(targetPath); err == nil {
