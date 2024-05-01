@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/pkg/lockfile"
@@ -102,6 +103,8 @@ func writeReadFile(dirPath string, filePath string, data []byte, displayer loghe
 	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		return nil, err
 	}
+
+	time.Sleep(100 * time.Millisecond)
 
 	return os.ReadFile(filePath)
 }
