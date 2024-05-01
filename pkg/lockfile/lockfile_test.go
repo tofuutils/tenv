@@ -92,7 +92,7 @@ func TestParallelWriteRead(t *testing.T) {
 	}
 
 	if !slices.Equal(res1, data1) || !slices.Equal(res2, data2) || !slices.Equal(res3, data3) {
-		t.Error("Readed data does not match writted data")
+		t.Error("Read data does not match written data")
 	}
 }
 
