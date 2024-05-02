@@ -37,17 +37,18 @@ func main() {
 
 	conf.InitDisplayer(true)
 	gruntParser := terragruntparser.Make()
-	tofuManager := builder.BuildTofuManager(&conf, gruntParser)
-	detectedVersion, err := tofuManager.ResolveWithVersionFiles()
+	manager := builder.BuildTofuManager(&conf, gruntParser)
+	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
 		os.Exit(1)
 	}
 
-	execName, installPath := "", ""
+	execName := config.TofuName
 	if detectedVersion == "" {
-		terraformManager := builder.BuildTfManager(&conf, gruntParser)
-		detectedVersion, err = terraformManager.ResolveWithVersionFiles()
+		execName = config.TerraformName
+		manager = builder.BuildTfManager(&conf, gruntParser)
+		detectedVersion, err = manager.ResolveWithVersionFiles()
 		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint
 			os.Exit(1)
@@ -57,15 +58,15 @@ func main() {
 			fmt.Println("No version files found corresponding to opentofu or terraform") //nolint
 			os.Exit(1)
 		}
-
-		execName = config.TerraformName
-		installPath = terraformManager.InstallPath()
-		detectedVersion, err = terraformManager.Evaluate(detectedVersion, true)
-	} else {
-		execName = config.TofuName
-		installPath = tofuManager.InstallPath()
-		detectedVersion, err = tofuManager.Evaluate(detectedVersion, true)
 	}
+
+	installPath, err := manager.InstallPath()
+	if err != nil {
+		fmt.Println("Failed to create installation directory for", execName, ":", err) //nolint
+		os.Exit(1)
+	}
+
+	detectedVersion, err = manager.Evaluate(detectedVersion, true)
 	if err != nil {
 		fmt.Println("Failed to evaluate the requested version in a specific version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
