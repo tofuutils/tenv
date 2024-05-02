@@ -32,6 +32,7 @@ const (
 	msgDelete = "can not remove .lock file"
 )
 
+// ! dirPath must already exist (no mkdir here).
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 
