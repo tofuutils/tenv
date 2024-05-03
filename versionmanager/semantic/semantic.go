@@ -35,6 +35,7 @@ const (
 	LatestPreKey     = "latest-pre"
 	LatestStableKey  = "latest-stable"
 	LatestKey        = "latest"
+	MinimumKey       = "minimum"
 	MinRequiredKey   = "min-required"
 
 	LatestPrefix = "latest:"
@@ -78,11 +79,13 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, constraint
 			}
 		}
 
-		conf.Displayer.Display(loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
+		strategy := LatestKey
+		if reverseOrder { strategy = MinimumKey }
+		conf.Displayer.Display(loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", strategy, " strategy"))
 
-		fallthrough // fallback to latest
+		fallthrough // fallback based on reverseOrder
 	case behaviourOrConstraint == LatestKey, behaviourOrConstraint == LatestStableKey:
-		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: true}, nil
+		return types.PredicateInfo{Predicate: StableVersion, ReverseOrder: reverseOrder}, nil
 	case behaviourOrConstraint == LatestPreKey:
 		return types.PredicateInfo{Predicate: alwaysTrue, ReverseOrder: true}, nil
 	case strings.HasPrefix(behaviourOrConstraint, MinPrefix):
