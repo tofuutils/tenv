@@ -35,6 +35,7 @@ const (
 )
 
 // ! dirPath must already exist (no mkdir here).
+// the returned function must be used to delete the lock.
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
