@@ -157,7 +157,6 @@ yay tenv-bin
 <details><summary><b>MacOS (Homebrew)</b></summary><br>
 
 ```console
-brew tap tofuutils/tap
 brew install tenv
 ```
 
