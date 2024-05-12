@@ -39,6 +39,10 @@ var dataSig []byte
 //go:embed testdata/tofu_1.6.0_SHA256SUMS.pem
 var dataCert []byte
 
+/*
+ * no "t.Parallel()" on those tests (causes failures in cosign call)
+ */
+
 func TestCosignCheckCorrect(t *testing.T) { //nolint
 	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer); err != nil {
 		t.Error("Unexpected error :", err)

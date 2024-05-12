@@ -52,7 +52,13 @@ func Exec(builderFunc func(*config.Config, terragruntparser.TerragruntParser) ve
 		os.Exit(1)
 	}
 
-	RunCmd(versionManager.InstallPath(), detectedVersion, execName)
+	installPath, err := versionManager.InstallPath()
+	if err != nil {
+		fmt.Println("Failed to create installation directory for", execName, ":", err) //nolint
+		os.Exit(1)
+	}
+
+	RunCmd(installPath, detectedVersion, execName)
 }
 
 func RunCmd(installPath string, detectedVersion string, execName string) {

@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
+	"github.com/tofuutils/tenv/pkg/lockfile"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 	"github.com/tofuutils/tenv/pkg/reversecmp"
 	"github.com/tofuutils/tenv/versionmanager/semantic"
@@ -141,17 +142,19 @@ func (m VersionManager) Install(requestedVersion string) error {
 
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override for root path).
-func (m VersionManager) InstallPath() string {
+func (m VersionManager) InstallPath() (string, error) {
 	dir := filepath.Join(m.conf.RootPath, m.FolderName)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		m.conf.Displayer.Log(hclog.Warn, "Can not create installation directory", loghelper.Error, err)
-	}
 
-	return dir
+	return dir, os.MkdirAll(dir, 0755)
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
-	entries, err := os.ReadDir(m.InstallPath())
+	installPath, err := m.InstallPath()
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := os.ReadDir(installPath)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +185,14 @@ func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
 }
 
 func (m VersionManager) LocalSet() map[string]struct{} {
-	entries, err := os.ReadDir(m.InstallPath())
+	installPath, err := m.InstallPath()
+	if err != nil {
+		m.conf.Displayer.Log(hclog.Warn, "Can not create installation directory", loghelper.Error, err)
+
+		return nil
+	}
+
+	entries, err := os.ReadDir(installPath)
 	if err != nil {
 		m.conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
 
@@ -276,8 +286,16 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
+	installPath, err := m.InstallPath()
+	if err != nil {
+		return err
+	}
+
+	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	defer deleteLock()
+
 	cleanedVersion := parsedVersion.String()
-	targetPath := filepath.Join(m.InstallPath(), cleanedVersion)
+	targetPath := filepath.Join(installPath, cleanedVersion)
 	if err = os.RemoveAll(targetPath); err == nil {
 		m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", cleanedVersion, " successful (directory ", targetPath, " removed)"))
 	}
@@ -306,7 +324,16 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 		return errEmptyVersion
 	}
 
-	installPath := m.InstallPath()
+	installPath, err := m.InstallPath()
+	if err != nil {
+		m.conf.Displayer.Flush(proxyCall)
+
+		return err
+	}
+
+	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	defer deleteLock()
+
 	entries, err := os.ReadDir(installPath)
 	if err != nil {
 		m.conf.Displayer.Flush(proxyCall)
