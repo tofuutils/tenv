@@ -37,13 +37,14 @@ const (
 // ! dirPath must already exist (no mkdir here).
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
-	for {
-		if _, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644); err == nil { //nolint
+	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
+		_, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644) //nolint
+		if err == nil {
 			break
-		} else {
-			displayer.Log(hclog.Info, msgWrite, loghelper.Error, err)
-			time.Sleep(time.Second)
 		}
+
+		displayer.Log(logLevel, msgWrite, loghelper.Error, err)
+		time.Sleep(time.Second)
 	}
 
 	return sync.OnceFunc(func() {
