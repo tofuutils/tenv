@@ -20,7 +20,9 @@ package lockfile
 
 import (
 	"os"
+	"os/signal"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/hashicorp/go-hclog"
@@ -33,21 +35,33 @@ const (
 )
 
 // ! dirPath must already exist (no mkdir here).
+// the returned function must be used to delete the lock.
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
-
-	for continueB := true; continueB; {
-		if _, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644); err == nil { //nolint
-			continueB = false
-		} else {
-			displayer.Log(hclog.Info, msgWrite, loghelper.Error, err)
-			time.Sleep(time.Second)
+	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
+		_, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644) //nolint
+		if err == nil {
+			break
 		}
+
+		displayer.Log(logLevel, msgWrite, loghelper.Error, err)
+		time.Sleep(time.Second)
 	}
 
-	return func() {
+	return sync.OnceFunc(func() { //nolint
 		if err := os.RemoveAll(lockPath); err != nil {
 			displayer.Log(hclog.Warn, msgDelete, loghelper.Error, err)
 		}
-	}
+	})
+}
+
+func CleanAndExitOnInterrupt(clean func()) {
+	signalChan := make(chan os.Signal)
+	signal.Notify(signalChan, os.Interrupt)
+	go func() {
+		for range signalChan {
+			clean()
+			os.Exit(1)
+		}
+	}()
 }
