@@ -78,14 +78,6 @@ func (p TerragruntParser) RetrieveTerragruntVersionConstraintFromJSON(filePath s
 	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseJSON, terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
 }
 
-func (p TerragruntParser) RetrieveAtmosVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseHCL, atmosVersionPartialSchema, atmosVersionConstraintName, conf)
-}
-
-func (p TerragruntParser) RetrieveAtmosVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseJSON, atmosVersionPartialSchema, atmosVersionConstraintName, conf)
-}
-
 func retrieveVersionConstraintFromFile(filePath string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
