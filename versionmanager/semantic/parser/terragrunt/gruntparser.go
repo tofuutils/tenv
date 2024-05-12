@@ -39,6 +39,7 @@ const (
 
 	terraformVersionConstraintName  = "terraform_version_constraint"
 	terragruntVersionConstraintName = "terragrunt_version_constraint"
+	atmosVersionConstraintName      = "atmos_version_constraint"
 )
 
 var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
@@ -47,6 +48,10 @@ var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
 
 var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: terragruntVersionConstraintName}},
+}
+
+var atmosVersionPartialSchema = &hcl.BodySchema{ //nolint
+	Attributes: []hcl.AttributeSchema{{Name: atmosVersionConstraintName}},
 }
 
 type TerragruntParser struct {
@@ -71,6 +76,14 @@ func (p TerragruntParser) RetrieveTerragruntVersionConstraintFromHCL(filePath st
 
 func (p TerragruntParser) RetrieveTerragruntVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
 	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseJSON, terragruntVersionPartialSchema, terragruntVersionConstraintName, conf)
+}
+
+func (p TerragruntParser) RetrieveAtmosVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseHCL, atmosVersionPartialSchema, atmosVersionConstraintName, conf)
+}
+
+func (p TerragruntParser) RetrieveAtmosVersionConstraintFromJSON(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionConstraintFromFile(filePath, p.parser.ParseJSON, atmosVersionPartialSchema, atmosVersionConstraintName, conf)
 }
 
 func retrieveVersionConstraintFromFile(filePath string, fileParser func([]byte, string) (*hcl.File, hcl.Diagnostics), versionPartialShema *hcl.BodySchema, versionConstraintName string, conf *config.Config) (string, error) {
