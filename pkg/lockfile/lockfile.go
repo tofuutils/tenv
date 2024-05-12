@@ -47,7 +47,7 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 		time.Sleep(time.Second)
 	}
 
-	return sync.OnceFunc(func() {
+	return sync.OnceFunc(func() { //nolint
 		if err := os.RemoveAll(lockPath); err != nil {
 			displayer.Log(hclog.Warn, msgDelete, loghelper.Error, err)
 		}
