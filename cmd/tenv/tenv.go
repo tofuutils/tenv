@@ -134,10 +134,9 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd.AddCommand(tgCmd)
 
 	atmosCmd := &cobra.Command{
-		Use:     "atmos",
-		Aliases: []string{config.AtmosName},
-		Short:   atmosHelp,
-		Long:    atmosHelp,
+		Use:   config.AtmosName,
+		Short: atmosHelp,
+		Long:  atmosHelp,
 	}
 
 	atmosParams := subCmdParams{
