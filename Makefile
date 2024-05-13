@@ -33,6 +33,7 @@ build: get fmt ## Build service binary.
 	go build -o tofu ./cmd/tofu
 	go build -o terraform ./cmd/terraform
 	go build -o terragrunt ./cmd/terragrunt
+	go build -o atmos ./cmd/atmos
 
 run:  ## Run service from your laptop.
 	go run ./main.go

@@ -21,6 +21,7 @@ package builder
 import (
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/versionmanager"
+	atmosretriever "github.com/tofuutils/tenv/versionmanager/retriever/atmos"
 	terraformretriever "github.com/tofuutils/tenv/versionmanager/retriever/terraform"
 	terragruntretriever "github.com/tofuutils/tenv/versionmanager/retriever/terragrunt"
 	tofuretriever "github.com/tofuutils/tenv/versionmanager/retriever/tofu"
@@ -54,6 +55,15 @@ func BuildTgManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 	}
 
 	return versionmanager.Make(conf, config.TgDefaultConstraintEnvName, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
+}
+
+func BuildAtmosManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
+	atmosRetriever := atmosretriever.Make(conf)
+	versionFiles := []types.VersionFile{
+		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},
+	}
+
+	return versionmanager.Make(conf, config.AtmosDefaultConstraintEnvName, "Atmos", nil, atmosRetriever, config.AtmosVersionEnvName, config.AtmosDefaultVersionEnvName, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {

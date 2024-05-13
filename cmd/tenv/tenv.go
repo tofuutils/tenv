@@ -39,6 +39,7 @@ const (
 	helpPrefix = "Subcommand to manage several versions of "
 	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
 	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io)."
+	atmosHelp  = helpPrefix + "Atmos (https://atmos.tools)."
 	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
 
 	pathEnvName = "PATH"
@@ -131,6 +132,19 @@ func initRootCmd(conf *config.Config) *cobra.Command {
 	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf, gruntParser), tgParams)
 
 	rootCmd.AddCommand(tgCmd)
+
+	atmosCmd := &cobra.Command{
+		Use:   config.AtmosName,
+		Short: atmosHelp,
+		Long:  atmosHelp,
+	}
+
+	atmosParams := subCmdParams{
+		needToken: true, remoteEnvName: config.AtmosRemoteURLEnvName, pRemote: &conf.Atmos.RemoteURL,
+	}
+	initSubCmds(atmosCmd, conf, builder.BuildAtmosManager(conf, gruntParser), atmosParams)
+
+	rootCmd.AddCommand(atmosCmd)
 
 	return rootCmd
 }

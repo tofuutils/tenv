@@ -37,6 +37,7 @@ const (
 	TerraformName  = "terraform"
 	TerragruntName = "terragrunt"
 	TofuName       = "tofu"
+	AtmosName      = "atmos"
 
 	GithubActionsEnvName = "GITHUB_ACTIONS"
 
@@ -104,6 +105,15 @@ const (
 	tofuRootPathEnvName          = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName             = tofuenvPrefix + tokenEnvName
 	TofuVersionEnvName           = tofuenvTofuPrefix + version
+
+	atmosPrefix                   = "ATMOS_"
+	AtmosDefaultConstraintEnvName = atmosPrefix + defaultConstraint
+	AtmosDefaultVersionEnvName    = atmosPrefix + defaultVersion
+	atmosInstallModeEnvName       = atmosPrefix + installModeEnvName
+	atmosListModeEnvName          = atmosPrefix + listModeEnvName
+	atmosListURLEnvName           = atmosPrefix + listURLEnvName
+	AtmosRemoteURLEnvName         = atmosPrefix + remoteURLEnvName
+	AtmosVersionEnvName           = atmosPrefix + version
 )
 
 type Config struct {
@@ -120,6 +130,7 @@ type Config struct {
 	Tf               RemoteConfig
 	TfKeyPath        string
 	Tg               RemoteConfig
+	Atmos            RemoteConfig
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
@@ -168,6 +179,7 @@ func InitConfigFromEnv() (Config, error) {
 		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
 		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
 		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, defaultTofuGithubURL, baseGithubURL),
+		Atmos:          makeRemoteConfig(AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
 	}, nil
@@ -230,6 +242,7 @@ func (conf *Config) InitRemoteConf() error {
 	conf.Tf.Data = remoteConf[TerraformName]
 	conf.Tg.Data = remoteConf[TerragruntName]
 	conf.Tofu.Data = remoteConf[TofuName]
+	conf.Atmos.Data = remoteConf[AtmosName]
 
 	return nil
 }
