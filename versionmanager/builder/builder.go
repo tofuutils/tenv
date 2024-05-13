@@ -61,8 +61,6 @@ func BuildAtmosManager(conf *config.Config, gruntParser terragruntparser.Terragr
 	atmosRetriever := atmosretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},
-		{Name: ".atmosswitchrc", Parser: flatparser.RetrieveVersion},
-		{Name: ".atmosswitch.toml", Parser: tomlparser.RetrieveVersion},
 	}
 
 	return versionmanager.Make(conf, config.AtmosDefaultConstraintEnvName, "Atmos", nil, atmosRetriever, config.AtmosVersionEnvName, config.AtmosDefaultVersionEnvName, versionFiles)
