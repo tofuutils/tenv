@@ -169,6 +169,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	return Config{
 		Arch:           arch,
+		Atmos:          makeRemoteConfig(AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),
@@ -179,7 +180,6 @@ func InitConfigFromEnv() (Config, error) {
 		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
 		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
 		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, defaultTofuGithubURL, baseGithubURL),
-		Atmos:          makeRemoteConfig(AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
 	}, nil
