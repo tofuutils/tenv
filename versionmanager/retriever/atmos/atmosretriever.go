@@ -93,7 +93,7 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 
 	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
 	if err != nil {
-	 	return err
+		return err
 	}
 
 	if err = sha256check.Check(data, dataSums, fileName); err != nil {
@@ -117,7 +117,7 @@ func (r AtmosRetriever) ListReleases() ([]string, error) {
 	listURL := r.conf.Atmos.GetListURL()
 	switch r.conf.Atmos.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, cloudposse, config.AtmosName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, cloudposseName, config.AtmosName, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}
