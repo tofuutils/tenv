@@ -27,15 +27,15 @@ import (
 
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
+	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
 const (
-	baseFileName = "atmos_"
-	cloudposse   = "cloudposse"
-	atmos        = "atmos"
+	baseFileName   = "atmos_"
+	cloudposseName = "cloudposse"
 )
 
 type AtmosRetriever struct {
@@ -62,17 +62,17 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 	}
 
 	var assetURLs []string
-	fileName := buildAssetName(versionStr, r.conf.Arch)
+	fileName, shaFileName := buildAssetNames(versionStr, r.conf.Arch)
 	switch r.conf.Atmos.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Atmos.GetRemoteURL(), cloudposse, config.AtmosName, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Atmos.GetRemoteURL(), cloudposseName, config.AtmosName, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
 
-		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName)
+		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	case config.ModeAPI:
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName}, r.conf.Atmos.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
+		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Atmos.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	default:
 		return config.ErrInstallMode
 	}
@@ -91,14 +91,14 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	// dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
-	// if err != nil {
-	// 	return err
-	// }
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
+	if err != nil {
+	 	return err
+	}
 
-	// if err = sha256check.Check(data, dataSums, fileName); err != nil {
-	// 	return err
-	// }
+	if err = sha256check.Check(data, dataSums, fileName); err != nil {
+		return err
+	}
 
 	err = os.MkdirAll(targetPath, 0755)
 	if err != nil {
@@ -134,15 +134,19 @@ func (r AtmosRetriever) ListReleases() ([]string, error) {
 	}
 }
 
-func buildAssetName(version string, arch string) string {
+func buildAssetNames(version string, arch string) (string, string) {
 	var nameBuilder strings.Builder
 	nameBuilder.WriteString(baseFileName)
 	nameBuilder.WriteString(version)
 	nameBuilder.WriteByte('_')
+	sumsAssetName := nameBuilder.String() + "SHA256SUMS"
 
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
+	if runtime.GOOS == "windows" {
+		nameBuilder.WriteString(".exe")
+	}
 
-	return nameBuilder.String()
+	return nameBuilder.String(), sumsAssetName
 }
