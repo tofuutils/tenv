@@ -118,6 +118,7 @@ const (
 
 type Config struct {
 	Arch             string
+	Atmos            RemoteConfig
 	Displayer        loghelper.Displayer
 	DisplayVerbose   bool
 	ForceQuiet       bool
@@ -130,7 +131,6 @@ type Config struct {
 	Tf               RemoteConfig
 	TfKeyPath        string
 	Tg               RemoteConfig
-	Atmos            RemoteConfig
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
