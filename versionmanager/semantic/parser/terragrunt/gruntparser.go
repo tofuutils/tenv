@@ -39,7 +39,6 @@ const (
 
 	terraformVersionConstraintName  = "terraform_version_constraint"
 	terragruntVersionConstraintName = "terragrunt_version_constraint"
-	atmosVersionConstraintName      = "atmos_version_constraint"
 )
 
 var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
@@ -48,10 +47,6 @@ var terraformVersionPartialSchema = &hcl.BodySchema{ //nolint
 
 var terragruntVersionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: terragruntVersionConstraintName}},
-}
-
-var atmosVersionPartialSchema = &hcl.BodySchema{ //nolint
-	Attributes: []hcl.AttributeSchema{{Name: atmosVersionConstraintName}},
 }
 
 type TerragruntParser struct {
