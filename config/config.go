@@ -33,11 +33,11 @@ import (
 )
 
 const (
+	AtmosName      = "atmos"
 	TenvName       = "tenv"
 	TerraformName  = "terraform"
 	TerragruntName = "terragrunt"
 	TofuName       = "tofu"
-	AtmosName      = "atmos"
 
 	GithubActionsEnvName = "GITHUB_ACTIONS"
 
@@ -55,6 +55,15 @@ const (
 	rootPathEnvName    = "ROOT"
 	tokenEnvName       = "GITHUB_TOKEN" //nolint
 	version            = "VERSION"
+
+	atmosPrefix                   = "ATMOS_"
+	AtmosDefaultConstraintEnvName = atmosPrefix + defaultConstraint
+	AtmosDefaultVersionEnvName    = atmosPrefix + defaultVersion
+	atmosInstallModeEnvName       = atmosPrefix + installModeEnvName
+	atmosListModeEnvName          = atmosPrefix + listModeEnvName
+	atmosListURLEnvName           = atmosPrefix + listURLEnvName
+	AtmosRemoteURLEnvName         = atmosPrefix + remoteURLEnvName
+	AtmosVersionEnvName           = atmosPrefix + version
 
 	tenvPrefix             = "TENV_"
 	tenvArchEnvName        = tenvPrefix + archEnvName
@@ -105,15 +114,6 @@ const (
 	tofuRootPathEnvName          = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName             = tofuenvPrefix + tokenEnvName
 	TofuVersionEnvName           = tofuenvTofuPrefix + version
-
-	atmosPrefix                   = "ATMOS_"
-	AtmosDefaultConstraintEnvName = atmosPrefix + defaultConstraint
-	AtmosDefaultVersionEnvName    = atmosPrefix + defaultVersion
-	atmosInstallModeEnvName       = atmosPrefix + installModeEnvName
-	atmosListModeEnvName          = atmosPrefix + listModeEnvName
-	atmosListURLEnvName           = atmosPrefix + listURLEnvName
-	AtmosRemoteURLEnvName         = atmosPrefix + remoteURLEnvName
-	AtmosVersionEnvName           = atmosPrefix + version
 )
 
 type Config struct {
