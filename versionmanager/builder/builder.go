@@ -32,6 +32,15 @@ import (
 	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
+func BuildAtmosManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
+	atmosRetriever := atmosretriever.Make(conf)
+	versionFiles := []types.VersionFile{
+		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},
+	}
+
+	return versionmanager.Make(conf, config.AtmosDefaultConstraintEnvName, "Atmos", nil, atmosRetriever, config.AtmosVersionEnvName, config.AtmosDefaultVersionEnvName, versionFiles)
+}
+
 func BuildTfManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
 	tfRetriever := terraformretriever.Make(conf)
 	versionFiles := []types.VersionFile{
@@ -55,15 +64,6 @@ func BuildTgManager(conf *config.Config, gruntParser terragruntparser.Terragrunt
 	}
 
 	return versionmanager.Make(conf, config.TgDefaultConstraintEnvName, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
-}
-
-func BuildAtmosManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
-	atmosRetriever := atmosretriever.Make(conf)
-	versionFiles := []types.VersionFile{
-		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},
-	}
-
-	return versionmanager.Make(conf, config.AtmosDefaultConstraintEnvName, "Atmos", nil, atmosRetriever, config.AtmosVersionEnvName, config.AtmosDefaultVersionEnvName, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
