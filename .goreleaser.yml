@@ -10,6 +10,7 @@ before:
     - go get -u ./cmd/terraform
     - go get -u ./cmd/terragrunt
     - go get -u ./cmd/tf
+    - go get -u ./cmd/atmos
 
 builds:
   - id: tenv
@@ -173,6 +174,39 @@ builds:
         goarch: arm
       - goos: solaris
         goarch: arm64
+
+  - id: atmos
+    binary: atmos
+    main: ./cmd/atmos
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+
+    ignore:
+      - goos: darwin
+        goarch: "386"
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: "386"
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
 
 archives:
   - format: tar.gz

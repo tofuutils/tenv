@@ -37,9 +37,9 @@ const (
 	updatePathHelp  = "Display PATH updated with tenv directory location first."
 
 	helpPrefix = "Subcommand to manage several versions of "
+	atmosHelp  = helpPrefix + "Atmos (https://atmos.tools)."
 	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
 	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io)."
-	atmosHelp  = helpPrefix + "Atmos (https://atmos.tools)."
 	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
 
 	pathEnvName = "PATH"
