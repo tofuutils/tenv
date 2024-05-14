@@ -22,14 +22,17 @@
 <a id="about-the-project"></a>
 ## About The Project
 
-Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [Terragrunt](https://terragrunt.gruntwork.io/), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
+Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org),
+[Terraform](https://www.terraform.io/) [Terragrunt](https://terragrunt.gruntwork.io/) and
+[Atmos](https://atmos.tools), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
 
 **tenv** is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
 
 <a id="key-features"></a>
 ### Key Features
 
-- Versatile version management: Easily switch between different versions of OpenTofu, Terraform and Terragrunt.
+- Versatile version management: Easily switch between different versions of OpenTofu,
+Terraform Terragrunt and Atmos.
 - [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files (see [required_version](#required_version) and [Terragrunt hcl](#terragrunt-hcl-file)).
 - Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)), see [signature support](#signature-support).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
@@ -41,7 +44,8 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 
 asdf is generic and extensible with a plugin system, key **tenv** differences :
 
-- **tenv** is more specific and has features dedicated to OpenTofu, Terraform and Terragrunt, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
+- **tenv** is more specific and has features dedicated to OpenTofu, Terraform Terragrunt
+and Atmos, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
 - **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
 
 <a id="table-of-contents"></a>
@@ -199,13 +203,16 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 
 ## Usage
 
-**tenv** supports [OpenTofu](https://opentofu.org), [Terragrunt](https://terragrunt.gruntwork.io/) and [Terraform](https://www.terraform.io/). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
+**tenv** supports [OpenTofu](https://opentofu.org),
+[Terragrunt](https://terragrunt.gruntwork.io/) [Terraform](https://www.terraform.io/) and
+[Atmos](https://atmos.tools). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
 | tool (alias)        | env vars                   | description                                    |
 | ------------------- | -------------------------- | ---------------------------------------------- |
 | `tofu` (`opentofu`) | [TOFUENV_](#tofu-env-vars) | [OpenTofu](https://opentofu.org)               |
 | `tf` (`terraform`)  | [TFENV_](#tf-env-vars)     | [Terraform](https://www.terraform.io/)         |
 | `tg` (`terragrunt`) | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
+| `atmos` (`atmos`)   | [ATMOS_](#atmos-env-vars)  | [Atmos](https://atmos.tools)                   |
 
 
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
@@ -229,6 +236,8 @@ tenv tf install "~> 1.6.0"
 tenv tf install latest-pre
 tenv tg install latest
 tenv tg install latest-stable
+tenv atmos install "~> 1.70"
+tenv atmos install latest
 tenv <tool> install latest-allowed
 tenv <tool> install min-required
 ```
@@ -267,6 +276,7 @@ Available parameter options:
 tenv tofu use v1.6.0-beta5
 tenv tf use min-required
 tenv tg use latest
+tenv atmos use latest
 tenv tofu use latest-allowed
 ```
 
@@ -286,6 +296,8 @@ Found compatible version installed locally : 1.6.1
 OpenTofu 1.6.1 will be run from this directory.
 $ tenv tg detect -q
 Terragrunt 0.55.1 will be run from this directory.
+$ tenv atmos detect -q
+Atmos 1.72.0 will be run from this directory.
 ```
 
 </details>
@@ -995,6 +1007,102 @@ terragrunt version v0.54.1
 
 </details>
 
+<a id="tg-env-vars"></a>
+### Atmos environment variables
+
+
+<details><summary><b>ATMOS_INSTALL_MODE</b></summary><br>
+
+String (Default: "api")
+
+- "api" install mode retrieve download url of Atmos from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (ATMOS_REMOTE must comply with it).
+- "direct" install mode generate download url of Atmos based on ATMOS_REMOTE.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details><summary><b>ATMOS_LIST_MODE</b></summary><br>
+
+String (Default: "api")
+
+- "api" list mode retrieve information of Atmos releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (ATMOS_LIST_URL must comply with it).
+- "html" list mode extract information of Atmos releases from parsing an html page in ATMOS_LIST_URL.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details><summary><b>ATMOS_LIST_URL</b></summary><br>
+
+String (Default: "")
+
+Allow to override the remote url only for the releases listing, default value depend on ATMOS_LIST_MODE :
+
+- with "api" mode use default API URL (https://api.github.com/repos/cloudposse/atmos/releases)
+- with "html" mode same as ATMOS_REMOTE
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details><summary><b>ATMOS_REMOTE</b></summary><br>
+
+String (Default: https://api.github.com/repos/cloudposse/atmos/releases)
+
+URL to install Atmos when ATMOS_REMOTE differ from its default value, ATMOS_INSTALL_MODE is set to "direct" (assume an artifact proxy usage, however releases listing continue to use API).
+
+`tenv atmos` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+<details><summary><b>ATMOS_DEFAULT_CONSTRAINT</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Atmos default constraint, specified in ${TENV_ROOT}/Atmos/constraint file.
+
+</details>
+
+
+<details><summary><b>ATMOS_DEFAULT_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Atmos fallback version, specified in ${TENV_ROOT}/Atmos/version file.
+
+</details>
+
+
+<details><summary><b>ATMOS_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Atmos version, specified in [`.atmos-version`](#atmos-version-files) files.
+
+`tenv atmos` subcommands `install` and `detect` also respects this variable.
+
+e.g. with :
+
+```console
+$ atmos version
+👽 Atmos v1.72.0 on linux/amd64
+
+```
+
+then :
+
+```console
+$ ATMOS_VERSION=1.70 atmos version
+👽 Atmos v1.70.0 on linux/amd64
+```
+
+</details>
 
 <a id="version-files"></a>
 ## version files
@@ -1045,6 +1153,16 @@ Recognize same values as `tenv tg use` command.
 <details><summary><b>terragrunt.hcl file</b></summary><br>
 
 If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, one of its parent directory, or user home directory, **tenv** will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
+
+</details>
+
+<a id="atmos-version-files"></a>
+<details><summary><b>atmos version files</b></summary><br>
+
+If you put a `.atmos-version` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
+Note, that ATMOS_VERSION can be used to override version specified by those files.
+
+Recognize same values as `tenv atmos use` command.
 
 </details>
 
@@ -1128,6 +1246,24 @@ The `latest-allowed` strategy has no information for Terragrunt and will fallbac
 
 </details>
 
+<details><summary><b>atmos</b></summary><br>
+
+The `atmos` command in this project is a proxy to Cloudposse's `atmos` command managed by **tenv**.
+
+The version resolution order is :
+
+- ATMOS_VERSION environment variable
+- `.atmos-version` file
+- ATMOS_DEFAULT_VERSION environment variable
+- `${TENV_ROOT}/Atmos/version` file (can be written with `tenv atmos use`)
+- `latest-allowed`
+
+The `latest-allowed` strategy has no information for Atmos and will fallback to `latest`
+unless there is default constraint. Adding a default constraint could be done with
+ATMOS_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/Atmos/constraint` file (can
+be written with `tenv atmos constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid there fallback to `latest`.
+
+</details>
 
 <details><summary><b>tf</b></summary><br>
 
@@ -1246,6 +1382,12 @@ terraform:
 </details>
 
 <details><summary><b>Terragrunt signature support</b></summary><br>
+
+**tenv** checks the sha256 checksum (there is no signature available).
+
+</details>
+
+<details><summary><b>Atmos signature support</b></summary><br>
 
 **tenv** checks the sha256 checksum (there is no signature available).
 
