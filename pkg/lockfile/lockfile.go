@@ -68,6 +68,8 @@ func CleanAndExitOnInterrupt(clean func()) func() {
 				clean()
 				os.Exit(1)
 			case <-endChan:
+				signal.Stop(signalChan)
+
 				break
 			}
 		}
