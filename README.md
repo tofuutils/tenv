@@ -1287,7 +1287,7 @@ The version resolution order is :
 
 This advanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
 
-The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : `tofu`, `terraform` and `terragrunt`.
+The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : `tofu`, `terraform`, `terragrunt` and `atmos`.
 
 <details><summary><b>yaml fields description</b></summary><br>
 
