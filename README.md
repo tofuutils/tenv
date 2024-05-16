@@ -8,9 +8,9 @@
   <a>
     <img src="assets/logo.png" alt="Logo" width="200" height="200">
   </a>
-<h3 align="center">tenv</h3>
+  <h3 align="center">tenv</h3>
   <p align="center">
-    OpenTofu, Terraform and Terragrunt version manager, written in Go.
+    OpenTofu, Terraform, Terragrunt and Atmos version manager, written in Go.
     <br />
     ·
     <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=issue%3A+bug&projects=&template=bug_report.md&title=">Report Bug</a>
@@ -204,7 +204,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 ## Usage
 
 **tenv** supports [OpenTofu](https://opentofu.org),
-[Terragrunt](https://terragrunt.gruntwork.io/) [Terraform](https://www.terraform.io/) and
+[Terragrunt](https://terragrunt.gruntwork.io/), [Terraform](https://www.terraform.io/) and
 [Atmos](https://atmos.tools). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
 | tool (alias)        | env vars                   | description                                    |
