@@ -481,7 +481,7 @@ tenv version v1.7.0
 <a id="environment-variables"></a>
 ## Environment variables
 
-**tenv** commands support global environment variables and variables by tool for : [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/) and [TerraGrunt](https://terragrunt.gruntwork.io/).
+**tenv** commands support global environment variables and variables by tool for : [OpenTofu](https://opentofu.org), [Terraform](https://www.terraform.io/), [TerraGrunt](https://terragrunt.gruntwork.io/) and [Atmos](https://atmos.tools).
 
 
 <a id="tenv-vars"></a>
@@ -524,7 +524,7 @@ If set to true **tenv** detection of needed version will skip local check and ve
 
 String (Default: "")
 
-Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu and Terragrunt binaries are downloaded from GitHub repository.
+Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api). Useful because OpenTofu, Terragrunt and Atmos binaries are downloaded from GitHub repository.
 
 `tenv tofu` and `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--github-token`, `-t` flag version.
 
