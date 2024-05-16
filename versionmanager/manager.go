@@ -292,7 +292,8 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	}
 
 	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
-	lockfile.CleanAndExitOnInterrupt(deleteLock)
+	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
+	defer disableExit()
 	defer deleteLock()
 
 	cleanedVersion := parsedVersion.String()
@@ -333,7 +334,8 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 	}
 
 	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
-	lockfile.CleanAndExitOnInterrupt(deleteLock)
+	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
+	defer disableExit()
 	defer deleteLock()
 
 	entries, err := os.ReadDir(installPath)

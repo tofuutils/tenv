@@ -55,13 +55,27 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 	})
 }
 
-func CleanAndExitOnInterrupt(clean func()) {
+// the returned function may be used to avoid goroutine leak
+// (also avoid conflicting behavior with versionmanager/proxy.transmitIncreasingSignal).
+func CleanAndExitOnInterrupt(clean func()) func() {
 	signalChan := make(chan os.Signal)
+	endChan := make(chan struct{})
 	signal.Notify(signalChan, os.Interrupt)
 	go func() {
-		for range signalChan {
-			clean()
-			os.Exit(1)
+		for {
+			select {
+			case <-signalChan:
+				clean()
+				os.Exit(1)
+			case <-endChan:
+				signal.Stop(signalChan)
+
+				break
+			}
 		}
 	}()
+
+	return sync.OnceFunc(func() { //nolint
+		endChan <- struct{}{}
+	})
 }
