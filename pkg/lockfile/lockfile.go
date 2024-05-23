@@ -39,8 +39,9 @@ const (
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
-		_, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644) //nolint
+		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644) //nolint
 		if err == nil {
+			f.Close()
 			break
 		}
 
