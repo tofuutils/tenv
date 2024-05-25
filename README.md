@@ -148,7 +148,7 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 
 <a id="automatic-installation"></a>
 #### Automatic Installation
-<details><summary><b>Arch Linux (AUR)</b></summary><br>
+<details><summary><b>Arch Linux (AUR, Nix)</b></summary><br>
 
 This package is available on the Arch Linux User Repository.
 It can be installed using the yay AUR helper:
@@ -156,20 +156,35 @@ It can be installed using the yay AUR helper:
 yay tenv-bin
 ```
 
+Installation via Nix package manager:
+```sh
+nix-env -i tenv
+```
+
 </details>
 
-<details><summary><b>MacOS (Homebrew)</b></summary><br>
+<details><summary><b>MacOS (Homebrew, Nix)</b></summary><br>
 
 ```console
 brew install tenv
 ```
 
+Installation via Nix package manager:
+```console
+nix-env -i tenv
+```
+
 </details>
 
-<details><summary><b>Windows (Chocolatey)</b></summary><br>
+<details><summary><b>Windows (Chocolatey, Nix)</b></summary><br>
 
 ```console
 choco install tenv
+```
+
+Installation via Nix package manager:
+```console
+nix-env -i tenv
 ```
 
 </details>
@@ -180,6 +195,11 @@ choco install tenv
 LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
 curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_amd64.deb"
 sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
+```
+
+Installation via Nix package manager:
+```console
+nix-env -i tenv
 ```
 
 </details>
