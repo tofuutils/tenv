@@ -21,6 +21,7 @@ package config
 import (
 	"errors"
 	"os"
+	"strings"
 )
 
 const (
@@ -70,24 +71,25 @@ func (r RemoteConfig) GetInstallMode() string {
 }
 
 func (r RemoteConfig) GetListMode() string {
-	return r.getValueForcedDefault("list_mode", r.listMode, ModeAPI)
+	defaultListMode := ListModeHTML
+	if r.GetListURL() == r.defaultURL {
+		defaultListMode = ModeAPI
+	}
+
+	return r.getValueForcedDefault("list_mode", r.listMode, defaultListMode)
 }
 
 func (r RemoteConfig) GetListURL() string {
-	defaultListURL := r.defaultURL
-	if r.GetListMode() == ListModeHTML {
-		defaultListURL = r.GetRemoteURL()
-	}
-
-	return r.getValueForcedDefault("list_url", r.listURL, defaultListURL)
+	return strings.TrimRight(r.getValueForcedDefault("list_url", r.listURL, r.GetRemoteURL()), "/")
 }
 
 func (r RemoteConfig) GetRemoteURL() string {
-	if r.RemoteURL != "" {
-		return r.RemoteURL
+	remoteURL := r.RemoteURL
+	if remoteURL == "" {
+		remoteURL = r.getValueForcedDefault("url", r.RemoteURLEnv, r.defaultURL)
 	}
 
-	return r.getValueForcedDefault("url", r.RemoteURLEnv, r.defaultURL)
+	return strings.TrimRight(remoteURL, "/")
 }
 
 func (r RemoteConfig) GetRewriteRule() []string {
@@ -97,41 +99,22 @@ func (r RemoteConfig) GetRewriteRule() []string {
 		return []string{oldBase, newBase}
 	}
 
-	defaultListMode := r.GetListMode() == ModeAPI
+	if r.GetInstallMode() == InstallModeDirect {
+		return nil // build correct url
+	}
+
 	listURL := r.GetListURL()
 	remoteURL := r.GetRemoteURL()
-	sameURL := remoteURL == listURL
-	if defaultListMode && sameURL {
+	defaultList := listURL == r.defaultURL
+	defaultRemote := remoteURL == r.defaultURL
+	if defaultList && defaultRemote {
 		return nil // no special behaviour, no rewriting
 	}
 
-	oneDisabled := defaultListMode || sameURL
-	if r.GetInstallMode() == ModeAPI {
-		if oldBase == "" {
-			oldBase = r.defaultBaseURL
-		}
-
-		if newBase == "" {
-			if oneDisabled {
-				newBase = remoteURL
-			} else {
-				newBase = listURL
-			}
-		}
-
-		return []string{oldBase, newBase}
-	}
-
-	if oneDisabled {
-		return nil // build correct url (direct install mode)
-	}
-
-	if oldBase == "" {
-		oldBase = remoteURL
-	}
-
-	if newBase == "" {
-		newBase = listURL
+	oldBase = r.defaultBaseURL
+	newBase = listURL
+	if defaultList {
+		newBase = remoteURL
 	}
 
 	return []string{oldBase, newBase}
@@ -146,7 +129,7 @@ func (r RemoteConfig) getValueForcedDefault(name string, forcedValue string, def
 }
 
 func MapGetDefault(m map[string]string, key string, defaultValue string) string {
-	if value := m[key]; value != "" {
+	if value := strings.TrimSpace(m[key]); value != "" {
 		return value
 	}
 

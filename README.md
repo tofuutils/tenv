@@ -23,7 +23,7 @@
 ## About The Project
 
 Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org),
-[Terraform](https://www.terraform.io/) [Terragrunt](https://terragrunt.gruntwork.io/) and
+[Terraform](https://www.terraform.io/), [Terragrunt](https://terragrunt.gruntwork.io/) and
 [Atmos](https://atmos.tools), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
 
 **tenv** is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
@@ -32,7 +32,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 ### Key Features
 
 - Versatile version management: Easily switch between different versions of OpenTofu,
-Terraform Terragrunt and Atmos.
+Terraform, Terragrunt and Atmos.
 - [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files (see [required_version](#required_version) and [Terragrunt hcl](#terragrunt-hcl-file)).
 - Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)), see [signature support](#signature-support).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
@@ -44,7 +44,7 @@ Terraform Terragrunt and Atmos.
 
 asdf is generic and extensible with a plugin system, key **tenv** differences :
 
-- **tenv** is more specific and has features dedicated to OpenTofu, Terraform Terragrunt
+- **tenv** is more specific and has features dedicated to OpenTofu, Terraform, Terragrunt
 and Atmos, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
 - **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
 
@@ -651,7 +651,7 @@ Same as TENV_FORCE_REMOTE.
 
 <details><summary><b>TOFUENV_INSTALL_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on TOFUENV_REMOTE, without change on it, it is "api" else it is "direct")
 
 - "api" install mode retrieve download url of OpenTofu from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_REMOTE must comply with it).
 - "direct" install mode generate download url of OpenTofu based on TOFUENV_REMOTE.
@@ -663,7 +663,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TOFUENV_LIST_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on TOFUENV_LIST_URL, without change on it, it is "api" else it is "html")
 
 - "api" list mode retrieve information of OpenTofu releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_LIST_URL must comply with it).
 - "html" list mode extract information of OpenTofu releases from parsing an html page in TOFUENV_LIST_URL.
@@ -675,12 +675,9 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TOFUENV_LIST_URL</b></summary><br>
 
-String (Default: "")
+String (Default: copy TOFUENV_REMOTE)
 
-Allow to override the remote url only for the releases listing, default value depend on TOFUENV_LIST_MODE :
-
-- with "api" mode use default API URL (https://api.github.com/repos/opentofu/opentofu/releases)
-- with "html" mode same as TOFUENV_REMOTE
+Allow to override the remote url only for the releases listing.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -702,7 +699,7 @@ Allow to specify a local file path to OpenTofu PGP public key, if not present do
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
-URL to install OpenTofu, when TOFUENV_REMOTE differ from its default value, TOFUENV_INSTALL_MODE is set to direct (assume an artifact proxy usage, however releases listing continue to use API).
+URL to install OpenTofu, when TOFUENV_REMOTE differ from its default value, TOFUENV_INSTALL_MODE is set to "direct" and TOFUENV_LIST_MODE is set to "html" (assume an artifact proxy usage).
 
 `tenv tofu` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
@@ -819,7 +816,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TFENV_LIST_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on TFENV_LIST_URL, without change on it, it is "api" else it is "html")
 
 - "api" list mode retrieve information of Terraform releases from [Hashicorp Release API](https://releases.hashicorp.com/docs/api/v1) (TFENV_LIST_URL must comply with it).
 - "html" list mode extract information of Terraform releases from parsing an html page in TFENV_LIST_URL.
@@ -831,12 +828,9 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TFENV_LIST_URL</b></summary><br>
 
-String (Default: "")
+String (Default: copy TFENV_REMOTE)
 
-Allow to override the remote url only for the releases listing, default value depend on TFENV_LIST_MODE :
-
-- with "api" mode use default API URL (https://releases.hashicorp.com)
-- with "html" mode same as TFENV_REMOTE
+Allow to override the remote url only for the releases listing.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -847,7 +841,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: https://releases.hashicorp.com)
 
-URL to install Terraform (can differ from its default, an artifact proxy will not disturb the retrieving of release index.json, however releases listing continue to use API).
+URL to install Terraform, changing it assume an artifact proxy use (TFENV_LIST_URL copy it, and if it differ from its default value, TFENV_LIST_MODE is set to "html", because an artifact proxy usage will not disturb the retrieving of index.json for a release, but will freeze the json list of releases).
 
 `tenv tf` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
@@ -917,7 +911,7 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 
 <details><summary><b>TG_INSTALL_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on TG_REMOTE, without change on it, it is "api" else it is "direct")
 
 - "api" install mode retrieve download url of Terragrunt from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TG_REMOTE must comply with it).
 - "direct" install mode generate download url of Terragrunt based on TG_REMOTE.
@@ -929,7 +923,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TG_LIST_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on TG_LIST_URL, without change on it, it is "api" else it is "html")
 
 - "api" list mode retrieve information of Terragrunt releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TG_LIST_URL must comply with it).
 - "html" list mode extract information of Terragrunt releases from parsing an html page in TG_LIST_URL.
@@ -941,12 +935,9 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TG_LIST_URL</b></summary><br>
 
-String (Default: "")
+String (Default: copy TG_REMOTE)
 
-Allow to override the remote url only for the releases listing, default value depend on TG_LIST_MODE :
-
-- with "api" mode use default API URL (https://api.github.com/repos/gruntwork-io/terragrunt/releases)
-- with "html" mode same as TG_REMOTE
+Allow to override the remote url only for the releases listing.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -957,7 +948,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 
-URL to install Terragrunt, when TG_REMOTE differ from its default value, TG_INSTALL_MODE is set to "direct" (assume an artifact proxy usage, however releases listing continue to use API).
+URL to install Terragrunt, when TG_REMOTE differ from its default value, TG_INSTALL_MODE is set to "direct" and TG_LIST_MODE is set to "html" (assume an artifact proxy usage).
 
 `tenv tg` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
@@ -1013,7 +1004,7 @@ terragrunt version v0.54.1
 
 <details><summary><b>ATMOS_INSTALL_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on ATMOS_REMOTE, without change on it, it is "api" else it is "direct")
 
 - "api" install mode retrieve download url of Atmos from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (ATMOS_REMOTE must comply with it).
 - "direct" install mode generate download url of Atmos based on ATMOS_REMOTE.
@@ -1025,7 +1016,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>ATMOS_LIST_MODE</b></summary><br>
 
-String (Default: "api")
+String (the default depend on ATMOS_LIST_URL, without change on it, it is "api" else it is "html")
 
 - "api" list mode retrieve information of Atmos releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (ATMOS_LIST_URL must comply with it).
 - "html" list mode extract information of Atmos releases from parsing an html page in ATMOS_LIST_URL.
@@ -1037,12 +1028,9 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>ATMOS_LIST_URL</b></summary><br>
 
-String (Default: "")
+String (Default: copy ATMOS_REMOTE)
 
-Allow to override the remote url only for the releases listing, default value depend on ATMOS_LIST_MODE :
-
-- with "api" mode use default API URL (https://api.github.com/repos/cloudposse/atmos/releases)
-- with "html" mode same as ATMOS_REMOTE
+Allow to override the remote url only for the releases listing.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -1053,7 +1041,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: https://api.github.com/repos/cloudposse/atmos/releases)
 
-URL to install Atmos when ATMOS_REMOTE differ from its default value, ATMOS_INSTALL_MODE is set to "direct" (assume an artifact proxy usage, however releases listing continue to use API).
+URL to install Atmos when ATMOS_REMOTE differ from its default value, ATMOS_INSTALL_MODE is set to "direct" and ATMOS_LIST_MODE is set to "html" (assume an artifact proxy usage).
 
 `tenv atmos` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
 
@@ -1318,14 +1306,14 @@ Those examples assume that a GitHub proxy at https://artifactory.example.com/art
 - mirror https://github.com/opentofu/opentofu/releases/download/v1.6.0/tofu_1.6.0_linux_amd64.zip at https://artifactory.example.com/artifactory/github/opentofu/opentofu/releases/download/v1.6.0/tofu_1.6.0_linux_amd64.zip.
 - have at https://artifactory.example.com/artifactory/github/opentofu/opentofu/releases/download an html page with links on existing sub folder like "v1.6.0/"
 
-Example 1 : Retrieve Terraform binaries and list available releases from the mirror.
+Example 1 : Retrieve Terraform binaries and list available releases from the mirror (TFENV_LIST_MODE is optional because TFENV_LIST_URL differ from its default(when TFENV_LIST_URL is not set, it copy TFENV_REMOTE)).
 
 ```console
 TFENV_REMOTE=https://artifactory.example.com/artifactory/hashicorp
 TFENV_LIST_MODE=html
 ```
 
-Example 2 : Retrieve Terraform binaries from the mirror and list available releases from the Hashicorp releases API (TFENV_LIST_URL is optional because it default to https://releases.hashicorp.com with the default list mode "api").
+Example 2 : Retrieve Terraform binaries from the mirror and list available releases from the Hashicorp releases API.
 
 ```console
 TFENV_REMOTE=https://artifactory.example.com/artifactory/hashicorp
@@ -1334,7 +1322,7 @@ TFENV_LIST_URL=https://releases.hashicorp.com
 
 Example 1 & 2, does not need install mode (by release index.json is figed in mirror without problem), however create a rewrite rule from "https://releases.hashicorp.com" to "https://artifactory.example.com/artifactory/hashicorp" to obtains correct download URLs.
 
-Example 3 : Retrieve OpenTofu binaries and list available releases from the mirror (TOFUENV_INSTALL_MODE is optional because overloading TOFUENV_REMOTE already set it to "direct").
+Example 3 : Retrieve OpenTofu binaries and list available releases from the mirror (TOFUENV_INSTALL_MODE and TOFUENV_LIST_MODE are optional because overloading TOFUENV_REMOTE already change them).
 
 ```console
 TOFUENV_REMOTE=https://artifactory.example.com/artifactory/github
@@ -1342,7 +1330,7 @@ TOFUENV_INSTALL_MODE=direct
 TOFUENV_LIST_MODE=html
 ```
 
-Example 4 : Retrieve OpenTofu binaries from the mirror and list available releases from the GitHub API (TOFUENV_INSTALL_MODE is optional because overloading TOFUENV_REMOTE already set it to "direct", and TOFUENV_LIST_URL is optional because it default to https://api.github.com/repos/opentofu/opentofu/releases with the default list mode "api").
+Example 4 : Retrieve OpenTofu binaries from the mirror and list available releases from the GitHub API (TOFUENV_INSTALL_MODE is optional because overloading TOFUENV_REMOTE already set it to "direct").
 
 ```console
 TOFUENV_REMOTE=https://artifactory.example.com/artifactory/github
