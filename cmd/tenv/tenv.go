@@ -72,13 +72,13 @@ func main() {
 func initRootCmd(conf *config.Config) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     config.TenvName,
-		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io) and Terragrunt (https://terragrunt.gruntwork.io).",
+		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io), Terragrunt (https://terragrunt.gruntwork.io), and Atmos (https://atmos.tools/).",
 		Version: version,
 	}
 
 	flags := rootCmd.PersistentFlags()
 	flags.BoolVarP(&conf.ForceQuiet, "quiet", "q", conf.ForceQuiet, "no unnecessary output (and no log)")
-	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu, Terraform and Terragrunt")
+	flags.StringVarP(&conf.RootPath, "root-path", "r", conf.RootPath, "local path to install versions of OpenTofu, Terraform, Terragrunt, and Atmos")
 	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", false, "verbose output (and set log level to Trace)")
 
 	rootCmd.AddCommand(newVersionCmd())

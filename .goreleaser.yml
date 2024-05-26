@@ -243,7 +243,7 @@ nfpms:
     maintainer: "https://github.com/dvaumoron"
     homepage: https://github.com/tofuutils/tenv
     description: >-
-      tenv helps manage several version of OpenTofu (https://opentofu.org) and Terraform (https://www.terraform.io/),
+      tenv helps manage several version of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io/), Terragrunt (https://terragrunt.gruntwork.io), and Atmos (https://atmos.tools/),
       tenv is the managing command and tofu and terraform are proxy commands.
     license: "Apache-2.0"
     formats:
@@ -289,9 +289,9 @@ nfpms:
 #     project_source_url: https://github.com/tofuutils/tenv
 #     docs_url: https://github.com/tofuutils/tenv/blob/main/README.md
 #     tags: "terraform opentofu terragrunt tofuenv tfenv tenv"
-#     summary: OpenTofu, Terraform and Terragrunt version manager, written in Go.
+#     summary: OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
 #     description: |
-#       OpenTofu, Terraform and Terragrunt version manager, written in Go.
+#       OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
 #     release_notes: "https://github.com/tofuutils/tenv/releases/tag/v{{ .Version }}"
 #     dependencies:
 #       - id: nfpm

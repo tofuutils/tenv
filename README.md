@@ -10,7 +10,7 @@
   </a>
   <h3 align="center">tenv</h3>
   <p align="center">
-    OpenTofu, Terraform, Terragrunt and Atmos version manager, written in Go.
+    OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
     <br />
     ·
     <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=issue%3A+bug&projects=&template=bug_report.md&title=">Report Bug</a>
