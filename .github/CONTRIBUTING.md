@@ -1,1 +1,0 @@
-See [contributing quick start](todo) on our website.
