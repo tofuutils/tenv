@@ -72,7 +72,7 @@ func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, ce
 	cmd.Stdout = &outBuffer
 	cmd.Stderr = &errBuffer
 
-	cmd.Run()
+	cmd.Run() //nolint
 
 	stdOutContent, stdErrContent := outBuffer.String(), errBuffer.String()
 

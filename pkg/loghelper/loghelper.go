@@ -29,7 +29,7 @@ import (
 
 const Error = "error"
 
-var InertDisplayer inertDisplayer
+var InertDisplayer inertDisplayer //nolint
 
 type Displayer interface {
 	Display(msg string)
@@ -64,17 +64,17 @@ func (bd BasicDisplayer) Flush(bool) {
 
 type inertDisplayer struct{}
 
-func (_ inertDisplayer) Display(_ string) {
+func (inertDisplayer) Display(_ string) {
 }
 
-func (_ inertDisplayer) IsDebug() bool {
+func (inertDisplayer) IsDebug() bool {
 	return false
 }
 
-func (_ inertDisplayer) Log(_ hclog.Level, _ string, _ ...any) {
+func (inertDisplayer) Log(_ hclog.Level, _ string, _ ...any) {
 }
 
-func (_ inertDisplayer) Flush(bool) {
+func (inertDisplayer) Flush(bool) {
 }
 
 type logWrapper struct {
