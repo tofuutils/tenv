@@ -26,7 +26,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/pkg/lockfile"
 	"github.com/tofuutils/tenv/pkg/loghelper"
 )
@@ -43,10 +42,6 @@ var data3 []byte
 func TestParallelWriteRead(t *testing.T) {
 	parallelDirPath := filepath.Join(os.TempDir(), "parallel")
 	parallelFilePath := filepath.Join(parallelDirPath, "rw_test")
-	appLogger := hclog.New(&hclog.LoggerOptions{
-		Name: "lockfile_test", Level: hclog.Off,
-	})
-	displayer := loghelper.MakeBasicDisplayer(appLogger, loghelper.NoDisplay)
 
 	err := os.RemoveAll(parallelDirPath)
 	if err != nil {
@@ -65,15 +60,15 @@ func TestParallelWriteRead(t *testing.T) {
 	var res1, res2, res3 []byte
 	done1, done2, done3 := make(chan struct{}), make(chan struct{}), make(chan struct{})
 	go func() {
-		res1, err1 = writeReadFile(parallelDirPath, parallelFilePath, data1, displayer)
+		res1, err1 = writeReadFile(parallelDirPath, parallelFilePath, data1, loghelper.InertDisplayer)
 		done1 <- struct{}{}
 	}()
 	go func() {
-		res2, err2 = writeReadFile(parallelDirPath, parallelFilePath, data2, displayer)
+		res2, err2 = writeReadFile(parallelDirPath, parallelFilePath, data2, loghelper.InertDisplayer)
 		done2 <- struct{}{}
 	}()
 	go func() {
-		res3, err3 = writeReadFile(parallelDirPath, parallelFilePath, data3, displayer)
+		res3, err3 = writeReadFile(parallelDirPath, parallelFilePath, data3, loghelper.InertDisplayer)
 		done3 <- struct{}{}
 	}()
 

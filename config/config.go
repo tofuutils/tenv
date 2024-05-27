@@ -187,10 +187,7 @@ func InitConfigFromEnv() (Config, error) {
 
 func (conf *Config) InitDisplayer(proxyCall bool) {
 	if conf.ForceQuiet {
-		appLogger := hclog.New(&hclog.LoggerOptions{
-			Name: TenvName, Level: hclog.Off,
-		})
-		conf.Displayer = loghelper.MakeBasicDisplayer(appLogger, loghelper.NoDisplay)
+		conf.Displayer = loghelper.InertDisplayer
 		conf.DisplayVerbose = false
 	} else {
 		logLevel := hclog.Trace
