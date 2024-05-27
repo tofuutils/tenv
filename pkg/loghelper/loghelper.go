@@ -29,6 +29,8 @@ import (
 
 const Error = "error"
 
+var InertDisplayer inertDisplayer //nolint
+
 type Displayer interface {
 	Display(msg string)
 	IsDebug() bool
@@ -58,6 +60,21 @@ func (bd BasicDisplayer) Log(level hclog.Level, msg string, args ...any) {
 }
 
 func (bd BasicDisplayer) Flush(bool) {
+}
+
+type inertDisplayer struct{}
+
+func (inertDisplayer) Display(_ string) {
+}
+
+func (inertDisplayer) IsDebug() bool {
+	return false
+}
+
+func (inertDisplayer) Log(_ hclog.Level, _ string, _ ...any) {
+}
+
+func (inertDisplayer) Flush(bool) {
 }
 
 type logWrapper struct {
@@ -137,8 +154,6 @@ func LevelWarnOrDebug(debug bool) hclog.Level {
 
 	return hclog.Warn
 }
-
-func NoDisplay(string) {}
 
 func StdDisplay(msg string) {
 	fmt.Println(msg) //nolint

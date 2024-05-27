@@ -23,6 +23,7 @@ import (
 	"testing"
 
 	cosigncheck "github.com/tofuutils/tenv/pkg/check/cosign"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
 const (
@@ -44,31 +45,31 @@ var dataCert []byte
  */
 
 func TestCosignCheckCorrect(t *testing.T) { //nolint
-	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer); err != nil {
+	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer, loghelper.InertDisplayer); err != nil {
 		t.Error("Unexpected error :", err)
 	}
 }
 
 func TestCosignCheckErrorCert(t *testing.T) { //nolint
-	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer) == nil {
+	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous certificate")
 	}
 }
 
 func TestCosignCheckErrorIdentity(t *testing.T) { //nolint
-	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer) == nil {
+	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorIssuer(t *testing.T) { //nolint
-	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com") == nil {
+	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com", loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorSig(t *testing.T) { //nolint
-	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer) == nil {
+	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous signature")
 	}
 }

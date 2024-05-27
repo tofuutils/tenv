@@ -23,6 +23,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/hashicorp/go-hclog"
+	"github.com/tofuutils/tenv/pkg/loghelper"
 )
 
 const (
@@ -35,7 +38,7 @@ var (
 	ErrNotInstalled = errors.New("cosign executable not found")
 )
 
-func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, certOidcIssuer string) error {
+func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, certOidcIssuer string, displayer loghelper.Displayer) error {
 	_, err := exec.LookPath(cosignExecName)
 	if err != nil {
 		return ErrNotInstalled
@@ -63,9 +66,19 @@ func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, ce
 		"verify-blob", "--certificate-identity", certIdentity, "--signature", dataSigFileName, "--certificate", dataCertFileName,
 		"--certificate-oidc-issuer", certOidcIssuer, dataFileName,
 	}
-	cmd := exec.Command(cosignExecName, cmdArgs...)
 
-	if returnedData, _ := cmd.CombinedOutput(); !strings.Contains(string(returnedData), verified) {
+	var outBuffer, errBuffer strings.Builder
+	cmd := exec.Command(cosignExecName, cmdArgs...)
+	cmd.Stdout = &outBuffer
+	cmd.Stderr = &errBuffer
+
+	cmd.Run() //nolint
+
+	stdOutContent, stdErrContent := outBuffer.String(), errBuffer.String()
+
+	displayer.Log(hclog.Debug, "cosign output", "stdOut", stdOutContent, "stdErr", stdErrContent)
+
+	if !strings.Contains(stdErrContent, verified) {
 		return ErrCheck
 	}
 
