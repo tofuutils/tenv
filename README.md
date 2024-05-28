@@ -93,7 +93,7 @@ If you need to enable cosign checks, install `cosign` tool via one of the follow
 <details><summary><b>MacOS (Homebrew)</b></summary><br>
 
 ```sh
-go install github.com/sigstore/cosign/v2/cmd/cosign@latest
+brew install cosign
 ```
 
 </details>
@@ -102,7 +102,7 @@ go install github.com/sigstore/cosign/v2/cmd/cosign@latest
 <details><summary><b>Windows (Chocolatey)</b></summary><br>
 
 ```sh
-choco install cosign
+go install github.com/sigstore/cosign/v2/cmd/cosign@latest
 ```
 
 </details>
