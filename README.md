@@ -93,7 +93,7 @@ If you need to enable cosign checks, install `cosign` tool via one of the follow
 <details><summary><b>MacOS (Homebrew)</b></summary><br>
 
 ```sh
-brew install cosign
+go install github.com/sigstore/cosign/v2/cmd/cosign@latest
 ```
 
 </details>
