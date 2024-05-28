@@ -88,7 +88,7 @@ and Atmos, like [HCL](https://github.com/hashicorp/hcl) parsing based detection 
 
 <a id="prerequisites"></a>
 ### Prerequisites
-If you need to enable cosign checks, install `cosign` tool via one of the following commands:
+If you need to enable cosign checks, install `cosign` (v.2.0+) tool via one of the following commands:
 
 <details><summary><b>MacOS (Homebrew)</b></summary><br>
 
@@ -102,7 +102,7 @@ brew install cosign
 <details><summary><b>Windows (Chocolatey)</b></summary><br>
 
 ```sh
-choco install cosign
+go install github.com/sigstore/cosign/v2/cmd/cosign@latest
 ```
 
 </details>
