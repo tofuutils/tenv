@@ -99,7 +99,7 @@ brew install cosign
 </details>
 
 
-<details><summary><b>Windows (Chocolatey)</b></summary><br>
+<details><summary><b>Windows (go install)</b></summary><br>
 
 ```sh
 go install github.com/sigstore/cosign/v2/cmd/cosign@latest
