@@ -40,13 +40,20 @@ Terraform, Terragrunt and Atmos.
 <a id="difference-with-asdf"></a>
 ### Difference with asdf
 
-[asdf](https://asdf-vm.com/) share the same goals than **tenv** : simplify the usage of several version of tools.
+[asdf-vm](https://asdf-vm.com/) share the same goals than **tenv** : simplify the usage of several version of tools.
 
-asdf is generic and extensible with a plugin system, key **tenv** differences :
-
+asdf-vm is generic and extensible with a plugin system, key **tenv** differences :
 - **tenv** is more specific and has features dedicated to OpenTofu, Terraform, Terragrunt
 and Atmos, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
 - **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
+- **tenv** does better in terms of performance and platform compatibility. It works uniformly across all modern operating systems, 
+including Linux, MacOS, Windows, BSD, and Solaris, whereas asdf-vm natively supports only Linux and MacOS.
+- **tenv** checks the sha256 checksum and the signature of the checksum file with [cosign](https://github.com/sigstore/cosign). Check [Signature support](#signature-support) section for getting more information about it.
+- **tenv** command compatibility: In nearly all places you can use the exact syntax that works in tfenv / tofuenv.
+If you're coming from tfenv/tofuenv and comfortable with that way of working you can almost always use the same syntax with tenv.
+- **tenv** performance: It sounds incredibly useful, though it might be tough to get a real apples to apples comparison since the
+tools work differently in a lot of ways. The author of asdf did a great writeup of performance problems. asdf-vm is written in bash
+which certainly makes it challenging to be performant, whereas **tenv** is written in Golang and works much faster.
 
 <a id="table-of-contents"></a>
 ## Table of Contents
@@ -220,6 +227,43 @@ docker run --rm --it ghcr.io/tofuutils/tenv:latest help
 ```
 The docker container is not meant as a way to run tenv for CI pipelines, for local use, you should use one of the [packaged binaries](#manual-installation).
 <a id="usage"></a>
+
+<a id="shell-completion"></a>
+### Install shell completion
+
+> [!NOTE]  
+> If you install tenv via Brew or Nix, completion will be installed automatically.
+
+<details><summary><b>zsh</b></summary><br>
+
+```console
+tenv completion zsh > ~/.tenv.completion.zsh
+echo "source '~/.tenv.completion.zsh'" >> ~/.zshrc
+```
+</details>
+
+<details><summary><b>powershell</b></summary><br>
+
+```console
+tenv completion powershell | Out-String | Invoke-Expression
+```
+</details>
+
+<details><summary><b>bash</b></summary><br>
+
+```console
+tenv completion bash > ~/.tenv.completion.bash
+echo "source '~/.tenv.completion.bash'" >> ~/.zshrc
+```
+</details>
+
+<details><summary><b>fish</b></summary><br>
+
+```console
+tenv completion fish > ~/.tenv.completion.fish
+echo "source '~/.tenv.completion.fish'" >> ~/.zshrc
+```
+</details>
 
 ## Usage
 
