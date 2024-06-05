@@ -30,6 +30,7 @@ jobs:
           chmod +x /usr/local/bin/cosign
 
       - name: Import GPG key
+        id: gpg
         run: |
           GPG_KEY_FILE=/tmp/signing-key.gpg
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode > "${GPG_KEY_FILE}"
@@ -50,6 +51,8 @@ jobs:
           mkdir -p "$HOME/.cache/snapcraft/stage-packages"
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_FINGERPRINT: ${{ steps.gpg.outputs.GPG_FINGERPRINT }}
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5

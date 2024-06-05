@@ -268,13 +268,13 @@ nfpms:
     rpm:
       packager: tofuutils <tofuutils@gmail.com>
       signature:
-        key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
+        key_file: '{{ if index .Env "GPG_KEY_FILE" }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     deb:
       signature:
-        key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
+        key_file: '{{ if index .Env "GPG_KEY_FILE" }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     apk:
       signature:
-        key_file: '{{ if index .Env "GPG_KEY_FILE"  }}{{.Env.GPG_KEY_FILE}}{{ end }}'
+        key_file: '{{ if index .Env "GPG_KEY_FILE" }}{{.Env.GPG_KEY_FILE}}{{ end }}'
     archlinux:
       pkgbase: tenv
       packager: tofuutils <tofuutils@gmail.com>
