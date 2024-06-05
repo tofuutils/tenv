@@ -61,9 +61,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
-          GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          GPG_FINGERPRINT: ${{ steps.gpg.outputs.GPG_FINGERPRINT }}
+#          GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
+#          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+#          GPG_FINGERPRINT: ${{ steps.gpg.outputs.GPG_FINGERPRINT }}
 
   docker-ghcr:
     name: 'Build and release docker image to github container registry'

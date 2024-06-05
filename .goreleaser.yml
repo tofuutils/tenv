@@ -238,12 +238,12 @@ checksum:
   name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
   algorithm: sha256
 
-signs:
-  - artifacts: all
-    signature: "${artifact}.gpgsig"
-    id: gpg
-    cmd: gpg
-    args: [ "--passphrase", "{{ .Env.GPG_PASSPHRASE }}", "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+#signs:
+#  - artifacts: all
+#    signature: "${artifact}.gpgsig"
+#    id: gpg
+#    cmd: gpg
+#    args: [ "--passphrase", "{{ .Env.GPG_PASSPHRASE }}", "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
 
 nfpms:
   - file_name_template: "{{ .ProjectName }}_{{- .Tag }}_{{ .Arch }}"
