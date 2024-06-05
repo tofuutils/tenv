@@ -147,7 +147,7 @@ func InitConfigFromEnv() (Config, error) {
 		arch = runtime.GOARCH
 	}
 
-	autoInstall, err := getenvBoolFallback(true, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	autoInstall, err := getenvBoolFallback(false, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
 		return Config{}, err
 	}

@@ -564,7 +564,7 @@ Allow to override the default architecture for binaries downloading during insta
 
 <details><summary><b>TENV_AUTO_INSTALL</b></summary><br>
 
-String (Default: true)
+String (Default: false)
 
 If set to true **tenv** will automatically install missing tool versions needed.
 
@@ -681,18 +681,18 @@ Same as TENV_ARCH (compatibility with [tofuenv](https://github.com/tofuutils/tof
 Same as TENV_AUTO_INSTALL (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
 
 #### Example 1
-Use OpenTofu version 1.6.1 that is not installed, and auto installation is disabled :
+Use OpenTofu version 1.6.1 that is not installed, and auto installation stay disabled :
 
 ```console
-$ TOFUENV_AUTO_INSTALL=false tenv use 1.6.1
+$ tenv use 1.6.1
 Written 1.6.1 in /home/dvaumoron/.tenv/OpenTofu/version
 ```
 
 #### Example 2
-Use OpenTofu version 1.6.0 that is not installed, and auto installation stay enabled :
+Use OpenTofu version 1.6.0 that is not installed, and auto installation is enabled :
 
 ```console
-$ tenv tofu use 1.6.0
+$ TOFUENV_AUTO_INSTALL=true tenv tofu use 1.6.0
 Installing OpenTofu 1.6.0
 Fetching release information from https://api.github.com/repos/opentofu/opentofu/releases/tags/v1.6.0
 Downloading https://github.com/opentofu/opentofu/releases/download/v1.6.0/tofu_1.6.0_linux_amd64.zip
