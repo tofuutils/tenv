@@ -238,6 +238,13 @@ checksum:
   name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
   algorithm: sha256
 
+signs:
+  - artifacts: all
+    signature: "${artifact}.gpgsig"
+    id: gpg
+    cmd: gpg
+    args: [ "--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}" ]
+
 nfpms:
   - file_name_template: "{{ .ProjectName }}_{{- .Tag }}_{{ .Arch }}"
     maintainer: "https://github.com/dvaumoron"
@@ -271,6 +278,42 @@ nfpms:
     archlinux:
       pkgbase: tenv
       packager: tofuutils <tofuutils@gmail.com>
+
+snapcrafts:
+  - name: tenv
+    publish: true
+    summary: OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
+    description: |
+      tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go. 
+      Our tool simplifies the complexity of handling different versions of these powerful tools, 
+      ensuring developers and DevOps professionals 
+      can focus on what matters most - building and deploying efficiently.
+    disable: 'false'
+    channel_templates:
+      - 'latest/stable'
+    grade: 'stable'
+    confinement: classic
+    license: Apache-2.0
+    base: core22
+    apps:
+      tenv:
+        command: tenv
+        aliases: [ tenv ]
+      tofu:
+        command: tofu
+        aliases: [ tofu ]
+      terraform:
+        command: terraform
+        aliases: [ terraform ]
+      terragrunt:
+        command: terragrunt
+        aliases: [ terragrunt ]
+      tf:
+        command: tf
+        aliases: [ tf ]
+      atmos:
+        command: atmos
+        aliases: [ atmos ]
 
 # chocolateys:
 #   - name: tenv
