@@ -1,5 +1,5 @@
 ---
-name: CodeCov
+name: "Check: CodeCov"
 
 on:
   push:

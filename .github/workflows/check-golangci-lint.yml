@@ -1,4 +1,6 @@
-name: golangci-lint
+---
+name: "Check: golangci-lint"
+
 on:
   push:
     tags:
