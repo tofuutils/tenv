@@ -1,12 +1,12 @@
 ---
-name: "Chocolatey Release Pipeline"
+name: "Publish release: Chocolatey"
 
 on:
   release:
     types: [released]
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:

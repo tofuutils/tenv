@@ -1,0 +1,37 @@
+---
+name: "Publish release: PPA"
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update chocolatey checksums
+        run: |
+          echo "[INFO] Wait until all artefacts will be uploaded"
+          sleep 300
+
+          release_tag=${{ github.event.release.tag_name }}
+          release_version="${release_tag#v}"
+          
+          mkdir -p /tmp/tenv
+
+          echo "[INFO] Download release's tarballs"
+          curl \
+            -SsL \
+            -o /tmp/tenv/tenv_${release_tag}_Linux_x86_64.tar.gz \
+            https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz
+
+      - name: Publish PPA
+        uses: yuezk/publish-ppa-package@v2
+        with:
+          repository: "ppa:kvendingoldo/tenv"
+          gpg_private_key: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.PPA_GPG_PASSPHRASE }}
+          tarball: /tmp/tenv*.tar.gz
+          deb_email: "kvendingoldo@gmail.com"
+          deb_fullname: "tenv"
