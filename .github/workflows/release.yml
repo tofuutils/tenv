@@ -11,7 +11,9 @@ jobs:
     name: 'Build and release packages'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      id-token: write # For cosign
+      packages: write # For GHCR
+      contents: read  # Not required for public repositories, but for clarity
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,10 +26,7 @@ jobs:
           go-version: 1.21
 
       - name: Install Cosign
-        run: |
-          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
-          mv cosign-linux-amd64 /usr/local/bin/cosign
-          chmod +x /usr/local/bin/cosign
+        uses: sigstore/cosign-installer@v3.5.0
 
       - name: Import GPG key
         id: gpg
@@ -61,9 +60,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
-#          GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
-#          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-#          GPG_FINGERPRINT: ${{ steps.gpg.outputs.GPG_FINGERPRINT }}
+          GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_FINGERPRINT: ${{ steps.gpg.outputs.GPG_FINGERPRINT }}
 
   docker-ghcr:
     name: 'Build and release docker image to github container registry'
