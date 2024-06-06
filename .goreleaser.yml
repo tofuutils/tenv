@@ -262,7 +262,7 @@ signs:
       - "--pinentry-mode"
       - "loopback"
       - "--batch"
-      - "--u"
+      - "-u"
       - "{{ .Env.GPG_FINGERPRINT }}"
       - "--passphrase"
       - "{{ .Env.GPG_PASSPHRASE }}"
