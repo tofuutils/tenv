@@ -31,15 +31,15 @@ jobs:
       - name: Import GPG key
         id: gpg
         run: |
-          GPG_KEY_FILE=/tmp/signing-key.gpg
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode > "${GPG_KEY_FILE}"
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --batch --passphrase "${{ secrets.GPG_PASSPHRASE }}" --import
-          GPG_FINGERPRINT=$(gpg --list-secret-keys --keyid-format LONG | awk '/^sec/{sub(/.*\//, "", $2); print $2; exit}')
+          echo "${GPG_PRIVATE_KEY}" | gpg --import --passphrase "${GPG_PASSPHRASE}" --batch --allow-secret-key-import
           
-          echo "GPG_FINGERPRINT=${GPG_FINGERPRINT}" >>"${GITHUB_ENV}"
+          GPG_KEY_FILE=/tmp/signing-key.gpg
+          echo "${GPG_PRIVATE_KEY}" > "${GPG_KEY_FILE}"
           echo "GPG_KEY_FILE=${GPG_KEY_FILE}" >> "${GITHUB_ENV}"
         env:
           GPG_TTY: /dev/ttys000  # Set the GPG_TTY to avoid issues with pinentry
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Setup snapcraft
         run: |
@@ -62,7 +62,7 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
           GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          GPG_FINGERPRINT: ${{ steps.gpg.outputs.GPG_FINGERPRINT }}
+          GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
 
   docker-ghcr:
     name: 'Build and release docker image to github container registry'

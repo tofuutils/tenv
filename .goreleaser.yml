@@ -259,11 +259,13 @@ signs:
     id: gpg
     cmd: gpg
     args:
+      - "--pinentry-mode"
+      - "loopback"
+      - "--batch"
+      - "--u"
+      - "{{ .Env.GPG_FINGERPRINT }}"
       - "--passphrase"
       - "{{ .Env.GPG_PASSPHRASE }}"
-      - "--batch"
-      - "--local-user"
-      - "{{ .Env.GPG_FINGERPRINT }}"
       - "--output"
       - "${signature}"
       - "--detach-sign"
