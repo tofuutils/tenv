@@ -25,6 +25,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
@@ -60,6 +61,10 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 
 	var assetURLs []string
 	fileName, shaFileName := buildAssetNames(r.conf.Arch)
+	if r.conf.Displayer.IsDebug() {
+		r.conf.Displayer.Log(hclog.Debug, apimsg.MsgSearch, apimsg.AssetsName, []string{fileName, shaFileName})
+	}
+
 	switch r.conf.Tg.GetInstallMode() {
 	case config.InstallModeDirect:
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download, tag) //nolint
