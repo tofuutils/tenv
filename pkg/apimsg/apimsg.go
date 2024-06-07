@@ -21,8 +21,10 @@ package apimsg
 import "errors"
 
 const (
+	AssetsName          = "assets"
 	MsgFetchAllReleases = "Fetching all releases information from "
 	MsgFetchRelease     = "Fetching release information from "
+	MsgSearch           = "Search"
 )
 
 var (

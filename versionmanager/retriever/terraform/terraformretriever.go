@@ -27,6 +27,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
 	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
@@ -71,6 +72,10 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 	switch r.conf.Tf.GetInstallMode() {
 	case config.InstallModeDirect:
 		fileName, shaFileName, shaSigFileName = buildAssetNames(version, r.conf.Arch)
+		if r.conf.Displayer.IsDebug() {
+			r.conf.Displayer.Log(hclog.Debug, apimsg.MsgSearch, apimsg.AssetsName, []string{fileName, shaFileName, shaSigFileName})
+		}
+
 		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, fileName, shaFileName, shaSigFileName)
 		if err != nil {
 			return err
@@ -93,6 +98,10 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, r.conf.Arch, value)
 		if err != nil {
 			return err
+		}
+
+		if r.conf.Displayer.IsDebug() {
+			r.conf.Displayer.Log(hclog.Debug, apimsg.MsgSearch, apimsg.AssetsName, []string{fileName, shaFileName, shaSigFileName})
 		}
 
 		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, shaFileName, shaSigFileName)

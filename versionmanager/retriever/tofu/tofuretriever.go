@@ -24,6 +24,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/config"
 	"github.com/tofuutils/tenv/pkg/apimsg"
@@ -76,6 +77,10 @@ func (r TofuRetriever) InstallRelease(versionStr string, targetPath string) erro
 
 	var assetURLs []string
 	assetNames := buildAssetNames(versionStr, r.conf.Arch, stable)
+	if r.conf.Displayer.IsDebug() {
+		r.conf.Displayer.Log(hclog.Debug, apimsg.MsgSearch, apimsg.AssetsName, assetNames)
+	}
+
 	switch r.conf.Tofu.GetInstallMode() {
 	case config.InstallModeDirect:
 		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
