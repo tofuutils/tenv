@@ -323,27 +323,27 @@ snapcrafts:
     base: core22
     apps:
       tenv:
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
         command: tenv
         aliases: [ tenv ]
       tofu:
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
         command: tofu
         aliases: [ tofu ]
       terraform:
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
         command: terraform
         aliases: [ terraform ]
       terragrunt:
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
         command: terragrunt
         aliases: [ terragrunt ]
       tf:
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
         command: tf
         aliases: [ tf ]
       atmos:
-        plugs: ["home", "network", "network-bind", "personal-files"]
+        plugs: ["home", "network", "network-bind"]
         command: atmos
         aliases: [ atmos ]
 
