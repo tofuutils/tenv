@@ -75,6 +75,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		if r.conf.Displayer.IsDebug() {
 			r.conf.Displayer.Log(hclog.Debug, apimsg.MsgSearch, apimsg.AssetsName, []string{fileName, shaFileName, shaSigFileName})
 		}
+
 		assetURLs, err := htmlretriever.BuildAssetURLs(baseVersionURL, fileName, shaFileName, shaSigFileName)
 		if err != nil {
 			return err
