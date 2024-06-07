@@ -318,26 +318,32 @@ snapcrafts:
     channel_templates:
       - 'latest/stable'
     grade: 'stable'
-    confinement: classic
+    confinement: strict
     license: Apache-2.0
     base: core22
     apps:
       tenv:
+        plugs: ["home", "network", "network-bind", "personal-files"]
         command: tenv
         aliases: [ tenv ]
       tofu:
+        plugs: ["home", "network", "network-bind", "personal-files"]
         command: tofu
         aliases: [ tofu ]
       terraform:
+        plugs: ["home", "network", "network-bind", "personal-files"]
         command: terraform
         aliases: [ terraform ]
       terragrunt:
+        plugs: ["home", "network", "network-bind", "personal-files"]
         command: terragrunt
         aliases: [ terragrunt ]
       tf:
+        plugs: ["home", "network", "network-bind", "personal-files"]
         command: tf
         aliases: [ tf ]
       atmos:
+        plugs: ["home", "network", "network-bind", "personal-files"]
         command: atmos
         aliases: [ atmos ]
 
