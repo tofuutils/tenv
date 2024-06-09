@@ -196,7 +196,25 @@ nix-env -i tenv
 
 </details>
 
+<details><summary><b>Linux: Snapcraft</b></summary><br>
+
+```sh
+snap install tenv
+```
+
+</details>
+
+<details><summary><b>Alpine</b></summary><br>
+
+```sh
+apk add tenv --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
+```
+
+</details>
+
 <details><summary><b>Ubuntu</b></summary><br>
+
+#### Install via dpkg
 
 ```sh
 LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
@@ -204,6 +222,7 @@ curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LA
 sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
 ```
 
+#### Install via Nix
 Installation via Nix package manager:
 ```console
 nix-env -i tenv
