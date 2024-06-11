@@ -107,7 +107,7 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, config.TerragruntName), data, 0755)
+	return os.WriteFile(filepath.Join(targetPath, fileName), data, 0755)
 }
 
 func (r TerragruntRetriever) ListReleases() ([]string, error) {
