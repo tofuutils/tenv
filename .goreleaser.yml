@@ -317,6 +317,8 @@ snapcrafts:
     disable: 'false'
     channel_templates:
       - 'latest/stable'
+      - 'latest/candidate'
+      - 'latest/edge'
     grade: 'stable'
     confinement: strict
     license: Apache-2.0
