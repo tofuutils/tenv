@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
@@ -38,8 +39,9 @@ import (
 )
 
 var (
-	errEmptyVersion = errors.New("empty version")
-	errNoCompatible = errors.New("no compatible version found")
+	errEmptyVersion        = errors.New("empty version")
+	errNoCompatible        = errors.New("no compatible version found")
+	errNoCompatibleLocally = errors.New("no compatible version found locally")
 )
 
 type ReleaseInfoRetriever interface {
@@ -112,12 +114,22 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 			}
 		}
 
+		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
 		if m.conf.NoInstall {
 			m.conf.Displayer.Flush(proxyCall)
 
-			return "", errNoCompatible
+			version, err := m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
+			if err != nil {
+				return "", errNoCompatibleLocally
+			}
+
+			cmdName := strings.ToLower(m.FolderName)
+
+			m.conf.Displayer.Display("Auto-install is disabled. To install " + version + " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv " + cmdName + " install', 'tenv " + cmdName + " install " + version + "'")
+
+			return "", errNoCompatibleLocally
 		}
-		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
+
 	}
 
 	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)

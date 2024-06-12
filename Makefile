@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+.PHONY: build test clean
+
 ##@ General
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
@@ -29,18 +31,25 @@ vet: ## Run go vet against code.
 
 ##@ Build
 build: get fmt ## Build service binary.
-	go build -o tenv ./cmd/tenv
-	go build -o tofu ./cmd/tofu
-	go build -o terraform ./cmd/terraform
-	go build -o terragrunt ./cmd/terragrunt
-	go build -o atmos ./cmd/atmos
+	mkdir ./build || echo
+	go build -o ./build/tenv ./cmd/tenv
+	go build -o ./build/tofu ./cmd/tofu
+	go build -o ./build/terraform ./cmd/terraform
+	go build -o ./build/terragrunt ./cmd/terragrunt
+	go build -o ./build/atmos ./cmd/atmos
 
-run:  ## Run service from your laptop.
-	go run ./main.go
+##@ Run
+run: build ## Run service from your laptop.
+	./build/tenv
 
-##@ Test
+##@ Lint
 lint: ## Run Go linter
 	golangci-lint run ./...
 
+##@ Test
 test: ## Run Go tests
 	go test ./...
+
+##@ Clean
+clean:
+	rm -f ./build

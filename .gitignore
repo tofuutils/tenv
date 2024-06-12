@@ -31,3 +31,5 @@ terraform
 terragrunt
 tofu
 atmos
+
+./build/**
