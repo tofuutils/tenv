@@ -1,5 +1,5 @@
 project_name: tenv
-version: 1
+version: 2
 
 before:
   hooks:
@@ -310,9 +310,9 @@ snapcrafts:
     publish: true
     summary: OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
     description: |
-      tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go. 
-      Our tool simplifies the complexity of handling different versions of these powerful tools, 
-      ensuring developers and DevOps professionals 
+      tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go.
+      Our tool simplifies the complexity of handling different versions of these powerful tools,
+      ensuring developers and DevOps professionals
       can focus on what matters most - building and deploying efficiently.
     disable: 'false'
     channel_templates:

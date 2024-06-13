@@ -32,7 +32,7 @@ jobs:
         id: gpg
         run: |
           echo "${GPG_PRIVATE_KEY}" | gpg --import --passphrase "${GPG_PASSPHRASE}" --batch --allow-secret-key-import
-          
+
           GPG_KEY_FILE=/tmp/signing-key.gpg
           echo "${GPG_PRIVATE_KEY}" > "${GPG_KEY_FILE}"
           echo "GPG_KEY_FILE=${GPG_KEY_FILE}" >> "${GITHUB_ENV}"
@@ -55,7 +55,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: latest
+          version: "~> v2"
           args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
