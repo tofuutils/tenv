@@ -31,6 +31,7 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
+	"github.com/tofuutils/tenv/pkg/winbin"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
@@ -110,7 +111,7 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, config.AtmosName), data, 0755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(config.AtmosName)), data, 0755)
 }
 
 func (r AtmosRetriever) ListReleases() ([]string, error) {
@@ -149,8 +150,8 @@ func buildAssetNames(version string, arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == "windows" {
-		nameBuilder.WriteString(".exe")
+	if runtime.GOOS == winbin.WinOsName {
+		nameBuilder.WriteString(winbin.WinBinSuffix)
 	}
 
 	return nameBuilder.String(), sumsAssetName

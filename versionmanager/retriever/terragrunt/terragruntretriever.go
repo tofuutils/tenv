@@ -31,6 +31,7 @@ import (
 	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
 	"github.com/tofuutils/tenv/pkg/download"
 	"github.com/tofuutils/tenv/pkg/github"
+	"github.com/tofuutils/tenv/pkg/winbin"
 	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
@@ -107,12 +108,7 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 		return err
 	}
 
-	terragruntBinaryName := config.TerragruntName
-	if runtime.GOOS == "windows" {
-		terragruntBinaryName = terragruntBinaryName + ".exe"
-	}
-
-	return os.WriteFile(filepath.Join(targetPath, terragruntBinaryName), data, 0755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(config.TerragruntName)), data, 0755)
 }
 
 func (r TerragruntRetriever) ListReleases() ([]string, error) {
@@ -147,8 +143,8 @@ func buildAssetNames(arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == "windows" {
-		nameBuilder.WriteString(".exe")
+	if runtime.GOOS == winbin.WinOsName {
+		nameBuilder.WriteString(winbin.WinBinSuffix)
 	}
 
 	return nameBuilder.String(), "SHA256SUMS"
