@@ -259,16 +259,20 @@ func extractAssetUrls(searchedOs string, searchedArch string, value any) (string
 }
 
 func extractReleases(value any) ([]string, error) {
-	object, _ := value.(map[string]any)
-	object, ok := object["versions"].(map[string]any)
+	object, ok := value.(map[string]any)
+	if !ok {
+		return nil, apimsg.ErrReturn
+	}
+	versions, ok := object["versions"].(map[string]any)
 	if !ok {
 		return nil, apimsg.ErrReturn
 	}
 
-	releases := make([]string, 0, len(object))
-	for version := range object {
+	releases := make([]string, 0, len(versions))
+	for version := range versions {
 		releases = append(releases, version)
 	}
 
 	return releases, nil
 }
+
