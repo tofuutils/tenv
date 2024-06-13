@@ -107,7 +107,12 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, fileName), data, 0755)
+	terragruntBinaryName := config.TerragruntName
+	if runtime.GOOS == "windows" {
+		terragruntBinaryName = terragruntBinaryName + ".exe"
+	}
+
+	return os.WriteFile(filepath.Join(targetPath, terragruntBinaryName), data, 0755)
 }
 
 func (r TerragruntRetriever) ListReleases() ([]string, error) {
