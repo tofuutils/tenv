@@ -116,17 +116,17 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 
 		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
 		if m.conf.NoInstall {
-			m.conf.Displayer.Flush(proxyCall)
-
 			version, err := m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
+
 			if err != nil {
+				m.conf.Displayer.Flush(proxyCall)
 				return "", errNoCompatibleLocally
 			}
 
 			cmdName := strings.ToLower(m.FolderName)
+			m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", version, " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
 
-			m.conf.Displayer.Display("Auto-install is disabled. To install " + version + " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv " + cmdName + " install', 'tenv " + cmdName + " install " + version + "'")
-
+			m.conf.Displayer.Flush(proxyCall)
 			return "", errNoCompatibleLocally
 		}
 
