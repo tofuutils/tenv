@@ -27,20 +27,27 @@ COPY ./versionmanager ${GOPATH}/src/github.com/tofuutils/tenv/versionmanager
 COPY ./go.mod ./go.sum ${GOPATH}/src/github.com/tofuutils/tenv/
 
 WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
-RUN go get -u ./cmd/tenv \
- && go get -u ./cmd/tofu \
+RUN go get -u ./cmd/atmos \
+ && go get -u ./cmd/tenv \
  && go get -u ./cmd/terraform \
  && go get -u ./cmd/terragrunt \
+ && go get -u ./cmd/tf \
+ && go get -u ./cmd/tofu \
  && go mod tidy
 
-RUN go build -ldflags="-s -w" -o tenv ./cmd/tenv
-RUN go build -ldflags="-s -w" -o tofu ./cmd/tofu
-RUN go build -ldflags="-s -w" -o terraform ./cmd/terraform
-RUN go build -ldflags="-s -w" -o terragrunt ./cmd/terragrunt
+RUN go build -ldflags="-s -w" -o atmos ./cmd/atmos \
+ && go build -ldflags="-s -w" -o tenv ./cmd/tenv \
+ && go build -ldflags="-s -w" -o terraform ./cmd/terraform \
+ && go build -ldflags="-s -w" -o terragrunt ./cmd/terragrunt \
+ && go build -ldflags="-s -w" -o tofu ./cmd/tf \
+ && go build -ldflags="-s -w" -o tofu ./cmd/tofu \
 
 FROM gcr.io/distroless/static:nonroot
+COPY --from=builder go/src/github.com/tofuutils/tenv/atmos /app/
 COPY --from=builder go/src/github.com/tofuutils/tenv/tenv /app/
-COPY --from=builder go/src/github.com/tofuutils/tenv/tofu /app/
 COPY --from=builder go/src/github.com/tofuutils/tenv/terraform /app/
+COPY --from=builder go/src/github.com/tofuutils/tenv/terragrunt /app/
+COPY --from=builder go/src/github.com/tofuutils/tenv/tf /app/
+COPY --from=builder go/src/github.com/tofuutils/tenv/tofu /app/
 WORKDIR /app
 ENTRYPOINT ["/app/tenv"]
