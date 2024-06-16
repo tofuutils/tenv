@@ -58,6 +58,7 @@ jobs:
           version: "~> v2"
           args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }}
         env:
+          AUR_KEY: ${{ secrets.AUR_KEY }}
           GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
           GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
@@ -92,6 +93,7 @@ jobs:
         with:
           push: true
           tags: ghcr.io/tofuutils/tenv:${{ github.ref_name }}, ghcr.io/tofuutils/tenv:latest
+
   docker-dockerhub:
     name: 'Build and release docker image to dockerhub'
     runs-on: ubuntu-latest
