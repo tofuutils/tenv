@@ -18,7 +18,6 @@ builds:
     binary: tenv
     env:
       - CGO_ENABLED=0
-
     ldflags:
       - -s -w -X main.version={{.Tag}}
     goos:
@@ -28,13 +27,14 @@ builds:
       - freebsd
       - openbsd
       - solaris
-
     goarch:
       - "386"
       - amd64
       - arm
       - arm64
-
+      - ppc64
+    goarm:
+      - "7"
     ignore:
       - goos: darwin
         goarch: "386"
@@ -52,21 +52,14 @@ builds:
     main: ./cmd/tofu
     env:
       - CGO_ENABLED=0
-
-    goos:
-      - linux
-      - windows
-      - darwin
-      - freebsd
-      - openbsd
-      - solaris
-
     goarch:
       - "386"
       - amd64
       - arm
       - arm64
-
+      - ppc64
+    goarm:
+      - "7"
     ignore:
       - goos: darwin
         goarch: "386"
@@ -84,21 +77,14 @@ builds:
     main: ./cmd/terraform
     env:
       - CGO_ENABLED=0
-
-    goos:
-      - linux
-      - windows
-      - darwin
-      - freebsd
-      - openbsd
-      - solaris
-
     goarch:
       - "386"
       - amd64
       - arm
       - arm64
-
+      - ppc64
+    goarm:
+      - "7"
     ignore:
       - goos: darwin
         goarch: "386"
@@ -116,21 +102,14 @@ builds:
     main: ./cmd/terragrunt
     env:
       - CGO_ENABLED=0
-
-    goos:
-      - linux
-      - windows
-      - darwin
-      - freebsd
-      - openbsd
-      - solaris
-
     goarch:
       - "386"
       - amd64
       - arm
       - arm64
-
+      - ppc64
+    goarm:
+      - "7"
     ignore:
       - goos: darwin
         goarch: "386"
@@ -148,21 +127,14 @@ builds:
     main: ./cmd/tf
     env:
       - CGO_ENABLED=0
-
-    goos:
-      - linux
-      - windows
-      - darwin
-      - freebsd
-      - openbsd
-      - solaris
-
     goarch:
       - "386"
       - amd64
       - arm
       - arm64
-
+      - ppc64
+    goarm:
+      - "7"
     ignore:
       - goos: darwin
         goarch: "386"
@@ -180,21 +152,14 @@ builds:
     main: ./cmd/atmos
     env:
       - CGO_ENABLED=0
-
-    goos:
-      - linux
-      - windows
-      - darwin
-      - freebsd
-      - openbsd
-      - solaris
-
     goarch:
       - "386"
       - amd64
       - arm
       - arm64
-
+      - ppc64
+    goarm:
+      - "7"
     ignore:
       - goos: darwin
         goarch: "386"
