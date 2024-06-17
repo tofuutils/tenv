@@ -24,8 +24,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-version"
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	cosigncheck "github.com/tofuutils/tenv/v2/pkg/check/cosign"
@@ -35,6 +33,9 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/github"
 	"github.com/tofuutils/tenv/v2/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
+
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-version"
 )
 
 const (

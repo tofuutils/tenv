@@ -25,8 +25,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+
+	"github.com/hashicorp/go-hclog"
 )
 
 const (

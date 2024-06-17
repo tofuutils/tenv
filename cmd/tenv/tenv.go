@@ -24,11 +24,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
+
+	"github.com/spf13/cobra"
 )
 
 const (
