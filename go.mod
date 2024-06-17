@@ -1,4 +1,4 @@
-module github.com/tofuutils/tenv
+module github.com/tofuutils/tenv/v2
 
 go 1.21
 
