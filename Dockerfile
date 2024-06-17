@@ -39,7 +39,7 @@ RUN go build -ldflags="-s -w" -o atmos ./cmd/atmos \
  && go build -ldflags="-s -w" -o tenv ./cmd/tenv \
  && go build -ldflags="-s -w" -o terraform ./cmd/terraform \
  && go build -ldflags="-s -w" -o terragrunt ./cmd/terragrunt \
- && go build -ldflags="-s -w" -o tofu ./cmd/tf \
+ && go build -ldflags="-s -w" -o tf ./cmd/tf \
  && go build -ldflags="-s -w" -o tofu ./cmd/tofu
 
 FROM gcr.io/distroless/static:nonroot
