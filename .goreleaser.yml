@@ -399,7 +399,7 @@ aurs:
       name: tofuutils
       email: tofuutils@gmail.com
     commit_msg_template: "Release tenv {{.Tag}}"
-    goamd64: v2
+    goamd64: v1
 
     # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
     # git_ssh_command: "ssh -i {{ .Env.KEY }} -o SomeOption=yes"
