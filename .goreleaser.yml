@@ -40,6 +40,8 @@ builds:
         goarch: "386"
       - goos: darwin
         goarch: arm
+      - goos: windows
+        goarch: arm
       - goos: solaris
         goarch: "386"
       - goos: solaris
@@ -64,6 +66,8 @@ builds:
       - goos: darwin
         goarch: "386"
       - goos: darwin
+        goarch: arm
+      - goos: windows
         goarch: arm
       - goos: solaris
         goarch: "386"
@@ -90,6 +94,8 @@ builds:
         goarch: "386"
       - goos: darwin
         goarch: arm
+      - goos: windows
+        goarch: arm
       - goos: solaris
         goarch: "386"
       - goos: solaris
@@ -114,6 +120,8 @@ builds:
       - goos: darwin
         goarch: "386"
       - goos: darwin
+        goarch: arm
+      - goos: windows
         goarch: arm
       - goos: solaris
         goarch: "386"
@@ -140,6 +148,8 @@ builds:
         goarch: "386"
       - goos: darwin
         goarch: arm
+      - goos: windows
+        goarch: arm
       - goos: solaris
         goarch: "386"
       - goos: solaris
@@ -164,6 +174,8 @@ builds:
       - goos: darwin
         goarch: "386"
       - goos: darwin
+        goarch: arm
+      - goos: windows
         goarch: arm
       - goos: solaris
         goarch: "386"
