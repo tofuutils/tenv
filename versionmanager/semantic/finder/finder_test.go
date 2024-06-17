@@ -21,7 +21,7 @@ package versionfinder_test
 import (
 	"testing"
 
-	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
+	versionfinder "github.com/tofuutils/tenv/v2/versionmanager/semantic/finder"
 )
 
 func TestFindVersionAlphaSlash(t *testing.T) {

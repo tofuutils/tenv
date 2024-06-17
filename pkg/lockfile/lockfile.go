@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
 const (
@@ -39,7 +39,7 @@ const (
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
-		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0644) //nolint
+		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0o644) //nolint
 		if err == nil {
 			f.Close()
 			break

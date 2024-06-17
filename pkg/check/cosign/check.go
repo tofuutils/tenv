@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
 const (
@@ -92,7 +92,7 @@ func tempFile(name string, data []byte) (string, func(), error) {
 	}
 
 	tmpFileName := tmpFile.Name()
-	if err = os.WriteFile(tmpFileName, data, 0600); err != nil {
+	if err = os.WriteFile(tmpFileName, data, 0o600); err != nil {
 		return "", nil, err
 	}
 

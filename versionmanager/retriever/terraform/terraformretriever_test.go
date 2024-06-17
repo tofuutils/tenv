@@ -24,7 +24,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/tofuutils/tenv/versionmanager/semantic"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 )
 
 //go:embed testdata/release.json

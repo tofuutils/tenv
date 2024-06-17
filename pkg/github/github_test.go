@@ -24,8 +24,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/tofuutils/tenv/pkg/apimsg"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
+	"github.com/tofuutils/tenv/v2/pkg/apimsg"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 )
 
 // empty marker.

@@ -19,17 +19,17 @@
 package builder
 
 import (
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/versionmanager"
-	atmosretriever "github.com/tofuutils/tenv/versionmanager/retriever/atmos"
-	terraformretriever "github.com/tofuutils/tenv/versionmanager/retriever/terraform"
-	terragruntretriever "github.com/tofuutils/tenv/versionmanager/retriever/terragrunt"
-	tofuretriever "github.com/tofuutils/tenv/versionmanager/retriever/tofu"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
-	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
-	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
-	tomlparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/toml"
-	"github.com/tofuutils/tenv/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/versionmanager"
+	atmosretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/atmos"
+	terraformretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/terraform"
+	terragruntretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/terragrunt"
+	tofuretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/tofu"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
+	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
+	tomlparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/toml"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
 
 func BuildAtmosManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {

@@ -28,7 +28,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
-	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"gopkg.in/yaml.v3"
 )
 
