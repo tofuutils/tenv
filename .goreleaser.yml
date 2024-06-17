@@ -338,8 +338,10 @@ aurs:
     description: "OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go."
     maintainers:
       - "Alexander Sharov <kvendingoldo@gmail.com>"
+      - "chaseme <aur@chase.ninja>"
     contributors:
       - "Alexander Sharov <kvendingoldo@gmail.com>"
+      - "chaseme <aur@chase.ninja>"
     license: "Apache-2.0"
     private_key: "{{ .Env.AUR_KEY }}"
     git_url: "ssh://aur@aur.archlinux.org/tenv-bin.git"
