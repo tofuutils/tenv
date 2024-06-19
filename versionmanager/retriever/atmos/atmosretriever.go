@@ -25,14 +25,15 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/apimsg"
+	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
+	"github.com/tofuutils/tenv/v2/pkg/download"
+	"github.com/tofuutils/tenv/v2/pkg/github"
+	"github.com/tofuutils/tenv/v2/pkg/winbin"
+	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
+
 	"github.com/hashicorp/go-hclog"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/apimsg"
-	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
-	"github.com/tofuutils/tenv/pkg/download"
-	"github.com/tofuutils/tenv/pkg/github"
-	"github.com/tofuutils/tenv/pkg/winbin"
-	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
 const (
@@ -106,12 +107,12 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 		return err
 	}
 
-	err = os.MkdirAll(targetPath, 0755)
+	err = os.MkdirAll(targetPath, 0o755)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(config.AtmosName)), data, 0755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(config.AtmosName)), data, 0o755)
 }
 
 func (r AtmosRetriever) ListReleases() ([]string, error) {

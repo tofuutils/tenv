@@ -26,9 +26,10 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
-	"github.com/tofuutils/tenv/pkg/loghelper"
 	"gopkg.in/yaml.v3"
 )
 

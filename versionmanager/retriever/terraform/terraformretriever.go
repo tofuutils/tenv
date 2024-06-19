@@ -27,14 +27,15 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/apimsg"
+	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"
+	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
+	"github.com/tofuutils/tenv/v2/pkg/download"
+	"github.com/tofuutils/tenv/v2/pkg/zip"
+	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
+
 	"github.com/hashicorp/go-hclog"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/apimsg"
-	pgpcheck "github.com/tofuutils/tenv/pkg/check/pgp"
-	sha256check "github.com/tofuutils/tenv/pkg/check/sha256"
-	"github.com/tofuutils/tenv/pkg/download"
-	"github.com/tofuutils/tenv/pkg/zip"
-	htmlretriever "github.com/tofuutils/tenv/versionmanager/retriever/html"
 )
 
 const (

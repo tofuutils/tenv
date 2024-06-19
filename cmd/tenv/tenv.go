@@ -24,11 +24,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/versionmanager"
+	"github.com/tofuutils/tenv/v2/versionmanager/builder"
+	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
+
 	"github.com/spf13/cobra"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/versionmanager"
-	"github.com/tofuutils/tenv/versionmanager/builder"
-	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
 )
 
 const (
@@ -182,7 +183,7 @@ func newUpdatePathCmd() *cobra.Command {
 			if gha {
 				pathfilePath := os.Getenv("GITHUB_PATH")
 				if pathfilePath != "" {
-					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 					if err != nil {
 						return err
 					}

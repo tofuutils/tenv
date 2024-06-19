@@ -23,12 +23,13 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/loghelper"
-	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 )

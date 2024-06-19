@@ -27,15 +27,16 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/lockfile"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/pkg/reversecmp"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/lockfile"
-	"github.com/tofuutils/tenv/pkg/loghelper"
-	"github.com/tofuutils/tenv/pkg/reversecmp"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
-	flatparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/flat"
-	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 var (
@@ -117,7 +118,6 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
 		if m.conf.NoInstall {
 			version, err := m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
-
 			if err != nil {
 				m.conf.Displayer.Flush(proxyCall)
 				return "", errNoCompatibleLocally
@@ -157,7 +157,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 func (m VersionManager) InstallPath() (string, error) {
 	dir := filepath.Join(m.conf.RootPath, m.FolderName)
 
-	return dir, os.MkdirAll(dir, 0755)
+	return dir, os.MkdirAll(dir, 0o755)
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
@@ -413,7 +413,7 @@ func removeFile(filePath string, conf *config.Config) error {
 }
 
 func writeFile(filePath string, content string, conf *config.Config) error {
-	err := os.WriteFile(filePath, []byte(content), 0644)
+	err := os.WriteFile(filePath, []byte(content), 0o644)
 	if err == nil {
 		conf.Displayer.Display(loghelper.Concat("Written ", content, " in ", filePath))
 	}

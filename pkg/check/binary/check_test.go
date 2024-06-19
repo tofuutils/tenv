@@ -21,7 +21,7 @@ package bincheck_test
 import (
 	"testing"
 
-	bincheck "github.com/tofuutils/tenv/pkg/check/binary"
+	bincheck "github.com/tofuutils/tenv/v2/pkg/check/binary"
 )
 
 func TestTextFileCheck(t *testing.T) {

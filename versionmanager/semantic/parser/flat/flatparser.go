@@ -24,9 +24,9 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/loghelper"
-	"github.com/tofuutils/tenv/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
 
 func RetrieveVersion(filePath string, conf *config.Config) (string, error) {

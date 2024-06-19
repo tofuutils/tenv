@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/versionmanager/builder"
-	"github.com/tofuutils/tenv/versionmanager/proxy"
-	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/versionmanager/builder"
+	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
+	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
 func main() {

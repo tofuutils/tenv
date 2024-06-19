@@ -24,12 +24,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/versionmanager"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/loghelper"
-	"github.com/tofuutils/tenv/versionmanager"
-	"github.com/tofuutils/tenv/versionmanager/semantic"
 )
 
 const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"

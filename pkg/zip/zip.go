@@ -27,12 +27,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	bincheck "github.com/tofuutils/tenv/pkg/check/binary"
+	bincheck "github.com/tofuutils/tenv/v2/pkg/check/binary"
 )
 
 // ensure the directory exists with a MkdirAll call.
 func UnzipToDir(dataZip []byte, dirPath string) error {
-	err := os.MkdirAll(dirPath, 0755)
+	err := os.MkdirAll(dirPath, 0o755)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
 
 	if destPath[len(destPath)-1] == '/' {
 		// trailing slash indicates a directory
-		return os.MkdirAll(destPath, 0755)
+		return os.MkdirAll(destPath, 0o755)
 	}
 
 	reader, err := zipFile.Open()

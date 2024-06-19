@@ -30,9 +30,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/versionmanager"
-	terragruntparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/terragrunt"
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/versionmanager"
+	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
@@ -126,7 +126,7 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
 	}
 
 	outputPath := os.Getenv("GITHUB_OUTPUT")
-	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return nil, err
 	}

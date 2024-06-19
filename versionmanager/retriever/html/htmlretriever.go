@@ -21,11 +21,12 @@ package htmlretriever
 import (
 	"net/url"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/download"
+	"github.com/tofuutils/tenv/v2/pkg/htmlquery"
+	versionfinder "github.com/tofuutils/tenv/v2/versionmanager/semantic/finder"
+
 	"github.com/PuerkitoBio/goquery"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/download"
-	"github.com/tofuutils/tenv/pkg/htmlquery"
-	versionfinder "github.com/tofuutils/tenv/versionmanager/semantic/finder"
 )
 
 func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error) {

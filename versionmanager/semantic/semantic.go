@@ -22,12 +22,13 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	tfparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/tf"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
-	"github.com/tofuutils/tenv/config"
-	"github.com/tofuutils/tenv/pkg/loghelper"
-	tfparser "github.com/tofuutils/tenv/versionmanager/semantic/parser/tf"
-	"github.com/tofuutils/tenv/versionmanager/semantic/types"
 )
 
 const (

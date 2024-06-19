@@ -26,8 +26,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tofuutils/tenv/pkg/lockfile"
-	"github.com/tofuutils/tenv/pkg/loghelper"
+	"github.com/tofuutils/tenv/v2/pkg/lockfile"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
 //go:embed testdata/data1.txt
@@ -52,7 +52,7 @@ func TestParallelWriteRead(t *testing.T) {
 		os.RemoveAll(parallelDirPath)
 	}()
 
-	if err = os.MkdirAll(parallelDirPath, 0755); err != nil {
+	if err = os.MkdirAll(parallelDirPath, 0o755); err != nil {
 		t.Fatal("Unexpected error during test init (2) :", err)
 	}
 
@@ -95,7 +95,7 @@ func writeReadFile(dirPath string, filePath string, data []byte, displayer loghe
 	deleteLock := lockfile.Write(dirPath, displayer)
 	defer deleteLock()
 
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0o644); err != nil {
 		return nil, err
 	}
 
