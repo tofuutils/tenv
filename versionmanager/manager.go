@@ -27,6 +27,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-version"
+
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/lockfile"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
@@ -34,9 +37,6 @@ import (
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
-
-	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-version"
 )
 
 var (
@@ -83,6 +83,14 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 	if err == nil {
 		cleanedVersion := parsedVersion.String() // use a parsable version
 		if m.conf.NoInstall {
+			installed, err := m.checkVersionInstallation(cleanedVersion)
+			if err != nil {
+				return "", err
+			}
+
+			if !installed {
+				return "", m.autoInstallDisabledMsg(cleanedVersion)
+			}
 			m.conf.Displayer.Flush(proxyCall)
 
 			return cleanedVersion, nil
@@ -116,20 +124,6 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 		}
 
 		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
-		if m.conf.NoInstall {
-			version, err := m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
-			if err != nil {
-				m.conf.Displayer.Flush(proxyCall)
-				return "", errNoCompatibleLocally
-			}
-
-			cmdName := strings.ToLower(m.FolderName)
-			m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", version, " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
-
-			m.conf.Displayer.Flush(proxyCall)
-			return "", errNoCompatibleLocally
-		}
-
 	}
 
 	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
@@ -331,6 +325,31 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	return writeFile(targetFilePath, detectedVersion, m.conf)
 }
 
+func (m VersionManager) autoInstallDisabledMsg(version string) error {
+	cmdName := strings.ToLower(m.FolderName)
+	m.conf.Displayer.Flush(false) // Always normal display when installation is missing
+	m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", version, " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
+
+	return errNoCompatibleLocally
+}
+
+func (m VersionManager) checkVersionInstallation(version string) (bool, error) {
+	installPath, err := m.InstallPath()
+	if err != nil {
+		return false, err
+	}
+
+	if _, err = os.Stat(filepath.Join(installPath, version)); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
 	if version == "" {
 		m.conf.Displayer.Flush(proxyCall)
@@ -350,23 +369,19 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 	defer disableExit()
 	defer deleteLock()
 
-	entries, err := os.ReadDir(installPath)
+	installed, err := m.checkVersionInstallation(version)
 	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
-
 		return err
 	}
 
-	for _, entry := range entries {
-		if entry.IsDir() && version == entry.Name() {
-			m.conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
-			m.conf.Displayer.Flush(proxyCall)
+	if installed {
+		m.conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
+		m.conf.Displayer.Flush(proxyCall)
 
-			return nil
-		}
+		return nil
 	}
 
-	// Always normal display when installation is need
+	// Always normal display when installation is needed
 	m.conf.Displayer.Flush(false)
 	m.conf.Displayer.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
@@ -390,9 +405,7 @@ func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, n
 		if predicateInfo.Predicate(version) {
 			m.conf.Displayer.Display("Found compatible version remotely : " + version)
 			if noInstall {
-				m.conf.Displayer.Flush(proxyCall)
-
-				return version, nil
+				return "", m.autoInstallDisabledMsg(version)
 			}
 
 			return version, m.installSpecificVersion(version, proxyCall)

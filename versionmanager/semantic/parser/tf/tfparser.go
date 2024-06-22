@@ -22,14 +22,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
+
+	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
 const requiredVersionName = "required_version"

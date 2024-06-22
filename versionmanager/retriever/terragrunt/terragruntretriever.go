@@ -25,6 +25,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
+
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
@@ -32,8 +34,6 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/github"
 	"github.com/tofuutils/tenv/v2/pkg/winbin"
 	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
-
-	"github.com/hashicorp/go-hclog"
 )
 
 const (
@@ -144,8 +144,8 @@ func buildAssetNames(arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == winbin.WinOsName {
-		nameBuilder.WriteString(winbin.WinBinSuffix)
+	if runtime.GOOS == winbin.OsName {
+		nameBuilder.WriteString(winbin.Suffix)
 	}
 
 	return nameBuilder.String(), "SHA256SUMS"

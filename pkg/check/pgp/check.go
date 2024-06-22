@@ -18,9 +18,7 @@
 
 package pgpcheck
 
-import (
-	"github.com/ProtonMail/gopenpgp/v2/crypto"
-)
+import "github.com/ProtonMail/gopenpgp/v2/crypto"
 
 func Check(data []byte, dataSig []byte, dataPublicKey []byte) error {
 	pgpSignature := crypto.NewPGPSignature(dataSig)

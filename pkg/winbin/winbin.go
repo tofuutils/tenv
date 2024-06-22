@@ -21,13 +21,13 @@ package winbin
 import "runtime"
 
 const (
-	WinBinSuffix = ".exe"
-	WinOsName    = "windows"
+	Suffix = ".exe"
+	OsName = "windows"
 )
 
 func GetBinaryName(execName string) string {
-	if runtime.GOOS == WinOsName {
-		return execName + WinBinSuffix
+	if runtime.GOOS == OsName {
+		return execName + Suffix
 	}
 
 	return execName
