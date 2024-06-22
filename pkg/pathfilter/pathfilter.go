@@ -16,34 +16,18 @@
  *
  */
 
-package bincheck_test
+package pathfilter
 
-import (
-	"testing"
+import "strings"
 
-	bincheck "github.com/tofuutils/tenv/v2/pkg/check/binary"
-)
+// Handle '/' and '\' separated path.
+func NameEqual(targetName string) func(string) bool {
+	return func(path string) bool {
+		separatorIndex := strings.LastIndexByte(path, '/')
+		if separatorIndex == -1 {
+			separatorIndex = strings.LastIndexByte(path, '\\')
+		}
 
-func TestTextFileCheck(t *testing.T) {
-	t.Parallel()
-
-	isBinary, err := bincheck.Check("testdata/test.txt")
-	if err != nil {
-		t.Fatalf("Error checking non-binary file: %v", err)
-	}
-	if isBinary {
-		t.Errorf("Expected non-binary file, got binary")
-	}
-}
-
-func TestBinaryFileCheck(t *testing.T) {
-	t.Parallel()
-
-	isBinary, err := bincheck.Check("testdata/test.bin")
-	if err != nil {
-		t.Fatalf("Error checking non-binary file: %v", err)
-	}
-	if !isBinary {
-		t.Errorf("Expected binary file, got non-binary")
+		return path[separatorIndex+1:] == targetName
 	}
 }
