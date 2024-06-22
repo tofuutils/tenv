@@ -34,6 +34,8 @@ import (
 	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
 	"github.com/tofuutils/tenv/v2/pkg/download"
+	"github.com/tofuutils/tenv/v2/pkg/pathfilter"
+	"github.com/tofuutils/tenv/v2/pkg/winbin"
 	"github.com/tofuutils/tenv/v2/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
 )
@@ -130,7 +132,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		return err
 	}
 
-	return zip.UnzipToDir(data, targetPath)
+	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(config.TerraformName)))
 }
 
 func (r TerraformRetriever) ListReleases() ([]string, error) {

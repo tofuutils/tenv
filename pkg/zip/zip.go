@@ -26,12 +26,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	bincheck "github.com/tofuutils/tenv/v2/pkg/check/binary"
 )
 
 // ensure the directory exists with a MkdirAll call.
-func UnzipToDir(dataZip []byte, dirPath string) error {
+func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error {
 	err := os.MkdirAll(dirPath, 0o755)
 	if err != nil {
 		return err
@@ -44,28 +42,8 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 	}
 
 	for _, file := range zipReader.File {
-		if err = copyZipFileToDir(file, dirPath); err != nil {
+		if err = copyZipFileToDir(file, dirPath, filter); err != nil {
 			return err
-		}
-
-		files, err := os.ReadDir(dirPath)
-		if err != nil {
-			return err
-		}
-
-		for _, file := range files {
-			filePath := filepath.Join(dirPath, file.Name())
-
-			isBinary, err := bincheck.Check(filePath)
-			if err != nil {
-				return err
-			}
-
-			if !isBinary {
-				if err = os.Remove(filePath); err != nil {
-					return err
-				}
-			}
 		}
 	}
 
@@ -73,7 +51,7 @@ func UnzipToDir(dataZip []byte, dirPath string) error {
 }
 
 // a separate function allows deferred Close to execute earlier.
-func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
+func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) bool) error {
 	destPath, err := sanitizeArchivePath(dirPath, zipFile.Name)
 	if err != nil {
 		return err
@@ -93,6 +71,10 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string) error {
 	data, err := io.ReadAll(reader)
 	if err != nil {
 		return err
+	}
+
+	if !filter(destPath) {
+		return nil
 	}
 
 	return os.WriteFile(destPath, data, zipFile.Mode())
