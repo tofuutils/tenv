@@ -18,9 +18,7 @@
 
 package bincheck
 
-import (
-	"os"
-)
+import "os"
 
 func Check(filename string) (bool, error) {
 	file, err := os.Open(filename)

@@ -144,8 +144,8 @@ func buildAssetNames(arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == winbin.WinOsName {
-		nameBuilder.WriteString(winbin.WinBinSuffix)
+	if runtime.GOOS == winbin.OsName {
+		nameBuilder.WriteString(winbin.Suffix)
 	}
 
 	return nameBuilder.String(), "SHA256SUMS"

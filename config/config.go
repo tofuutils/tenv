@@ -26,11 +26,11 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/yaml.v3"
+
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
 const (

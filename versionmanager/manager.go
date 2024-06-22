@@ -27,6 +27,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/hashicorp/go-version"
+
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/lockfile"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
@@ -34,9 +37,6 @@ import (
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
-
-	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-version"
 )
 
 var (
