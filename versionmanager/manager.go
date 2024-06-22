@@ -325,10 +325,10 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	return writeFile(targetFilePath, detectedVersion, m.conf)
 }
 
-func (m VersionManager) autoInstallDisabledMsg(version string, proxyCall bool) (string, error) {
+func (m VersionManager) autoInstallDisabledMsg(version string) (string, error) {
 	cmdName := strings.ToLower(m.FolderName)
+	m.conf.Displayer.Flush(false) // Always normal display when installation is missing
 	m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", version, " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
-	m.conf.Displayer.Flush(proxyCall)
 
 	return "", errNoCompatibleLocally
 }
