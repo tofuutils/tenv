@@ -89,7 +89,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ghcr.io/tofuutils/tenv:${{ github.ref_name }}, ghcr.io/tofuutils/tenv:latest
@@ -120,7 +120,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build and push docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ env.registry_url }}/${{ env.image_repo }}:latest, ${{ env.registry_url }}/${{ env.image_repo }}:${{ github.ref_name }}
