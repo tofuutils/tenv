@@ -20,10 +20,9 @@ package main
 
 import (
 	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
+	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
 )
 
 func main() {
-	proxy.Exec(builder.BuildTgManager, config.TerragruntName)
+	lightproxy.Exec(config.TerragruntName)
 }

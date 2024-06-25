@@ -32,6 +32,8 @@ import (
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
 
+type BuilderFunc = func(*config.Config, terragruntparser.TerragruntParser) versionmanager.VersionManager
+
 func BuildAtmosManager(conf *config.Config, gruntParser terragruntparser.TerragruntParser) versionmanager.VersionManager {
 	atmosRetriever := atmosretriever.Make(conf)
 	versionFiles := []types.VersionFile{

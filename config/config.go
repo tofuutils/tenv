@@ -34,11 +34,14 @@ import (
 )
 
 const (
-	AtmosName      = "atmos"
-	TenvName       = "tenv"
-	TerraformName  = "terraform"
-	TerragruntName = "terragrunt"
-	TofuName       = "tofu"
+	AgnosticCmdName = "tf"
+	AtmosName       = "atmos"
+	TenvName        = "tenv"
+	TerraformName   = "terraform"
+	TerragruntName  = "terragrunt"
+	TofuName        = "tofu"
+
+	CallSubCmd = "call"
 
 	GithubActionsEnvName = "GITHUB_ACTIONS"
 
