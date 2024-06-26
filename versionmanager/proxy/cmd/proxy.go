@@ -62,11 +62,12 @@ func Run(execPath string, cmdArgs []string) {
 	}
 
 	signalChan := make(chan os.Signal)
-	signal.Notify(signalChan, os.Interrupt)
 	go transmitIncreasingSignal(signalChan, cmd.Process)
+	signal.Notify(signalChan, os.Interrupt) //nolint
 
 	if err = cmd.Wait(); err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
+		var exitError *exec.ExitError
+		if ok := errors.As(err, &exitError); ok {
 			calledExitCode = exitError.ExitCode()
 
 			return
@@ -99,7 +100,7 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
 	}
 
 	outputPath := os.Getenv("GITHUB_OUTPUT")
-	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -139,16 +140,16 @@ func transmitIncreasingSignal(signalReceiver <-chan os.Signal, process *os.Proce
 	first := true
 	for range signalReceiver {
 		if first {
-			process.Signal(os.Interrupt)
+			_ = process.Signal(os.Interrupt)
 			first = false
 		} else {
-			process.Signal(os.Kill)
+			_ = process.Signal(os.Kill)
 		}
 	}
 }
 
 func writeMultiline(file *os.File, key string, value string) error {
-	delimiter := "ghadelimeter_" + strconv.Itoa(rand.Int())
+	delimiter := "ghadelimeter_" + strconv.Itoa(rand.Int()) //nolint
 	if strings.Contains(key, delimiter) || strings.Contains(value, delimiter) {
 		return errDelimiter
 	}
