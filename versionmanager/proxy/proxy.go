@@ -25,8 +25,8 @@ import (
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/v2/config"
+	cmdproxy "github.com/tofuutils/tenv/v2/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	cmdproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/cmd"
 	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
