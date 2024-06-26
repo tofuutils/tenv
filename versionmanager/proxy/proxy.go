@@ -25,8 +25,8 @@ import (
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/v2/config"
+	cmdproxy "github.com/tofuutils/tenv/v2/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	cmdproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/cmd"
 	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
@@ -47,9 +47,9 @@ func Exec(conf *config.Config, builderFunc builder.BuilderFunc, gruntParser terr
 		os.Exit(1)
 	}
 
-	RunCmd(installPath, detectedVersion, execName, cmdArgs)
+	RunCmd(installPath, detectedVersion, execName, cmdArgs, conf.GithubActions)
 }
 
-func RunCmd(installPath string, detectedVersion string, execName string, cmdArgs []string) {
-	cmdproxy.Run(filepath.Join(installPath, detectedVersion, execName), cmdArgs)
+func RunCmd(installPath string, detectedVersion string, execName string, cmdArgs []string, gha bool) {
+	cmdproxy.Run(filepath.Join(installPath, detectedVersion, execName), cmdArgs, gha)
 }

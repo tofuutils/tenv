@@ -19,12 +19,49 @@
 package lightproxy
 
 import (
+	"errors"
+	"fmt"
 	"os"
+	"os/exec"
+	"os/signal"
 
 	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	proxycmd "github.com/tofuutils/tenv/v2/versionmanager/proxy/cmd"
 )
 
 func Exec(execName string) {
-	proxycmd.Run(cmdconst.TenvName, append([]string{cmdconst.CallSubCmd, execName}, os.Args[1:]...))
+	cmdArgs := make([]string, len(os.Args)+1)
+	cmdArgs[0], cmdArgs[1] = cmdconst.CallSubCmd, execName
+	copy(cmdArgs[2:], os.Args[1:])
+
+	// proxy to selected version
+	cmd := exec.Command(cmdconst.TenvName, cmdArgs...) //nolint
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Start()
+	if err != nil {
+		exitWithErrorMsg(execName, err)
+	}
+
+	signalChan := make(chan os.Signal)
+	go transmitSignal(signalChan, cmd.Process)
+	signal.Notify(signalChan, os.Interrupt) //nolint
+
+	if err = cmd.Wait(); err != nil {
+		var exitError *exec.ExitError
+		if ok := errors.As(err, &exitError); ok {
+			os.Exit(exitError.ExitCode())
+		}
+		exitWithErrorMsg(execName, err)
+	}
+}
+
+func exitWithErrorMsg(execName string, err error) {
+	fmt.Println("Failure during", execName, "call :", err) //nolint
+	os.Exit(1)
+}
+
+func transmitSignal(signalReceiver <-chan os.Signal, process *os.Process) {
+	for range signalReceiver {
+		_ = process.Signal(os.Interrupt)
+	}
 }

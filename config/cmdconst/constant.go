@@ -27,6 +27,4 @@ const (
 	TofuName       = "tofu"
 
 	CallSubCmd = "call"
-
-	GithubActionsEnvName = "GITHUB_ACTIONS"
 )
