@@ -25,6 +25,8 @@ import (
 	"strings"
 
 	"github.com/tofuutils/tenv/v2/config"
+	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	configutils "github.com/tofuutils/tenv/v2/config/utils"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
@@ -66,10 +68,10 @@ func main() {
 	}
 
 	builders := map[string]builder.BuilderFunc{
-		config.TofuName:       builder.BuildTofuManager,
-		config.TerraformName:  builder.BuildTfManager,
-		config.TerragruntName: builder.BuildTgManager,
-		config.AtmosName:      builder.BuildAtmosManager,
+		cmdconst.TofuName:       builder.BuildTofuManager,
+		cmdconst.TerraformName:  builder.BuildTfManager,
+		cmdconst.TerragruntName: builder.BuildTgManager,
+		cmdconst.AtmosName:      builder.BuildAtmosManager,
 	}
 
 	gruntParser := terragruntparser.Make()
@@ -83,7 +85,7 @@ func main() {
 
 func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, gruntParser terragruntparser.TerragruntParser) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:     config.TenvName,
+		Use:     cmdconst.TenvName,
 		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io), Terragrunt (https://terragrunt.gruntwork.io), and Atmos (https://atmos.tools/).",
 		Version: version,
 	}
@@ -101,11 +103,11 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
-	tofuManager := builders[config.TofuName](conf, gruntParser)
+	tofuManager := builders[cmdconst.TofuName](conf, gruntParser)
 	initSubCmds(rootCmd, conf, tofuManager, tofuParams) // add tofu management at root level
 
 	tofuCmd := &cobra.Command{
-		Use:     config.TofuName,
+		Use:     cmdconst.TofuName,
 		Aliases: []string{"opentofu"},
 		Short:   tofuHelp,
 		Long:    tofuHelp,
@@ -117,7 +119,7 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 
 	tfCmd := &cobra.Command{
 		Use:     "tf",
-		Aliases: []string{config.TerraformName},
+		Aliases: []string{cmdconst.TerraformName},
 		Short:   tfHelp,
 		Long:    tfHelp,
 	}
@@ -126,13 +128,13 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 		needToken: false, remoteEnvName: config.TfRemoteURLEnvName,
 		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
-	initSubCmds(tfCmd, conf, builders[config.TerraformName](conf, gruntParser), tfParams)
+	initSubCmds(tfCmd, conf, builders[cmdconst.TerraformName](conf, gruntParser), tfParams)
 
 	rootCmd.AddCommand(tfCmd)
 
 	tgCmd := &cobra.Command{
 		Use:     "tg",
-		Aliases: []string{config.TerragruntName},
+		Aliases: []string{cmdconst.TerragruntName},
 		Short:   tgHelp,
 		Long:    tgHelp,
 	}
@@ -140,12 +142,12 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 	tgParams := subCmdParams{
 		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.Tg.RemoteURL,
 	}
-	initSubCmds(tgCmd, conf, builders[config.TerragruntName](conf, gruntParser), tgParams)
+	initSubCmds(tgCmd, conf, builders[cmdconst.TerragruntName](conf, gruntParser), tgParams)
 
 	rootCmd.AddCommand(tgCmd)
 
 	atmosCmd := &cobra.Command{
-		Use:   config.AtmosName,
+		Use:   cmdconst.AtmosName,
 		Short: atmosHelp,
 		Long:  atmosHelp,
 	}
@@ -153,7 +155,7 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 	atmosParams := subCmdParams{
 		needToken: true, remoteEnvName: config.AtmosRemoteURLEnvName, pRemote: &conf.Atmos.RemoteURL,
 	}
-	initSubCmds(atmosCmd, conf, builders[config.AtmosName](conf, gruntParser), atmosParams)
+	initSubCmds(atmosCmd, conf, builders[cmdconst.AtmosName](conf, gruntParser), atmosParams)
 
 	rootCmd.AddCommand(atmosCmd)
 
@@ -161,14 +163,14 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 }
 
 func manageHiddenCallCmd(conf *config.Config, builders map[string]builder.BuilderFunc, gruntParser terragruntparser.TerragruntParser) {
-	if len(os.Args) < 3 || os.Args[1] != config.CallSubCmd {
+	if len(os.Args) < 3 || os.Args[1] != cmdconst.CallSubCmd {
 		return
 	}
 
 	calledNamed, cmdArgs := os.Args[2], os.Args[3:]
 	if builder, ok := builders[calledNamed]; ok {
 		proxy.Exec(conf, builder, gruntParser, calledNamed, cmdArgs)
-	} else if calledNamed == config.AgnosticCmdName {
+	} else if calledNamed == cmdconst.AgnosticName {
 		proxy.ExecAgnostic(conf, builders, gruntParser, cmdArgs)
 	}
 }
@@ -180,7 +182,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println(config.TenvName, versionName, version) //nolint
+			fmt.Println(cmdconst.TenvName, versionName, version) //nolint
 		},
 	}
 }
@@ -197,7 +199,7 @@ func newUpdatePathCmd() *cobra.Command {
 				return nil
 			}
 
-			gha, err := config.GetenvBool(false, config.GithubActionsEnvName)
+			gha, err := configutils.GetenvBool(false, cmdconst.GithubActionsEnvName)
 			if err != nil {
 				return err
 			}

@@ -23,23 +23,24 @@ import (
 	"os"
 
 	"github.com/tofuutils/tenv/v2/config"
+	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
 func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, gruntParser terragruntparser.TerragruntParser, cmdArgs []string) {
 	conf.InitDisplayer(true)
-	manager := builders[config.TofuName](conf, gruntParser)
+	manager := builders[cmdconst.TofuName](conf, gruntParser)
 	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
 		os.Exit(1)
 	}
 
-	execName := config.TofuName
+	execName := cmdconst.TofuName
 	if detectedVersion == "" {
-		execName = config.TerraformName
-		manager = builders[config.TerraformName](conf, gruntParser)
+		execName = cmdconst.TerraformName
+		manager = builders[cmdconst.TerraformName](conf, gruntParser)
 		detectedVersion, err = manager.ResolveWithVersionFiles()
 		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint

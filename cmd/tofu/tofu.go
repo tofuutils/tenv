@@ -19,10 +19,10 @@
 package main
 
 import (
-	"github.com/tofuutils/tenv/v2/config"
+	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
 	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
 )
 
 func main() {
-	lightproxy.Exec(config.TofuName)
+	lightproxy.Exec(cmdconst.TofuName)
 }

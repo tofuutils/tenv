@@ -29,7 +29,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tofuutils/tenv/v2/config"
+	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	configutils "github.com/tofuutils/tenv/v2/config/utils"
 )
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
@@ -80,7 +81,7 @@ func exitWithErrorMsg(execName string, err error, pExitCode *int) {
 }
 
 func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
-	gha, err := config.GetenvBool(false, config.GithubActionsEnvName)
+	gha, err := configutils.GetenvBool(false, cmdconst.GithubActionsEnvName)
 	if err != nil {
 		return nil, err
 	}
