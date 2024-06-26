@@ -21,7 +21,7 @@ package lightproxy
 import (
 	"os"
 
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	proxycmd "github.com/tofuutils/tenv/v2/versionmanager/proxy/cmd"
 )
 

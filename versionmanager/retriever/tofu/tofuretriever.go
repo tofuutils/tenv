@@ -28,7 +28,7 @@ import (
 	"github.com/hashicorp/go-version"
 
 	"github.com/tofuutils/tenv/v2/config"
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	cosigncheck "github.com/tofuutils/tenv/v2/pkg/check/cosign"
 	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"

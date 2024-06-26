@@ -25,7 +25,7 @@ import (
 	"strings"
 
 	"github.com/tofuutils/tenv/v2/config"
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	configutils "github.com/tofuutils/tenv/v2/config/utils"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"

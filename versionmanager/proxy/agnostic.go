@@ -23,7 +23,7 @@ import (
 	"os"
 
 	"github.com/tofuutils/tenv/v2/config"
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )

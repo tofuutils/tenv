@@ -30,7 +30,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 
 	"github.com/tofuutils/tenv/v2/config"
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
@@ -264,13 +264,13 @@ func extractAssetUrls(searchedOs string, searchedArch string, value any) (string
 
 func extractReleases(value any) ([]string, error) {
 	object, _ := value.(map[string]any)
-	object, ok := object["versions"].(map[string]any)
+	versions, ok := object["versions"].(map[string]any)
 	if !ok {
 		return nil, apimsg.ErrReturn
 	}
 
 	releases := make([]string, 0, len(object))
-	for version := range object {
+	for version := range versions {
 		releases = append(releases, version)
 	}
 

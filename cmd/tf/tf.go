@@ -19,7 +19,7 @@
 package main
 
 import (
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
 )
 

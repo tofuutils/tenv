@@ -26,7 +26,7 @@ import (
 	"strings"
 
 	"github.com/tofuutils/tenv/v2/config"
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
 	"github.com/tofuutils/tenv/v2/pkg/download"

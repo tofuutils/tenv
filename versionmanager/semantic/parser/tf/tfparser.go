@@ -29,7 +29,7 @@ import (
 	"github.com/zclconf/go-cty/cty/convert"
 
 	"github.com/tofuutils/tenv/v2/config"
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 

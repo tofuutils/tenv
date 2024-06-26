@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	cmdconst "github.com/tofuutils/tenv/v2/config/constant"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	configutils "github.com/tofuutils/tenv/v2/config/utils"
 )
 
