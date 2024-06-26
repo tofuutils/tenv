@@ -53,15 +53,21 @@ The default constraint is added while using latest-allowed, min-required or cust
 		Short: loghelper.Concat("Set a default constraint expression for ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
-		RunE: func(_ *cobra.Command, args []string) error {
+		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
 			if len(args) == 0 || args[0] == "" {
-				return versionManager.ResetConstraint()
+				if err := versionManager.ResetConstraint(); err != nil {
+					loghelper.StdDisplay(err.Error())
+				}
+
+				return
 			}
 
-			return versionManager.SetConstraint(args[0])
+			if err := versionManager.SetConstraint(args[0]); err != nil {
+				loghelper.StdDisplay(err.Error())
+			}
 		},
 	}
 
@@ -80,17 +86,15 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		Short: loghelper.Concat("Display ", versionManager.FolderName, " current version."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
 			detectedVersion, err := versionManager.Detect(false)
 			if err != nil {
-				return err
+				loghelper.StdDisplay(err.Error())
 			}
 			loghelper.StdDisplay(loghelper.Concat(versionManager.FolderName, " ", detectedVersion, " will be run from this directory."))
-
-			return nil
 		},
 	}
 
@@ -130,20 +134,28 @@ If a parameter is passed, available options:
 		Short: loghelper.Concat("Install a specific version of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.MaximumNArgs(1),
-		RunE: func(_ *cobra.Command, args []string) error {
+		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
 			if len(args) == 0 {
 				version, err := versionManager.Resolve(semantic.LatestKey)
 				if err != nil {
-					return err
+					loghelper.StdDisplay(err.Error())
+
+					return
 				}
 
-				return versionManager.Install(version)
+				if err = versionManager.Install(version); err != nil {
+					loghelper.StdDisplay(err.Error())
+				}
+
+				return
 			}
 
-			return versionManager.Install(args[0])
+			if err := versionManager.Install(args[0]); err != nil {
+				loghelper.StdDisplay(err.Error())
+			}
 		},
 	}
 
@@ -168,13 +180,15 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Short: loghelper.Concat("List installed ", versionManager.FolderName, " versions."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
 			versions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
-				return err
+				loghelper.StdDisplay(err.Error())
+
+				return
 			}
 
 			filePath := versionManager.RootVersionFilePath()
@@ -194,8 +208,6 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			if conf.DisplayVerbose {
 				loghelper.StdDisplay(loghelper.Concat("found ", strconv.Itoa(len(versions)), " ", versionManager.FolderName, " version(s) managed by tenv."))
 			}
-
-			return nil
 		},
 	}
 
@@ -221,13 +233,15 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Short: loghelper.Concat("List installable ", versionManager.FolderName, " versions."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
 			versions, err := versionManager.ListRemote(reverseOrder)
 			if err != nil {
-				return err
+				loghelper.StdDisplay(err.Error())
+
+				return
 			}
 
 			countSkipped := 0
@@ -252,7 +266,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 				}
 			}
 
-			return err
+			return
 		},
 	}
 
@@ -278,11 +292,13 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Short: loghelper.Concat("Reset used version of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
-			return versionManager.ResetVersion()
+			if err := versionManager.ResetVersion(); err != nil {
+				loghelper.StdDisplay(err.Error())
+			}
 		},
 	}
 
@@ -301,11 +317,13 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 		Short: loghelper.Concat("Uninstall a specific version of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
-		RunE: func(_ *cobra.Command, args []string) error {
+		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
-			return versionManager.Uninstall(args[0])
+			if err := versionManager.Uninstall(args[0]); err != nil {
+				loghelper.StdDisplay(err.Error())
+			}
 		},
 	}
 
@@ -337,11 +355,13 @@ Available parameter options:
 		Short: loghelper.Concat("Switch the default ", versionManager.FolderName, " version to use."),
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
-		RunE: func(_ *cobra.Command, args []string) error {
+		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 			addDeprecationMsg(conf, params)
 
-			return versionManager.Use(args[0], workingDir)
+			if err := versionManager.Use(args[0], workingDir); err != nil {
+				loghelper.StdDisplay(err.Error())
+			}
 		},
 	}
 
