@@ -29,12 +29,12 @@ import (
 )
 
 func Exec(execName string) {
-	cmdArgs := make([]string, 0, len(os.Args)+1)
-	cmdArgs = append(cmdArgs, cmdconst.CallSubCmd, execName)
-	cmdArgs = append(cmdArgs, os.Args[1:]...)
+	cmdArgs := make([]string, len(os.Args)+1)
+	cmdArgs[0], cmdArgs[1] = cmdconst.CallSubCmd, execName
+	copy(cmdArgs[2:], os.Args[1:])
 
 	// proxy to selected version
-	cmd := exec.Command(cmdconst.TenvName, cmdArgs...)
+	cmd := exec.Command(cmdconst.TenvName, cmdArgs...) //nolint
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err := cmd.Start()
