@@ -89,7 +89,7 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 			}
 
 			if !installed {
-				return "", m.autoInstallDisabledMsg(cleanedVersion)
+				return cleanedVersion, m.autoInstallDisabledMsg(cleanedVersion)
 			}
 			m.conf.Displayer.Flush(proxyCall)
 
@@ -314,7 +314,11 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	detectedVersion, err := m.Evaluate(requestedVersion, false)
 	if err != nil {
-		return err
+		if err != errNoCompatibleLocally {
+			return err
+		}
+
+		m.conf.Displayer.Display(err.Error())
 	}
 
 	targetFilePath := m.VersionFiles[0].Name
@@ -328,7 +332,7 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 func (m VersionManager) autoInstallDisabledMsg(version string) error {
 	cmdName := strings.ToLower(m.FolderName)
 	m.conf.Displayer.Flush(false) // Always normal display when installation is missing
-	m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", version, " version you can set environment variable TENV_AUTO_INSTALL=true, or install it via following command: 'tenv ", cmdName, " install ", version, "'"))
+	m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", m.FolderName, " version ", version, ", you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
 
 	return errNoCompatibleLocally
 }
@@ -405,7 +409,7 @@ func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, n
 		if predicateInfo.Predicate(version) {
 			m.conf.Displayer.Display("Found compatible version remotely : " + version)
 			if noInstall {
-				return "", m.autoInstallDisabledMsg(version)
+				return version, m.autoInstallDisabledMsg(version)
 			}
 
 			return version, m.installSpecificVersion(version, proxyCall)

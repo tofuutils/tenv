@@ -19,19 +19,19 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/cobra"
+
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/config/cmdconst"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
 	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
-
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -62,7 +62,7 @@ type subCmdParams struct {
 func main() {
 	conf, err := config.InitConfigFromEnv()
 	if err != nil {
-		fmt.Println("Configuration error :", err) //nolint
+		loghelper.StdDisplay(loghelper.Concat("Configuration error : ", err.Error()))
 		os.Exit(1)
 	}
 
@@ -77,7 +77,7 @@ func main() {
 	manageHiddenCallCmd(&conf, builders, gruntParser) // proxy call use os.Exit when called
 
 	if err = initRootCmd(&conf, builders, gruntParser).Execute(); err != nil {
-		fmt.Println(err) //nolint
+		loghelper.StdDisplay(err.Error())
 		os.Exit(1)
 	}
 }
@@ -181,7 +181,7 @@ func newVersionCmd() *cobra.Command {
 		Long:  rootVersionHelp,
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Println(cmdconst.TenvName, versionName, version) //nolint
+			loghelper.StdDisplay(loghelper.Concat(cmdconst.TenvName, " ", versionName, " ", version))
 		},
 	}
 }
@@ -192,10 +192,12 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 		Short: updatePathHelp,
 		Long:  updatePathHelp,
 		Args:  cobra.NoArgs,
-		RunE: func(_ *cobra.Command, _ []string) error {
+		Run: func(_ *cobra.Command, _ []string) {
 			execPath, err := os.Executable()
 			if err != nil {
-				return nil
+				loghelper.StdDisplay(err.Error())
+
+				return
 			}
 
 			execDirPath := filepath.Dir(execPath)
@@ -204,13 +206,13 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 				if pathfilePath != "" {
 					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 					if err != nil {
-						return err
+						return
 					}
 					defer pathfile.Close()
 
 					_, err = pathfile.Write(append([]byte(execDirPath), '\n'))
 					if err != nil {
-						return err
+						return
 					}
 				}
 			}
@@ -219,9 +221,7 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 			pathBuilder.WriteString(execDirPath)
 			pathBuilder.WriteRune(os.PathListSeparator)
 			pathBuilder.WriteString(os.Getenv(pathEnvName))
-			fmt.Println(pathBuilder.String()) //nolint
-
-			return nil
+			loghelper.StdDisplay(pathBuilder.String())
 		},
 	}
 }
