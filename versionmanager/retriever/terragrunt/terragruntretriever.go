@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 
 	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
 	"github.com/tofuutils/tenv/v2/pkg/download"
@@ -69,7 +70,7 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 
 	switch r.conf.Tg.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, config.TerragruntName, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download, tag) //nolint
 		if err2 != nil {
 			return err2
 		}
@@ -109,7 +110,7 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(config.TerragruntName)), data, 0o755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, 0o755)
 }
 
 func (r TerragruntRetriever) ListReleases() ([]string, error) {
@@ -121,7 +122,7 @@ func (r TerragruntRetriever) ListReleases() ([]string, error) {
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, gruntworkName, config.TerragruntName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download) //nolint
 		if err != nil {
 			return nil, err
 		}

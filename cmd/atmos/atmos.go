@@ -19,11 +19,10 @@
 package main
 
 import (
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
+	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
 )
 
 func main() {
-	proxy.Exec(builder.BuildAtmosManager, config.AtmosName)
+	lightproxy.Exec(cmdconst.AtmosName)
 }

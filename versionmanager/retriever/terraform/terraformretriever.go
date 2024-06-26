@@ -30,6 +30,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 
 	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
@@ -66,7 +67,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), config.TerraformName, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), cmdconst.TerraformName, version) //nolint
 	if err != nil {
 		return err
 	}
@@ -132,7 +133,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		return err
 	}
 
-	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(config.TerraformName)))
+	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TerraformName)))
 }
 
 func (r TerraformRetriever) ListReleases() ([]string, error) {
@@ -141,7 +142,7 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
-	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), config.TerraformName) //nolint
+	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), cmdconst.TerraformName) //nolint
 	if err != nil {
 		return nil, err
 	}
@@ -263,13 +264,13 @@ func extractAssetUrls(searchedOs string, searchedArch string, value any) (string
 
 func extractReleases(value any) ([]string, error) {
 	object, _ := value.(map[string]any)
-	object, ok := object["versions"].(map[string]any)
+	versions, ok := object["versions"].(map[string]any)
 	if !ok {
 		return nil, apimsg.ErrReturn
 	}
 
 	releases := make([]string, 0, len(object))
-	for version := range object {
+	for version := range versions {
 		releases = append(releases, version)
 	}
 

@@ -24,24 +24,17 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/yaml.v3"
 
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
+	configutils "github.com/tofuutils/tenv/v2/config/utils"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
 const (
-	AtmosName      = "atmos"
-	TenvName       = "tenv"
-	TerraformName  = "terraform"
-	TerragruntName = "terragrunt"
-	TofuName       = "tofu"
-
-	GithubActionsEnvName = "GITHUB_ACTIONS"
-
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
 	defaultConstraint  = "DEFAULT_CONSTRAINT"
@@ -143,27 +136,27 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
-	arch := getenvFallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
+	arch := configutils.GetenvFallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
 	if arch == "" {
 		arch = runtime.GOARCH
 	}
 
-	autoInstall, err := getenvBoolFallback(false, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	autoInstall, err := configutils.GetenvBoolFallback(false, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	forceRemote, err := getenvBoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
+	forceRemote, err := configutils.GetenvBoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	rootPath := getenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
+	rootPath := configutils.GetenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
 		rootPath = filepath.Join(userPath, ".tenv")
 	}
 
-	quiet, err := getenvBoolFallback(false, tenvQuietEnvName)
+	quiet, err := configutils.GetenvBoolFallback(false, tenvQuietEnvName)
 	if err != nil {
 		return Config{}, err
 	}
@@ -173,7 +166,7 @@ func InitConfigFromEnv() (Config, error) {
 		Atmos:          makeRemoteConfig(AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
-		GithubToken:    getenvFallback(tenvTokenEnvName, tofuTokenEnvName),
+		GithubToken:    configutils.GetenvFallback(tenvTokenEnvName, tofuTokenEnvName),
 		NoInstall:      !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
@@ -199,7 +192,7 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 			}
 		}
 		appLogger := hclog.New(&hclog.LoggerOptions{
-			Name: TenvName, Level: logLevel,
+			Name: cmdconst.TenvName, Level: logLevel,
 		})
 
 		if proxyCall {
@@ -237,36 +230,10 @@ func (conf *Config) InitRemoteConf() error {
 		return err
 	}
 
-	conf.Tf.Data = remoteConf[TerraformName]
-	conf.Tg.Data = remoteConf[TerragruntName]
-	conf.Tofu.Data = remoteConf[TofuName]
-	conf.Atmos.Data = remoteConf[AtmosName]
+	conf.Tf.Data = remoteConf[cmdconst.TerraformName]
+	conf.Tg.Data = remoteConf[cmdconst.TerragruntName]
+	conf.Tofu.Data = remoteConf[cmdconst.TofuName]
+	conf.Atmos.Data = remoteConf[cmdconst.AtmosName]
 
 	return nil
-}
-
-func GetenvBool(defaultValue bool, key string) (bool, error) {
-	if valueStr := os.Getenv(key); valueStr != "" {
-		return strconv.ParseBool(valueStr)
-	}
-
-	return defaultValue, nil
-}
-
-func getenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
-	if valueStr := getenvFallback(keys...); valueStr != "" {
-		return strconv.ParseBool(valueStr)
-	}
-
-	return defaultValue, nil
-}
-
-func getenvFallback(keys ...string) string {
-	for _, key := range keys {
-		if value := os.Getenv(key); value != "" {
-			return value
-		}
-	}
-
-	return ""
 }

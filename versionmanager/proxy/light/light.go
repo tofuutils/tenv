@@ -16,13 +16,15 @@
  *
  */
 
-package main
+package lightproxy
 
 import (
+	"os"
+
 	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
+	proxycmd "github.com/tofuutils/tenv/v2/versionmanager/proxy/cmd"
 )
 
-func main() {
-	lightproxy.Exec(cmdconst.AgnosticName)
+func Exec(execName string) {
+	proxycmd.Run(cmdconst.TenvName, append([]string{cmdconst.CallSubCmd, execName}, os.Args[1:]...))
 }

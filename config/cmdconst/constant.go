@@ -16,13 +16,17 @@
  *
  */
 
-package main
+package cmdconst
 
-import (
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
+const (
+	AgnosticName   = "tf"
+	AtmosName      = "atmos"
+	TenvName       = "tenv"
+	TerraformName  = "terraform"
+	TerragruntName = "terragrunt"
+	TofuName       = "tofu"
+
+	CallSubCmd = "call"
+
+	GithubActionsEnvName = "GITHUB_ACTIONS"
 )
-
-func main() {
-	lightproxy.Exec(cmdconst.AgnosticName)
-}

@@ -28,6 +28,7 @@ import (
 	"github.com/hashicorp/go-version"
 
 	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/apimsg"
 	cosigncheck "github.com/tofuutils/tenv/v2/pkg/check/cosign"
 	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"
@@ -116,7 +117,7 @@ func (r TofuRetriever) InstallRelease(versionStr string, targetPath string) erro
 		return err
 	}
 
-	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(config.TofuName)))
+	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TofuName)))
 }
 
 func (r TofuRetriever) ListReleases() ([]string, error) {

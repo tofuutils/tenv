@@ -29,6 +29,7 @@ import (
 	"github.com/zclconf/go-cty/cty/convert"
 
 	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 )
 
@@ -42,7 +43,7 @@ type extDescription struct {
 var exts = []extDescription{{value: ".tf", parseHCL: true}, {value: ".tf.json", parseHCL: false}} //nolint
 
 var terraformPartialSchema = &hcl.BodySchema{ //nolint
-	Blocks: []hcl.BlockHeaderSchema{{Type: config.TerraformName}},
+	Blocks: []hcl.BlockHeaderSchema{{Type: cmdconst.TerraformName}},
 }
 
 var versionPartialSchema = &hcl.BodySchema{ //nolint

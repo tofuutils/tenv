@@ -16,13 +16,35 @@
  *
  */
 
-package main
+package configutils
 
 import (
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	lightproxy "github.com/tofuutils/tenv/v2/versionmanager/proxy/light"
+	"os"
+	"strconv"
 )
 
-func main() {
-	lightproxy.Exec(cmdconst.AgnosticName)
+func GetenvBool(defaultValue bool, key string) (bool, error) {
+	if valueStr := os.Getenv(key); valueStr != "" {
+		return strconv.ParseBool(valueStr)
+	}
+
+	return defaultValue, nil
+}
+
+func GetenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
+	if valueStr := GetenvFallback(keys...); valueStr != "" {
+		return strconv.ParseBool(valueStr)
+	}
+
+	return defaultValue, nil
+}
+
+func GetenvFallback(keys ...string) string {
+	for _, key := range keys {
+		if value := os.Getenv(key); value != "" {
+			return value
+		}
+	}
+
+	return ""
 }
