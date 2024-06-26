@@ -26,7 +26,6 @@ import (
 
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	configutils "github.com/tofuutils/tenv/v2/config/utils"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
@@ -96,7 +95,7 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, g
 	flags.BoolVarP(&conf.DisplayVerbose, "verbose", "v", false, "verbose output (and set log level to Trace)")
 
 	rootCmd.AddCommand(newVersionCmd())
-	rootCmd.AddCommand(newUpdatePathCmd())
+	rootCmd.AddCommand(newUpdatePathCmd(conf.GithubActions))
 
 	tofuParams := subCmdParams{
 		deprecated: true, // direct use should display a deprecation message
@@ -187,7 +186,7 @@ func newVersionCmd() *cobra.Command {
 	}
 }
 
-func newUpdatePathCmd() *cobra.Command {
+func newUpdatePathCmd(gha bool) *cobra.Command {
 	return &cobra.Command{
 		Use:   "update-path",
 		Short: updatePathHelp,
@@ -197,11 +196,6 @@ func newUpdatePathCmd() *cobra.Command {
 			execPath, err := os.Executable()
 			if err != nil {
 				return nil
-			}
-
-			gha, err := configutils.GetenvBool(false, cmdconst.GithubActionsEnvName)
-			if err != nil {
-				return err
 			}
 
 			execDirPath := filepath.Dir(execPath)

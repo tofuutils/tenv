@@ -26,5 +26,5 @@ import (
 )
 
 func Exec(execName string) {
-	proxycmd.Run(cmdconst.TenvName, append([]string{cmdconst.CallSubCmd, execName}, os.Args[1:]...))
+	proxycmd.Run(cmdconst.TenvName, append([]string{cmdconst.CallSubCmd, execName}, os.Args[1:]...), false)
 }

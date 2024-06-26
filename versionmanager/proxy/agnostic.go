@@ -65,5 +65,5 @@ func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, 
 		os.Exit(1)
 	}
 
-	RunCmd(installPath, detectedVersion, execName, cmdArgs)
+	RunCmd(installPath, detectedVersion, execName, cmdArgs, conf.GithubActions)
 }

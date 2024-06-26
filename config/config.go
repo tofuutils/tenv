@@ -35,6 +35,8 @@ import (
 )
 
 const (
+	githubActionsEnvName = "GITHUB_ACTIONS"
+
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
 	defaultConstraint  = "DEFAULT_CONSTRAINT"
@@ -117,6 +119,7 @@ type Config struct {
 	DisplayVerbose   bool
 	ForceQuiet       bool
 	ForceRemote      bool
+	GithubActions    bool
 	GithubToken      string
 	NoInstall        bool
 	remoteConfLoaded bool
@@ -161,11 +164,17 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
+	gha, err := configutils.GetenvBool(false, githubActionsEnvName)
+	if err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		Arch:           arch,
 		Atmos:          makeRemoteConfig(AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
+		GithubActions:  gha,
 		GithubToken:    configutils.GetenvFallback(tenvTokenEnvName, tofuTokenEnvName),
 		NoInstall:      !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),

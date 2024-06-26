@@ -28,14 +28,11 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
-
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	configutils "github.com/tofuutils/tenv/v2/config/utils"
 )
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
-func Run(execPath string, cmdArgs []string) {
+func Run(execPath string, cmdArgs []string, gha bool) {
 	exitCode := 0
 	defer func() {
 		os.Exit(exitCode)
@@ -43,7 +40,7 @@ func Run(execPath string, cmdArgs []string) {
 
 	// proxy to selected version
 	cmd := exec.Command(execPath, cmdArgs...)
-	done, err := initIO(cmd, execPath, &exitCode)
+	done, err := initIO(cmd, execPath, &exitCode, gha)
 	if err != nil {
 		exitWithErrorMsg(execPath, err, &exitCode)
 
@@ -81,12 +78,7 @@ func exitWithErrorMsg(execName string, err error, pExitCode *int) {
 	*pExitCode = 1
 }
 
-func initIO(cmd *exec.Cmd, execName string, pExitCode *int) (func(int), error) {
-	gha, err := configutils.GetenvBool(false, cmdconst.GithubActionsEnvName)
-	if err != nil {
-		return nil, err
-	}
-
+func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(int), error) {
 	cmd.Stdin = os.Stdin
 	if !gha {
 		cmd.Stderr = os.Stderr
