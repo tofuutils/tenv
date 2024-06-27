@@ -42,7 +42,7 @@ import (
 var (
 	errEmptyVersion        = errors.New("empty version")
 	errNoCompatible        = errors.New("no compatible version found")
-	errNoCompatibleLocally = errors.New("no compatible version found locally")
+	ErrNoCompatibleLocally = errors.New("no compatible version found locally")
 )
 
 type ReleaseInfoRetriever interface {
@@ -314,7 +314,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	detectedVersion, err := m.Evaluate(requestedVersion, false)
 	if err != nil {
-		if err != errNoCompatibleLocally {
+		if err != ErrNoCompatibleLocally {
 			return err
 		}
 
@@ -334,7 +334,7 @@ func (m VersionManager) autoInstallDisabledMsg(version string) error {
 	m.conf.Displayer.Flush(false) // Always normal display when installation is missing
 	m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", m.FolderName, " version ", version, ", you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
 
-	return errNoCompatibleLocally
+	return ErrNoCompatibleLocally
 }
 
 func (m VersionManager) checkVersionInstallation(version string) (bool, error) {

@@ -93,6 +93,10 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			detectedVersion, err := versionManager.Detect(false)
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
+
+				if err != versionmanager.ErrNoCompatibleLocally {
+					return
+				}
 			}
 			loghelper.StdDisplay(loghelper.Concat(versionManager.FolderName, " ", detectedVersion, " will be run from this directory."))
 		},
