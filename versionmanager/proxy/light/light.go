@@ -36,6 +36,7 @@ func Exec(execName string) {
 	// proxy to selected version
 	cmd := exec.Command(cmdconst.TenvName, cmdArgs...) //nolint
 	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	err := cmd.Start()
 	if err != nil {
