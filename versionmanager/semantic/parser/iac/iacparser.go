@@ -78,7 +78,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 
 		name := entry.Name()
 		for _, extDesc := range exts {
-			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found {
+			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found { //nolint
 				similar[cleanedName] = append(similar[cleanedName], extDesc.Value)
 
 				break
@@ -170,7 +170,7 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 }
 
 func filterExts(fileExts []string, exts []ExtDescription) ExtDescription {
-	for _, ext := range exts { // has a meaningfull order
+	for _, ext := range exts { // has a meaningful order
 		for _, fileExt := range fileExts {
 			if fileExt == ext.Value {
 				return ext
