@@ -58,7 +58,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 	if conf.Displayer.IsDebug() {
 		defer func() {
 			if len(foundFiles) == 0 {
-				conf.Displayer.Log(hclog.Debug, "No files found")
+				conf.Displayer.Log(hclog.Debug, "No IAC files found")
 			} else {
 				conf.Displayer.Log(hclog.Debug, "Read", "filePaths", foundFiles)
 			}
@@ -86,22 +86,16 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		}
 	}
 
-	fileToProcess := make([]ExtDescription, 0, len(similar))
-	for cleanedName, fileExts := range similar {
-		ext := filterExts(fileExts, exts)
-
-		fileToProcess = append(fileToProcess, ExtDescription{Value: cleanedName + ext.Value, Parser: ext.Parser})
-	}
-
 	var requireds []string
 	var parsedFile *hcl.File
 	var diags hcl.Diagnostics
-	foundFiles = make([]string, 0, len(fileToProcess))
-	for _, fileDesc := range fileToProcess {
-		name := fileDesc.Value
+	foundFiles = make([]string, 0, len(similar))
+	for cleanedName, fileExts := range similar {
+		ext := filterExts(fileExts, exts)
+		name := cleanedName + ext.Value
 		foundFiles = append(foundFiles, name)
 
-		parsedFile, diags = fileDesc.Parser(name)
+		parsedFile, diags = ext.Parser(name)
 		if diags.HasErrors() {
 			return nil, diags
 		}
@@ -119,7 +113,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 	rootContent, _, diags := body.PartialContent(terraformPartialSchema)
 	if diags.HasErrors() {
-		conf.Displayer.Log(hclog.Warn, "Failed to parse tf file", loghelper.Error, diags)
+		conf.Displayer.Log(hclog.Warn, "Failed to parse hcl file", loghelper.Error, diags)
 
 		return nil
 	}
@@ -128,7 +122,7 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 	for _, block := range rootContent.Blocks {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
-			conf.Displayer.Log(hclog.Warn, "Failed to parse tf block", loghelper.Error, diags)
+			conf.Displayer.Log(hclog.Warn, "Failed to parse hcl block", loghelper.Error, diags)
 
 			return nil
 		}
@@ -140,26 +134,26 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 
 		val, diags := attr.Expr.Value(nil)
 		if diags.HasErrors() {
-			conf.Displayer.Log(hclog.Warn, "Failed to parse tf attribute", loghelper.Error, diags)
+			conf.Displayer.Log(hclog.Warn, "Failed to parse hcl attribute", loghelper.Error, diags)
 
 			return nil
 		}
 
 		val, err := convert.Convert(val, cty.String)
 		if err != nil {
-			conf.Displayer.Log(hclog.Warn, "Failed to convert tf attribute", loghelper.Error, err)
+			conf.Displayer.Log(hclog.Warn, "Failed to convert hcl attribute", loghelper.Error, err)
 
 			return nil
 		}
 
 		if val.IsNull() {
-			conf.Displayer.Log(hclog.Debug, "Empty tf attribute")
+			conf.Displayer.Log(hclog.Debug, "Empty hcl attribute")
 
 			continue
 		}
 
 		if !val.IsWhollyKnown() {
-			conf.Displayer.Log(hclog.Warn, "Unknown tf attribute")
+			conf.Displayer.Log(hclog.Warn, "Unknown hcl attribute")
 
 			continue
 		}
