@@ -36,6 +36,7 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/reversecmp"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
+	iacparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/iac"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
 
@@ -54,15 +55,15 @@ type VersionManager struct {
 	conf                  *config.Config
 	constraintEnvName     string
 	FolderName            string
-	predicateReaders      []types.PredicateReader
+	iacExts               []iacparser.ExtDescription
 	retriever             ReleaseInfoRetriever
 	VersionEnvName        string
 	defaultVersionEnvName string
 	VersionFiles          []types.VersionFile
 }
 
-func Make(conf *config.Config, constraintEnvName string, folderName string, predicateReaders []types.PredicateReader, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
-	return VersionManager{conf: conf, constraintEnvName: constraintEnvName, FolderName: folderName, predicateReaders: predicateReaders, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
+func Make(conf *config.Config, constraintEnvName string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
+	return VersionManager{conf: conf, constraintEnvName: constraintEnvName, FolderName: folderName, iacExts: iacExts, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
 }
 
 // Detect version (resolve and evaluate, can install depending on auto install env var).
@@ -99,7 +100,7 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
 	}
 
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.predicateReaders, m.conf)
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.conf)
 	if err != nil {
 		m.conf.Displayer.Flush(proxyCall)
 
@@ -135,7 +136,7 @@ func (m VersionManager) Install(requestedVersion string) error {
 		return m.installSpecificVersion(parsedVersion.String(), false) // use a parsable version
 	}
 
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.predicateReaders, m.conf)
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.conf)
 	if err != nil {
 		return err
 	}

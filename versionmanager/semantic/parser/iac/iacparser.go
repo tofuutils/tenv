@@ -16,7 +16,7 @@
  *
  */
 
-package tfparser
+package iacparser
 
 import (
 	"os"
@@ -24,7 +24,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 
@@ -35,12 +34,10 @@ import (
 
 const requiredVersionName = "required_version"
 
-type extDescription struct {
-	value    string
-	parseHCL bool
+type ExtDescription struct {
+	Value  string
+	Parser func(string) (*hcl.File, hcl.Diagnostics)
 }
-
-var exts = []extDescription{{value: ".tf", parseHCL: true}, {value: ".tf.json", parseHCL: false}} //nolint
 
 var terraformPartialSchema = &hcl.BodySchema{ //nolint
 	Blocks: []hcl.BlockHeaderSchema{{Type: cmdconst.TerraformName}},
@@ -50,14 +47,18 @@ var versionPartialSchema = &hcl.BodySchema{ //nolint
 	Attributes: []hcl.AttributeSchema{{Name: requiredVersionName}},
 }
 
-func GatherRequiredVersion(conf *config.Config) ([]string, error) {
-	conf.Displayer.Display("Scan project to find .tf files")
+func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string, error) {
+	if len(exts) == 0 {
+		return nil, nil
+	}
 
-	var foundFiles []string
+	conf.Displayer.Display("Scan project to find IAC files")
+
+	var foundFiles []string //nolint
 	if conf.Displayer.IsDebug() {
 		defer func() {
 			if len(foundFiles) == 0 {
-				conf.Displayer.Log(hclog.Debug, "No .tf file found")
+				conf.Displayer.Log(hclog.Debug, "No files found")
 			} else {
 				conf.Displayer.Log(hclog.Debug, "Read", "filePaths", foundFiles)
 			}
@@ -69,10 +70,7 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 		return nil, err
 	}
 
-	var requireds []string
-	var parsedFile *hcl.File
-	var diags hcl.Diagnostics
-	parser := hclparse.NewParser()
+	similar := map[string][]string{}
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -80,27 +78,39 @@ func GatherRequiredVersion(conf *config.Config) ([]string, error) {
 
 		name := entry.Name()
 		for _, extDesc := range exts {
-			if !strings.HasSuffix(name, extDesc.value) {
-				continue
-			}
+			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found {
+				similar[cleanedName] = append(similar[cleanedName], extDesc.Value)
 
-			foundFiles = append(foundFiles, name)
-
-			if extDesc.parseHCL {
-				parsedFile, diags = parser.ParseHCLFile(name)
-			} else {
-				parsedFile, diags = parser.ParseJSONFile(name)
+				break
 			}
-			if diags.HasErrors() {
-				return nil, diags
-			}
-			if parsedFile == nil {
-				continue
-			}
-
-			extracted := extractRequiredVersion(parsedFile.Body, conf)
-			requireds = append(requireds, extracted...)
 		}
+	}
+
+	fileToProcess := make([]ExtDescription, 0, len(similar))
+	for cleanedName, fileExts := range similar {
+		ext := filterExts(fileExts, exts)
+
+		fileToProcess = append(fileToProcess, ExtDescription{Value: cleanedName + ext.Value, Parser: ext.Parser})
+	}
+
+	var requireds []string
+	var parsedFile *hcl.File
+	var diags hcl.Diagnostics
+	foundFiles = make([]string, 0, len(fileToProcess))
+	for _, fileDesc := range fileToProcess {
+		name := fileDesc.Value
+		foundFiles = append(foundFiles, name)
+
+		parsedFile, diags = fileDesc.Parser(name)
+		if diags.HasErrors() {
+			return nil, diags
+		}
+		if parsedFile == nil {
+			continue
+		}
+
+		extracted := extractRequiredVersion(parsedFile.Body, conf)
+		requireds = append(requireds, extracted...)
 	}
 
 	return requireds, nil
@@ -157,4 +167,16 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 	}
 
 	return requireds
+}
+
+func filterExts(fileExts []string, exts []ExtDescription) ExtDescription {
+	for _, ext := range exts { // has a meaningfull order
+		for _, fileExt := range fileExts {
+			if fileExt == ext.Value {
+				return ext
+			}
+		}
+	}
+
+	return ExtDescription{} // unreachable (fileExts should have at least one value from exts)
 }

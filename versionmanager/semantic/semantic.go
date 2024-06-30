@@ -27,7 +27,7 @@ import (
 
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-	tfparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/tf"
+	iacparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/iac"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
 
@@ -41,8 +41,6 @@ const (
 	LatestPrefix = "latest:"
 	MinPrefix    = "min:"
 )
-
-var TfPredicateReaders = []types.PredicateReader{readTfFiles} //nolint
 
 func CmpVersion(v1Str string, v2Str string) int {
 	v1, err1 := version.NewVersion(v1Str) //nolint
@@ -61,7 +59,7 @@ func CmpVersion(v1Str string, v2Str string) int {
 	return v1.Compare(v2)
 }
 
-func ParsePredicate(behaviourOrConstraint string, displayName string, constraintInfo types.ConstraintInfo, predicateReaders []types.PredicateReader, conf *config.Config) (types.PredicateInfo, error) {
+func ParsePredicate(behaviourOrConstraint string, displayName string, constraintInfo types.ConstraintInfo, iacExts []iacparser.ExtDescription, conf *config.Config) (types.PredicateInfo, error) {
 	reverseOrder := true
 	switch {
 	case behaviourOrConstraint == MinRequiredKey:
@@ -69,14 +67,12 @@ func ParsePredicate(behaviourOrConstraint string, displayName string, constraint
 
 		fallthrough // same predicate retrieving
 	case behaviourOrConstraint == LatestAllowedKey:
-		for _, reader := range predicateReaders {
-			predicate, err := reader(constraintInfo, conf)
-			if err != nil {
-				return types.PredicateInfo{}, err
-			}
-			if predicate != nil {
-				return types.PredicateInfo{Predicate: predicate, ReverseOrder: reverseOrder}, nil
-			}
+		constraints, err := readIACfiles(constraintInfo, iacExts, conf)
+		if err != nil {
+			return types.PredicateInfo{}, err
+		}
+		if len(constraints) != 0 {
+			return types.PredicateInfo{Predicate: predicateFromConstraint(constraints), ReverseOrder: reverseOrder}, nil
 		}
 
 		conf.Displayer.Display(loghelper.Concat("No ", displayName, " version requirement found in project files, fallback to ", LatestKey, " strategy"))
@@ -145,16 +141,11 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 	}
 }
 
-func readTfFiles(constraintInfo types.ConstraintInfo, conf *config.Config) (func(string) bool, error) {
-	requireds, err := tfparser.GatherRequiredVersion(conf)
+func readIACfiles(constraintInfo types.ConstraintInfo, iacExts []iacparser.ExtDescription, conf *config.Config) (version.Constraints, error) {
+	requireds, err := iacparser.GatherRequiredVersion(conf, iacExts)
 	if err != nil {
 		return nil, err
 	}
 
-	constraint, err := addDefaultConstraint(constraintInfo, conf, requireds...)
-	if err != nil || len(constraint) == 0 {
-		return nil, err
-	}
-
-	return predicateFromConstraint(constraint), nil
+	return addDefaultConstraint(constraintInfo, conf, requireds...)
 }
