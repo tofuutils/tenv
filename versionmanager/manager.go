@@ -19,7 +19,6 @@
 package versionmanager
 
 import (
-	"bytes"
 	"errors"
 	"io/fs"
 	"os"
@@ -221,14 +220,9 @@ func (m VersionManager) ReadDefaultConstraint() string {
 		return constraint
 	}
 
-	data, err := os.ReadFile(m.RootConstraintFilePath())
-	if err != nil {
-		m.conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
+	constraint, _ := flatparser.Retrieve(m.RootConstraintFilePath(), m.conf, flatparser.NoMsg)
 
-		return ""
-	}
-
-	return string(bytes.TrimSpace(data))
+	return constraint
 }
 
 func (m VersionManager) ResetConstraint() error {
