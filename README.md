@@ -295,7 +295,7 @@ echo "source '~/.tenv.completion.fish'" >> ~/.zshrc
 | `tofu` (`opentofu`) | [TOFUENV_](#tofu-env-vars) | [OpenTofu](https://opentofu.org)               |
 | `tf` (`terraform`)  | [TFENV_](#tf-env-vars)     | [Terraform](https://www.terraform.io/)         |
 | `tg` (`terragrunt`) | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
-| `atmos` (`atmos`)   | [ATMOS_](#atmos-env-vars)  | [Atmos](https://atmos.tools)                   |
+| `at` (`atmos`)      | [ATMOS_](#atmos-env-vars)  | [Atmos](https://atmos.tools)                   |
 
 
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
