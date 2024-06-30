@@ -20,6 +20,7 @@ package builder
 
 import (
 	"github.com/hashicorp/hcl/v2/hclparse"
+
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	atmosretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/atmos"
