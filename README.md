@@ -1240,7 +1240,7 @@ Recognize same values as `tenv atmos use` command.
 <a id="required_version"></a>
 <details><summary><b>required_version</b></summary><br>
 
-the `latest-allowed` or `min-required` strategies scan through your IAC files (.tf or .tf.json) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files and no default constraint are found, and can optionally be used with a default constraint as detailed in <a href="#project-binaries">project binaries</a>.
+the `latest-allowed` or `min-required` strategies scan through your IAC files (see list in [project binaries](#project-binaries)) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files and no default constraint are found, and can optionally be used with a default constraint as detailed in [project binaries](#project-binaries).
 
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
@@ -1274,7 +1274,7 @@ The version resolution order is :
 - `${TENV_ROOT}/OpenTofu/version` file (can be written with `tenv tofu use`)
 - `latest-allowed`
 
-The `latest-allowed` strategy rely on [required_version](#required_version) from .tf or .tf.json files with a fallback to `latest` when no constraint are found. Moreover it is possible to add a default constraint with TOFUENV_TOFU_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/OpenTofu/constraint` file (can be written with `tenv tofu constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid the fallback to `latest` when there is no .tf or .tf.json files.
+The `latest-allowed` strategy rely on [required_version](#required_version) from .tofu, .tofu.json, .tf or .tf.json files with a fallback to `latest` when no constraint are found. Moreover it is possible to add a default constraint with TOFUENV_TOFU_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/OpenTofu/constraint` file (can be written with `tenv tofu constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid the fallback to `latest` when there is no .tf or .tf.json files.
 
 </details>
 

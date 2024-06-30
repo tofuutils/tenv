@@ -38,8 +38,6 @@ type PredicateInfo struct {
 	ReverseOrder bool
 }
 
-type PredicateReader = func(ConstraintInfo, *config.Config) (func(string) bool, error)
-
 type VersionFile struct {
 	Name   string
 	Parser func(filePath string, conf *config.Config) (string, error)

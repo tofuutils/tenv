@@ -29,7 +29,11 @@ import (
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
 
-func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
+func NoMsg(_ loghelper.Displayer, value string, _ string) string {
+	return value
+}
+
+func Retrieve(filePath string, conf *config.Config, displayMsg func(loghelper.Displayer, string, string) string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Failed to read file", loghelper.Error, err)
@@ -42,5 +46,9 @@ func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 		return "", nil
 	}
 
-	return types.DisplayDetectionInfo(conf.Displayer, resolvedVersion, filePath), nil
+	return displayMsg(conf.Displayer, resolvedVersion, filePath), nil
+}
+
+func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
+	return Retrieve(filePath, conf, types.DisplayDetectionInfo)
 }

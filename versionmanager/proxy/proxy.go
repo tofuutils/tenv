@@ -24,17 +24,18 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/hashicorp/hcl/v2/hclparse"
+
 	"github.com/tofuutils/tenv/v2/config"
 	cmdproxy "github.com/tofuutils/tenv/v2/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
-func Exec(conf *config.Config, builderFunc builder.BuilderFunc, gruntParser terragruntparser.TerragruntParser, execName string, cmdArgs []string) {
+func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
-	versionManager := builderFunc(conf, gruntParser)
+	versionManager := builderFunc(conf, hclParser)
 	detectedVersion, err := versionManager.Detect(true)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint

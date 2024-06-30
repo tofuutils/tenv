@@ -54,8 +54,8 @@ type TerragruntParser struct {
 	parser *hclparse.Parser
 }
 
-func Make() TerragruntParser {
-	return TerragruntParser{parser: hclparse.NewParser()}
+func Make(parser *hclparse.Parser) TerragruntParser {
+	return TerragruntParser{parser: parser}
 }
 
 func (p TerragruntParser) RetrieveTerraformVersionConstraintFromHCL(filePath string, conf *config.Config) (string, error) {

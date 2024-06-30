@@ -22,15 +22,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hashicorp/hcl/v2/hclparse"
+
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
 )
 
-func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, gruntParser terragruntparser.TerragruntParser, cmdArgs []string) {
+func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
-	manager := builders[cmdconst.TofuName](conf, gruntParser)
+	manager := builders[cmdconst.TofuName](conf, hclParser)
 	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
@@ -40,7 +41,7 @@ func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, 
 	execName := cmdconst.TofuName
 	if detectedVersion == "" {
 		execName = cmdconst.TerraformName
-		manager = builders[cmdconst.TerraformName](conf, gruntParser)
+		manager = builders[cmdconst.TerraformName](conf, hclParser)
 		detectedVersion, err = manager.ResolveWithVersionFiles()
 		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint
