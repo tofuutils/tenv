@@ -83,7 +83,7 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 	if err == nil {
 		cleanedVersion := parsedVersion.String() // use a parsable version
 		if m.conf.NoInstall {
-			installed, err := m.checkVersionInstallation(cleanedVersion)
+			_, installed, err := m.checkVersionInstallation("", cleanedVersion)
 			if err != nil {
 				return "", err
 			}
@@ -324,6 +324,11 @@ func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	return writeFile(targetFilePath, detectedVersion, m.conf)
 }
 
+func (m VersionManager) alreadyInstalledMsg(version string, proxyCall bool) {
+	m.conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
+	m.conf.Displayer.Flush(proxyCall)
+}
+
 func (m VersionManager) autoInstallDisabledMsg(version string) error {
 	cmdName := strings.ToLower(m.FolderName)
 	m.conf.Displayer.Flush(false) // Always normal display when installation is missing
@@ -332,21 +337,24 @@ func (m VersionManager) autoInstallDisabledMsg(version string) error {
 	return ErrNoCompatibleLocally
 }
 
-func (m VersionManager) checkVersionInstallation(version string) (bool, error) {
-	installPath, err := m.InstallPath()
-	if err != nil {
-		return false, err
+func (m VersionManager) checkVersionInstallation(installPath string, version string) (string, bool, error) {
+	var err error
+	if installPath == "" {
+		installPath, err = m.InstallPath()
+		if err != nil {
+			return "", false, err
+		}
 	}
 
 	if _, err = os.Stat(filepath.Join(installPath, version)); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return false, nil
+			return installPath, false, nil
 		}
 
-		return false, err
+		return "", false, err
 	}
 
-	return true, nil
+	return installPath, true, nil
 }
 
 func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
@@ -356,11 +364,16 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 		return errEmptyVersion
 	}
 
-	installPath, err := m.InstallPath()
+	// first check without lock
+	installPath, installed, err := m.checkVersionInstallation("", version)
 	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
-
 		return err
+	}
+
+	if installed {
+		m.alreadyInstalledMsg(version, proxyCall)
+
+		return nil
 	}
 
 	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
@@ -368,14 +381,14 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 	defer disableExit()
 	defer deleteLock()
 
-	installed, err := m.checkVersionInstallation(version)
+	// second check with lock to ensure there is no ongoing install
+	_, installed, err = m.checkVersionInstallation(installPath, version)
 	if err != nil {
 		return err
 	}
 
 	if installed {
-		m.conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
-		m.conf.Displayer.Flush(proxyCall)
+		m.alreadyInstalledMsg(version, proxyCall)
 
 		return nil
 	}
