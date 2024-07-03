@@ -587,7 +587,7 @@ String (Default: false)
 
 If set to true **tenv** will automatically install missing tool versions needed.
 
-`tenv <tool>` subcommands `detect` and `use` support a `--no-install`, `-n` disabling flag version.
+`tenv <tool>` subcommands `detect` and `use` support a `--install`, `-i` enabling flag, and a `--no-install`, `-n` disabling flag.
 
 </details>
 

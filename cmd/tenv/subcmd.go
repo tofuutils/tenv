@@ -81,6 +81,8 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" current version.")
 
+	forceInstall, forceNoInstall := false, false
+
 	detectCmd := &cobra.Command{
 		Use:   "detect",
 		Short: loghelper.Concat("Display ", versionManager.FolderName, " current version."),
@@ -88,6 +90,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
+			conf.InitInstall(forceInstall, forceNoInstall)
 			addDeprecationMsg(conf, params)
 
 			detectedVersion, err := versionManager.Detect(false)
@@ -104,7 +107,7 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 	flags := detectCmd.Flags()
 	addInstallationFlags(flags, conf, params)
-	addOptionalInstallationFlags(flags, conf, params)
+	addOptionalInstallationFlags(flags, conf, params, &forceInstall, &forceNoInstall)
 	addRemoteFlags(flags, conf, params)
 
 	return detectCmd
@@ -352,7 +355,7 @@ Available parameter options:
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required")
 
-	workingDir := false
+	forceInstall, forceNoInstall, workingDir := false, false, false
 
 	useCmd := &cobra.Command{
 		Use:   "use version",
@@ -361,6 +364,7 @@ Available parameter options:
 		Args:  cobra.ExactArgs(1),
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
+			conf.InitInstall(forceInstall, forceNoInstall)
 			addDeprecationMsg(conf, params)
 
 			if err := versionManager.Use(args[0], workingDir); err != nil {
@@ -371,7 +375,7 @@ Available parameter options:
 
 	flags := useCmd.Flags()
 	addInstallationFlags(flags, conf, params)
-	addOptionalInstallationFlags(flags, conf, params)
+	addOptionalInstallationFlags(flags, conf, params, &forceInstall, &forceNoInstall)
 	addRemoteFlags(flags, conf, params)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, loghelper.Concat("create ", versionManager.VersionFiles[0].Name, " file in working directory"))
 
@@ -401,9 +405,10 @@ func addInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subC
 	}
 }
 
-func addOptionalInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
+func addOptionalInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams, pInstall *bool, pNoInstall *bool) {
 	flags.BoolVarP(&conf.ForceRemote, "force-remote", "f", conf.ForceRemote, loghelper.Concat("force search on versions available at ", params.remoteEnvName, " url"))
-	flags.BoolVarP(&conf.NoInstall, "no-install", "n", conf.NoInstall, "disable installation of missing version")
+	flags.BoolVarP(pInstall, "install", "i", false, "enable installation of missing version")
+	flags.BoolVarP(pNoInstall, "no-install", "n", false, "disable installation of missing version")
 }
 
 func addRemoteFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
