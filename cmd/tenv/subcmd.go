@@ -35,9 +35,8 @@ import (
 
 const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"
 
-func newConstraintCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newConstraintCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Set a default constraint expression for ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" (set in TENV_ROOT/")
@@ -55,7 +54,6 @@ The default constraint is added while using latest-allowed, min-required or cust
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
-			addDeprecationMsg(conf, params)
 
 			if len(args) == 0 || args[0] == "" {
 				if err := versionManager.ResetConstraint(); err != nil {
@@ -76,7 +74,6 @@ The default constraint is added while using latest-allowed, min-required or cust
 
 func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" current version.")
@@ -91,7 +88,6 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
-			addDeprecationMsg(conf, params)
 
 			detectedVersion, err := versionManager.Detect(false)
 			if err != nil {
@@ -115,7 +111,6 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" (into TENV_ROOT directory from ")
@@ -143,7 +138,6 @@ If a parameter is passed, available options:
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
-			addDeprecationMsg(conf, params)
 
 			if len(args) == 0 {
 				version, err := versionManager.Resolve(semantic.LatestKey)
@@ -173,9 +167,8 @@ If a parameter is passed, available options:
 	return installCmd
 }
 
-func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" versions (located in TENV_ROOT directory), sorted in ascending version order.")
@@ -189,7 +182,6 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
-			addDeprecationMsg(conf, params)
 
 			versions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
@@ -225,7 +217,6 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" versions (from ")
@@ -242,7 +233,6 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
-			addDeprecationMsg(conf, params)
 
 			versions, err := versionManager.ListRemote(reverseOrder)
 			if err != nil {
@@ -285,9 +275,8 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	return listRemoteCmd
 }
 
-func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" (remove TENV_ROOT/")
@@ -301,7 +290,6 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Args:  cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
-			addDeprecationMsg(conf, params)
 
 			if err := versionManager.ResetVersion(); err != nil {
 				loghelper.StdDisplay(err.Error())
@@ -312,9 +300,8 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	return resetCmd
 }
 
-func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Uninstall a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" (remove it from TENV_ROOT directory).")
@@ -326,7 +313,6 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 		Args:  cobra.ExactArgs(1),
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
-			addDeprecationMsg(conf, params)
 
 			if err := versionManager.Uninstall(args[0]); err != nil {
 				loghelper.StdDisplay(err.Error())
@@ -339,7 +325,6 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 
 func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
-	addDeprecationHelpMsg(&descBuilder, params)
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" version to use (set in TENV_ROOT/")
@@ -365,7 +350,6 @@ Available parameter options:
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
-			addDeprecationMsg(conf, params)
 
 			if err := versionManager.Use(args[0], workingDir); err != nil {
 				loghelper.StdDisplay(err.Error())
@@ -380,18 +364,6 @@ Available parameter options:
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, loghelper.Concat("create ", versionManager.VersionFiles[0].Name, " file in working directory"))
 
 	return useCmd
-}
-
-func addDeprecationHelpMsg(descBuilder *strings.Builder, params subCmdParams) {
-	if params.deprecated {
-		descBuilder.WriteString(deprecationMsg)
-	}
-}
-
-func addDeprecationMsg(conf *config.Config, params subCmdParams) {
-	if params.deprecated {
-		conf.Displayer.Display(deprecationMsg)
-	}
 }
 
 func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
