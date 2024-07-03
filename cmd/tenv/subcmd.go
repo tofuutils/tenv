@@ -33,8 +33,6 @@ import (
 	"github.com/spf13/pflag"
 )
 
-const deprecationMsg = "Direct usage of this subcommand on tenv is deprecated, you should use tofu subcommand instead.\n\n"
-
 func newConstraintCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Set a default constraint expression for ")
