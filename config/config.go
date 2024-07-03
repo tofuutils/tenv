@@ -213,6 +213,15 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 	}
 }
 
+func (conf *Config) InitInstall(forceInstall bool, forceNoInstall bool) {
+	switch {
+	case forceNoInstall: // higher priority to --no-install
+		conf.NoInstall = true
+	case forceInstall:
+		conf.NoInstall = false
+	}
+}
+
 func (conf *Config) InitRemoteConf() error {
 	if conf.remoteConfLoaded {
 		return nil
