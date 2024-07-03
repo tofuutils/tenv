@@ -52,7 +52,6 @@ const (
 var version = "dev"
 
 type subCmdParams struct {
-	deprecated     bool
 	needToken      bool
 	remoteEnvName  string
 	pRemote        *string
@@ -97,24 +96,20 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, h
 	rootCmd.AddCommand(newVersionCmd())
 	rootCmd.AddCommand(newUpdatePathCmd(conf.GithubActions))
 
-	tofuParams := subCmdParams{
-		deprecated: true, // direct use should display a deprecation message
-		needToken:  true, remoteEnvName: config.TofuRemoteURLEnvName,
-		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
-	}
-	tofuManager := builders[cmdconst.TofuName](conf, hclParser)
-	initSubCmds(rootCmd, conf, tofuManager, tofuParams) // add tofu management at root level
-
 	tofuCmd := &cobra.Command{
 		Use:     cmdconst.TofuName,
 		Aliases: []string{"opentofu"},
 		Short:   tofuHelp,
 		Long:    tofuHelp,
 	}
-	tofuParams.deprecated = false // usage with tofu subcommand are ok
-	initSubCmds(tofuCmd, conf, tofuManager, tofuParams)
 
-	rootCmd.AddCommand(tofuCmd) // add tofu management as subcommand
+	tofuParams := subCmdParams{
+		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
+		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
+	}
+	initSubCmds(tofuCmd, conf, builders[cmdconst.TofuName](conf, hclParser), tofuParams)
+
+	rootCmd.AddCommand(tofuCmd)
 
 	tfCmd := &cobra.Command{
 		Use:     "tf",
@@ -228,12 +223,12 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 }
 
 func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) {
-	cmd.AddCommand(newConstraintCmd(conf, versionManager, params))
+	cmd.AddCommand(newConstraintCmd(conf, versionManager))
 	cmd.AddCommand(newDetectCmd(conf, versionManager, params))
 	cmd.AddCommand(newInstallCmd(conf, versionManager, params))
-	cmd.AddCommand(newListCmd(conf, versionManager, params))
+	cmd.AddCommand(newListCmd(conf, versionManager))
 	cmd.AddCommand(newListRemoteCmd(conf, versionManager, params))
-	cmd.AddCommand(newResetCmd(conf, versionManager, params))
-	cmd.AddCommand(newUninstallCmd(conf, versionManager, params))
+	cmd.AddCommand(newResetCmd(conf, versionManager))
+	cmd.AddCommand(newUninstallCmd(conf, versionManager))
 	cmd.AddCommand(newUseCmd(conf, versionManager, params))
 }
