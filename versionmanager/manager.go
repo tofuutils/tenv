@@ -294,7 +294,9 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 
 	parsedVersion, err := version.NewVersion(requestedVersion) // check the use of a parsable version
 	if err == nil {
-		return m.uninstallSpecificVersion(installPath, parsedVersion.String())
+		m.uninstallSpecificVersion(installPath, parsedVersion.String())
+
+		return nil
 	}
 
 	versions, err := m.ListLocal(true)
@@ -308,7 +310,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	}
 
 	if len(selected) == 0 {
-		m.conf.Displayer.Display("No matching versions")
+		m.conf.Displayer.Display(loghelper.Concat("No matching ", m.FolderName, " versions"))
 
 		return nil
 	}
@@ -326,9 +328,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	}
 
 	for _, version := range selected {
-		if err = m.uninstallSpecificVersion(installPath, version); err != nil {
-			m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " failed with error : ", err.Error()))
-		}
+		m.uninstallSpecificVersion(installPath, version)
 	}
 
 	return nil
@@ -456,18 +456,20 @@ func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, n
 	return "", errNoCompatible
 }
 
-func (m VersionManager) uninstallSpecificVersion(installPath string, version string) error {
+func (m VersionManager) uninstallSpecificVersion(installPath string, version string) {
 	if version == "" {
-		return errEmptyVersion
+		m.conf.Displayer.Display(errEmptyVersion.Error())
+
+		return
 	}
 
 	targetPath := filepath.Join(installPath, version)
 	err := os.RemoveAll(targetPath)
 	if err == nil {
 		m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " successful (directory ", targetPath, " removed)"))
+	} else {
+		m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " failed with error : ", err.Error()))
 	}
-
-	return err
 }
 
 func removeFile(filePath string, conf *config.Config) error {
