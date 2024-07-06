@@ -28,7 +28,9 @@ import (
 
 	"github.com/tofuutils/tenv/v2/config"
 	cmdproxy "github.com/tofuutils/tenv/v2/pkg/cmdproxy"
+	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
+	"github.com/tofuutils/tenv/v2/versionmanager/lastuse"
 )
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
@@ -48,9 +50,13 @@ func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclpa
 		os.Exit(1)
 	}
 
-	RunCmd(installPath, detectedVersion, execName, cmdArgs, conf.GithubActions)
+	RunCmd(installPath, detectedVersion, execName, cmdArgs, conf.GithubActions, conf.Displayer)
 }
 
-func RunCmd(installPath string, detectedVersion string, execName string, cmdArgs []string, gha bool) {
-	cmdproxy.Run(filepath.Join(installPath, detectedVersion, execName), cmdArgs, gha)
+func RunCmd(installPath string, detectedVersion string, execName string, cmdArgs []string, gha bool, displayer loghelper.Displayer) {
+	versionPath := filepath.Join(installPath, detectedVersion)
+
+	lastuse.WriteNow(versionPath, displayer)
+
+	cmdproxy.Run(filepath.Join(versionPath, execName), cmdArgs, gha)
 }
