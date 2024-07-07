@@ -321,9 +321,9 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 
 	buffer := make([]byte, 1)
 	os.Stdin.Read(buffer)
-	readed := buffer[0]
+	read := buffer[0]
 
-	if doUninstall := readed == 'y' || readed == 'Y'; !doUninstall {
+	if doUninstall := read == 'y' || read == 'Y'; !doUninstall {
 		return nil
 	}
 

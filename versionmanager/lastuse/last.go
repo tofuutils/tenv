@@ -40,7 +40,7 @@ func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 		return time.Time{}
 	}
 
-	parsed, err := time.Parse(time.DateOnly, string(data))
+	parsed, err := time.Parse(time.DateOnly, string(data)) //nolint
 	if err != nil {
 		displayer.Log(hclog.Warn, "Unable to parse date in file", loghelper.Error, err)
 
@@ -52,7 +52,7 @@ func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 
 func WriteNow(dirPath string, displayer loghelper.Displayer) {
 	lastUsePath := filepath.Join(dirPath, fileName)
-	nowData := time.Now().AppendFormat(nil, time.DateOnly)
+	nowData := time.Now().AppendFormat(nil, time.DateOnly) //nolint
 
 	if err := os.WriteFile(lastUsePath, nowData, 0o644); err != nil {
 		displayer.Log(hclog.Warn, "Unable to write date in file", loghelper.Error, err)
