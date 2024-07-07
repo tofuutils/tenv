@@ -400,7 +400,7 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 
 <details><summary><b>tenv &lt;tool&gt; uninstall &lt;version&gt;</b></summary><br>
 
-Uninstall versions of the tool (remove it from `TENV_ROOT` directory without interpretation).
+Uninstall versions of the tool (remove it from `TENV_ROOT` directory).
 
 Available parameter options:
 
