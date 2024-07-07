@@ -300,13 +300,21 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 
 func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
-	descBuilder.WriteString("Uninstall a specific version of ")
+	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
-	descBuilder.WriteString(" (remove it from TENV_ROOT directory).")
+	descBuilder.WriteString(` (remove them from TENV_ROOT directory).
+
+Available parameter options:
+- an exact Semver 2.0.0 version string to remove (no confirmation required)
+- a version constraint expression
+- all
+- but-last (all versions except the highest installed)
+- not-used-for:<duration>, <duration> in days or months, like "14d" or "2m"
+- not-used-since:<date>, <date> format is YYYY-MM-DD, like "2024-06-30"`)
 
 	uninstallCmd := &cobra.Command{
 		Use:   "uninstall version",
-		Short: loghelper.Concat("Uninstall a specific version of ", versionManager.FolderName, "."),
+		Short: loghelper.Concat("Uninstall versions of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
 		Args:  cobra.ExactArgs(1),
 		Run: func(_ *cobra.Command, args []string) {

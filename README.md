@@ -398,9 +398,18 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; uninstall &lt;version&gt;</b></summary><br>
 
-Uninstall a specific version of the tool (remove it from `TENV_ROOT` directory without interpretation).
+Uninstall versions of the tool (remove it from `TENV_ROOT` directory without interpretation).
+
+Available parameter options:
+
+- an exact [Semver 2.0.0](https://semver.org/) version string to remove (no confirmation required)
+- a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string
+- `all`
+- `but-last` (all versions except the highest installed)
+- `not-used-for:<duration>`, `<duration>` in days or months, like "14d" or "2m"
+- `not-used-since:<date>`, `<date>` format is YYYY-MM-DD, like "2024-06-30"
 
 ```console
 $ tenv tofu uninstall v1.6.0-alpha4
