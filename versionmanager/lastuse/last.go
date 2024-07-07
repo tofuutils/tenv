@@ -19,6 +19,8 @@
 package lastuse
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"time"
@@ -33,7 +35,7 @@ const fileName = "last-use.txt"
 func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 	data, err := os.ReadFile(filepath.Join(dirPath, fileName))
 	if err != nil {
-		displayer.Log(hclog.Warn, "Unable to read date in file", loghelper.Error, err)
+		displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Unable to read date in file", loghelper.Error, err)
 
 		return time.Time{}
 	}
