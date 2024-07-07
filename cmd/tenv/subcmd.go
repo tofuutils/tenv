@@ -305,7 +305,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 	descBuilder.WriteString(` (remove them from TENV_ROOT directory).
 
 Available parameter options:
-- an exact Semver 2.0.0 version string to use (no confirmation required)
+- an exact Semver 2.0.0 version string to remove (no confirmation required)
 - a version constraint expression
 - all
 - but-last (all versions except the highest installed)
