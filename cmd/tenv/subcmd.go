@@ -184,16 +184,11 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 
-			versions, err := versionManager.ListLocal(reverseOrder)
+			installPath, versions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
 
 				return
-			}
-
-			installPath, err := versionManager.InstallPath()
-			if err != nil && conf.DisplayVerbose {
-				loghelper.StdDisplay("Can not make install directory : " + err.Error())
 			}
 
 			filePath := versionManager.RootVersionFilePath()

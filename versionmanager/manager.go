@@ -107,7 +107,7 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 	}
 
 	if !m.conf.ForceRemote {
-		versions, err := m.ListLocal(predicateInfo.ReverseOrder)
+		_, versions, err := m.ListLocal(predicateInfo.ReverseOrder)
 		if err != nil {
 			m.conf.Displayer.Flush(proxyCall)
 
@@ -154,15 +154,15 @@ func (m VersionManager) InstallPath() (string, error) {
 	return dirPath, os.MkdirAll(dirPath, 0o755)
 }
 
-func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
+func (m VersionManager) ListLocal(reverseOrder bool) (string, []string, error) {
 	installPath, err := m.InstallPath()
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	entries, err := os.ReadDir(installPath)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	versions := make([]string, 0, len(entries))
@@ -175,7 +175,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]string, error) {
 	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
 
-	return versions, nil
+	return installPath, versions, nil
 }
 
 func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
@@ -299,7 +299,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return nil
 	}
 
-	versions, err := m.ListLocal(true)
+	_, versions, err := m.ListLocal(true)
 	if err != nil {
 		return err
 	}
