@@ -21,12 +21,15 @@ package main
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager"
+	"github.com/tofuutils/tenv/v2/versionmanager/lastuse"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 
 	"github.com/spf13/cobra"
@@ -188,6 +191,11 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 				return
 			}
 
+			installPath, err := versionManager.InstallPath()
+			if err != nil && conf.DisplayVerbose {
+				loghelper.StdDisplay("Can not make install directory : " + err.Error())
+			}
+
 			filePath := versionManager.RootVersionFilePath()
 			data, err := os.ReadFile(filePath)
 			if err != nil && conf.DisplayVerbose {
@@ -195,11 +203,21 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			}
 			usedVersion := string(bytes.TrimSpace(data))
 
+			nilTime := time.Time{}
 			for _, version := range versions {
-				if usedVersion == version {
-					loghelper.StdDisplay(loghelper.Concat("* ", version, " (set by ", filePath, ")"))
-				} else {
-					loghelper.StdDisplay("  " + version)
+				useDate := lastuse.Read(filepath.Join(installPath, version), conf.Displayer)
+				noUseDate := useDate == nilTime
+				switch {
+				case usedVersion == version:
+					if noUseDate {
+						loghelper.StdDisplay(loghelper.Concat("* ", version, " (never used, set by ", filePath, ")"))
+					} else {
+						loghelper.StdDisplay(loghelper.Concat("* ", version, " (used ", useDate.Format(time.DateOnly), ", set by ", filePath, ")")) //nolint
+					}
+				case noUseDate:
+					loghelper.StdDisplay(loghelper.Concat("  ", version, " (never used)"))
+				default:
+					loghelper.StdDisplay(loghelper.Concat("  ", version, " (used ", useDate.Format(time.DateOnly), ")")) //nolint
 				}
 			}
 			if conf.DisplayVerbose {
