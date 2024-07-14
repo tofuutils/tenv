@@ -402,7 +402,7 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 
 Uninstall versions of the tool (remove it from `TENV_ROOT` directory).
 
-Without parameter, display a list to select several versions.
+Without parameter, display an interactive list to select several versions.
 
 If a parameter is passed, available parameter options:
 
