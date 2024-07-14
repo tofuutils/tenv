@@ -21,6 +21,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"slices"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager"
+	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 )
 
 const (
@@ -163,15 +165,21 @@ func uninstallUI(versionManager versionmanager.VersionManager) error {
 	}
 
 	_, err = tea.NewProgram(m).Run()
-	if err == nil {
-		if len(m.choices) == 0 {
-			loghelper.StdDisplay("No version(s) selected.")
-		} else {
-			for version := range m.choices {
-				m.manager.Uninstall(version)
-			}
-		}
+	if err != nil {
+		return err
 	}
 
-	return err
+	if len(m.choices) == 0 {
+		loghelper.StdDisplay(loghelper.Concat("No selected ", versionManager.FolderName, " versions"))
+
+		return nil
+	}
+
+	selected := make([]string, 0, len(m.choices))
+	for version := range m.choices {
+		selected = append(selected, version)
+	}
+	slices.SortFunc(selected, semantic.CmpVersion)
+
+	return m.manager.UninstallMultiple(selected)
 }
