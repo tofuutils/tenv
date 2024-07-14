@@ -113,16 +113,22 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 		return "", err
 	}
 
+	installPath, err := m.InstallPath()
+	if err != nil {
+		m.conf.Displayer.Flush(proxyCall)
+
+		return "", err
+	}
+
 	if !m.conf.ForceRemote {
-		datedVersions, err := m.ListLocal(predicateInfo.ReverseOrder)
+		versions, err := m.innerListLocal(installPath, predicateInfo.ReverseOrder)
 		if err != nil {
 			m.conf.Displayer.Flush(proxyCall)
 
 			return "", err
 		}
 
-		for _, datedVersion := range datedVersions {
-			version := datedVersion.Version
+		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
 				m.conf.Displayer.Display("Found compatible version installed locally : " + version)
 				m.conf.Displayer.Flush(proxyCall)
@@ -168,30 +174,20 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 		return nil, err
 	}
 
-	entries, err := os.ReadDir(installPath)
+	versions, err := m.innerListLocal(installPath, reverseOrder)
 	if err != nil {
 		return nil, err
 	}
 
-	versions := make([]DatedVersion, 0, len(entries))
-	for _, entry := range entries {
-		if entry.IsDir() {
-			version := entry.Name()
-			versions = append(versions, DatedVersion{
-				UseDate: lastuse.Read(filepath.Join(installPath, version), m.conf.Displayer),
-				Version: version,
-			})
-		}
+	datedVersions := make([]DatedVersion, 0, len(versions))
+	for _, version := range versions {
+		datedVersions = append(datedVersions, DatedVersion{
+			UseDate: lastuse.Read(filepath.Join(installPath, version), m.conf.Displayer),
+			Version: version,
+		})
 	}
 
-	cmpDatedVersion := func(dv1 DatedVersion, dv2 DatedVersion) int {
-		return semantic.CmpVersion(dv1.Version, dv2.Version)
-	}
-
-	cmpFunc := reversecmp.Reverser[DatedVersion](cmpDatedVersion, reverseOrder)
-	slices.SortFunc(versions, cmpFunc)
-
-	return versions, nil
+	return datedVersions, nil
 }
 
 func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
@@ -315,14 +311,9 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return nil
 	}
 
-	datedVersions, err := m.ListLocal(true)
+	versions, err := m.innerListLocal(installPath, true)
 	if err != nil {
 		return err
-	}
-
-	versions := make([]string, 0, len(datedVersions))
-	for _, datedVersion := range datedVersions {
-		versions = append(versions, datedVersion.Version)
 	}
 
 	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.conf.Displayer)
@@ -422,6 +413,25 @@ func (m VersionManager) checkVersionInstallation(installPath string, version str
 	}
 
 	return installPath, true, nil
+}
+
+func (m VersionManager) innerListLocal(installPath string, reverseOrder bool) ([]string, error) {
+	entries, err := os.ReadDir(installPath)
+	if err != nil {
+		return nil, err
+	}
+
+	versions := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if entry.IsDir() {
+			versions = append(versions, entry.Name())
+		}
+	}
+
+	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
+	slices.SortFunc(versions, cmpFunc)
+
+	return versions, nil
 }
 
 func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
