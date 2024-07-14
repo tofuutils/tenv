@@ -329,11 +329,18 @@ Available parameter options:
 		Use:   "uninstall version",
 		Short: loghelper.Concat("Uninstall versions of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 
-			if err := versionManager.Uninstall(args[0]); err != nil {
+			var err error
+			if len(args) == 0 {
+				err = uninstallUI(versionManager)
+			} else {
+				err = versionManager.Uninstall(args[0])
+			}
+
+			if err != nil {
 				loghelper.StdDisplay(err.Error())
 			}
 		},
