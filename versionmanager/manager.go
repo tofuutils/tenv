@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
@@ -33,6 +34,7 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/lockfile"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/pkg/reversecmp"
+	"github.com/tofuutils/tenv/v2/versionmanager/lastuse"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
 	iacparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/iac"
@@ -48,6 +50,11 @@ var (
 type ReleaseInfoRetriever interface {
 	InstallRelease(version string, targetPath string) error
 	ListReleases() ([]string, error)
+}
+
+type DatedVersion struct {
+	UseDate time.Time
+	Version string
 }
 
 type VersionManager struct {
@@ -107,14 +114,15 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 	}
 
 	if !m.conf.ForceRemote {
-		_, versions, err := m.ListLocal(predicateInfo.ReverseOrder)
+		datedVersions, err := m.ListLocal(predicateInfo.ReverseOrder)
 		if err != nil {
 			m.conf.Displayer.Flush(proxyCall)
 
 			return "", err
 		}
 
-		for _, version := range versions {
+		for _, datedVersion := range datedVersions {
+			version := datedVersion.Version
 			if predicateInfo.Predicate(version) {
 				m.conf.Displayer.Display("Found compatible version installed locally : " + version)
 				m.conf.Displayer.Flush(proxyCall)
@@ -154,28 +162,36 @@ func (m VersionManager) InstallPath() (string, error) {
 	return dirPath, os.MkdirAll(dirPath, 0o755)
 }
 
-func (m VersionManager) ListLocal(reverseOrder bool) (string, []string, error) {
+func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 	installPath, err := m.InstallPath()
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	entries, err := os.ReadDir(installPath)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
-	versions := make([]string, 0, len(entries))
+	versions := make([]DatedVersion, 0, len(entries))
 	for _, entry := range entries {
 		if entry.IsDir() {
-			versions = append(versions, entry.Name())
+			version := entry.Name()
+			versions = append(versions, DatedVersion{
+				UseDate: lastuse.Read(filepath.Join(installPath, version), m.conf.Displayer),
+				Version: version,
+			})
 		}
 	}
 
-	cmpFunc := reversecmp.Reverser[string](semantic.CmpVersion, reverseOrder)
+	cmpDatedVersion := func(dv1 DatedVersion, dv2 DatedVersion) int {
+		return semantic.CmpVersion(dv1.Version, dv2.Version)
+	}
+
+	cmpFunc := reversecmp.Reverser[DatedVersion](cmpDatedVersion, reverseOrder)
 	slices.SortFunc(versions, cmpFunc)
 
-	return installPath, versions, nil
+	return versions, nil
 }
 
 func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
@@ -299,9 +315,14 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return nil
 	}
 
-	_, versions, err := m.ListLocal(true)
+	datedVersions, err := m.ListLocal(true)
 	if err != nil {
 		return err
+	}
+
+	versions := make([]string, 0, len(datedVersions))
+	for _, datedVersion := range datedVersions {
+		versions = append(versions, datedVersion.Version)
 	}
 
 	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.conf.Displayer)

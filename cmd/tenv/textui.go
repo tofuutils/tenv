@@ -134,14 +134,14 @@ func (m itemModel) View() string {
 }
 
 func uninstallUI(versionManager versionmanager.VersionManager) error {
-	_, versions, err := versionManager.ListLocal(false)
+	datedVersions, err := versionManager.ListLocal(false)
 	if err != nil {
 		return err
 	}
 
-	items := make([]list.Item, 0, len(versions))
-	for _, version := range versions {
-		items = append(items, item(version))
+	items := make([]list.Item, 0, len(datedVersions))
+	for _, datedVersion := range datedVersions {
+		items = append(items, item(datedVersion.Version))
 	}
 
 	// shared object

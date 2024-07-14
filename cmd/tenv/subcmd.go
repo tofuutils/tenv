@@ -21,7 +21,6 @@ package main
 import (
 	"bytes"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +28,6 @@ import (
 	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager"
-	"github.com/tofuutils/tenv/v2/versionmanager/lastuse"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 
 	"github.com/spf13/cobra"
@@ -184,7 +182,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 
-			installPath, versions, err := versionManager.ListLocal(reverseOrder)
+			datedVersions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
 
@@ -199,8 +197,9 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			usedVersion := string(bytes.TrimSpace(data))
 
 			nilTime := time.Time{}
-			for _, version := range versions {
-				useDate := lastuse.Read(filepath.Join(installPath, version), conf.Displayer)
+			for _, datedVersion := range datedVersions {
+				useDate := datedVersion.UseDate
+				version := datedVersion.Version
 				noUseDate := useDate == nilTime
 				switch {
 				case usedVersion == version:
@@ -216,7 +215,7 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 				}
 			}
 			if conf.DisplayVerbose {
-				loghelper.StdDisplay(loghelper.Concat("found ", strconv.Itoa(len(versions)), " ", versionManager.FolderName, " version(s) managed by tenv."))
+				loghelper.StdDisplay(loghelper.Concat("found ", strconv.Itoa(len(datedVersions)), " ", versionManager.FolderName, " version(s) managed by tenv."))
 			}
 		},
 	}
