@@ -341,7 +341,7 @@ Installation of OpenTofu 1.6.0 successful
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; use [version]</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; use  &lt;version&gt;</b></summary><br>
 
 Switch the default tool version to use (set in `TENV_ROOT/<TOOL>/version` file).
 
@@ -398,11 +398,13 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; uninstall &lt;version&gt;</b></summary><br>
+<details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
 
 Uninstall versions of the tool (remove it from `TENV_ROOT` directory).
 
-Available parameter options:
+Without parameter, display an interactive list to select several versions.
+
+If a parameter is passed, available parameter options:
 
 - an exact [Semver 2.0.0](https://semver.org/) version string to remove (no confirmation required)
 - a [version constraint](https://opentofu.org/docs/language/expressions/version-constraints) string

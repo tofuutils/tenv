@@ -334,6 +334,24 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	return nil
 }
 
+func (m VersionManager) UninstallMultiple(versions []string) error {
+	installPath, err := m.InstallPath()
+	if err != nil {
+		return err
+	}
+
+	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
+	defer disableExit()
+	defer deleteLock()
+
+	for _, version := range versions {
+		m.uninstallSpecificVersion(installPath, version)
+	}
+
+	return nil
+}
+
 func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
 	detectedVersion, err := m.Evaluate(requestedVersion, false)
 	if err != nil {

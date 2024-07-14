@@ -317,7 +317,9 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(` (remove them from TENV_ROOT directory).
 
-Available parameter options:
+Without parameter, display an interactive list to select several versions.
+
+If a parameter is passed, available parameter options:
 - an exact Semver 2.0.0 version string to remove (no confirmation required)
 - a version constraint expression
 - all
@@ -329,11 +331,18 @@ Available parameter options:
 		Use:   "uninstall version",
 		Short: loghelper.Concat("Uninstall versions of ", versionManager.FolderName, "."),
 		Long:  descBuilder.String(),
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 
-			if err := versionManager.Uninstall(args[0]); err != nil {
+			var err error
+			if len(args) == 0 {
+				err = uninstallUI(versionManager)
+			} else {
+				err = versionManager.Uninstall(args[0])
+			}
+
+			if err != nil {
 				loghelper.StdDisplay(err.Error())
 			}
 		},
