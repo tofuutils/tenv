@@ -316,6 +316,7 @@ func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionM
 	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(` (remove them from TENV_ROOT directory).
+
 Without parameter, display a list to select several versions.
 
 If a parameter is passed, available parameter options:
