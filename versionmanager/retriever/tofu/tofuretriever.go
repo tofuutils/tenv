@@ -156,6 +156,10 @@ func (r TofuRetriever) checkSumAndSig(version *version.Version, stable bool, dat
 		return err
 	}
 
+	if r.conf.SkipSignature {
+		return nil
+	}
+
 	dataSumsSig, err := download.Bytes(assetURLs[3], r.conf.Displayer.Display)
 	if err != nil {
 		return err

@@ -125,6 +125,7 @@ type Config struct {
 	remoteConfLoaded bool
 	RemoteConfPath   string
 	RootPath         string
+	SkipSignature    bool
 	Tf               RemoteConfig
 	TfKeyPath        string
 	Tg               RemoteConfig

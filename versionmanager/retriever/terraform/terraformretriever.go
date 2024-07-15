@@ -181,6 +181,10 @@ func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloa
 		return err
 	}
 
+	if r.conf.SkipSignature {
+		return nil
+	}
+
 	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err
