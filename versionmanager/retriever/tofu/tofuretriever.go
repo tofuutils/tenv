@@ -44,9 +44,11 @@ import (
 const (
 	publicKeyURL = "https://get.opentofu.org/opentofu.asc"
 
-	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
+	baseIdentity     = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
+	issuer           = "https://token.actions.githubusercontent.com"
+	unstableIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/main"
+
 	baseFileName = "tofu_"
-	issuer       = "https://token.actions.githubusercontent.com"
 	opentofu     = "opentofu"
 )
 
@@ -170,7 +172,7 @@ func (r TofuRetriever) checkSumAndSig(version *version.Version, stable bool, dat
 		return err
 	}
 
-	identity := buildIdentity(version)
+	identity := buildIdentity(version, stable)
 	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer, r.conf.Displayer)
 	if err == nil || err != cosigncheck.ErrNotInstalled {
 		return err
@@ -222,7 +224,11 @@ func buildAssetNames(version string, arch string, stable bool) []string {
 	return []string{nameBuilder.String(), sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig"}
 }
 
-func buildIdentity(v *version.Version) string {
+func buildIdentity(v *version.Version, stable bool) string {
+	if !stable {
+		return unstableIdentity
+	}
+
 	cleanedVersion := v.String()
 	indexDot := strings.LastIndexByte(cleanedVersion, '.')
 	// cleaned, so indexDot can not be -1
