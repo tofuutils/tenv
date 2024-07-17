@@ -45,7 +45,7 @@ func Exec(execName string) {
 
 	signalChan := make(chan os.Signal, 1)
 	go transmitSignal(signalChan, cmd.Process)
-	signal.Notify(signalChan, os.Interrupt) //nolint
+	signal.Notify(signalChan, os.Interrupt)
 
 	if err = cmd.Wait(); err != nil {
 		var exitError *exec.ExitError

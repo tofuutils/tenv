@@ -58,7 +58,7 @@ func Run(execPath string, cmdArgs []string, gha bool) {
 
 	signalChan := make(chan os.Signal, 1)
 	go transmitIncreasingSignal(signalChan, cmd.Process)
-	signal.Notify(signalChan, os.Interrupt) //nolint
+	signal.Notify(signalChan, os.Interrupt)
 
 	if err = cmd.Wait(); err != nil {
 		var exitError *exec.ExitError
