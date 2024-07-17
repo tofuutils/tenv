@@ -35,9 +35,7 @@ var errDelimiter = errors.New("key and value should not contains delimiter")
 func Run(execPath string, cmdArgs []string, gha bool) {
 	exitCode := 0
 	defer func() {
-		if exitCode != 0 {
-			os.Exit(exitCode)
-		}
+		os.Exit(exitCode)
 	}()
 
 	// proxy to selected version
