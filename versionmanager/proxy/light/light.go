@@ -43,7 +43,7 @@ func Exec(execName string) {
 		exitWithErrorMsg(execName, err)
 	}
 
-	signalChan := make(chan os.Signal)
+	signalChan := make(chan os.Signal, 1)
 	go transmitSignal(signalChan, cmd.Process)
 	signal.Notify(signalChan, os.Interrupt) //nolint
 
