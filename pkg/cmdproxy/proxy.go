@@ -35,7 +35,9 @@ var errDelimiter = errors.New("key and value should not contains delimiter")
 func Run(execPath string, cmdArgs []string, gha bool) {
 	exitCode := 0
 	defer func() {
-		os.Exit(exitCode)
+		if exitCode != 0 {
+			os.Exit(exitCode)
+		}
 	}()
 
 	// proxy to selected version
@@ -96,29 +98,31 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(), e
 	cmd.Stdout = io.MultiWriter(&outBuffer, os.Stdout)
 
 	return func() {
-		var err error
-		defer func() {
-			if err != nil {
-				exitWithErrorMsg(execName, err, pExitCode)
-			}
-		}()
 		defer outputFile.Close()
 
-		if err = writeMultiline(outputFile, "stderr", errBuffer.String()); err != nil {
+		err = writeMultiline(outputFile, "stderr", errBuffer.String())
+		if err != nil {
+			exitWithErrorMsg(execName, err, pExitCode)
+
 			return
 		}
 
 		if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
+			exitWithErrorMsg(execName, err, pExitCode)
+
 			return
 		}
 
 		exitCode := *pExitCode
 		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(exitCode)); err != nil {
+			exitWithErrorMsg(execName, err, pExitCode)
+
 			return
 		}
 
 		if exitCode != 0 && exitCode != 2 {
 			err = fmt.Errorf("exited with code %d", exitCode)
+			exitWithErrorMsg(execName, err, pExitCode)
 		}
 	}, nil
 }
