@@ -35,7 +35,9 @@ var errDelimiter = errors.New("key and value should not contains delimiter")
 func Run(execPath string, cmdArgs []string, gha bool) {
 	exitCode := 0
 	defer func() {
-		os.Exit(exitCode)
+		if exitCode != 0 {
+			os.Exit(exitCode)
+		}
 	}()
 
 	// proxy to selected version
@@ -46,11 +48,7 @@ func Run(execPath string, cmdArgs []string, gha bool) {
 
 		return
 	}
-
-	calledExitCode := 0
-	defer func() {
-		done(calledExitCode)
-	}()
+	defer done()
 
 	if err = cmd.Start(); err != nil {
 		exitWithErrorMsg(execPath, err, &exitCode)
@@ -58,14 +56,14 @@ func Run(execPath string, cmdArgs []string, gha bool) {
 		return
 	}
 
-	signalChan := make(chan os.Signal)
+	signalChan := make(chan os.Signal, 1)
 	go transmitIncreasingSignal(signalChan, cmd.Process)
-	signal.Notify(signalChan, os.Interrupt) //nolint
+	signal.Notify(signalChan, os.Interrupt)
 
 	if err = cmd.Wait(); err != nil {
 		var exitError *exec.ExitError
 		if ok := errors.As(err, &exitError); ok {
-			calledExitCode = exitError.ExitCode()
+			exitCode = exitError.ExitCode()
 
 			return
 		}
@@ -75,20 +73,18 @@ func Run(execPath string, cmdArgs []string, gha bool) {
 
 func exitWithErrorMsg(execName string, err error, pExitCode *int) {
 	fmt.Println("Failure during", execName, "call :", err) //nolint
-	*pExitCode = 1
+	if *pExitCode == 0 {
+		*pExitCode = 1
+	}
 }
 
-func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(int), error) {
+func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(), error) {
 	cmd.Stdin = os.Stdin
 	if !gha {
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 
-		return func(calledExitCode int) {
-			if calledExitCode != 0 {
-				*pExitCode = calledExitCode
-			}
-		}, nil
+		return noAction, nil
 	}
 
 	outputPath := os.Getenv("GITHUB_OUTPUT")
@@ -101,29 +97,32 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(int)
 	cmd.Stderr = io.MultiWriter(&errBuffer, os.Stderr)
 	cmd.Stdout = io.MultiWriter(&outBuffer, os.Stdout)
 
-	return func(calledExitCode int) {
-		var err error
-		defer func() {
-			if err != nil {
-				exitWithErrorMsg(execName, err, pExitCode)
-			}
-		}()
+	return func() {
 		defer outputFile.Close()
 
-		if err = writeMultiline(outputFile, "stderr", errBuffer.String()); err != nil {
+		err = writeMultiline(outputFile, "stderr", errBuffer.String())
+		if err != nil {
+			exitWithErrorMsg(execName, err, pExitCode)
+
 			return
 		}
 
 		if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
+			exitWithErrorMsg(execName, err, pExitCode)
+
 			return
 		}
 
-		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(calledExitCode)); err != nil {
+		exitCode := *pExitCode
+		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(exitCode)); err != nil {
+			exitWithErrorMsg(execName, err, pExitCode)
+
 			return
 		}
 
-		if calledExitCode != 0 && calledExitCode != 2 {
-			err = fmt.Errorf("exited with code %d", calledExitCode)
+		if exitCode != 0 && exitCode != 2 {
+			err = fmt.Errorf("exited with code %d", exitCode)
+			exitWithErrorMsg(execName, err, pExitCode)
 		}
 	}, nil
 }
@@ -159,3 +158,5 @@ func writeMultiline(file *os.File, key string, value string) error {
 
 	return err
 }
+
+func noAction() {}
