@@ -46,7 +46,7 @@ asdf-vm is generic and extensible with a plugin system, key **tenv** differences
 - **tenv** is more specific and has features dedicated to OpenTofu, Terraform, Terragrunt
 and Atmos, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
 - **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
-- **tenv** does better in terms of performance and platform compatibility. It works uniformly across all modern operating systems, 
+- **tenv** does better in terms of performance and platform compatibility. It works uniformly across all modern operating systems,
 including Linux, MacOS, Windows, BSD, and Solaris, whereas asdf-vm natively supports only Linux and MacOS.
 - **tenv** checks the sha256 checksum and the signature of the checksum file with [cosign](https://github.com/sigstore/cosign). Check [Signature support](#signature-support) section for getting more information about it.
 - **tenv** command compatibility: In nearly all places you can use the exact syntax that works in tfenv / tofuenv.
@@ -82,6 +82,7 @@ which certainly makes it challenging to be performant, whereas **tenv** is writt
     <li><a href="#environment-variables">Environment variables</a></li>
     <li><a href="#version-files">Version files</a></li>
     <li><a href="#technical-details">Technical details</a></li>
+    <li><a href="#verifying-signature">Verifying tenv Signatures</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#community">Community</a></li>
     <li><a href="#authors">Authors</a></li>
@@ -250,7 +251,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 <a id="shell-completion"></a>
 ### Install shell completion
 
-> [!NOTE]  
+> [!NOTE]
 > If you install tenv via Brew or Nix, completion will be installed automatically.
 
 <details><summary><b>zsh</b></summary><br>
@@ -1475,6 +1476,59 @@ terraform:
 **tenv** checks the sha256 checksum (there is no signature available).
 
 </details>
+
+<a id="verifying-signature"></a>
+## Verifying tenv Signatures
+
+You can use `cosign` to verify the signature of `tenv` releases. Below is an example installing the `.rpm` using `dnf` once we've verified the signatures/integrity.
+
+> [!NOTE]
+> The example below is a bash script that could be useful if you are wanting to automate installation of `tenv` in a developer environment. Adapt it to fit your specific use case.
+
+```bash
+# Get latest release
+LATEST_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name) #v2.6.1
+
+# Get checksum files
+curl --silent -OL https://github.com/tofuutils/tenv/releases/download/${LATEST_VERSION}/tenv_${LATEST_VERSION}_checksums.txt
+curl --silent -OL https://github.com/tofuutils/tenv/releases/download/${LATEST_VERSION}/tenv_${LATEST_VERSION}_checksums.txt.sig
+curl --silent -OL https://github.com/tofuutils/tenv/releases/download/${LATEST_VERSION}/tenv_${LATEST_VERSION}_checksums.txt.pem
+
+# Get RPM files
+curl --silent -OL https://github.com/tofuutils/tenv/releases/download/${LATEST_VERSION}/tenv_${LATEST_VERSION}_amd64.rpm
+curl --silent -OL https://github.com/tofuutils/tenv/releases/download/${LATEST_VERSION}/tenv_${LATEST_VERSION}_amd64.rpm.sig
+curl --silent -OL https://github.com/tofuutils/tenv/releases/download/${LATEST_VERSION}/tenv_${LATEST_VERSION}_amd64.rpm.pem
+
+# Verify signatures
+cosign \
+    verify-blob \
+    --certificate-identity "https://github.com/tofuutils/tenv/.github/workflows/release.yml@refs/tags/${LATEST_VERSION}" \
+    --signature "tenv_${LATEST_VERSION}_checksums.txt.sig" \
+    --certificate "tenv_${LATEST_VERSION}_checksums.txt.pem" \
+    --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+    "tenv_${LATEST_VERSION}_checksums.txt"
+
+TENV_SIG_CHECK=$?
+
+cosign \
+    verify-blob \
+    --certificate-identity "https://github.com/tofuutils/tenv/.github/workflows/release.yml@refs/tags/${LATEST_VERSION}" \
+    --signature "tenv_${LATEST_VERSION}_amd64.rpm.sig" \
+    --certificate "tenv_${LATEST_VERSION}_amd64.rpm.pem" \
+    --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+    "tenv_${LATEST_VERSION}_amd64.rpm"
+
+TENV_ASSET_CHECK=$?
+
+# Check everything is good before installation
+if [ "$TENV_SIG_CHECK" -eq "0" ] && [ "$TENV_ASSET_CHECK" -eq "0" ] && shasum -a 256 -c "tenv_${LATEST_VERSION}_checksums.txt" --ignore-missing
+then
+  dnf install "tenv_${LATEST_VERSION}_amd64.rpm" -y
+  tenv --version
+else
+  echo "Signature verification and/or checksum checks failed!"
+fi
+```
 
 <a id="contributing"></a>
 ## Contributing
