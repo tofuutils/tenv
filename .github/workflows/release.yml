@@ -8,17 +8,23 @@ on:
 
 jobs:
   goreleaser:
-    name: 'Build and release packages'
+    name: "Build and release packages"
     runs-on: ubuntu-latest
     permissions:
       id-token: write # For cosign
       packages: write # For GHCR
-      contents: read  # Not required for public repositories, but for clarity
+      contents: read # Not required for public repositories, but for clarity
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -37,7 +43,7 @@ jobs:
           echo "${GPG_PRIVATE_KEY}" > "${GPG_KEY_FILE}"
           echo "GPG_KEY_FILE=${GPG_KEY_FILE}" >> "${GITHUB_ENV}"
         env:
-          GPG_TTY: /dev/ttys000  # Set the GPG_TTY to avoid issues with pinentry
+          GPG_TTY: /dev/ttys000 # Set the GPG_TTY to avoid issues with pinentry
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
@@ -65,22 +71,6 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
 
-  docker-ghcr:
-    name: 'Build and release docker image to github container registry'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -88,39 +78,57 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push docker image
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: ghcr.io/tofuutils/tenv:${{ github.ref_name }}, ghcr.io/tofuutils/tenv:latest
+      - name: Push docker image to GitHub Container Registry
+        env:
+          docker_registry: "ghcr.io"
+        run: |
+          version=${GITHUB_REF#refs/*/v}
+          IFS='.' read -ra version_arr <<< "${version}"
 
-  docker-dockerhub:
-    name: 'Build and release docker image to dockerhub'
-    runs-on: ubuntu-latest
-    env:
-      registry_url: "registry.hub.docker.com"
-      image_repo: "tofuutils/tenv"
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+          architectures=("amd64" "arm64" "arm" "386")
+          versions=("latest", "${version_arr[0]}.${version_arr[1]}", "${version}")
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+          for arch in "${architectures[@]}"; do
+            for version in "${versions[@]}"; do
+              IMAGE="${docker_registry}/tofuutils/tenv:${VERSION}-${ARCH}"
+              echo "Pushing ${IMAGE}..."
+              docker push ${IMAGE}
+              if [ ${?} -ne 0 ]; then
+                echo "Failed to push ${IMAGE}"
+                exit 1
+              fi
+            done
+          done
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+          echo "All images pushed successfully to ${docker_registry}!"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.registry_url }}
+          registry: registry.hub.docker.com
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build and push docker image
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: ${{ env.registry_url }}/${{ env.image_repo }}:latest, ${{ env.registry_url }}/${{ env.image_repo }}:${{ github.ref_name }}
+      - name: Push docker image to DockerHub
+        env:
+          docker_registry: "registry.hub.docker.com"
+        run: |
+          version=${GITHUB_REF#refs/*/v}
+          IFS='.' read -ra version_arr <<< "${version}"
+
+          architectures=("amd64" "arm64" "arm" "386")
+          versions=("latest", "${version_arr[0]}.${version_arr[1]}", "${version}")
+
+          for arch in "${architectures[@]}"; do
+            for version in "${versions[@]}"; do
+              IMAGE="${docker_registry}/tofuutils/tenv:${VERSION}-${ARCH}"
+              echo "Pushing ${IMAGE}..."
+              docker push ${IMAGE}
+              if [ ${?} -ne 0 ]; then
+                echo "Failed to push ${IMAGE}"
+                exit 1
+              fi
+            done
+          done
+
+          echo "All images pushed successfully to ${docker_registry}!"

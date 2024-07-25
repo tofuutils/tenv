@@ -189,6 +189,125 @@ builds:
       - goos: solaris
         goarch: arm64
 
+dockers:
+  - use: buildx
+    goarch: amd64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-amd64"
+
+  - use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm64"
+
+  - use: buildx
+    goarch: arm
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm"
+
+  - use: buildx
+    goarch: "386"
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/386"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-386"
+
+docker_manifests:
+  - name_template: ghcr.io/tofuutils/tenv:{{ .Version }}
+    image_templates:
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386
+    skip_push: true
+
+  - name_template: ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}
+    image_templates:
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386
+    skip_push: true
+
+  - name_template: ghcr.io/tofuutils/tenv:latest
+    image_templates:
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386
+    skip_push: true
+
+docker_signs:
+  - artifacts: all
+    args:
+      [
+        "sign",
+        "--oidc-issuer=https://token.actions.githubusercontent.com",
+        "${artifact}@${digest}",
+        "--yes",
+      ]
 
 archives:
   - format: tar.gz
@@ -292,14 +411,14 @@ snapcrafts:
     publish: true
     summary: OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
     description: |
-      tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go. 
-      Our tool simplifies the complexity of handling different versions of these powerful tools, 
-      ensuring developers and DevOps professionals 
+      tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go.
+      Our tool simplifies the complexity of handling different versions of these powerful tools,
+      ensuring developers and DevOps professionals
       can focus on what matters most - building and deploying efficiently.
-    disable: 'false'
+    disable: "false"
     channel_templates:
-      - 'latest/stable'
-    grade: 'stable'
+      - "latest/stable"
+    grade: "stable"
     confinement: strict
     license: Apache-2.0
     base: core22
@@ -307,27 +426,27 @@ snapcrafts:
       tenv:
         plugs: ["home", "network", "network-bind"]
         command: tenv
-        aliases: [ tenv ]
+        aliases: [tenv]
       tofu:
         plugs: ["home", "network", "network-bind"]
         command: tofu
-        aliases: [ tofu ]
+        aliases: [tofu]
       terraform:
         plugs: ["home", "network", "network-bind"]
         command: terraform
-        aliases: [ terraform ]
+        aliases: [terraform]
       terragrunt:
         plugs: ["home", "network", "network-bind"]
         command: terragrunt
-        aliases: [ terragrunt ]
+        aliases: [terragrunt]
       tf:
         plugs: ["home", "network", "network-bind"]
         command: tf
-        aliases: [ tf ]
+        aliases: [tf]
       atmos:
         plugs: ["home", "network", "network-bind"]
         command: atmos
-        aliases: [ atmos ]
+        aliases: [atmos]
 
 aurs:
   - name: tenv-bin
@@ -381,7 +500,7 @@ aurs:
       # license
       install -Dm 0644 "LICENSE" "${pkgdir}/usr/share/licenses/tenv/LICENSE"
       install -Dm 0644 "LICENSE" "${pkgdir}/usr/share/doc/tenv/LICENSE"
-      
+
       # readme
       install -Dm 0644 "README.md" "${pkgdir}/usr/share/doc/tenv/README.md"
 
@@ -389,7 +508,7 @@ aurs:
       mkdir -p "${pkgdir}/usr/share/bash-completion/completions/"
       mkdir -p "${pkgdir}/usr/share/zsh/site-functions/"
       mkdir -p "${pkgdir}/usr/share/fish/vendor_completions.d/"
-      
+
       for i in bash fish zsh; do
         ./tenv completion $i > ./tenv.$i
       done
@@ -408,7 +527,6 @@ aurs:
 
     url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     directory: "."
-
 # chocolateys:
 #   - name: tenv
 #     # Empty means all IDs.
