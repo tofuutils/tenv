@@ -82,12 +82,11 @@ jobs:
         env:
           docker_registry: "ghcr.io"
         run: |
-          set -x
           version=${GITHUB_REF#refs/*/v}
           IFS='.' read -ra version_arr <<< "${version}"
 
           architectures=("amd64" "arm64" "arm" "386")
-          versions=("latest", "${version_arr[0]}.${version_arr[1]}", "${version}")
+          versions=("latest" "${version_arr[0]}.${version_arr[1]}" "${version}")
 
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
@@ -118,7 +117,7 @@ jobs:
           IFS='.' read -ra version_arr <<< "${version}"
 
           architectures=("amd64" "arm64" "arm" "386")
-          versions=("latest", "${version_arr[0]}.${version_arr[1]}", "${version}")
+          versions=("latest" "${version_arr[0]}.${version_arr[1]}" "${version}")
 
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
