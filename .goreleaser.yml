@@ -309,6 +309,107 @@ docker_signs:
         "--yes",
       ]
 
+dockers:
+  - use: buildx
+    goarch: amd64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-amd64"
+
+  - use: buildx
+    goarch: arm64
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm64"
+
+  - use: buildx
+    goarch: arm
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm"
+
+  - use: buildx
+    goarch: "386"
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/386"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.vendor=tofuutils"
+      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
+      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
+      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
+      - "--label=org.opencontainers.image.licenses=Apache-2.0"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.created={{ time \"2006-01-02T15:04:05Z07:00\" }}"
+    image_templates:
+      - "ghcr.io/tofuutils/tenv:{{ .Version }}-386"
+
+docker_manifests:
+  - name_template: ghcr.io/tofuutils/tenv:{{ .Version }}
+    image_templates:
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+
+  - name_template: ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}
+    image_templates:
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+    skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
+
+  - name_template: ghcr.io/tofuutils/tenv:latest
+    image_templates:
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+    skip_push: auto # Skips the push on pre-release versions, like 1.6.1-alpha1. See https://goreleaser.com/customization/docker_manifest/#customization
+
+docker_signs:
+  - artifacts: all
+    args: [ "sign", "--oidc-issuer=https://token.actions.githubusercontent.com", "${artifact}@${digest}", "--yes" ]
+
 archives:
   - format: tar.gz
     # this name template makes the OS and Arch compatible with the results of `uname`.
