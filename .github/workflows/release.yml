@@ -82,6 +82,7 @@ jobs:
         env:
           docker_registry: "ghcr.io"
         run: |
+          set -x
           version=${GITHUB_REF#refs/*/v}
           IFS='.' read -ra version_arr <<< "${version}"
 
@@ -90,7 +91,7 @@ jobs:
 
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
-              IMAGE="${docker_registry}/tofuutils/tenv:${VERSION}-${ARCH}"
+              IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
               echo "Pushing ${IMAGE}..."
               docker push ${IMAGE}
               if [ ${?} -ne 0 ]; then
@@ -121,7 +122,7 @@ jobs:
 
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
-              IMAGE="${docker_registry}/tofuutils/tenv:${VERSION}-${ARCH}"
+              IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
               echo "Pushing ${IMAGE}..."
               docker push ${IMAGE}
               if [ ${?} -ne 0 ]; then
