@@ -13,41 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM golang:1.21 AS builder
+FROM alpine:3.20
+LABEL maintainer="TofuUtils Core Team"
 
-ENV CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64 \
-    GIT_TERMINAL_PROMPT=1
+RUN apk add --no-cache git bash openssh
 
-COPY ./cmd ${GOPATH}/src/github.com/tofuutils/tenv/cmd
-COPY ./config ${GOPATH}/src/github.com/tofuutils/tenv/config
-COPY ./pkg ${GOPATH}/src/github.com/tofuutils/tenv/pkg
-COPY ./versionmanager ${GOPATH}/src/github.com/tofuutils/tenv/versionmanager
-COPY ./go.mod ./go.sum ${GOPATH}/src/github.com/tofuutils/tenv/
+COPY atmos /usr/local/bin/atmos
+COPY tenv /usr/local/bin/tenv
+COPY terraform /usr/local/bin/terraform
+COPY terragrunt /usr/local/bin/terragrunt
+COPY tf /usr/local/bin/tf
+COPY tofu /usr/local/bin/tofu
 
-WORKDIR ${GOPATH}/src/github.com/tofuutils/tenv
-RUN go get -u ./cmd/atmos \
- && go get -u ./cmd/tenv \
- && go get -u ./cmd/terraform \
- && go get -u ./cmd/terragrunt \
- && go get -u ./cmd/tf \
- && go get -u ./cmd/tofu \
- && go mod tidy
-
-RUN go build -ldflags="-s -w" -o atmos ./cmd/atmos \
- && go build -ldflags="-s -w" -o tenv ./cmd/tenv \
- && go build -ldflags="-s -w" -o terraform ./cmd/terraform \
- && go build -ldflags="-s -w" -o terragrunt ./cmd/terragrunt \
- && go build -ldflags="-s -w" -o tf ./cmd/tf \
- && go build -ldflags="-s -w" -o tofu ./cmd/tofu
-
-FROM gcr.io/distroless/static:nonroot
-COPY --from=builder go/src/github.com/tofuutils/tenv/atmos /app/
-COPY --from=builder go/src/github.com/tofuutils/tenv/tenv /app/
-COPY --from=builder go/src/github.com/tofuutils/tenv/terraform /app/
-COPY --from=builder go/src/github.com/tofuutils/tenv/terragrunt /app/
-COPY --from=builder go/src/github.com/tofuutils/tenv/tf /app/
-COPY --from=builder go/src/github.com/tofuutils/tenv/tofu /app/
-WORKDIR /app
-ENTRYPOINT ["/app/tenv"]
+ENTRYPOINT ["/usr/local/bin/tenv"]
