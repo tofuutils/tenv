@@ -91,19 +91,26 @@ jobs:
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
               IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
-              echo "Pushing ${IMAGE} ..."
-
+              echo "Pushing image ${IMAGE} ..."
               docker push ${IMAGE}
-              #docker manifest push ${IMAGE}
-
               if [ ${?} -ne 0 ]; then
-                echo "Failed to push ${IMAGE}"
+                echo "Failed to push image ${IMAGE}"
                 exit 1
               fi
             done
           done
 
-          echo "All images pushed successfully to ${docker_registry}!"
+          for version in "${versions[@]}"; do
+            IMAGE="${docker_registry}/tofuutils/tenv:${version}"
+            echo "Pushing manifest ${IMAGE} ..."
+            docker manifest push ${IMAGE}
+            if [ ${?} -ne 0 ]; then
+              echo "Failed to push manifest ${IMAGE}"
+              exit 1
+            fi
+          done
+
+          echo "All images and manifests pushed successfully to ${docker_registry}!"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -125,16 +132,23 @@ jobs:
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
               IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
-              echo "Pushing ${IMAGE} ..."
-
+              echo "Pushing image ${IMAGE} ..."
               docker push ${IMAGE}
-              #docker manifest push ${IMAGE}
-
               if [ ${?} -ne 0 ]; then
-                echo "Failed to push ${IMAGE}"
+                echo "Failed to push image ${IMAGE}"
                 exit 1
               fi
             done
           done
 
-          echo "All images pushed successfully to ${docker_registry}!"
+          for version in "${versions[@]}"; do
+            IMAGE="${docker_registry}/tofuutils/tenv:${version}"
+            echo "Pushing manifest ${IMAGE} ..."
+            docker manifest push ${IMAGE}
+            if [ ${?} -ne 0 ]; then
+              echo "Failed to push manifest ${IMAGE}"
+              exit 1
+            fi
+          done
+
+          echo "All images and manifests pushed successfully to ${docker_registry}!"
