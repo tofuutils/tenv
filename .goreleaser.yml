@@ -192,6 +192,7 @@ builds:
 dockers:
   - use: buildx
     goarch: amd64
+    dockerfile: Dockerfile.goreleaser
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
@@ -206,12 +207,17 @@ dockers:
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
     image_templates:
+      - "ghcr.io/tofuutils/tenv:latest-amd64"
       - "ghcr.io/tofuutils/tenv:{{ .Version }}-amd64"
+      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-amd64"
+      - "registry.hub.docker.com/tofuutils/tenv:latest-amd64"
       - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64"
+      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-amd64"
     skip_push: true
 
   - use: buildx
     goarch: arm64
+    dockerfile: Dockerfile.goreleaser
     build_flag_templates:
       - "--pull"
       - "--platform=linux/arm64"
@@ -226,12 +232,17 @@ dockers:
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
     image_templates:
+      - "ghcr.io/tofuutils/tenv:latest-arm64"
       - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm64"
+      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm64"
+      - "registry.hub.docker.com/tofuutils/tenv:latest-arm64"
       - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64"
+      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm64"
     skip_push: true
 
   - use: buildx
     goarch: arm
+    dockerfile: Dockerfile.goreleaser
     build_flag_templates:
       - "--pull"
       - "--platform=linux/arm"
@@ -246,12 +257,17 @@ dockers:
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
     image_templates:
+      - "ghcr.io/tofuutils/tenv:latest-arm"
       - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm"
+      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm"
+      - "registry.hub.docker.com/tofuutils/tenv:latest-arm"
       - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm"
+      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm"
     skip_push: true
 
   - use: buildx
     goarch: "386"
+    dockerfile: Dockerfile.goreleaser
     build_flag_templates:
       - "--pull"
       - "--platform=linux/386"
@@ -266,8 +282,12 @@ dockers:
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
     image_templates:
+      - "ghcr.io/tofuutils/tenv:latest-386"
       - "ghcr.io/tofuutils/tenv:{{ .Version }}-386"
+      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-386"
+      - "registry.hub.docker.com/tofuutils/tenv:latest-386"
       - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386"
+      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-386"
     skip_push: true
 
 docker_manifests:
@@ -277,35 +297,48 @@ docker_manifests:
       - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
       - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
       - ghcr.io/tofuutils/tenv:{{ .Version }}-386
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386
     skip_push: true
 
   - name_template: ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}
     image_templates:
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
+      - ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-amd64
+      - ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm64
+      - ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm
+      - ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-386
+    skip_push: true
+
+  - name_template: ghcr.io/tofuutils/tenv:latest
+    image_templates:
+      - ghcr.io/tofuutils/tenv:latest-amd64
+      - ghcr.io/tofuutils/tenv:latest-arm64
+      - ghcr.io/tofuutils/tenv:latest-arm
+      - ghcr.io/tofuutils/tenv:latest-386
+    skip_push: true
+
+  - name_template: registry.hub.docker.com/tofuutils/tenv:{{ .Version }}
+    image_templates:
       - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64
       - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64
       - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm
       - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386
     skip_push: true
 
-  - name_template: ghcr.io/tofuutils/tenv:latest
+  - name_template: registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}
     image_templates:
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-amd64
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm64
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-arm
-      - ghcr.io/tofuutils/tenv:{{ .Version }}-386
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm
-      - registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-amd64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm64
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm
+      - registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-386
     skip_push: true
+
+  - name_template: registry.hub.docker.com/tofuutils/tenv:latest
+    image_templates:
+      - registry.hub.docker.com/tofuutils/tenv:latest-amd64
+      - registry.hub.docker.com/tofuutils/tenv:latest-arm64
+      - registry.hub.docker.com/tofuutils/tenv:latest-arm
+      - registry.hub.docker.com/tofuutils/tenv:latest-386
+    skip_push: true
+
 
 docker_signs:
   - cmd: cosign

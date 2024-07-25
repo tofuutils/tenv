@@ -91,8 +91,11 @@ jobs:
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
               IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
-              echo "Pushing ${IMAGE}..."
+              echo "Pushing ${IMAGE} ..."
+
               docker push ${IMAGE}
+              docker manifest push ${IMAGE}
+
               if [ ${?} -ne 0 ]; then
                 echo "Failed to push ${IMAGE}"
                 exit 1
@@ -122,8 +125,11 @@ jobs:
           for arch in "${architectures[@]}"; do
             for version in "${versions[@]}"; do
               IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
-              echo "Pushing ${IMAGE}..."
+              echo "Pushing ${IMAGE} ..."
+
               docker push ${IMAGE}
+              docker manifest push ${IMAGE}
+
               if [ ${?} -ne 0 ]; then
                 echo "Failed to push ${IMAGE}"
                 exit 1
