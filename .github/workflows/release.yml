@@ -94,7 +94,7 @@ jobs:
               echo "Pushing ${IMAGE} ..."
 
               docker push ${IMAGE}
-              docker manifest push ${IMAGE}
+              #docker manifest push ${IMAGE}
 
               if [ ${?} -ne 0 ]; then
                 echo "Failed to push ${IMAGE}"
@@ -128,7 +128,7 @@ jobs:
               echo "Pushing ${IMAGE} ..."
 
               docker push ${IMAGE}
-              docker manifest push ${IMAGE}
+              #docker manifest push ${IMAGE}
 
               if [ ${?} -ne 0 ]; then
                 echo "Failed to push ${IMAGE}"
