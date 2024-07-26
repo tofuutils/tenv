@@ -88,26 +88,24 @@ jobs:
           architectures=("amd64" "arm64" "arm" "386")
           versions=("latest" "${version_arr[0]}.${version_arr[1]}" "${version}")
 
-          for arch in "${architectures[@]}"; do
-            for version in "${versions[@]}"; do
-              IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
-              echo "Pushing image ${IMAGE} ..."
-              docker push ${IMAGE}
+          for version in "${versions[@]}"; do
+            manifest="${docker_registry}/tofuutils/tenv:${version}"
+            images=""
+
+            for arch in "${architectures[@]}"; do
+              image="${docker_registry}/tofuutils/tenv:${version}-${arch}"
+              echo "Pushing image ${image} ..."
+              docker push ${image}
               if [ ${?} -ne 0 ]; then
-                echo "Failed to push image ${IMAGE}"
+                echo "Failed to push image ${image}"
                 exit 1
               fi
+              images="${image} ${images}"
             done
-          done
 
-          for version in "${versions[@]}"; do
-            IMAGE="${docker_registry}/tofuutils/tenv:${version}"
-            echo "Pushing manifest ${IMAGE} ..."
-            docker manifest push ${IMAGE}
-            if [ ${?} -ne 0 ]; then
-              echo "Failed to push manifest ${IMAGE}"
-              exit 1
-            fi
+            docker manifest create "${manifest}" ${images}
+            docker manifest push "${manifest}"
+
           done
 
           echo "All images and manifests pushed successfully to ${docker_registry}!"
@@ -129,26 +127,24 @@ jobs:
           architectures=("amd64" "arm64" "arm" "386")
           versions=("latest" "${version_arr[0]}.${version_arr[1]}" "${version}")
 
-          for arch in "${architectures[@]}"; do
-            for version in "${versions[@]}"; do
-              IMAGE="${docker_registry}/tofuutils/tenv:${version}-${arch}"
-              echo "Pushing image ${IMAGE} ..."
-              docker push ${IMAGE}
+          for version in "${versions[@]}"; do
+            manifest="${docker_registry}/tofuutils/tenv:${version}"
+            images=""
+
+            for arch in "${architectures[@]}"; do
+              image="${docker_registry}/tofuutils/tenv:${version}-${arch}"
+              echo "Pushing image ${image} ..."
+              docker push ${image}
               if [ ${?} -ne 0 ]; then
-                echo "Failed to push image ${IMAGE}"
+                echo "Failed to push image ${image}"
                 exit 1
               fi
+              images="${image} ${images}"
             done
-          done
 
-          for version in "${versions[@]}"; do
-            IMAGE="${docker_registry}/tofuutils/tenv:${version}"
-            echo "Pushing manifest ${IMAGE} ..."
-            docker manifest push ${IMAGE}
-            if [ ${?} -ne 0 ]; then
-              echo "Failed to push manifest ${IMAGE}"
-              exit 1
-            fi
+            docker manifest create "${manifest}" ${images}
+            docker manifest push "${manifest}"
+
           done
 
           echo "All images and manifests pushed successfully to ${docker_registry}!"
