@@ -19,9 +19,6 @@
 package terraformretriever
 
 import (
-	"encoding/json"
-	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"runtime"
@@ -38,6 +35,7 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/pathfilter"
 	"github.com/tofuutils/tenv/v2/pkg/winbin"
 	"github.com/tofuutils/tenv/v2/pkg/zip"
+	"github.com/tofuutils/tenv/v2/versionmanager/retriever/api"
 	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
 )
 
@@ -94,7 +92,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 
 		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
 
-		value, err := apiGetRequest(versionUrl)
+		value, err := api.GetRequest(versionUrl)
 		if err != nil {
 			return err
 		}
@@ -160,7 +158,7 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
-		value, err := apiGetRequest(releasesURL)
+		value, err := api.GetRequest(releasesURL)
 		if err != nil {
 			return nil, err
 		}
@@ -202,24 +200,6 @@ func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloa
 	}
 
 	return pgpcheck.Check(dataSums, dataSumsSig, dataPublicKey)
-}
-
-func apiGetRequest(callURL string) (any, error) {
-	response, err := http.Get(callURL)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	data, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var value any
-	err = json.Unmarshal(data, &value)
-
-	return value, err
 }
 
 func buildAssetNames(version string, arch string) (string, string, string) {

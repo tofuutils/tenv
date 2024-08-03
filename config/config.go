@@ -109,6 +109,7 @@ const (
 	TofuRemoteURLEnvName         = tofuenvPrefix + remoteURLEnvName
 	tofuRootPathEnvName          = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName             = tofuenvPrefix + tokenEnvName
+	TofuURLTemplateEnvName       = tofuenvPrefix + "URL_TEMPLATE"
 	TofuVersionEnvName           = tofuenvTofuPrefix + version
 )
 
@@ -183,7 +184,7 @@ func InitConfigFromEnv() (Config, error) {
 		Tf:             makeRemoteConfig(TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
 		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
 		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
-		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, defaultTofuGithubURL, baseGithubURL),
+		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, DefaultTofuGithubURL, baseGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
 	}, nil
