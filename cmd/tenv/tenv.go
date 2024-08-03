@@ -19,6 +19,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -73,6 +74,7 @@ func main() {
 	}
 
 	hclParser := hclparse.NewParser()
+	manageNoArgsCmd(&conf, builders, hclParser)     // call os.Exit when necessary
 	manageHiddenCallCmd(&conf, builders, hclParser) // proxy call use os.Exit when called
 
 	if err = initRootCmd(&conf, builders, hclParser).Execute(); err != nil {
@@ -155,6 +157,20 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, h
 	rootCmd.AddCommand(atmosCmd)
 
 	return rootCmd
+}
+
+func manageNoArgsCmd(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) {
+	if len(os.Args) > 1 {
+		return
+	}
+
+	if err := toolUI(conf, builders, hclParser); err != nil {
+		fmt.Println(err.Error())
+
+		os.Exit(1)
+	}
+
+	os.Exit(0)
 }
 
 func manageHiddenCallCmd(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) {

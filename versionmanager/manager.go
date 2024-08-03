@@ -160,6 +160,16 @@ func (m VersionManager) Install(requestedVersion string) error {
 	return err
 }
 
+func (m VersionManager) InstallMultiple(versions []string) error {
+	for _, version := range versions {
+		if err := m.installSpecificVersion(version, false); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() (string, error) {
