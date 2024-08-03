@@ -19,6 +19,7 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"io"
 	"slices"
@@ -27,9 +28,12 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/hashicorp/hcl/v2/hclparse"
 
+	"github.com/tofuutils/tenv/v2/config"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager"
+	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 )
 
@@ -50,6 +54,10 @@ type item string
 
 func (i item) FilterValue() string {
 	return string(i)
+}
+
+func cmpItem(a list.Item, b list.Item) int {
+	return cmp.Compare(a.FilterValue(), b.FilterValue())
 }
 
 type itemDelegate struct {
@@ -73,10 +81,43 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	fmt.Fprint(w, line)
 }
 
+type manageItemDelegate struct {
+	choices   map[string]struct{}
+	installed map[string]struct{}
+}
+
+func (d manageItemDelegate) Height() int                             { return 1 }
+func (d manageItemDelegate) Spacing() int                            { return 0 }
+func (d manageItemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (d manageItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	version, selectedStr := listItem.FilterValue(), " "
+	_, selected := d.choices[version]
+	_, installed := d.installed[version]
+	if selected {
+		// display what will be done
+		if installed {
+			selectedStr = "U"
+		} else {
+			selectedStr = "I"
+		}
+	} else {
+		if installed {
+			selectedStr = "X"
+		}
+	}
+
+	line := loghelper.Concat("[", selectedStr, "] ", version)
+
+	if index == m.Index() {
+		line = selectedItemStyle.Render(line)
+	}
+
+	fmt.Fprint(w, line)
+}
+
 type itemModel struct {
 	choices  map[string]struct{}
 	list     list.Model
-	manager  versionmanager.VersionManager
 	quitting bool
 }
 
@@ -133,6 +174,127 @@ func (m itemModel) View() string {
 	return "\n" + m.list.View()
 }
 
+func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) error {
+	conf.InitDisplayer(false)
+
+	items := make([]list.Item, 0, len(builders))
+	for tool := range builders {
+		items = append(items, item(tool))
+	}
+	slices.SortFunc(items, cmpItem)
+
+	// shared object
+	selection := map[string]struct{}{}
+
+	delegate := itemDelegate{
+		choices: selection,
+	}
+
+	l := list.New(items, delegate, defaultWidth, listHeight)
+	l.Title = "Which tool do you want to manage ?"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+	l.Styles.Title = titleStyle
+	l.Styles.PaginationStyle = paginationStyle
+	l.Styles.HelpStyle = helpStyle
+
+	l.AdditionalFullHelpKeys = additionalFullHelpKeys
+	l.AdditionalShortHelpKeys = additionalShortHelpKeys
+
+	m := itemModel{
+		choices: selection,
+		list:    l,
+	}
+
+	_, err := tea.NewProgram(m).Run()
+	if err != nil {
+		return err
+	}
+
+	if len(m.choices) == 0 {
+		loghelper.StdDisplay("No selected tool")
+
+		return nil
+	}
+
+	for selected := range selection {
+		err = manageUI(builders[selected](conf, hclParser))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func manageUI(versionManager versionmanager.VersionManager) error {
+	installed := versionManager.LocalSet()
+
+	remoteVersions, err := versionManager.ListRemote(true)
+	if err != nil {
+		return err
+	}
+
+	items := make([]list.Item, 0, len(remoteVersions))
+	for _, remoteVersion := range remoteVersions {
+		items = append(items, item(remoteVersion))
+	}
+
+	// shared object
+	selection := map[string]struct{}{}
+
+	delegate := manageItemDelegate{
+		choices:   selection,
+		installed: installed,
+	}
+
+	l := list.New(items, delegate, defaultWidth, listHeight)
+	l.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to install(I) or uninstall(U) ? (X mark already installed)")
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+	l.Styles.Title = titleStyle
+	l.Styles.PaginationStyle = paginationStyle
+	l.Styles.HelpStyle = helpStyle
+
+	l.AdditionalFullHelpKeys = additionalFullHelpKeys
+	l.AdditionalShortHelpKeys = additionalShortHelpKeys
+
+	m := itemModel{
+		choices: selection,
+		list:    l,
+	}
+
+	_, err = tea.NewProgram(m).Run()
+	if err != nil {
+		return err
+	}
+
+	if len(m.choices) == 0 {
+		loghelper.StdDisplay(loghelper.Concat("No selected ", versionManager.FolderName, " versions"))
+
+		return nil
+	}
+
+	toInstall := make([]string, 0, len(m.choices))
+	toUninstall := make([]string, 0, len(m.choices))
+	for version := range m.choices {
+		if _, installed := installed[version]; installed {
+			toUninstall = append(toUninstall, version)
+		} else {
+			toInstall = append(toInstall, version)
+		}
+	}
+	slices.SortFunc(toInstall, semantic.CmpVersion)
+	slices.SortFunc(toUninstall, semantic.CmpVersion)
+
+	err = versionManager.UninstallMultiple(toUninstall)
+	if err != nil {
+		return nil
+	}
+
+	return versionManager.InstallMultiple(toInstall)
+}
+
 func uninstallUI(versionManager versionmanager.VersionManager) error {
 	datedVersions, err := versionManager.ListLocal(false)
 	if err != nil {
@@ -152,42 +314,19 @@ func uninstallUI(versionManager versionmanager.VersionManager) error {
 	}
 
 	l := list.New(items, delegate, defaultWidth, listHeight)
-	l.Title = "Which version(s) do you want to uninstall ?"
+	l.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to uninstall ?")
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 	l.Styles.Title = titleStyle
 	l.Styles.PaginationStyle = paginationStyle
 	l.Styles.HelpStyle = helpStyle
 
-	l.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{
-			key.NewBinding(
-				key.WithKeys("space"),
-				key.WithHelp("space", "select item"),
-			),
-			key.NewBinding(
-				key.WithKeys("enter"),
-				key.WithHelp("enter", "validate uninstallation"),
-			),
-		}
-	}
-	l.AdditionalShortHelpKeys = func() []key.Binding {
-		return []key.Binding{
-			key.NewBinding(
-				key.WithKeys("space"),
-				key.WithHelp("space", "select"),
-			),
-			key.NewBinding(
-				key.WithKeys("enter"),
-				key.WithHelp("enter", "validate"),
-			),
-		}
-	}
+	l.AdditionalFullHelpKeys = additionalFullHelpKeys
+	l.AdditionalShortHelpKeys = additionalShortHelpKeys
 
 	m := itemModel{
 		choices: selection,
 		list:    l,
-		manager: versionManager,
 	}
 
 	_, err = tea.NewProgram(m).Run()
@@ -207,5 +346,31 @@ func uninstallUI(versionManager versionmanager.VersionManager) error {
 	}
 	slices.SortFunc(selected, semantic.CmpVersion)
 
-	return m.manager.UninstallMultiple(selected)
+	return versionManager.UninstallMultiple(selected)
+}
+
+func additionalFullHelpKeys() []key.Binding {
+	return []key.Binding{
+		key.NewBinding(
+			key.WithKeys("space"),
+			key.WithHelp("space", "select item"),
+		),
+		key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "validate uninstallation"),
+		),
+	}
+}
+
+func additionalShortHelpKeys() []key.Binding {
+	return []key.Binding{
+		key.NewBinding(
+			key.WithKeys("space"),
+			key.WithHelp("space", "select"),
+		),
+		key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "validate"),
+		),
+	}
 }

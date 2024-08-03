@@ -160,6 +160,26 @@ func (m VersionManager) Install(requestedVersion string) error {
 	return err
 }
 
+func (m VersionManager) InstallMultiple(versions []string) error {
+	installPath, err := m.InstallPath()
+	if err != nil {
+		return err
+	}
+
+	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
+	defer disableExit()
+	defer deleteLock()
+
+	for _, version := range versions {
+		if err = m.installSpecificVersionWithoutLock(installPath, version, false); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() (string, error) {
@@ -458,8 +478,12 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 	defer disableExit()
 	defer deleteLock()
 
+	return m.installSpecificVersionWithoutLock(installPath, version, proxyCall)
+}
+
+func (m VersionManager) installSpecificVersionWithoutLock(installPath string, version string, proxyCall bool) error {
 	// second check with lock to ensure there is no ongoing install
-	_, installed, err = m.checkVersionInstallation(installPath, version)
+	_, installed, err := m.checkVersionInstallation(installPath, version)
 	if err != nil {
 		return err
 	}
