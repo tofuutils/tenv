@@ -19,6 +19,7 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"io"
 	"slices"
@@ -53,6 +54,10 @@ type item string
 
 func (i item) FilterValue() string {
 	return string(i)
+}
+
+func cmpItem(a list.Item, b list.Item) int {
+	return cmp.Compare(a.FilterValue(), b.FilterValue())
 }
 
 type itemDelegate struct {
@@ -176,6 +181,7 @@ func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclPar
 	for tool := range builders {
 		items = append(items, item(tool))
 	}
+	slices.SortFunc(items, cmpItem)
 
 	// shared object
 	selection := map[string]struct{}{}
@@ -224,7 +230,7 @@ func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclPar
 func manageUI(versionManager versionmanager.VersionManager) error {
 	installed := versionManager.LocalSet()
 
-	remoteVersions, err := versionManager.ListRemote(false)
+	remoteVersions, err := versionManager.ListRemote(true)
 	if err != nil {
 		return err
 	}
@@ -308,7 +314,7 @@ func uninstallUI(versionManager versionmanager.VersionManager) error {
 	}
 
 	l := list.New(items, delegate, defaultWidth, listHeight)
-	l.Title = "Which version(s) do you want to uninstall ?"
+	l.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to uninstall ?")
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 	l.Styles.Title = titleStyle
