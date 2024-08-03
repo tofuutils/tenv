@@ -31,6 +31,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/pkg/loghelper"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
@@ -42,6 +43,8 @@ const (
 	listHeight        = 14
 	selectedColorCode = "170"
 )
+
+var tools = []list.Item{item(cmdconst.TofuName), item(cmdconst.TerraformName), item(cmdconst.TerragruntName), item(cmdconst.AtmosName)}
 
 var (
 	helpStyle         = list.DefaultStyles().HelpStyle
@@ -177,12 +180,6 @@ func (m itemModel) View() string {
 func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) error {
 	conf.InitDisplayer(false)
 
-	items := make([]list.Item, 0, len(builders))
-	for tool := range builders {
-		items = append(items, item(tool))
-	}
-	slices.SortFunc(items, cmpItem)
-
 	// shared object
 	selection := map[string]struct{}{}
 
@@ -190,7 +187,7 @@ func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclPar
 		choices: selection,
 	}
 
-	l := list.New(items, delegate, defaultWidth, listHeight)
+	l := list.New(tools, delegate, defaultWidth, listHeight)
 	l.Title = "Which tool do you want to manage ?"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
@@ -217,10 +214,12 @@ func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclPar
 		return nil
 	}
 
-	for selected := range selection {
-		err = manageUI(builders[selected](conf, hclParser))
-		if err != nil {
-			return err
+	for _, toolItem := range tools {
+		tool := toolItem.FilterValue()
+		if _, selected := selection[tool]; selected {
+			if err = manageUI(builders[tool](conf, hclParser)); err != nil {
+				return err
+			}
 		}
 	}
 
