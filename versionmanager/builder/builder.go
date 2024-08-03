@@ -22,6 +22,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v2/config"
+	"github.com/tofuutils/tenv/v2/config/cmdconst"
 	"github.com/tofuutils/tenv/v2/versionmanager"
 	atmosretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/atmos"
 	terraformretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/terraform"
@@ -33,6 +34,13 @@ import (
 	tomlparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/toml"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
 )
+
+var Builders = map[string]BuilderFunc{
+	cmdconst.TofuName:       BuildTofuManager,
+	cmdconst.TerraformName:  BuildTfManager,
+	cmdconst.TerragruntName: BuildTgManager,
+	cmdconst.AtmosName:      BuildAtmosManager,
+}
 
 type BuilderFunc = func(*config.Config, *hclparse.Parser) versionmanager.VersionManager
 

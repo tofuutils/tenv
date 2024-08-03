@@ -66,24 +66,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	builders := map[string]builder.BuilderFunc{
-		cmdconst.TofuName:       builder.BuildTofuManager,
-		cmdconst.TerraformName:  builder.BuildTfManager,
-		cmdconst.TerragruntName: builder.BuildTgManager,
-		cmdconst.AtmosName:      builder.BuildAtmosManager,
-	}
-
 	hclParser := hclparse.NewParser()
-	manageNoArgsCmd(&conf, builders, hclParser)     // call os.Exit when necessary
-	manageHiddenCallCmd(&conf, builders, hclParser) // proxy call use os.Exit when called
+	manageNoArgsCmd(&conf, hclParser)     // call os.Exit when necessary
+	manageHiddenCallCmd(&conf, hclParser) // proxy call use os.Exit when called
 
-	if err = initRootCmd(&conf, builders, hclParser).Execute(); err != nil {
+	if err = initRootCmd(&conf, hclParser).Execute(); err != nil {
 		loghelper.StdDisplay(err.Error())
 		os.Exit(1)
 	}
 }
 
-func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) *cobra.Command {
+func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     cmdconst.TenvName,
 		Long:    "tenv help manage several versions of OpenTofu (https://opentofu.org), Terraform (https://www.terraform.io), Terragrunt (https://terragrunt.gruntwork.io), and Atmos (https://atmos.tools/).",
@@ -109,7 +102,7 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, h
 		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
-	initSubCmds(tofuCmd, conf, builders[cmdconst.TofuName](conf, hclParser), tofuParams)
+	initSubCmds(tofuCmd, conf, builder.BuildTofuManager(conf, hclParser), tofuParams)
 
 	rootCmd.AddCommand(tofuCmd)
 
@@ -124,7 +117,7 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, h
 		needToken: false, remoteEnvName: config.TfRemoteURLEnvName,
 		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
-	initSubCmds(tfCmd, conf, builders[cmdconst.TerraformName](conf, hclParser), tfParams)
+	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf, hclParser), tfParams)
 
 	rootCmd.AddCommand(tfCmd)
 
@@ -138,7 +131,7 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, h
 	tgParams := subCmdParams{
 		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.Tg.RemoteURL,
 	}
-	initSubCmds(tgCmd, conf, builders[cmdconst.TerragruntName](conf, hclParser), tgParams)
+	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf, hclParser), tgParams)
 
 	rootCmd.AddCommand(tgCmd)
 
@@ -152,19 +145,19 @@ func initRootCmd(conf *config.Config, builders map[string]builder.BuilderFunc, h
 	atmosParams := subCmdParams{
 		needToken: true, remoteEnvName: config.AtmosRemoteURLEnvName, pRemote: &conf.Atmos.RemoteURL,
 	}
-	initSubCmds(atmosCmd, conf, builders[cmdconst.AtmosName](conf, hclParser), atmosParams)
+	initSubCmds(atmosCmd, conf, builder.BuildAtmosManager(conf, hclParser), atmosParams)
 
 	rootCmd.AddCommand(atmosCmd)
 
 	return rootCmd
 }
 
-func manageNoArgsCmd(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) {
+func manageNoArgsCmd(conf *config.Config, hclParser *hclparse.Parser) {
 	if len(os.Args) > 1 {
 		return
 	}
 
-	if err := toolUI(conf, builders, hclParser); err != nil {
+	if err := toolUI(conf, hclParser); err != nil {
 		fmt.Println(err.Error())
 
 		os.Exit(1)
@@ -173,16 +166,16 @@ func manageNoArgsCmd(conf *config.Config, builders map[string]builder.BuilderFun
 	os.Exit(0)
 }
 
-func manageHiddenCallCmd(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) {
+func manageHiddenCallCmd(conf *config.Config, hclParser *hclparse.Parser) {
 	if len(os.Args) < 3 || os.Args[1] != cmdconst.CallSubCmd {
 		return
 	}
 
 	calledNamed, cmdArgs := os.Args[2], os.Args[3:]
-	if builder, ok := builders[calledNamed]; ok {
+	if builder, ok := builder.Builders[calledNamed]; ok {
 		proxy.Exec(conf, builder, hclParser, calledNamed, cmdArgs)
 	} else if calledNamed == cmdconst.AgnosticName {
-		proxy.ExecAgnostic(conf, builders, hclParser, cmdArgs)
+		proxy.ExecAgnostic(conf, hclParser, cmdArgs)
 	}
 }
 
