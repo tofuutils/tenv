@@ -769,8 +769,8 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 String (the default depend on TOFUENV_LIST_URL, without change on it, it is "api" else it is "html")
 
 - "api" list mode retrieve information of OpenTofu releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_LIST_URL must comply with it).
-- "html" list mode extract information of OpenTofu releases from parsing an html page in TOFUENV_LIST_URL.
-- "mirror" list mode retrieve information of OpenTofu releases from url in TOFUENV_LIST_URL as [TofuDL Mirrorring format](https://get.opentofu.org/tofu/api.json)
+- "html" list mode extract information of OpenTofu releases from parsing an html page at TOFUENV_LIST_URL.
+- "mirror" list mode retrieve information of OpenTofu releases at TOFUENV_LIST_URL as [TofuDL Mirrorring format](https://get.opentofu.org/tofu/api.json)
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
