@@ -30,15 +30,15 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/pkg/lockfile"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-	"github.com/tofuutils/tenv/v2/pkg/reversecmp"
-	"github.com/tofuutils/tenv/v2/versionmanager/lastuse"
-	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
-	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
-	iacparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/iac"
-	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/pkg/lockfile"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/pkg/reversecmp"
+	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
+	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/flat"
+	iacparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/iac"
+	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
 var (

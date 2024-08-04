@@ -26,11 +26,11 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
-	"github.com/tofuutils/tenv/v2/config"
-	cmdproxy "github.com/tofuutils/tenv/v2/pkg/cmdproxy"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	"github.com/tofuutils/tenv/v2/versionmanager/lastuse"
+	"github.com/tofuutils/tenv/v3/config"
+	cmdproxy "github.com/tofuutils/tenv/v3/pkg/cmdproxy"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/versionmanager/builder"
+	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
 )
 
 var errDelimiter = errors.New("key and value should not contains delimiter")

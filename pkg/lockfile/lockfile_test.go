@@ -26,8 +26,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tofuutils/tenv/v2/pkg/lockfile"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/pkg/lockfile"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 )
 
 //go:embed testdata/data1.txt

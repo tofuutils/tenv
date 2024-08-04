@@ -27,9 +27,9 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 )
 
 const requiredVersionName = "required_version"

@@ -25,7 +25,7 @@ import (
 	"os/exec"
 	"os/signal"
 
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
+	"github.com/tofuutils/tenv/v3/config/cmdconst"
 )
 
 func Exec(execName string) {

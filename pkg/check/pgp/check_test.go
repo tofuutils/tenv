@@ -22,7 +22,7 @@ import (
 	_ "embed"
 	"testing"
 
-	pgpcheck "github.com/tofuutils/tenv/v2/pkg/check/pgp"
+	pgpcheck "github.com/tofuutils/tenv/v3/pkg/check/pgp"
 )
 
 //go:embed testdata/terraform_1.6.6_SHA256SUMS

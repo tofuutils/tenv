@@ -24,9 +24,9 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	"github.com/tofuutils/tenv/v2/versionmanager/builder"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	"github.com/tofuutils/tenv/v3/versionmanager/builder"
 )
 
 func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {

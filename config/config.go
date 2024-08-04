@@ -29,9 +29,9 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"gopkg.in/yaml.v3"
 
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	configutils "github.com/tofuutils/tenv/v2/config/utils"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	configutils "github.com/tofuutils/tenv/v3/config/utils"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 )
 
 const (

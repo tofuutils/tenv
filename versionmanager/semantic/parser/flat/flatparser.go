@@ -24,9 +24,9 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
 func NoMsg(_ loghelper.Displayer, value string, _ string) string {

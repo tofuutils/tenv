@@ -22,8 +22,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
 func RetrieveVersion(versionFiles []types.VersionFile, conf *config.Config) (string, error) {

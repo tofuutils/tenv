@@ -18,7 +18,7 @@
 
 package releaseapi
 
-import "github.com/tofuutils/tenv/v2/pkg/apimsg"
+import "github.com/tofuutils/tenv/v3/pkg/apimsg"
 
 func ExtractAssetUrls(searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)

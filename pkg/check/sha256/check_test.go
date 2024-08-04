@@ -22,7 +22,7 @@ import (
 	_ "embed"
 	"testing"
 
-	sha256check "github.com/tofuutils/tenv/v2/pkg/check/sha256"
+	sha256check "github.com/tofuutils/tenv/v3/pkg/check/sha256"
 )
 
 //go:embed testdata/hello.txt

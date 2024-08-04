@@ -27,12 +27,12 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/spf13/cobra"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	"github.com/tofuutils/tenv/v2/pkg/loghelper"
-	"github.com/tofuutils/tenv/v2/versionmanager"
-	"github.com/tofuutils/tenv/v2/versionmanager/builder"
-	"github.com/tofuutils/tenv/v2/versionmanager/proxy"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v3/versionmanager"
+	"github.com/tofuutils/tenv/v3/versionmanager/builder"
+	"github.com/tofuutils/tenv/v3/versionmanager/proxy"
 )
 
 const (

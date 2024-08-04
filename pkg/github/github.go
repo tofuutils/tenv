@@ -26,8 +26,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/tofuutils/tenv/v2/pkg/apimsg"
-	versionfinder "github.com/tofuutils/tenv/v2/versionmanager/semantic/finder"
+	"github.com/tofuutils/tenv/v3/pkg/apimsg"
+	versionfinder "github.com/tofuutils/tenv/v3/versionmanager/semantic/finder"
 )
 
 const (

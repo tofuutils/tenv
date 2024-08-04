@@ -21,18 +21,18 @@ package builder
 import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 
-	"github.com/tofuutils/tenv/v2/config"
-	"github.com/tofuutils/tenv/v2/config/cmdconst"
-	"github.com/tofuutils/tenv/v2/versionmanager"
-	atmosretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/atmos"
-	terraformretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/terraform"
-	terragruntretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/terragrunt"
-	tofuretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/tofu"
-	flatparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/flat"
-	iacparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/iac"
-	terragruntparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/terragrunt"
-	tomlparser "github.com/tofuutils/tenv/v2/versionmanager/semantic/parser/toml"
-	"github.com/tofuutils/tenv/v2/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	"github.com/tofuutils/tenv/v3/versionmanager"
+	atmosretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/atmos"
+	terraformretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/terraform"
+	terragruntretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/terragrunt"
+	tofuretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/tofu"
+	flatparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/flat"
+	iacparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/iac"
+	terragruntparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/terragrunt"
+	tomlparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/toml"
+	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
 var Builders = map[string]BuilderFunc{
