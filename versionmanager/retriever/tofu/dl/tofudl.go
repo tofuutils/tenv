@@ -64,8 +64,8 @@ func ExtractReleases(value any) ([]string, error) {
 	releases := make([]string, 0, len(object))
 	for _, versionDesc := range versions {
 		castedVersionDesc, _ := versionDesc.(map[string]any)
-		versionId, _ := castedVersionDesc["id"]
-		version, ok := versionId.(string)
+		versionID, _ := castedVersionDesc["id"]
+		version, ok := versionID.(string)
 		if !ok {
 			return nil, apimsg.ErrReturn
 		}

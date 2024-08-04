@@ -25,7 +25,7 @@ import (
 )
 
 func GetRequest(callURL string) (any, error) {
-	response, err := http.Get(callURL)
+	response, err := http.Get(callURL) //nolint
 	if err != nil {
 		return nil, err
 	}
