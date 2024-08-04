@@ -757,6 +757,7 @@ String (the default depend on TOFUENV_REMOTE, without change on it, it is "api" 
 
 - "api" install mode retrieve download url of OpenTofu from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_REMOTE must comply with it).
 - "direct" install mode generate download url of OpenTofu based on TOFUENV_REMOTE.
+- "mirror" install mode generate download url with TOFUENV_URL_TEMPLATE (as specified in [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/mirror-spec/MIRROR-SPECIFICATION.md))
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -768,7 +769,8 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 String (the default depend on TOFUENV_LIST_URL, without change on it, it is "api" else it is "html")
 
 - "api" list mode retrieve information of OpenTofu releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_LIST_URL must comply with it).
-- "html" list mode extract information of OpenTofu releases from parsing an html page in TOFUENV_LIST_URL.
+- "html" list mode extract information of OpenTofu releases from parsing an html page at TOFUENV_LIST_URL.
+- "mirror" list mode retrieve information of OpenTofu releases at TOFUENV_LIST_URL as [TofuDL Mirroring format](https://get.opentofu.org/tofu/api.json)
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -777,7 +779,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 <details><summary><b>TOFUENV_LIST_URL</b></summary><br>
 
-String (Default: copy TOFUENV_REMOTE)
+String (Default: copy TOFUENV_REMOTE, default is overloaded by "https://get.opentofu.org/tofu/api.json" when TOFUENV_LIST_MODE is "mirror")
 
 Allow to override the remote url only for the releases listing.
 
@@ -813,6 +815,15 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 <details><summary><b>TOFUENV_ROOT</b></summary><br>
 
 Same as TENV_ROOT (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
+
+</details>
+
+
+<details><summary><b>TOFUENV_URL_TEMPLATE</b></summary><br>
+
+String (Default: "https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}")
+
+
 
 </details>
 

@@ -38,11 +38,19 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/pathfilter"
 	"github.com/tofuutils/tenv/v2/pkg/winbin"
 	"github.com/tofuutils/tenv/v2/pkg/zip"
+	"github.com/tofuutils/tenv/v2/versionmanager/retriever/api"
 	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
+	tofudlmirroring "github.com/tofuutils/tenv/v2/versionmanager/retriever/tofu/dl"
 )
 
 const (
-	publicKeyURL = "https://get.opentofu.org/opentofu.asc"
+	modeMirroring = "mirror"
+
+	getTofuURL              = "https://get.opentofu.org/"
+	defaultTofuMirroringURL = getTofuURL + "tofu/api.json"
+	publicKeyURL            = getTofuURL + "opentofu.asc"
+
+	defaultTofuURLTemplate = "https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}"
 
 	baseIdentity     = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
 	issuer           = "https://token.actions.githubusercontent.com"
@@ -97,6 +105,18 @@ func (r TofuRetriever) InstallRelease(versionStr string, targetPath string) erro
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, assetNames...)
 	case config.ModeAPI:
 		assetURLs, err = github.AssetDownloadURL(tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
+	case modeMirroring:
+		urlTemplate := os.Getenv(config.TofuURLTemplateEnvName)
+		if urlTemplate == "" {
+			urlTemplate = defaultTofuURLTemplate
+		}
+
+		builder, err2 := tofudlmirroring.MakeURLBuilder(urlTemplate, versionStr)
+		if err2 != nil {
+			return err2
+		}
+
+		assetURLs, err = download.ApplyUrlTranformer(builder.Build, assetNames...)
 	default:
 		return config.ErrInstallMode
 	}
@@ -143,6 +163,19 @@ func (r TofuRetriever) ListReleases() ([]string, error) {
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
 		return github.ListReleases(listURL, r.conf.GithubToken)
+	case modeMirroring:
+		if listURL == config.DefaultTofuGithubURL {
+			listURL = defaultTofuMirroringURL
+		}
+
+		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
+
+		value, err := api.GetRequest(listURL)
+		if err != nil {
+			return nil, err
+		}
+
+		return tofudlmirroring.ExtractReleases(value)
 	default:
 		return nil, config.ErrListMode
 	}

@@ -29,9 +29,9 @@ import (
 	"github.com/tofuutils/tenv/v2/versionmanager/builder"
 )
 
-func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser, cmdArgs []string) {
+func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
-	manager := builders[cmdconst.TofuName](conf, hclParser)
+	manager := builder.BuildTofuManager(conf, hclParser)
 	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
@@ -41,7 +41,7 @@ func ExecAgnostic(conf *config.Config, builders map[string]builder.BuilderFunc, 
 	execName := cmdconst.TofuName
 	if detectedVersion == "" {
 		execName = cmdconst.TerraformName
-		manager = builders[cmdconst.TerraformName](conf, hclParser)
+		manager = builder.BuildTfManager(conf, hclParser)
 		detectedVersion, err = manager.ResolveWithVersionFiles()
 		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint

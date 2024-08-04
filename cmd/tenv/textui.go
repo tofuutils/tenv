@@ -177,7 +177,7 @@ func (m itemModel) View() string {
 	return "\n" + m.list.View()
 }
 
-func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclParser *hclparse.Parser) error {
+func toolUI(conf *config.Config, hclParser *hclparse.Parser) error {
 	conf.InitDisplayer(false)
 
 	// shared object
@@ -217,7 +217,7 @@ func toolUI(conf *config.Config, builders map[string]builder.BuilderFunc, hclPar
 	for _, toolItem := range tools {
 		tool := toolItem.FilterValue()
 		if _, selected := selection[tool]; selected {
-			if err = manageUI(builders[tool](conf, hclParser)); err != nil {
+			if err = manageUI(builder.Builders[tool](conf, hclParser)); err != nil {
 				return err
 			}
 		}
