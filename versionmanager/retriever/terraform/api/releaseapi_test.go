@@ -16,7 +16,7 @@
  *
  */
 
-package terraformretriever
+package releaseapi_test
 
 import (
 	_ "embed"
@@ -24,6 +24,7 @@ import (
 	"slices"
 	"testing"
 
+	releaseapi "github.com/tofuutils/tenv/v2/versionmanager/retriever/terraform/api"
 	"github.com/tofuutils/tenv/v2/versionmanager/semantic"
 )
 
@@ -55,7 +56,7 @@ func TestExtractAssetUrls(t *testing.T) {
 		t.Fatal("Unexpected parsing error : ", releaseErr)
 	}
 
-	fileName, downloadURL, shaFileName, shaSigFileName, err := extractAssetUrls("linux", "386", releaseValue)
+	fileName, downloadURL, shaFileName, shaSigFileName, err := releaseapi.ExtractAssetUrls("linux", "386", releaseValue)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -81,7 +82,7 @@ func TestExtractReleases(t *testing.T) {
 		t.Fatal("Unexpected parsing error : ", releasesErr)
 	}
 
-	releases, err := extractReleases(releasesValue)
+	releases, err := releaseapi.ExtractReleases(releasesValue)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}

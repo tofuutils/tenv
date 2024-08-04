@@ -37,6 +37,7 @@ import (
 	"github.com/tofuutils/tenv/v2/pkg/zip"
 	"github.com/tofuutils/tenv/v2/versionmanager/retriever/api"
 	htmlretriever "github.com/tofuutils/tenv/v2/versionmanager/retriever/html"
+	releaseapi "github.com/tofuutils/tenv/v2/versionmanager/retriever/terraform/api"
 )
 
 const (
@@ -97,7 +98,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 			return err
 		}
 
-		fileName, downloadURL, shaFileName, shaSigFileName, err = extractAssetUrls(runtime.GOOS, r.conf.Arch, value)
+		fileName, downloadURL, shaFileName, shaSigFileName, err = releaseapi.ExtractAssetUrls(runtime.GOOS, r.conf.Arch, value)
 		if err != nil {
 			return err
 		}
@@ -163,7 +164,7 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 			return nil, err
 		}
 
-		return extractReleases(value)
+		return releaseapi.ExtractReleases(value)
 	default:
 		return nil, config.ErrListMode
 	}
@@ -215,48 +216,4 @@ func buildAssetNames(version string, arch string) (string, string, string) {
 	nameBuilder.WriteString(".zip")
 
 	return nameBuilder.String(), sumsAssetName, sumsAssetName + ".sig"
-}
-
-func extractAssetUrls(searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
-	object, _ := value.(map[string]any)
-	builds, ok := object["builds"].([]any)
-	shaFileName, ok2 := object["shasums"].(string)
-	shaSigFileName, ok3 := object["shasums_signature"].(string)
-	if !ok || !ok2 || !ok3 {
-		return "", "", "", "", apimsg.ErrReturn
-	}
-
-	for _, build := range builds {
-		object, _ = build.(map[string]any)
-		osStr, ok := object["os"].(string)
-		archStr, ok2 := object["arch"].(string)
-		downloadURL, ok3 := object["url"].(string)
-		fileName, ok4 := object["filename"].(string)
-		if !ok || !ok2 || !ok3 || !ok4 {
-			return "", "", "", "", apimsg.ErrReturn
-		}
-
-		if osStr != searchedOs || archStr != searchedArch {
-			continue
-		}
-
-		return fileName, downloadURL, shaFileName, shaSigFileName, nil
-	}
-
-	return "", "", "", "", apimsg.ErrAsset
-}
-
-func extractReleases(value any) ([]string, error) {
-	object, _ := value.(map[string]any)
-	versions, ok := object["versions"].(map[string]any)
-	if !ok {
-		return nil, apimsg.ErrReturn
-	}
-
-	releases := make([]string, 0, len(object))
-	for version := range versions {
-		releases = append(releases, version)
-	}
-
-	return releases, nil
 }
