@@ -19,7 +19,6 @@
 package main
 
 import (
-	"cmp"
 	"fmt"
 	"io"
 	"slices"
@@ -57,10 +56,6 @@ type item string
 
 func (i item) FilterValue() string {
 	return string(i)
-}
-
-func cmpItem(a list.Item, b list.Item) int {
-	return cmp.Compare(a.FilterValue(), b.FilterValue())
 }
 
 type itemDelegate struct {
