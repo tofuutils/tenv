@@ -299,12 +299,8 @@ echo "source '~/.tenv.completion.fish'" >> ~/.zshrc
 | `at` (`atmos`)      | [ATMOS_](#atmos-env-vars)  | [Atmos](https://atmos.tools)                   |
 
 
-<details><summary><b>tenv</b></summary><br>
-
 Without subcommand `tenv` display interactive menus to manage tools and their versions.
-
-</details>
-
+![example interactive mode usage](./docs/tenv.svg)
 
 <details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
 
