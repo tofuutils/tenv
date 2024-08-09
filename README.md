@@ -258,7 +258,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 
 ```console
 tenv completion zsh > ~/.tenv.completion.zsh
-echo "source '~/.tenv.completion.zsh'" >> ~/.zshrc
+echo "source \$HOME/.tenv.completion.zsh" >> ~/.zshrc
 ```
 </details>
 
@@ -273,7 +273,7 @@ tenv completion powershell | Out-String | Invoke-Expression
 
 ```console
 tenv completion bash > ~/.tenv.completion.bash
-echo "source '~/.tenv.completion.bash'" >> ~/.zshrc
+echo "source \$HOME/.tenv.completion.bash" >> ~/.bashrc
 ```
 </details>
 
@@ -281,7 +281,7 @@ echo "source '~/.tenv.completion.bash'" >> ~/.zshrc
 
 ```console
 tenv completion fish > ~/.tenv.completion.fish
-echo "source '~/.tenv.completion.fish'" >> ~/.zshrc
+echo "source \$HOME/.tenv.completion.fish" >> ~/.config/fish/config.fish
 ```
 </details>
 
