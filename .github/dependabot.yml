@@ -2,20 +2,17 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directory: /
     schedule:
-      interval: "weekly"
-      timezone: "Europe/London"
+      interval: daily
       time: "09:00"
-      day: "monday"
     commit-message:
-      prefix: "ci:"
-  - package-ecosystem: "gomod"
-    directory: "/"
+      prefix: "gh-actions:"
+
+  - package-ecosystem: gomod
+    directory: /
     schedule:
-      interval: "weekly"
-      timezone: "Europe/London"
+      interval: daily
       time: "09:00"
-      day: "monday"
     commit-message:
-      prefix: "ci:"
+      prefix: "go:"
