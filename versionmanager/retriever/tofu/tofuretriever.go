@@ -184,7 +184,7 @@ func (r TofuRetriever) ListReleases() ([]string, error) {
 }
 
 func (r TofuRetriever) checkSumAndSig(version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, ro []download.RequestOption) error {
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
