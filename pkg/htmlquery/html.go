@@ -19,21 +19,21 @@
 package htmlquery
 
 import (
-	"io"
-	"net/http"
+	"bytes"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+
+	"github.com/tofuutils/tenv/v3/pkg/download"
 )
 
-func Request(callURL string, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
-	response, err := http.Get(callURL)
+func Request(callURL string, selector string, extractor func(*goquery.Selection) string, ro ...download.RequestOption) ([]string, error) {
+	data, err := download.Bytes(callURL, download.NoDisplay, ro...)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 
-	return extractList(response.Body, selector, extractor)
+	return extractList(data, selector, extractor)
 }
 
 func SelectionExtractor(part string) func(*goquery.Selection) string {
@@ -48,8 +48,9 @@ func SelectionExtractor(part string) func(*goquery.Selection) string {
 	}
 }
 
-func extractList(reader io.Reader, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
-	doc, err := goquery.NewDocumentFromReader(reader)
+func extractList(data []byte, selector string, extractor func(*goquery.Selection) string) ([]string, error) {
+	dataReader := bytes.NewReader(data)
+	doc, err := goquery.NewDocumentFromReader(dataReader)
 	if err != nil {
 		return nil, err
 	}

@@ -22,6 +22,8 @@ import (
 	"errors"
 	"os"
 	"strings"
+
+	"github.com/tofuutils/tenv/v3/pkg/download"
 )
 
 const (
@@ -134,4 +136,13 @@ func MapGetDefault(m map[string]string, key string, defaultValue string) string 
 	}
 
 	return defaultValue
+}
+
+func GetBasicAuthOption(userEnvName string, passEnvName string) []download.RequestOption {
+	username, password := os.Getenv(userEnvName), os.Getenv(passEnvName)
+	if username == "" || password == "" {
+		return nil
+	}
+
+	return []download.RequestOption{download.WithBasicAuth(username, password)}
 }

@@ -91,12 +91,13 @@ func (r TerragruntRetriever) InstallRelease(versionStr string, targetPath string
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display)
+	ro := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display)
+	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
@@ -119,6 +120,8 @@ func (r TerragruntRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
+	ro := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {
 	case config.ListModeHTML:
@@ -129,7 +132,7 @@ func (r TerragruntRetriever) ListReleases() ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tg.Data, ro)
 	case config.ModeAPI:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 

@@ -35,7 +35,6 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/pathfilter"
 	"github.com/tofuutils/tenv/v3/pkg/winbin"
 	"github.com/tofuutils/tenv/v3/pkg/zip"
-	"github.com/tofuutils/tenv/v3/versionmanager/retriever/api"
 	htmlretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/html"
 	releaseapi "github.com/tofuutils/tenv/v3/versionmanager/retriever/terraform/api"
 )
@@ -71,6 +70,8 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		return err
 	}
 
+	ro := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
 	switch r.conf.Tf.GetInstallMode() {
 	case config.InstallModeDirect:
@@ -93,7 +94,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 
 		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
 
-		value, err := api.GetRequest(versionUrl)
+		value, err := download.JSON(versionUrl, download.NoDisplay, ro...)
 		if err != nil {
 			return err
 		}
@@ -123,12 +124,12 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display)
+	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(fileName, data, assetURLs[1], assetURLs[2]); err != nil {
+	if err = r.checkSumAndSig(fileName, data, assetURLs[1], assetURLs[2], ro); err != nil {
 		return err
 	}
 
@@ -146,11 +147,13 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 		return nil, err
 	}
 
+	ro := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+
 	switch r.conf.Tf.GetListMode() {
 	case config.ListModeHTML:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data)
+		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, ro)
 	case config.ModeAPI:
 		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
 		if err != nil {
@@ -159,7 +162,7 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
-		value, err := api.GetRequest(releasesURL)
+		value, err := download.JSON(releasesURL, download.NoDisplay, ro...)
 		if err != nil {
 			return nil, err
 		}
@@ -170,8 +173,8 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 	}
 }
 
-func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string) error {
-	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Displayer.Display)
+func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, ro []download.RequestOption) error {
+	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
@@ -184,7 +187,7 @@ func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloa
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Displayer.Display)
+	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}

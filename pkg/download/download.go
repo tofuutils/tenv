@@ -19,10 +19,13 @@
 package download
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
 )
+
+type RequestOption = func(*http.Request) *http.Request
 
 func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, 0, len(baseURLs))
@@ -38,10 +41,19 @@ func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ..
 	return transformedURLs, nil
 }
 
-func Bytes(url string, display func(string)) ([]byte, error) {
+func Bytes(url string, display func(string), requestOptions ...RequestOption) ([]byte, error) {
 	display("Downloading " + url)
 
-	response, err := http.Get(url) //nolint
+	request, err := http.NewRequest(http.MethodGet, url, http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, option := range requestOptions {
+		request = option(request)
+	}
+
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +61,20 @@ func Bytes(url string, display func(string)) ([]byte, error) {
 
 	return io.ReadAll(response.Body)
 }
+
+func JSON(url string, display func(string), requestOptions ...RequestOption) (any, error) {
+	data, err := Bytes(url, display, requestOptions...)
+	if err != nil {
+		return nil, err
+	}
+
+	var value any
+	err = json.Unmarshal(data, &value)
+
+	return value, err
+}
+
+func NoDisplay(string) {}
 
 func UrlTranformer(rewriteRule []string) func(string) (string, error) {
 	if len(rewriteRule) < 2 {
@@ -68,6 +94,14 @@ func UrlTranformer(rewriteRule []string) func(string) (string, error) {
 		}
 
 		return url.JoinPath(baseURL, urlValue[prevLen:]) //nolint
+	}
+}
+
+func WithBasicAuth(username string, password string) RequestOption {
+	return func(r *http.Request) *http.Request {
+		r.SetBasicAuth(username, password)
+
+		return r
 	}
 }
 
