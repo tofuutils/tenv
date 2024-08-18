@@ -808,6 +808,24 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
+<details><summary><b>TOFUENV_REMOTE_PASSWORD</b></summary><br>
+
+String (Default: "")
+
+Could be used with TOFUENV_REMOTE_USER to specify HTTP basic auth when same credential are used with TOFUENV_REMOTE and TOFUENV_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
+<details><summary><b>TOFUENV_REMOTE_USER</b></summary><br>
+
+String (Default: "")
+
+Could be used with TOFUENV_REMOTE_PASSWORD to specify HTTP basic auth when same credential are used with TOFUENV_REMOTE and TOFUENV_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
 <details><summary><b>TOFUENV_ROOT</b></summary><br>
 
 Same as TENV_ROOT (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
@@ -817,10 +835,10 @@ Same as TENV_ROOT (compatibility with [tofuenv](https://github.com/tofuutils/tof
 
 <details><summary><b>TOFUENV_URL_TEMPLATE</b></summary><br>
 
-String (Default: "https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}")
+String (Default: `https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}`)
 
-
-
+Used when TOFUENV_INSTALL_MODE is "mirror" (see [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/mirror-spec/MIRROR-SPECIFICATION.md)).
+ 
 </details>
 
 
@@ -959,6 +977,24 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
+<details><summary><b>TFENV_REMOTE_PASSWORD</b></summary><br>
+
+String (Default: "")
+
+Could be used with TFENV_REMOTE_USER to specify HTTP basic auth when same credential are used with TFENV_REMOTE and TFENV_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
+<details><summary><b>TFENV_REMOTE_USER</b></summary><br>
+
+String (Default: "")
+
+Could be used with TFENV_REMOTE_PASSWORD to specify HTTP basic auth when same credential are used with TFENV_REMOTE and TFENV_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
 <details><summary><b>TFENV_ROOT</b></summary><br>
 
 Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
@@ -1065,6 +1101,25 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 </details>
 
+
+<details><summary><b>TG_REMOTE_PASSWORD</b></summary><br>
+
+String (Default: "")
+
+Could be used with TG_REMOTE_USER to specify HTTP basic auth when same credential are used with TG_REMOTE and TG_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
+<details><summary><b>TG_REMOTE_USER</b></summary><br>
+
+String (Default: "")
+
+Could be used with TG_REMOTE_PASSWORD to specify HTTP basic auth when same credential are used with TG_REMOTE and TG_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
 <details><summary><b>TG_DEFAULT_CONSTRAINT</b></summary><br>
 
 String (Default: "")
@@ -1157,6 +1212,25 @@ URL to install Atmos when ATMOS_REMOTE differ from its default value, ATMOS_INST
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
 </details>
+
+
+<details><summary><b>ATMOS_REMOTE_PASSWORD</b></summary><br>
+
+String (Default: "")
+
+Could be used with ATMOS_REMOTE_USER to specify HTTP basic auth when same credential are used with ATMOS_REMOTE and ATMOS_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
+<details><summary><b>ATMOS_REMOTE_USER</b></summary><br>
+
+String (Default: "")
+
+Could be used with ATMOS_REMOTE_PASSWORD to specify HTTP basic auth when same credential are used with ATMOS_REMOTE and ATMOS_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
 
 <details><summary><b>ATMOS_DEFAULT_CONSTRAINT</b></summary><br>
 
