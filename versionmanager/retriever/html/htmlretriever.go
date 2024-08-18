@@ -37,12 +37,12 @@ func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error)
 	return download.ApplyUrlTranformer(joinTransformer, assetNames...)
 }
 
-func ListReleases(baseURL string, remoteConf map[string]string) ([]string, error) {
+func ListReleases(baseURL string, remoteConf map[string]string, ro []download.RequestOption) ([]string, error) {
 	selector := config.MapGetDefault(remoteConf, "selector", "a")
 	extractor := htmlquery.SelectionExtractor(config.MapGetDefault(remoteConf, "part", "href"))
 	versionExtractor := func(s *goquery.Selection) string {
 		return versionfinder.Find(extractor(s))
 	}
 
-	return htmlquery.Request(baseURL, selector, versionExtractor)
+	return htmlquery.Request(baseURL, selector, versionExtractor, ro...)
 }

@@ -19,14 +19,13 @@
 package github
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/tofuutils/tenv/v3/pkg/apimsg"
+	"github.com/tofuutils/tenv/v3/pkg/download"
 	versionfinder "github.com/tofuutils/tenv/v3/versionmanager/semantic/finder"
 )
 
@@ -113,32 +112,15 @@ func ListReleases(githubReleaseURL string, githubToken string) ([]string, error)
 }
 
 func apiGetRequest(callURL string, authorizationHeader string) (any, error) {
-	request, err := http.NewRequest(http.MethodGet, callURL, nil)
-	if err != nil {
-		return nil, err
-	}
+	return download.JSON(callURL, download.NoDisplay, func(request *http.Request) *http.Request {
+		request.Header.Set("Accept", "application/vnd.github+json")
+		if authorizationHeader != "" {
+			request.Header.Set("Authorization", authorizationHeader)
+		}
+		request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 
-	request.Header.Set("Accept", "application/vnd.github+json")
-	if authorizationHeader != "" {
-		request.Header.Set("Authorization", authorizationHeader)
-	}
-	request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
-
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-
-	data, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var value any
-	err = json.Unmarshal(data, &value)
-
-	return value, err
+		return request
+	})
 }
 
 func buildAuthorizationHeader(token string) string {

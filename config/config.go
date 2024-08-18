@@ -47,7 +47,9 @@ const (
 	listURLEnvName     = "LIST_URL"
 	logEnvName         = "LOG"
 	quietEnvName       = "QUIET"
+	remotePassEnvName  = "REMOTE_PASSWORD"
 	remoteURLEnvName   = "REMOTE"
+	remoteUserEnvName  = "REMOTE_USER"
 	rootPathEnvName    = "ROOT"
 	tokenEnvName       = "GITHUB_TOKEN" //nolint
 	version            = "VERSION"
@@ -58,7 +60,9 @@ const (
 	atmosInstallModeEnvName       = atmosPrefix + installModeEnvName
 	atmosListModeEnvName          = atmosPrefix + listModeEnvName
 	atmosListURLEnvName           = atmosPrefix + listURLEnvName
+	AtmosRemotePassEnvName        = atmosPrefix + remotePassEnvName
 	AtmosRemoteURLEnvName         = atmosPrefix + remoteURLEnvName
+	AtmosRemoteUserEnvName        = atmosPrefix + remoteUserEnvName
 	AtmosVersionEnvName           = atmosPrefix + version
 
 	tenvPrefix             = "TENV_"
@@ -82,7 +86,9 @@ const (
 	tfInstallModeEnvName       = tfenvPrefix + installModeEnvName
 	tfListModeEnvName          = tfenvPrefix + listModeEnvName
 	tfListURLEnvName           = tfenvPrefix + listURLEnvName
+	TfRemotePassEnvName        = tfenvPrefix + remotePassEnvName
 	TfRemoteURLEnvName         = tfenvPrefix + remoteURLEnvName
+	TfRemoteUserEnvName        = tfenvPrefix + remoteUserEnvName
 	tfRootPathEnvName          = tfenvPrefix + rootPathEnvName
 	TfVersionEnvName           = tfenvTerraformPrefix + version
 
@@ -92,7 +98,9 @@ const (
 	tgInstallModeEnvName       = tgPrefix + installModeEnvName
 	tgListModeEnvName          = tgPrefix + listModeEnvName
 	tgListURLEnvName           = tgPrefix + listURLEnvName
+	TgRemotePassEnvName        = tgPrefix + remotePassEnvName
 	TgRemoteURLEnvName         = tgPrefix + remoteURLEnvName
+	TgRemoteUserEnvName        = tgPrefix + remoteUserEnvName
 	TgVersionEnvName           = tgPrefix + version
 
 	tofuenvPrefix                = "TOFUENV_"
@@ -106,7 +114,9 @@ const (
 	tofuListModeEnvName          = tofuenvPrefix + listModeEnvName
 	tofuListURLEnvName           = tofuenvPrefix + listURLEnvName
 	tofuOpenTofuPGPKeyEnvName    = tofuenvPrefix + "OPENTOFU_PGP_KEY"
+	TofuRemotePassEnvName        = tofuenvPrefix + remotePassEnvName
 	TofuRemoteURLEnvName         = tofuenvPrefix + remoteURLEnvName
+	TofuRemoteUserEnvName        = tofuenvPrefix + remoteUserEnvName
 	tofuRootPathEnvName          = tofuenvPrefix + rootPathEnvName
 	tofuTokenEnvName             = tofuenvPrefix + tokenEnvName
 	TofuURLTemplateEnvName       = tofuenvPrefix + "URL_TEMPLATE"

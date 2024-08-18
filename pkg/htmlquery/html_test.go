@@ -19,7 +19,6 @@
 package htmlquery
 
 import (
-	"bytes"
 	_ "embed"
 	"slices"
 	"testing"
@@ -31,10 +30,8 @@ var artifactoryData []byte
 func TestExtractAttr(t *testing.T) {
 	t.Parallel()
 
-	artifactoryReader := bytes.NewReader(artifactoryData)
-
 	extractor := SelectionExtractor("style")
-	extracted, err := extractList(artifactoryReader, "address", extractor)
+	extracted, err := extractList(artifactoryData, "address", extractor)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -47,10 +44,8 @@ func TestExtractAttr(t *testing.T) {
 func TestExtractText(t *testing.T) {
 	t.Parallel()
 
-	artifactoryReader := bytes.NewReader(artifactoryData)
-
 	extractor := SelectionExtractor("#text")
-	extracted, err := extractList(artifactoryReader, "address", extractor)
+	extracted, err := extractList(artifactoryData, "address", extractor)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
@@ -63,9 +58,7 @@ func TestExtractText(t *testing.T) {
 func TestExtractTexts(t *testing.T) {
 	t.Parallel()
 
-	artifactoryReader := bytes.NewReader(artifactoryData)
-
-	extracted, err := extractList(artifactoryReader, "a", selectionTextExtractor)
+	extracted, err := extractList(artifactoryData, "a", selectionTextExtractor)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
