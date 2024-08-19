@@ -184,10 +184,16 @@ nix-env -i tenv
 
 </details>
 
-<details><summary><b>Windows (Chocolatey, Nix)</b></summary><br>
+<details><summary><b>Windows (Chocolatey, Scoop, Nix)</b></summary><br>
 
+Installation via Chocolatey:
 ```console
 choco install tenv
+```
+
+Installation via Scoop:
+```console
+scoop install tenv
 ```
 
 Installation via Nix package manager:
