@@ -135,7 +135,7 @@ func Make(options ...TenvOption) (Tenv, error) {
 	}, nil
 }
 
-func (t Tenv) BuildCmd(toolName string, requestedVersion string, cmdArgs ...string) (*exec.Cmd, error) {
+func (t Tenv) Command(toolName string, requestedVersion string, cmdArgs ...string) (*exec.Cmd, error) {
 	if err := t.init(toolName); err != nil {
 		return nil, err
 	}
