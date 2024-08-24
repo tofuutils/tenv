@@ -35,6 +35,7 @@ import (
 )
 
 const (
+	defaultDirName       = ".tenv"
 	githubActionsEnvName = "GITHUB_ACTIONS"
 
 	archEnvName        = "ARCH"
@@ -145,6 +146,25 @@ type Config struct {
 	UserPath         string
 }
 
+func DefaultConfig() (Config, error) {
+	userPath, err := os.UserHomeDir()
+	if err != nil {
+		return Config{}, err
+	}
+
+	return Config{
+		Arch:             runtime.GOARCH,
+		Atmos:            makeDefaultRemoteConfig(defaultAtmosGithubURL, baseGithubURL),
+		NoInstall:        true,
+		remoteConfLoaded: true,
+		RootPath:         filepath.Join(userPath, defaultDirName),
+		Tf:               makeDefaultRemoteConfig(defaultHashicorpURL, defaultHashicorpURL),
+		Tg:               makeDefaultRemoteConfig(defaultTerragruntGithubURL, baseGithubURL),
+		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
+		UserPath:         userPath,
+	}, nil
+}
+
 func InitConfigFromEnv() (Config, error) {
 	userPath, err := os.UserHomeDir()
 	if err != nil {
@@ -168,7 +188,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	rootPath := configutils.GetenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
-		rootPath = filepath.Join(userPath, ".tenv")
+		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
 	quiet, err := configutils.GetenvBoolFallback(false, tenvQuietEnvName)
