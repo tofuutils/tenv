@@ -163,7 +163,7 @@ func (t Tenv) Command(toolName string, requestedVersion string, cmdArgs ...strin
 	return exec.Command(execPath, cmdArgs...), nil
 }
 
-// Use the result of Tenv.Command to call cmdproxy.Run (Allways call os.Exit).
+// Use the result of Tenv.Command to call cmdproxy.Run (Always call os.Exit).
 func (t Tenv) CommandProxy(toolName string, requestedVersion string, cmdArgs ...string) error {
 	cmd, err := t.Command(toolName, requestedVersion, cmdArgs...)
 	if err != nil {
@@ -226,7 +226,7 @@ func (t Tenv) DetectedCommand(toolName string, cmdArgs ...string) (*exec.Cmd, er
 	return exec.Command(execPath, cmdArgs...), nil
 }
 
-// Use the result of Tenv.DetectedCommand to call cmdproxy.Run (Allways call os.Exit).
+// Use the result of Tenv.DetectedCommand to call cmdproxy.Run (Always call os.Exit).
 func (t Tenv) DetectedCommandProxy(toolName string, cmdArgs ...string) error {
 	cmd, err := t.DetectedCommand(toolName, cmdArgs...)
 	if err != nil {
@@ -295,7 +295,7 @@ func (t Tenv) ResetDefaultConstraint(toolName string) error {
 	return t.managers[toolName].ResetConstraint()
 }
 
-func (t Tenv) ResetVersion(toolName string) error {
+func (t Tenv) ResetDefaultVersion(toolName string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
@@ -309,6 +309,14 @@ func (t Tenv) SetDefaultConstraint(toolName string, constraint string) error {
 	}
 
 	return t.managers[toolName].SetConstraint(constraint)
+}
+
+func (t Tenv) SetDefaultVersion(toolName string, requestedVersion string, workingDir bool) error {
+	if err := t.init(toolName); err != nil {
+		return err
+	}
+
+	return t.managers[toolName].Use(requestedVersion, workingDir)
 }
 
 // Does not handle special behavior.
@@ -326,14 +334,6 @@ func (t Tenv) UninstallMultiple(toolName string, versions []string) error {
 	}
 
 	return t.managers[toolName].UninstallMultiple(versions)
-}
-
-func (t Tenv) Use(toolName string, requestedVersion string, workingDir bool) error {
-	if err := t.init(toolName); err != nil {
-		return err
-	}
-
-	return t.managers[toolName].Use(requestedVersion, workingDir)
 }
 
 func (t Tenv) init(toolName string) error {

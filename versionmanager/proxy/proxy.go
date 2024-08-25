@@ -36,7 +36,7 @@ import (
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
-// Allways call os.Exit.
+// Always call os.Exit.
 func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	versionManager := builderFunc(conf, hclParser)

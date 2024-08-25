@@ -31,7 +31,7 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/builder"
 )
 
-// Allways call os.Exit.
+// Always call os.Exit.
 func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	manager := builder.BuildTofuManager(conf, hclParser)

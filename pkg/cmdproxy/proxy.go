@@ -32,7 +32,7 @@ import (
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
-// Allways call os.Exit.
+// Always call os.Exit.
 func Run(cmd *exec.Cmd, gha bool) {
 	exitCode := 0
 	defer func() {
