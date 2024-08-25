@@ -21,27 +21,28 @@ package tenvlib
 import (
 	"errors"
 	"os/exec"
-	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v3/config"
+	"github.com/tofuutils/tenv/v3/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 	"github.com/tofuutils/tenv/v3/versionmanager"
 	"github.com/tofuutils/tenv/v3/versionmanager/builder"
-	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
+	"github.com/tofuutils/tenv/v3/versionmanager/proxy"
+	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
+	flatparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/flat"
 )
 
-var (
-	errNoBuilder = errors.New("no builder for this tool")
-	errNoConfig  = errors.New("need config or configInitFunc")
-)
+var errNoBuilder = errors.New("no builder for this tool")
 
 type tenvConfig struct {
+	autoInstall    bool
 	builders       map[string]builder.BuilderFunc
 	conf           *config.Config
 	displayer      loghelper.Displayer
 	hclParser      *hclparse.Parser
+	ignoreEnv      bool
 	initConfigFunc func() (config.Config, error)
 }
 
@@ -52,6 +53,18 @@ func AddTool(toolName string, builderFunc builder.BuilderFunc) TenvOption {
 	return func(tc *tenvConfig) {
 		tc.builders[toolName] = builderFunc
 	}
+}
+
+func AutoInstall(tc *tenvConfig) {
+	tc.autoInstall = true
+}
+
+func DisableDisplay(tc *tenvConfig) {
+	tc.displayer = loghelper.InertDisplayer
+}
+
+func IgnoreEnv(tc *tenvConfig) {
+	tc.ignoreEnv = true
 }
 
 func WithConfig(conf *config.Config) TenvOption {
@@ -72,23 +85,16 @@ func WithHCLParser(hclParser *hclparse.Parser) TenvOption {
 	}
 }
 
-func WithInertDisplayer(tc *tenvConfig) {
-	tc.displayer = loghelper.InertDisplayer
-}
-
-func WithInitConfig(initConfigFunc func() (config.Config, error)) TenvOption {
-	return func(tc *tenvConfig) {
-		tc.initConfigFunc = initConfigFunc
-	}
-}
-
+// Not concurrent safe.
 type Tenv struct {
 	builders  map[string]builder.BuilderFunc
 	conf      *config.Config
 	hclParser *hclparse.Parser
+	ignoreEnv bool
 	managers  map[string]versionmanager.VersionManager
 }
 
+// The returned wrapper is not concurrent safe.
 func Make(options ...TenvOption) (Tenv, error) {
 	builders := map[string]builder.BuilderFunc{}
 	for toolName, builderFunc := range builder.Builders {
@@ -104,17 +110,21 @@ func Make(options ...TenvOption) (Tenv, error) {
 		option(&tc)
 	}
 
-	if tc.conf == nil {
-		if tc.initConfigFunc == nil {
-			return Tenv{}, errNoConfig
-		}
+	if tc.ignoreEnv {
+		tc.initConfigFunc = config.DefaultConfig
+	}
 
+	if tc.conf == nil {
 		conf, err := tc.initConfigFunc()
 		if err != nil {
 			return Tenv{}, err
 		}
 
 		tc.conf = &conf
+	}
+
+	if tc.autoInstall {
+		tc.conf.NoInstall = false
 	}
 
 	if tc.displayer == nil {
@@ -131,12 +141,15 @@ func Make(options ...TenvOption) (Tenv, error) {
 		builders:  builders,
 		conf:      tc.conf,
 		hclParser: tc.hclParser,
+		ignoreEnv: tc.ignoreEnv,
 		managers:  map[string]versionmanager.VersionManager{},
 	}, nil
 }
 
+// return an exec.Cmd in order to call the specified tool version (need to have it installed for the Cmd call to work).
 func (t Tenv) Command(toolName string, requestedVersion string, cmdArgs ...string) (*exec.Cmd, error) {
-	if err := t.init(toolName); err != nil {
+	err := t.init(toolName)
+	if err != nil {
 		return nil, err
 	}
 
@@ -145,10 +158,84 @@ func (t Tenv) Command(toolName string, requestedVersion string, cmdArgs ...strin
 		return nil, err
 	}
 
-	versionPath := filepath.Join(installPath, requestedVersion)
-	lastuse.WriteNow(versionPath, t.conf.Displayer)
+	execPath := proxy.ExecPath(installPath, requestedVersion, toolName, t.conf.Displayer)
 
-	return exec.Command(filepath.Join(versionPath, toolName), cmdArgs...), nil
+	return exec.Command(execPath, cmdArgs...), nil
+}
+
+// Use the result of Tenv.Command to call cmdproxy.Run (Allways call os.Exit).
+func (t Tenv) CommandProxy(toolName string, requestedVersion string, cmdArgs ...string) error {
+	cmd, err := t.Command(toolName, requestedVersion, cmdArgs...)
+	if err != nil {
+		return err
+	}
+
+	cmdproxy.Run(cmd, t.conf.GithubActions)
+
+	return nil
+}
+
+// Detect version (resolve and evaluate, can install depending on configuration).
+func (t Tenv) Detect(toolName string) (string, error) {
+	err := t.init(toolName)
+	if err != nil {
+		return "", err
+	}
+
+	manager := t.managers[toolName]
+	if !t.ignoreEnv {
+		return manager.Detect(false)
+	}
+
+	resolvedVersion, err := manager.ResolveWithVersionFiles()
+	if err != nil {
+		return "", err
+	}
+
+	if resolvedVersion != "" {
+		return manager.Evaluate(resolvedVersion, false)
+	}
+
+	resolvedVersion, err = flatparser.RetrieveVersion(manager.RootVersionFilePath(), t.conf)
+	if err != nil {
+		return "", err
+	}
+
+	if resolvedVersion == "" {
+		resolvedVersion = semantic.LatestAllowedKey
+	}
+
+	return manager.Evaluate(resolvedVersion, false)
+}
+
+// Use the result of Tenv.Detect to call Tenv.Command.
+func (t Tenv) DetectedCommand(toolName string, cmdArgs ...string) (*exec.Cmd, error) {
+	detectedVersion, err := t.Detect(toolName)
+	if err != nil {
+		return nil, err
+	}
+
+	// t.managers[toolName] is initialized by Tenv.Detect
+	installPath, err := t.managers[toolName].InstallPath()
+	if err != nil {
+		return nil, err
+	}
+
+	execPath := proxy.ExecPath(installPath, detectedVersion, toolName, t.conf.Displayer)
+
+	return exec.Command(execPath, cmdArgs...), nil
+}
+
+// Use the result of Tenv.DetectedCommand to call cmdproxy.Run (Allways call os.Exit).
+func (t Tenv) DetectedCommandProxy(toolName string, cmdArgs ...string) error {
+	cmd, err := t.DetectedCommand(toolName, cmdArgs...)
+	if err != nil {
+		return err
+	}
+
+	cmdproxy.Run(cmd, t.conf.GithubActions)
+
+	return nil
 }
 
 // Evaluate version resolution strategy or version constraint (can install depending on configuration).
@@ -200,15 +287,31 @@ func (t Tenv) LocallyInstalled(toolName string) (map[string]struct{}, error) {
 	return t.managers[toolName].LocalSet(), nil
 }
 
-func (t Tenv) ResolveWithVersionFiles(toolName string) (string, error) {
+func (t Tenv) ResetDefaultConstraint(toolName string) error {
 	if err := t.init(toolName); err != nil {
-		return "", err
+		return err
 	}
 
-	return t.managers[toolName].ResolveWithVersionFiles()
+	return t.managers[toolName].ResetConstraint()
 }
 
-// does not handle special behavior.
+func (t Tenv) ResetVersion(toolName string) error {
+	if err := t.init(toolName); err != nil {
+		return err
+	}
+
+	return t.managers[toolName].ResetVersion()
+}
+
+func (t Tenv) SetDefaultConstraint(toolName string, constraint string) error {
+	if err := t.init(toolName); err != nil {
+		return err
+	}
+
+	return t.managers[toolName].SetConstraint(constraint)
+}
+
+// Does not handle special behavior.
 func (t Tenv) Uninstall(toolName string, requestedVersion string) error {
 	if err := t.init(toolName); err != nil {
 		return err
@@ -223,6 +326,14 @@ func (t Tenv) UninstallMultiple(toolName string, versions []string) error {
 	}
 
 	return t.managers[toolName].UninstallMultiple(versions)
+}
+
+func (t Tenv) Use(toolName string, requestedVersion string, workingDir bool) error {
+	if err := t.init(toolName); err != nil {
+		return err
+	}
+
+	return t.managers[toolName].Use(requestedVersion, workingDir)
 }
 
 func (t Tenv) init(toolName string) error {

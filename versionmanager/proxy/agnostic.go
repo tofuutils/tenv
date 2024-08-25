@@ -21,14 +21,17 @@ package proxy
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v3/config"
 	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	cmdproxy "github.com/tofuutils/tenv/v3/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v3/versionmanager/builder"
 )
 
+// Allways call os.Exit.
 func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	manager := builder.BuildTofuManager(conf, hclParser)
@@ -66,5 +69,7 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 		os.Exit(1)
 	}
 
-	RunCmd(installPath, detectedVersion, execName, cmdArgs, conf.GithubActions, conf.Displayer)
+	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
+
+	cmdproxy.Run(exec.Command(execPath, cmdArgs...), conf.GithubActions)
 }

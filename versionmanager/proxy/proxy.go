@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
@@ -35,6 +36,7 @@ import (
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
+// Allways call os.Exit.
 func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	versionManager := builderFunc(conf, hclParser)
@@ -50,13 +52,14 @@ func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclpa
 		os.Exit(1)
 	}
 
-	RunCmd(installPath, detectedVersion, execName, cmdArgs, conf.GithubActions, conf.Displayer)
+	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
+
+	cmdproxy.Run(exec.Command(execPath, cmdArgs...), conf.GithubActions)
 }
 
-func RunCmd(installPath string, detectedVersion string, execName string, cmdArgs []string, gha bool, displayer loghelper.Displayer) {
-	versionPath := filepath.Join(installPath, detectedVersion)
-
+func ExecPath(installPath string, version string, execName string, displayer loghelper.Displayer) string {
+	versionPath := filepath.Join(installPath, version)
 	lastuse.WriteNow(versionPath, displayer)
 
-	cmdproxy.Run(filepath.Join(versionPath, execName), cmdArgs, gha)
+	return filepath.Join(versionPath, execName)
 }
