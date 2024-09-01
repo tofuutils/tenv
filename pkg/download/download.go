@@ -26,7 +26,7 @@ import (
 	"net/url"
 )
 
-type RequestOption = func(*http.Request) *http.Request
+type RequestOption = func(*http.Request)
 
 func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, 0, len(baseURLs))
@@ -51,7 +51,7 @@ func Bytes(ctx context.Context, url string, display func(string), requestOptions
 	}
 
 	for _, option := range requestOptions {
-		request = option(request)
+		option(request)
 	}
 
 	response, err := http.DefaultClient.Do(request)
@@ -99,10 +99,8 @@ func UrlTranformer(rewriteRule []string) func(string) (string, error) {
 }
 
 func WithBasicAuth(username string, password string) RequestOption {
-	return func(r *http.Request) *http.Request {
+	return func(r *http.Request) {
 		r.SetBasicAuth(username, password)
-
-		return r
 	}
 }
 

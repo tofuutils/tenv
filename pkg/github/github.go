@@ -113,14 +113,12 @@ func ListReleases(ctx context.Context, githubReleaseURL string, githubToken stri
 }
 
 func apiGetRequest(ctx context.Context, callURL string, authorizationHeader string) (any, error) {
-	return download.JSON(ctx, callURL, download.NoDisplay, func(request *http.Request) *http.Request {
+	return download.JSON(ctx, callURL, download.NoDisplay, func(request *http.Request) {
 		request.Header.Set("Accept", "application/vnd.github+json")
 		if authorizationHeader != "" {
 			request.Header.Set("Authorization", authorizationHeader)
 		}
 		request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
-
-		return request
 	})
 }
 
