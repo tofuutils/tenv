@@ -19,6 +19,7 @@
 package download
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -41,10 +42,10 @@ func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ..
 	return transformedURLs, nil
 }
 
-func Bytes(url string, display func(string), requestOptions ...RequestOption) ([]byte, error) {
+func Bytes(ctx context.Context, url string, display func(string), requestOptions ...RequestOption) ([]byte, error) {
 	display("Downloading " + url)
 
-	request, err := http.NewRequest(http.MethodGet, url, http.NoBody)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +63,8 @@ func Bytes(url string, display func(string), requestOptions ...RequestOption) ([
 	return io.ReadAll(response.Body)
 }
 
-func JSON(url string, display func(string), requestOptions ...RequestOption) (any, error) {
-	data, err := Bytes(url, display, requestOptions...)
+func JSON(ctx context.Context, url string, display func(string), requestOptions ...RequestOption) (any, error) {
+	data, err := Bytes(ctx, url, display, requestOptions...)
 	if err != nil {
 		return nil, err
 	}

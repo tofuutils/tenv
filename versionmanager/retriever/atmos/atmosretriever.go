@@ -19,6 +19,7 @@
 package atmosretriever
 
 import (
+	"context"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -50,7 +51,7 @@ func Make(conf *config.Config) AtmosRetriever {
 	return AtmosRetriever{conf: conf}
 }
 
-func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) error {
+func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -80,7 +81,7 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 
 		assetURLs, err = htmlretriever.BuildAssetURLs(baseAssetURL, fileName, shaFileName)
 	case config.ModeAPI:
-		assetURLs, err = github.AssetDownloadURL(tag, []string{fileName, shaFileName}, r.conf.Atmos.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
+		assetURLs, err = github.AssetDownloadURL(ctx, tag, []string{fileName, shaFileName}, r.conf.Atmos.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	default:
 		return config.ErrInstallMode
 	}
@@ -95,12 +96,12 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 	}
 
 	ro := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
-	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display, ro...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(assetURLs[1], r.conf.Displayer.Display, ro...)
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
@@ -117,7 +118,7 @@ func (r AtmosRetriever) InstallRelease(versionStr string, targetPath string) err
 	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, 0o755)
 }
 
-func (r AtmosRetriever) ListReleases() ([]string, error) {
+func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
@@ -135,11 +136,11 @@ func (r AtmosRetriever) ListReleases() ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Atmos.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Atmos.Data, ro)
 	case config.ModeAPI:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
-		return github.ListReleases(listURL, r.conf.GithubToken)
+		return github.ListReleases(ctx, listURL, r.conf.GithubToken)
 	default:
 		return nil, config.ErrListMode
 	}

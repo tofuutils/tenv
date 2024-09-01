@@ -19,6 +19,7 @@
 package proxy
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -39,8 +40,9 @@ var errDelimiter = errors.New("key and value should not contains delimiter")
 // Always call os.Exit.
 func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
+	ctx := context.Background()
 	versionManager := builderFunc(conf, hclParser)
-	detectedVersion, err := versionManager.Detect(true)
+	detectedVersion, err := versionManager.Detect(ctx, true)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
@@ -54,7 +56,7 @@ func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclpa
 
 	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
 
-	cmdproxy.Run(exec.Command(execPath, cmdArgs...), conf.GithubActions)
+	cmdproxy.Run(exec.CommandContext(ctx, execPath, cmdArgs...), conf.GithubActions)
 }
 
 func ExecPath(installPath string, version string, execName string, displayer loghelper.Displayer) string {

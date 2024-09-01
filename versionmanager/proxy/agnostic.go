@@ -19,6 +19,7 @@
 package proxy
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -34,6 +35,7 @@ import (
 // Always call os.Exit.
 func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
+	ctx := context.Background()
 	manager := builder.BuildTofuManager(conf, hclParser)
 	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
@@ -63,7 +65,7 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 		os.Exit(1)
 	}
 
-	detectedVersion, err = manager.Evaluate(detectedVersion, true)
+	detectedVersion, err = manager.Evaluate(ctx, detectedVersion, true)
 	if err != nil {
 		fmt.Println("Failed to evaluate the requested version in a specific version allowing to call", execName, ":", err) //nolint
 		os.Exit(1)
@@ -71,5 +73,5 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 
 	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
 
-	cmdproxy.Run(exec.Command(execPath, cmdArgs...), conf.GithubActions)
+	cmdproxy.Run(exec.CommandContext(ctx, execPath, cmdArgs...), conf.GithubActions)
 }

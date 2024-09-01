@@ -19,6 +19,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -157,7 +158,8 @@ func manageNoArgsCmd(conf *config.Config, hclParser *hclparse.Parser) {
 		return
 	}
 
-	if err := toolUI(conf, hclParser); err != nil {
+	ctx := context.Background()
+	if err := toolUI(ctx, conf, hclParser); err != nil {
 		fmt.Println(err.Error())
 
 		os.Exit(1)

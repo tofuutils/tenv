@@ -19,6 +19,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"slices"
@@ -172,7 +173,7 @@ func (m itemModel) View() string {
 	return "\n" + m.list.View()
 }
 
-func toolUI(conf *config.Config, hclParser *hclparse.Parser) error {
+func toolUI(ctx context.Context, conf *config.Config, hclParser *hclparse.Parser) error {
 	conf.InitDisplayer(false)
 
 	// shared object
@@ -212,7 +213,7 @@ func toolUI(conf *config.Config, hclParser *hclparse.Parser) error {
 	for _, toolItem := range tools {
 		tool := toolItem.FilterValue()
 		if _, selected := selection[tool]; selected {
-			if err = manageUI(builder.Builders[tool](conf, hclParser)); err != nil {
+			if err = manageUI(ctx, builder.Builders[tool](conf, hclParser)); err != nil {
 				return err
 			}
 		}
@@ -221,10 +222,10 @@ func toolUI(conf *config.Config, hclParser *hclparse.Parser) error {
 	return nil
 }
 
-func manageUI(versionManager versionmanager.VersionManager) error {
+func manageUI(ctx context.Context, versionManager versionmanager.VersionManager) error {
 	installed := versionManager.LocalSet()
 
-	remoteVersions, err := versionManager.ListRemote(true)
+	remoteVersions, err := versionManager.ListRemote(ctx, true)
 	if err != nil {
 		return err
 	}
@@ -286,7 +287,7 @@ func manageUI(versionManager versionmanager.VersionManager) error {
 		return nil
 	}
 
-	return versionManager.InstallMultiple(toInstall)
+	return versionManager.InstallMultiple(ctx, toInstall)
 }
 
 func uninstallUI(versionManager versionmanager.VersionManager) error {

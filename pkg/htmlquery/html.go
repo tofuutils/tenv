@@ -20,6 +20,7 @@ package htmlquery
 
 import (
 	"bytes"
+	"context"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -27,8 +28,8 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/download"
 )
 
-func Request(callURL string, selector string, extractor func(*goquery.Selection) string, ro ...download.RequestOption) ([]string, error) {
-	data, err := download.Bytes(callURL, download.NoDisplay, ro...)
+func Request(ctx context.Context, callURL string, selector string, extractor func(*goquery.Selection) string, ro ...download.RequestOption) ([]string, error) {
+	data, err := download.Bytes(ctx, callURL, download.NoDisplay, ro...)
 	if err != nil {
 		return nil, err
 	}
