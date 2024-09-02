@@ -19,6 +19,10 @@
   </p>
 </div>
 
+<p align="center">
+    <a href="https://devhunt.org/tool/tenv" title="DevHunt - Tool of the Week"><img src="./assets/devhunt-badge.png" width=160 alt="DevHunt - Tool of the Week" /></a>
+</p>
+
 <a id="about-the-project"></a>
 ## About The Project
 
