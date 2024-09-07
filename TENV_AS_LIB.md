@@ -61,9 +61,10 @@ Tenv methods list :
 - `[Detected]Command[Proxy]`
 - `Detect`
 - `Evaluate`
-- `[I|Uni]nstall[Multiple]`
+- `Install[Multiple]`
 - `List[Local|Remote]`
 - `LocallyInstalled`
 - `[Res|S]etDefault[Constraint|Version]`
+- `Uninstall[Multiple]`
 
 Happy hacking !
