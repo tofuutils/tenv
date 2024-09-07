@@ -31,6 +31,7 @@ func main() {
     tenv, err := tenvlib.Make(tenvlib.AutoInstall, tenvlib.IgnoreEnv, tenvlib.DisableDisplay)
     if err != nil {
         fmt.Println("init failed :", err)
+        return
     }
 
     err = tenv.DetectedCommandProxy(context.Background(), cmdconst.TofuName, "version")
