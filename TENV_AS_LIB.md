@@ -8,9 +8,10 @@
 
 ### Getting tenv module
 
-```console
-go get -u github.com/tofuutils/tenv
+`tenvlib` package is available since tenv v3.2
 
+```console
+go get -u github.com/tofuutils/tenv/v3@latest
 ```
 
 ### Basic example
@@ -45,8 +46,24 @@ See the [API documentation on go.dev](https://pkg.go.dev/github.com/tofuutils/te
 
 ### Overview
 
+Available Tenv struct creation options :
 
+- `AddTool(toolName string, builderFunc builder.BuilderFunc)`, extend `tenvlib` to support other tool use cases.
+- `AutoInstall`, shortcut to force auto install feature enabling in `config.Config`.
+- `DisableDisplay`, do not display or log anything.
+- `IgnoreEnv`, ignore **tenv** environment variables (`TENV_AUTO_INSTALL`, `TOFUENV_TOFU_VERSION`, etc.).
+- `WithConfig(conf *config.Config)`, replace default `Config` (one from a `InitConfigFromEnv` or `DefaultConfig` call depending on `IgnoreEnv` usage).
+- `WithDisplayer(displayer loghelper.Displayer)`, replace default `Displayer` with a custom to handle `tenvlib` output.
+- `WithHCLParser(hclParser *hclparse.Parser)`, use passed `Parser` instead of creating a new one.
 
+Tenv methods list :
 
+- `[Detected]Command[Proxy]`
+- `Detect`
+- `Evaluate`
+- `[I|Uni]nstall[Multiple]`
+- `List[Local|Remote]`
+- `LocallyInstalled`
+- `[Res|S]etDefault[Constraint|Version]`
 
 Happy hacking !
