@@ -133,7 +133,7 @@ type Config struct {
 	ForceRemote      bool
 	GithubActions    bool
 	GithubToken      string
-	NoInstall        bool
+	SkipInstall      bool
 	remoteConfLoaded bool
 	RemoteConfPath   string
 	RootPath         string
@@ -155,7 +155,7 @@ func DefaultConfig() (Config, error) {
 	return Config{
 		Arch:             runtime.GOARCH,
 		Atmos:            makeDefaultRemoteConfig(defaultAtmosGithubURL, baseGithubURL),
-		NoInstall:        true,
+		SkipInstall:      true,
 		remoteConfLoaded: true,
 		RootPath:         filepath.Join(userPath, defaultDirName),
 		Tf:               makeDefaultRemoteConfig(defaultHashicorpURL, defaultHashicorpURL),
@@ -208,7 +208,7 @@ func InitConfigFromEnv() (Config, error) {
 		ForceRemote:    forceRemote,
 		GithubActions:  gha,
 		GithubToken:    configutils.GetenvFallback(tenvTokenEnvName, tofuTokenEnvName),
-		NoInstall:      !autoInstall,
+		SkipInstall:    !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
 		Tf:             makeRemoteConfig(TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
@@ -248,9 +248,9 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 func (conf *Config) InitInstall(forceInstall bool, forceNoInstall bool) {
 	switch {
 	case forceNoInstall: // higher priority to --no-install
-		conf.NoInstall = true
+		conf.SkipInstall = true
 	case forceInstall:
-		conf.NoInstall = false
+		conf.SkipInstall = false
 	}
 }
 

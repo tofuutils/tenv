@@ -125,7 +125,7 @@ func Make(options ...TenvOption) (Tenv, error) {
 	}
 
 	if tc.autoInstall {
-		tc.conf.NoInstall = false
+		tc.conf.SkipInstall = false
 	}
 
 	if tc.displayer == nil {

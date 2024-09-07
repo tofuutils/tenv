@@ -90,7 +90,7 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String() // use a parsable version
-		if m.conf.NoInstall {
+		if m.conf.SkipInstall {
 			_, installed, err := m.checkVersionInstallation("", cleanedVersion)
 			if err != nil {
 				return "", err
@@ -141,7 +141,7 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
 	}
 
-	return m.searchInstallRemote(ctx, predicateInfo, m.conf.NoInstall, proxyCall)
+	return m.searchInstallRemote(ctx, predicateInfo, m.conf.SkipInstall, proxyCall)
 }
 
 func (m VersionManager) Install(ctx context.Context, requestedVersion string) error {
