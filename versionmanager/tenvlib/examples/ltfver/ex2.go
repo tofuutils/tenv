@@ -29,16 +29,18 @@ func main() {
 		fmt.Println("eval failed :", err)
 	}
 
-	err = tenv.Uninstall(ctx, cmdconst.TerraformName, version)
-	if err != nil {
-		fmt.Println("uninstall failed :", err)
-	}
-
 	conf.ForceRemote = true
 
 	remoteVersion, err := tenv.Evaluate(ctx, cmdconst.TerraformName, semantic.LatestKey)
 	if err != nil {
 		fmt.Println("eval remote failed :", err)
+	}
+
+	if version != remoteVersion {
+		err = tenv.Uninstall(ctx, cmdconst.TerraformName, version)
+		if err != nil {
+			fmt.Println("uninstall failed :", err)
+		}
 	}
 
 	fmt.Println("Last Terraform version :", version, "(local),", remoteVersion, "(remote)")
