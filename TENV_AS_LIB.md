@@ -37,7 +37,16 @@ func main() {
         fmt.Println("proxy call failed :", err)
     }
 }
-
 ```
+
+## Documentation
+
+See the [API documentation on go.dev](https://pkg.go.dev/github.com/tofuutils/tenv/v3/versionmanager/tenvlib) and [examples](https://github.com/tofuutils/tenv/tree/main/versionmanager/tenvlib/examples).
+
+### Overview
+
+
+
+
 
 Happy hacking !

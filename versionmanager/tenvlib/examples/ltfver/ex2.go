@@ -20,7 +20,7 @@ func main() {
 
 	tenv, err := tenvlib.Make(tenvlib.WithConfig(&conf), tenvlib.DisableDisplay)
 	if err != nil {
-		fmt.Println("init failed (2) :", err)
+		fmt.Println("should not occur when calling WithConfig :", err)
 	}
 
 	ctx := context.Background()
@@ -29,12 +29,17 @@ func main() {
 		fmt.Println("eval failed :", err)
 	}
 
+	err = tenv.Uninstall(ctx, cmdconst.TerraformName, version)
+	if err != nil {
+		fmt.Println("uninstall failed :", err)
+	}
+
 	conf.ForceRemote = true
 
 	remoteVersion, err := tenv.Evaluate(ctx, cmdconst.TerraformName, semantic.LatestKey)
 	if err != nil {
-		fmt.Println("eval failed :", err)
+		fmt.Println("eval remote failed :", err)
 	}
 
-	fmt.Println("Last Terraform version : ", version, " (local), ", remoteVersion, " (remote)")
+	fmt.Println("Last Terraform version :", version, "(local),", remoteVersion, "(remote)")
 }

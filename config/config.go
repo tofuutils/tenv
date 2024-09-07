@@ -133,10 +133,10 @@ type Config struct {
 	ForceRemote      bool
 	GithubActions    bool
 	GithubToken      string
-	SkipInstall      bool
 	remoteConfLoaded bool
 	RemoteConfPath   string
 	RootPath         string
+	SkipInstall      bool
 	SkipSignature    bool
 	Tf               RemoteConfig
 	TfKeyPath        string
@@ -155,9 +155,9 @@ func DefaultConfig() (Config, error) {
 	return Config{
 		Arch:             runtime.GOARCH,
 		Atmos:            makeDefaultRemoteConfig(defaultAtmosGithubURL, baseGithubURL),
-		SkipInstall:      true,
 		remoteConfLoaded: true,
 		RootPath:         filepath.Join(userPath, defaultDirName),
+		SkipInstall:      true,
 		Tf:               makeDefaultRemoteConfig(defaultHashicorpURL, defaultHashicorpURL),
 		Tg:               makeDefaultRemoteConfig(defaultTerragruntGithubURL, baseGithubURL),
 		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
@@ -208,9 +208,9 @@ func InitConfigFromEnv() (Config, error) {
 		ForceRemote:    forceRemote,
 		GithubActions:  gha,
 		GithubToken:    configutils.GetenvFallback(tenvTokenEnvName, tofuTokenEnvName),
-		SkipInstall:    !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
+		SkipInstall:    !autoInstall,
 		Tf:             makeRemoteConfig(TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
 		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
 		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
