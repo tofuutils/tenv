@@ -64,7 +64,7 @@ Tenv methods list :
 - `Install[Multiple]`
 - `List[Local|Remote]`
 - `LocallyInstalled`
-- `[Res|S]etDefault[Constraint|Version]`
+- `[Res|S]etDefault[Constraint|Version]`, manage `constraint` and `version` files in `<rootPath>/<tool>/`
 - `Uninstall[Multiple]`
 
 Happy hacking !
