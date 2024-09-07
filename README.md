@@ -40,6 +40,7 @@ Terraform, Terragrunt and Atmos.
 - [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files (see [required_version](#required_version) and [Terragrunt hcl](#terragrunt-hcl-file)).
 - Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)), see [signature support](#signature-support).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
+- Callable as [Go](https://go.dev) module, with a [Semver compatibility promise](https://semver.org/#summary) on [tenvlib](https://github.com/tofuutils/tenv/tree/main/versionmanager/tenvlib) wrapper package (get more information in [TENV_AS_LIB.md](https://github.com/tofuutils/tenv/blob/main/TENV_AS_LIB.md)).
 
 <a id="difference-with-asdf"></a>
 ### Difference with asdf
