@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-**tenv** requires [Go](https://go.dev) version [1.21](https://go.dev/doc/devel/release#go1.21.0) or above.
+**tenv** requires [Go](https://go.dev) version [1.23](https://go.dev/doc/devel/release#go1.23.0) or above.
 
 ### Getting tenv module
 

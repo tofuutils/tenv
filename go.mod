@@ -2,8 +2,6 @@ module github.com/tofuutils/tenv/v3
 
 go 1.23
 
-toolchain go1.23.1
-
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/ProtonMail/gopenpgp/v2 v2.7.5
