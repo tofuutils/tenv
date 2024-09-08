@@ -54,7 +54,7 @@ Available Tenv struct creation options :
 - `DisableDisplay`, do not display or log anything.
 - `IgnoreEnv`, ignore **tenv** environment variables (`TENV_AUTO_INSTALL`, `TOFUENV_TOFU_VERSION`, etc.).
 - `WithConfig(conf *config.Config)`, replace default `Config` (one from a `InitConfigFromEnv` or `DefaultConfig` call depending on `IgnoreEnv` usage).
-- `WithDisplayer(displayer loghelper.Displayer)`, replace default `Displayer` with a custom to handle `tenvlib` output.
+- `WithDisplayer(displayer loghelper.Displayer)`, replace default `Displayer` with a custom to handle `tenvlib` output (standard and log).
 - `WithHCLParser(hclParser *hclparse.Parser)`, use passed `Parser` instead of creating a new one.
 
 Tenv methods list :
