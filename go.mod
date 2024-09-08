@@ -1,12 +1,14 @@
 module github.com/tofuutils/tenv/v3
 
-go 1.21
+go 1.23
+
+toolchain go1.23.1
 
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/ProtonMail/gopenpgp/v2 v2.7.5
-	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/charmbracelet/bubbles v0.19.0
+	github.com/PuerkitoBio/goquery v1.10.0
+	github.com/charmbracelet/bubbles v0.20.0
 	github.com/charmbracelet/bubbletea v1.1.0
 	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/fatih/color v1.17.0
@@ -48,11 +50,11 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sahilm/fuzzy v0.1.1 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
-	golang.org/x/mod v0.20.0 // indirect
-	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/mod v0.21.0 // indirect
+	golang.org/x/net v0.29.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
 )
