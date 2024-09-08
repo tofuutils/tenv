@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	conf, err := config.DefaultConfig()
+	conf, err := config.DefaultConfig() // does not read environment variables
 	if err != nil {
 		fmt.Println("init failed :", err)
 
