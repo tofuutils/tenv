@@ -19,6 +19,7 @@
 package versionmanager
 
 import (
+	"context"
 	"errors"
 	"io/fs"
 	"os"
@@ -48,8 +49,8 @@ var (
 )
 
 type ReleaseInfoRetriever interface {
-	InstallRelease(version string, targetPath string) error
-	ListReleases() ([]string, error)
+	InstallRelease(ctx context.Context, version string, targetPath string) error
+	ListReleases(ctx context.Context) ([]string, error)
 }
 
 type DatedVersion struct {
@@ -73,7 +74,7 @@ func Make(conf *config.Config, constraintEnvName string, folderName string, iacE
 }
 
 // Detect version (resolve and evaluate, can install depending on auto install env var).
-func (m VersionManager) Detect(proxyCall bool) (string, error) {
+func (m VersionManager) Detect(ctx context.Context, proxyCall bool) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
 		m.conf.Displayer.Flush(proxyCall)
@@ -81,15 +82,15 @@ func (m VersionManager) Detect(proxyCall bool) (string, error) {
 		return "", err
 	}
 
-	return m.Evaluate(configVersion, proxyCall)
+	return m.Evaluate(ctx, configVersion, proxyCall)
 }
 
 // Evaluate version resolution strategy or version constraint (can install depending on auto install env var).
-func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (string, error) {
+func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, proxyCall bool) (string, error) {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String() // use a parsable version
-		if m.conf.NoInstall {
+		if m.conf.SkipInstall {
 			_, installed, err := m.checkVersionInstallation("", cleanedVersion)
 			if err != nil {
 				return "", err
@@ -103,7 +104,7 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 			return cleanedVersion, nil
 		}
 
-		return cleanedVersion, m.installSpecificVersion(cleanedVersion, proxyCall)
+		return cleanedVersion, m.installSpecificVersion(ctx, cleanedVersion, proxyCall)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.conf)
@@ -140,13 +141,13 @@ func (m VersionManager) Evaluate(requestedVersion string, proxyCall bool) (strin
 		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
 	}
 
-	return m.searchInstallRemote(predicateInfo, m.conf.NoInstall, proxyCall)
+	return m.searchInstallRemote(ctx, predicateInfo, m.conf.SkipInstall, proxyCall)
 }
 
-func (m VersionManager) Install(requestedVersion string) error {
+func (m VersionManager) Install(ctx context.Context, requestedVersion string) error {
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
-		return m.installSpecificVersion(parsedVersion.String(), false) // use a parsable version
+		return m.installSpecificVersion(ctx, parsedVersion.String(), false) // use a parsable version
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.conf)
@@ -155,12 +156,12 @@ func (m VersionManager) Install(requestedVersion string) error {
 	}
 
 	// noInstall is set to false to force install regardless of conf
-	_, err = m.searchInstallRemote(predicateInfo, false, false)
+	_, err = m.searchInstallRemote(ctx, predicateInfo, false, false)
 
 	return err
 }
 
-func (m VersionManager) InstallMultiple(versions []string) error {
+func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) error {
 	installPath, err := m.InstallPath()
 	if err != nil {
 		return err
@@ -172,7 +173,7 @@ func (m VersionManager) InstallMultiple(versions []string) error {
 	defer deleteLock()
 
 	for _, version := range versions {
-		if err = m.installSpecificVersionWithoutLock(installPath, version, false); err != nil {
+		if err = m.installSpecificVersionWithoutLock(ctx, installPath, version, false); err != nil {
 			return err
 		}
 	}
@@ -210,8 +211,8 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 	return datedVersions, nil
 }
 
-func (m VersionManager) ListRemote(reverseOrder bool) ([]string, error) {
-	versions, err := m.retriever.ListReleases()
+func (m VersionManager) ListRemote(ctx context.Context, reverseOrder bool) ([]string, error) {
+	versions, err := m.retriever.ListReleases(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -384,8 +385,8 @@ func (m VersionManager) UninstallMultiple(versions []string) error {
 	return nil
 }
 
-func (m VersionManager) Use(requestedVersion string, workingDir bool) error {
-	detectedVersion, err := m.Evaluate(requestedVersion, false)
+func (m VersionManager) Use(ctx context.Context, requestedVersion string, workingDir bool) error {
+	detectedVersion, err := m.Evaluate(ctx, requestedVersion, false)
 	if err != nil {
 		if err != ErrNoCompatibleLocally {
 			return err
@@ -454,7 +455,7 @@ func (m VersionManager) innerListLocal(installPath string, reverseOrder bool) ([
 	return versions, nil
 }
 
-func (m VersionManager) installSpecificVersion(version string, proxyCall bool) error {
+func (m VersionManager) installSpecificVersion(ctx context.Context, version string, proxyCall bool) error {
 	if version == "" {
 		m.conf.Displayer.Flush(proxyCall)
 
@@ -478,10 +479,10 @@ func (m VersionManager) installSpecificVersion(version string, proxyCall bool) e
 	defer disableExit()
 	defer deleteLock()
 
-	return m.installSpecificVersionWithoutLock(installPath, version, proxyCall)
+	return m.installSpecificVersionWithoutLock(ctx, installPath, version, proxyCall)
 }
 
-func (m VersionManager) installSpecificVersionWithoutLock(installPath string, version string, proxyCall bool) error {
+func (m VersionManager) installSpecificVersionWithoutLock(ctx context.Context, installPath string, version string, proxyCall bool) error {
 	// second check with lock to ensure there is no ongoing install
 	_, installed, err := m.checkVersionInstallation(installPath, version)
 	if err != nil {
@@ -498,7 +499,7 @@ func (m VersionManager) installSpecificVersionWithoutLock(installPath string, ve
 	m.conf.Displayer.Flush(false)
 	m.conf.Displayer.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
-	err = m.retriever.InstallRelease(version, filepath.Join(installPath, version))
+	err = m.retriever.InstallRelease(ctx, version, filepath.Join(installPath, version))
 	if err == nil {
 		m.conf.Displayer.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
 	}
@@ -506,8 +507,8 @@ func (m VersionManager) installSpecificVersionWithoutLock(installPath string, ve
 	return err
 }
 
-func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, noInstall bool, proxyCall bool) (string, error) {
-	versions, err := m.ListRemote(predicateInfo.ReverseOrder)
+func (m VersionManager) searchInstallRemote(ctx context.Context, predicateInfo types.PredicateInfo, noInstall bool, proxyCall bool) (string, error) {
+	versions, err := m.ListRemote(ctx, predicateInfo.ReverseOrder)
 	if err != nil {
 		m.conf.Displayer.Flush(proxyCall)
 
@@ -521,7 +522,7 @@ func (m VersionManager) searchInstallRemote(predicateInfo types.PredicateInfo, n
 				return version, m.autoInstallDisabledMsg(version)
 			}
 
-			return version, m.installSpecificVersion(version, proxyCall)
+			return version, m.installSpecificVersion(ctx, version, proxyCall)
 		}
 	}
 	m.conf.Displayer.Flush(proxyCall)

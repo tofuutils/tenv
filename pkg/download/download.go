@@ -19,13 +19,14 @@
 package download
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
 )
 
-type RequestOption = func(*http.Request) *http.Request
+type RequestOption = func(*http.Request)
 
 func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, 0, len(baseURLs))
@@ -41,16 +42,16 @@ func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ..
 	return transformedURLs, nil
 }
 
-func Bytes(url string, display func(string), requestOptions ...RequestOption) ([]byte, error) {
+func Bytes(ctx context.Context, url string, display func(string), requestOptions ...RequestOption) ([]byte, error) {
 	display("Downloading " + url)
 
-	request, err := http.NewRequest(http.MethodGet, url, http.NoBody)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, option := range requestOptions {
-		request = option(request)
+		option(request)
 	}
 
 	response, err := http.DefaultClient.Do(request)
@@ -62,8 +63,8 @@ func Bytes(url string, display func(string), requestOptions ...RequestOption) ([
 	return io.ReadAll(response.Body)
 }
 
-func JSON(url string, display func(string), requestOptions ...RequestOption) (any, error) {
-	data, err := Bytes(url, display, requestOptions...)
+func JSON(ctx context.Context, url string, display func(string), requestOptions ...RequestOption) (any, error) {
+	data, err := Bytes(ctx, url, display, requestOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,10 +99,8 @@ func UrlTranformer(rewriteRule []string) func(string) (string, error) {
 }
 
 func WithBasicAuth(username string, password string) RequestOption {
-	return func(r *http.Request) *http.Request {
+	return func(r *http.Request) {
 		r.SetBasicAuth(username, password)
-
-		return r
 	}
 }
 

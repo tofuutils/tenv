@@ -19,6 +19,7 @@
 package terraformretriever
 
 import (
+	"context"
 	"net/url"
 	"os"
 	"runtime"
@@ -54,7 +55,7 @@ func Make(conf *config.Config) TerraformRetriever {
 	return TerraformRetriever{conf: conf}
 }
 
-func (r TerraformRetriever) InstallRelease(version string, targetPath string) error {
+func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -94,7 +95,7 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 
 		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
 
-		value, err := download.JSON(versionUrl, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, versionUrl, download.NoDisplay, ro...)
 		if err != nil {
 			return err
 		}
@@ -124,19 +125,19 @@ func (r TerraformRetriever) InstallRelease(version string, targetPath string) er
 		return err
 	}
 
-	data, err := download.Bytes(assetURLs[0], r.conf.Displayer.Display, ro...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(fileName, data, assetURLs[1], assetURLs[2], ro); err != nil {
+	if err = r.checkSumAndSig(ctx, fileName, data, assetURLs[1], assetURLs[2], ro); err != nil {
 		return err
 	}
 
 	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TerraformName)))
 }
 
-func (r TerraformRetriever) ListReleases() ([]string, error) {
+func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
@@ -153,7 +154,7 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 	case config.ListModeHTML:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(baseURL, r.conf.Tf.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, ro)
 	case config.ModeAPI:
 		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
 		if err != nil {
@@ -162,7 +163,7 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
-		value, err := download.JSON(releasesURL, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, ro...)
 		if err != nil {
 			return nil, err
 		}
@@ -173,8 +174,8 @@ func (r TerraformRetriever) ListReleases() ([]string, error) {
 	}
 }
 
-func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, ro []download.RequestOption) error {
-	dataSums, err := download.Bytes(downloadSumsURL, r.conf.Displayer.Display, ro...)
+func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, ro []download.RequestOption) error {
+	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
@@ -187,14 +188,14 @@ func (r TerraformRetriever) checkSumAndSig(fileName string, data []byte, downloa
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(downloadSumsSigURL, r.conf.Displayer.Display, ro...)
+	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, ro...)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(publicKeyURL, r.conf.Displayer.Display)
+		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}

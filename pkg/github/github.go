@@ -19,6 +19,7 @@
 package github
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/url"
@@ -38,7 +39,7 @@ const (
 
 var errContinue = errors.New("continue")
 
-func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
+func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
 	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
 	if err != nil {
 		return nil, err
@@ -47,7 +48,7 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	display(apimsg.MsgFetchRelease + releaseUrl)
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
-	value, err := apiGetRequest(releaseUrl, authorizationHeader)
+	value, err := apiGetRequest(ctx, releaseUrl, authorizationHeader)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +70,7 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	baseAssetsURL += pageQuery
 	for {
 		assetsURL := baseAssetsURL + strconv.Itoa(page)
-		value, err = apiGetRequest(assetsURL, authorizationHeader)
+		value, err = apiGetRequest(ctx, assetsURL, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -88,7 +89,7 @@ func AssetDownloadURL(tag string, searchedAssetNames []string, githubReleaseURL 
 	}
 }
 
-func ListReleases(githubReleaseURL string, githubToken string) ([]string, error) {
+func ListReleases(ctx context.Context, githubReleaseURL string, githubToken string) ([]string, error) {
 	basePageURL := githubReleaseURL + pageQuery
 	authorizationHeader := buildAuthorizationHeader(githubToken)
 
@@ -96,7 +97,7 @@ func ListReleases(githubReleaseURL string, githubToken string) ([]string, error)
 	var releases []string
 	for {
 		pageURL := basePageURL + strconv.Itoa(page)
-		value, err := apiGetRequest(pageURL, authorizationHeader)
+		value, err := apiGetRequest(ctx, pageURL, authorizationHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -111,15 +112,13 @@ func ListReleases(githubReleaseURL string, githubToken string) ([]string, error)
 	}
 }
 
-func apiGetRequest(callURL string, authorizationHeader string) (any, error) {
-	return download.JSON(callURL, download.NoDisplay, func(request *http.Request) *http.Request {
+func apiGetRequest(ctx context.Context, callURL string, authorizationHeader string) (any, error) {
+	return download.JSON(ctx, callURL, download.NoDisplay, func(request *http.Request) {
 		request.Header.Set("Accept", "application/vnd.github+json")
 		if authorizationHeader != "" {
 			request.Header.Set("Authorization", authorizationHeader)
 		}
 		request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
-
-		return request
 	})
 }
 

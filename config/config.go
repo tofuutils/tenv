@@ -35,6 +35,7 @@ import (
 )
 
 const (
+	defaultDirName       = ".tenv"
 	githubActionsEnvName = "GITHUB_ACTIONS"
 
 	archEnvName        = "ARCH"
@@ -132,10 +133,10 @@ type Config struct {
 	ForceRemote      bool
 	GithubActions    bool
 	GithubToken      string
-	NoInstall        bool
 	remoteConfLoaded bool
 	RemoteConfPath   string
 	RootPath         string
+	SkipInstall      bool
 	SkipSignature    bool
 	Tf               RemoteConfig
 	TfKeyPath        string
@@ -143,6 +144,25 @@ type Config struct {
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
+}
+
+func DefaultConfig() (Config, error) {
+	userPath, err := os.UserHomeDir()
+	if err != nil {
+		return Config{}, err
+	}
+
+	return Config{
+		Arch:             runtime.GOARCH,
+		Atmos:            makeDefaultRemoteConfig(defaultAtmosGithubURL, baseGithubURL),
+		remoteConfLoaded: true,
+		RootPath:         filepath.Join(userPath, defaultDirName),
+		SkipInstall:      true,
+		Tf:               makeDefaultRemoteConfig(defaultHashicorpURL, defaultHashicorpURL),
+		Tg:               makeDefaultRemoteConfig(defaultTerragruntGithubURL, baseGithubURL),
+		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
+		UserPath:         userPath,
+	}, nil
 }
 
 func InitConfigFromEnv() (Config, error) {
@@ -168,7 +188,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	rootPath := configutils.GetenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
-		rootPath = filepath.Join(userPath, ".tenv")
+		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
 	quiet, err := configutils.GetenvBoolFallback(false, tenvQuietEnvName)
@@ -188,9 +208,9 @@ func InitConfigFromEnv() (Config, error) {
 		ForceRemote:    forceRemote,
 		GithubActions:  gha,
 		GithubToken:    configutils.GetenvFallback(tenvTokenEnvName, tofuTokenEnvName),
-		NoInstall:      !autoInstall,
 		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
+		SkipInstall:    !autoInstall,
 		Tf:             makeRemoteConfig(TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
 		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
 		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
@@ -228,9 +248,9 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 func (conf *Config) InitInstall(forceInstall bool, forceNoInstall bool) {
 	switch {
 	case forceNoInstall: // higher priority to --no-install
-		conf.NoInstall = true
+		conf.SkipInstall = true
 	case forceInstall:
-		conf.NoInstall = false
+		conf.SkipInstall = false
 	}
 }
 

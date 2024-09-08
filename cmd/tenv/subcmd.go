@@ -20,6 +20,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"os"
 	"strconv"
 	"strings"
@@ -88,7 +89,8 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
-			detectedVersion, err := versionManager.Detect(false)
+			ctx := context.Background()
+			detectedVersion, err := versionManager.Detect(ctx, false)
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
 
@@ -138,6 +140,7 @@ If a parameter is passed, available options:
 		Run: func(_ *cobra.Command, args []string) {
 			conf.InitDisplayer(false)
 
+			ctx := context.Background()
 			if len(args) == 0 {
 				version, err := versionManager.Resolve(semantic.LatestKey)
 				if err != nil {
@@ -146,14 +149,14 @@ If a parameter is passed, available options:
 					return
 				}
 
-				if err = versionManager.Install(version); err != nil {
+				if err = versionManager.Install(ctx, version); err != nil {
 					loghelper.StdDisplay(err.Error())
 				}
 
 				return
 			}
 
-			if err := versionManager.Install(args[0]); err != nil {
+			if err := versionManager.Install(ctx, args[0]); err != nil {
 				loghelper.StdDisplay(err.Error())
 			}
 		},
@@ -244,7 +247,8 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		Run: func(_ *cobra.Command, _ []string) {
 			conf.InitDisplayer(false)
 
-			versions, err := versionManager.ListRemote(reverseOrder)
+			ctx := context.Background()
+			versions, err := versionManager.ListRemote(ctx, reverseOrder)
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
 
@@ -378,7 +382,8 @@ Available parameter options:
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
-			if err := versionManager.Use(args[0], workingDir); err != nil {
+			ctx := context.Background()
+			if err := versionManager.Use(ctx, args[0], workingDir); err != nil {
 				loghelper.StdDisplay(err.Error())
 			}
 		},

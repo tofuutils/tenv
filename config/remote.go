@@ -56,6 +56,12 @@ type RemoteConfig struct {
 	RemoteURLEnv   string // value from env
 }
 
+func makeDefaultRemoteConfig(defaultURL string, defaultBaseURL string) RemoteConfig {
+	return RemoteConfig{
+		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, Data: map[string]string{},
+	}
+}
+
 func makeRemoteConfig(remoteURLEnvName string, listURLEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
 	return RemoteConfig{
 		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, installMode: os.Getenv(installModeEnvName), listMode: os.Getenv(listModeEnvName),

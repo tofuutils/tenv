@@ -32,24 +32,23 @@ import (
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
-func Run(execPath string, cmdArgs []string, gha bool) {
+// Always call os.Exit.
+func Run(cmd *exec.Cmd, gha bool) {
 	exitCode := 0
 	defer func() {
 		os.Exit(exitCode)
 	}()
 
-	// proxy to selected version
-	cmd := exec.Command(execPath, cmdArgs...)
-	done, err := initIO(cmd, execPath, &exitCode, gha)
+	done, err := initIO(cmd, &exitCode, gha)
 	if err != nil {
-		exitWithErrorMsg(execPath, err, &exitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode)
 
 		return
 	}
 	defer done()
 
 	if err = cmd.Start(); err != nil {
-		exitWithErrorMsg(execPath, err, &exitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode)
 
 		return
 	}
@@ -65,18 +64,18 @@ func Run(execPath string, cmdArgs []string, gha bool) {
 
 			return
 		}
-		exitWithErrorMsg(execPath, err, &exitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode)
 	}
 }
 
-func exitWithErrorMsg(execName string, err error, pExitCode *int) {
-	fmt.Println("Failure during", execName, "call :", err) //nolint
+func exitWithErrorMsg(execPath string, err error, pExitCode *int) {
+	fmt.Println("Failure during", execPath, "call :", err) //nolint
 	if *pExitCode == 0 {
 		*pExitCode = 1
 	}
 }
 
-func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(), error) {
+func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) (func(), error) {
 	cmd.Stdin = os.Stdin
 	if !gha {
 		cmd.Stderr = os.Stderr
@@ -100,27 +99,27 @@ func initIO(cmd *exec.Cmd, execName string, pExitCode *int, gha bool) (func(), e
 
 		err = writeMultiline(outputFile, "stderr", errBuffer.String())
 		if err != nil {
-			exitWithErrorMsg(execName, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 
 			return
 		}
 
 		if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
-			exitWithErrorMsg(execName, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 
 			return
 		}
 
 		exitCode := *pExitCode
 		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(exitCode)); err != nil {
-			exitWithErrorMsg(execName, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 
 			return
 		}
 
 		if exitCode != 0 && exitCode != 2 {
 			err = fmt.Errorf("exited with code %d", exitCode)
-			exitWithErrorMsg(execName, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 		}
 	}, nil
 }
