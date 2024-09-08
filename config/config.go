@@ -144,6 +144,7 @@ type Config struct {
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
+	WorkPath         string
 }
 
 func DefaultConfig() (Config, error) {
@@ -162,6 +163,7 @@ func DefaultConfig() (Config, error) {
 		Tg:               makeDefaultRemoteConfig(defaultTerragruntGithubURL, baseGithubURL),
 		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
 		UserPath:         userPath,
+		WorkPath:         ".",
 	}, nil
 }
 
@@ -217,6 +219,7 @@ func InitConfigFromEnv() (Config, error) {
 		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, DefaultTofuGithubURL, baseGithubURL),
 		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
+		WorkPath:       ".",
 	}, nil
 }
 
