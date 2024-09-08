@@ -65,7 +65,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		}()
 	}
 
-	entries, err := os.ReadDir(".")
+	entries, err := os.ReadDir(conf.WorkPath)
 	if err != nil {
 		return nil, err
 	}

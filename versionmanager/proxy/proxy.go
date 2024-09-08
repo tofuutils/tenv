@@ -25,6 +25,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
@@ -35,13 +36,18 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
 )
 
+const chdirFlagPrefix = "-chdir="
+
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
 // Always call os.Exit.
 func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
-	ctx := context.Background()
 	versionManager := builderFunc(conf, hclParser)
+
+	updateWorkPath(conf, cmdArgs)
+
+	ctx := context.Background()
 	detectedVersion, err := versionManager.Detect(ctx, true)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
@@ -64,4 +70,14 @@ func ExecPath(installPath string, version string, execName string, displayer log
 	lastuse.WriteNow(versionPath, displayer)
 
 	return filepath.Join(versionPath, execName)
+}
+
+func updateWorkPath(conf *config.Config, cmdArgs []string) {
+	for _, arg := range cmdArgs {
+		if chdirPath, ok := strings.CutPrefix(arg, chdirFlagPrefix); ok { //nolint
+			conf.WorkPath = chdirPath
+
+			return
+		}
+	}
 }

@@ -19,7 +19,6 @@
 package semantic
 
 import (
-	"os"
 	"path/filepath"
 
 	"github.com/tofuutils/tenv/v3/config"
@@ -27,15 +26,13 @@ import (
 )
 
 func RetrieveVersion(versionFiles []types.VersionFile, conf *config.Config) (string, error) {
-	for _, versionFile := range versionFiles {
-		if version, err := versionFile.Parser(versionFile.Name, conf); err != nil || version != "" {
-			return version, err
-		}
-	}
-
-	previousPath, err := os.Getwd()
+	previousPath, err := filepath.Abs(conf.WorkPath)
 	if err != nil {
 		return "", err
+	}
+
+	if version, err := retrieveVersionFromDir(versionFiles, previousPath, conf); err != nil || version != "" {
+		return version, err
 	}
 
 	userPathDone := false

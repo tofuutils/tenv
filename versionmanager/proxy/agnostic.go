@@ -35,8 +35,10 @@ import (
 // Always call os.Exit.
 func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
-	ctx := context.Background()
 	manager := builder.BuildTofuManager(conf, hclParser)
+
+	updateWorkPath(conf, cmdArgs)
+
 	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
@@ -65,6 +67,7 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 		os.Exit(1)
 	}
 
+	ctx := context.Background()
 	detectedVersion, err = manager.Evaluate(ctx, detectedVersion, true)
 	if err != nil {
 		fmt.Println("Failed to evaluate the requested version in a specific version allowing to call", execName, ":", err) //nolint
