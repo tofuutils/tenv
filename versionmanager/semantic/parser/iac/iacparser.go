@@ -20,6 +20,7 @@ package iacparser
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
@@ -95,7 +96,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		name := cleanedName + ext.Value
 		foundFiles = append(foundFiles, name)
 
-		parsedFile, diags = ext.Parser(name)
+		parsedFile, diags = ext.Parser(filepath.Join(conf.WorkPath, name))
 		if diags.HasErrors() {
 			return nil, diags
 		}
