@@ -133,11 +133,12 @@ If a parameter is passed, available options:
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required")
 
 	installCmd := &cobra.Command{
-		Use:   "install [version]",
-		Short: loghelper.Concat("Install a specific version of ", versionManager.FolderName, "."),
-		Long:  descBuilder.String(),
-		Args:  cobra.MaximumNArgs(1),
-		Run: func(_ *cobra.Command, args []string) {
+		Use:          "install [version]",
+		Short:        loghelper.Concat("Install a specific version of ", versionManager.FolderName, "."),
+		Long:         descBuilder.String(),
+		Args:         cobra.MaximumNArgs(1),
+		SilenceUsage: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
 			ctx := context.Background()
@@ -145,20 +146,20 @@ If a parameter is passed, available options:
 				version, err := versionManager.Resolve(semantic.LatestKey)
 				if err != nil {
 					loghelper.StdDisplay(err.Error())
-
-					return
+					return err
 				}
 
 				if err = versionManager.Install(ctx, version); err != nil {
 					loghelper.StdDisplay(err.Error())
 				}
-
-				return
+				return err
 			}
 
 			if err := versionManager.Install(ctx, args[0]); err != nil {
 				loghelper.StdDisplay(err.Error())
+				return err
 			}
+			return nil
 		},
 	}
 
@@ -178,18 +179,19 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	reverseOrder := false
 
 	listCmd := &cobra.Command{
-		Use:   "list",
-		Short: loghelper.Concat("List installed ", versionManager.FolderName, " versions."),
-		Long:  descBuilder.String(),
-		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
+		Use:          "list",
+		Short:        loghelper.Concat("List installed ", versionManager.FolderName, " versions."),
+		Long:         descBuilder.String(),
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
 
 			datedVersions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
 
-				return
+				return err
 			}
 
 			filePath := versionManager.RootVersionFilePath()
@@ -220,6 +222,8 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 			if conf.DisplayVerbose {
 				loghelper.StdDisplay(loghelper.Concat("found ", strconv.Itoa(len(datedVersions)), " ", versionManager.FolderName, " version(s) managed by tenv."))
 			}
+
+			return nil
 		},
 	}
 
@@ -240,11 +244,12 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	reverseOrder := false
 
 	listRemoteCmd := &cobra.Command{
-		Use:   "list-remote",
-		Short: loghelper.Concat("List installable ", versionManager.FolderName, " versions."),
-		Long:  descBuilder.String(),
-		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
+		Use:          "list-remote",
+		Short:        loghelper.Concat("List installable ", versionManager.FolderName, " versions."),
+		Long:         descBuilder.String(),
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
 
 			ctx := context.Background()
@@ -252,7 +257,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
 
-				return
+				return err
 			}
 
 			countSkipped := 0
@@ -277,7 +282,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 				}
 			}
 
-			return
+			return nil
 		},
 	}
 
@@ -298,16 +303,21 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	descBuilder.WriteString("/version file).")
 
 	resetCmd := &cobra.Command{
-		Use:   "reset",
-		Short: loghelper.Concat("Reset used version of ", versionManager.FolderName, "."),
-		Long:  descBuilder.String(),
-		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
+		Use:          "reset",
+		Short:        loghelper.Concat("Reset used version of ", versionManager.FolderName, "."),
+		Long:         descBuilder.String(),
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
 
 			if err := versionManager.ResetVersion(); err != nil {
 				loghelper.StdDisplay(err.Error())
+
+				return err
 			}
+
+			return nil
 		},
 	}
 
@@ -331,11 +341,12 @@ If a parameter is passed, available parameter options:
 - not-used-since:<date>, <date> format is YYYY-MM-DD, like "2024-06-30"`)
 
 	uninstallCmd := &cobra.Command{
-		Use:   "uninstall version",
-		Short: loghelper.Concat("Uninstall versions of ", versionManager.FolderName, "."),
-		Long:  descBuilder.String(),
-		Args:  cobra.MaximumNArgs(1),
-		Run: func(_ *cobra.Command, args []string) {
+		Use:          "uninstall version",
+		Short:        loghelper.Concat("Uninstall versions of ", versionManager.FolderName, "."),
+		Long:         descBuilder.String(),
+		Args:         cobra.MaximumNArgs(1),
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
 			var err error
@@ -347,7 +358,9 @@ If a parameter is passed, available parameter options:
 
 			if err != nil {
 				loghelper.StdDisplay(err.Error())
+				return err
 			}
+			return nil
 		},
 	}
 
@@ -374,18 +387,22 @@ Available parameter options:
 	forceInstall, forceNoInstall, workingDir := false, false, false
 
 	useCmd := &cobra.Command{
-		Use:   "use version",
-		Short: loghelper.Concat("Switch the default ", versionManager.FolderName, " version to use."),
-		Long:  descBuilder.String(),
-		Args:  cobra.ExactArgs(1),
-		Run: func(_ *cobra.Command, args []string) {
+		Use:          "use version",
+		Short:        loghelper.Concat("Switch the default ", versionManager.FolderName, " version to use."),
+		Long:         descBuilder.String(),
+		Args:         cobra.ExactArgs(1),
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
 			ctx := context.Background()
 			if err := versionManager.Use(ctx, args[0], workingDir); err != nil {
 				loghelper.StdDisplay(err.Error())
+				return err
 			}
+
+			return nil
 		},
 	}
 
