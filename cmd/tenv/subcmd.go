@@ -48,24 +48,19 @@ Without expression reset the default constraint.
 The default constraint is added while using latest-allowed, min-required or custom constraint.`)
 
 	constraintCmd := &cobra.Command{
-		Use:   "constraint [expression]",
-		Short: loghelper.Concat("Set a default constraint expression for ", versionManager.FolderName, "."),
-		Long:  descBuilder.String(),
-		Args:  cobra.MaximumNArgs(1),
-		Run: func(_ *cobra.Command, args []string) {
+		Use:          "constraint [expression]",
+		Short:        loghelper.Concat("Set a default constraint expression for ", versionManager.FolderName, "."),
+		Long:         descBuilder.String(),
+		Args:         cobra.MaximumNArgs(1),
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
 			if len(args) == 0 || args[0] == "" {
-				if err := versionManager.ResetConstraint(); err != nil {
-					loghelper.StdDisplay(err.Error())
-				}
-
-				return
+				return versionManager.ResetConstraint()
 			}
 
-			if err := versionManager.SetConstraint(args[0]); err != nil {
-				loghelper.StdDisplay(err.Error())
-			}
+			return versionManager.SetConstraint(args[0])
 		},
 	}
 
@@ -81,24 +76,26 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 	forceInstall, forceNoInstall := false, false
 
 	detectCmd := &cobra.Command{
-		Use:   "detect",
-		Short: loghelper.Concat("Display ", versionManager.FolderName, " current version."),
-		Long:  descBuilder.String(),
-		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
+		Use:          "detect",
+		Short:        loghelper.Concat("Display ", versionManager.FolderName, " current version."),
+		Long:         descBuilder.String(),
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
-			ctx := context.Background()
-			detectedVersion, err := versionManager.Detect(ctx, false)
+			detectedVersion, err := versionManager.Detect(context.Background(), false)
 			if err != nil {
-				loghelper.StdDisplay(err.Error())
-
-				if err != versionmanager.ErrNoCompatibleLocally {
-					return
+				if err == versionmanager.ErrNoCompatibleLocally {
+					loghelper.StdDisplay(err.Error())
+				} else {
+					return err
 				}
 			}
 			loghelper.StdDisplay(loghelper.Concat(versionManager.FolderName, " ", detectedVersion, " will be run from this directory."))
+
+			return nil
 		},
 	}
 
@@ -145,21 +142,13 @@ If a parameter is passed, available options:
 			if len(args) == 0 {
 				version, err := versionManager.Resolve(semantic.LatestKey)
 				if err != nil {
-					loghelper.StdDisplay(err.Error())
 					return err
 				}
 
-				if err = versionManager.Install(ctx, version); err != nil {
-					loghelper.StdDisplay(err.Error())
-				}
-				return err
+				return versionManager.Install(ctx, version)
 			}
 
-			if err := versionManager.Install(ctx, args[0]); err != nil {
-				loghelper.StdDisplay(err.Error())
-				return err
-			}
-			return nil
+			return versionManager.Install(ctx, args[0])
 		},
 	}
 
@@ -189,8 +178,6 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 
 			datedVersions, err := versionManager.ListLocal(reverseOrder)
 			if err != nil {
-				loghelper.StdDisplay(err.Error())
-
 				return err
 			}
 
@@ -252,11 +239,8 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
 
-			ctx := context.Background()
-			versions, err := versionManager.ListRemote(ctx, reverseOrder)
+			versions, err := versionManager.ListRemote(context.Background(), reverseOrder)
 			if err != nil {
-				loghelper.StdDisplay(err.Error())
-
 				return err
 			}
 
@@ -311,13 +295,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
 
-			if err := versionManager.ResetVersion(); err != nil {
-				loghelper.StdDisplay(err.Error())
-
-				return err
-			}
-
-			return nil
+			return versionManager.ResetVersion()
 		},
 	}
 
@@ -349,18 +327,11 @@ If a parameter is passed, available parameter options:
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
-			var err error
 			if len(args) == 0 {
-				err = uninstallUI(versionManager)
+				return uninstallUI(versionManager)
 			} else {
-				err = versionManager.Uninstall(args[0])
+				return versionManager.Uninstall(args[0])
 			}
-
-			if err != nil {
-				loghelper.StdDisplay(err.Error())
-				return err
-			}
-			return nil
 		},
 	}
 
@@ -396,13 +367,7 @@ Available parameter options:
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
-			ctx := context.Background()
-			if err := versionManager.Use(ctx, args[0], workingDir); err != nil {
-				loghelper.StdDisplay(err.Error())
-				return err
-			}
-
-			return nil
+			return versionManager.Use(context.Background(), args[0], workingDir)
 		},
 	}
 

@@ -72,7 +72,6 @@ func main() {
 	manageHiddenCallCmd(&conf, hclParser) // proxy call use os.Exit when called
 
 	if err = initRootCmd(&conf, hclParser).Execute(); err != nil {
-		loghelper.StdDisplay(err.Error())
 		os.Exit(1)
 	}
 }
@@ -183,10 +182,11 @@ func manageHiddenCallCmd(conf *config.Config, hclParser *hclparse.Parser) {
 
 func newVersionCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   versionName,
-		Short: rootVersionHelp,
-		Long:  rootVersionHelp,
-		Args:  cobra.NoArgs,
+		Use:          versionName,
+		Short:        rootVersionHelp,
+		Long:         rootVersionHelp,
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
 		Run: func(_ *cobra.Command, _ []string) {
 			loghelper.StdDisplay(loghelper.Concat(cmdconst.TenvName, " ", versionName, " ", version))
 		},
@@ -195,16 +195,15 @@ func newVersionCmd() *cobra.Command {
 
 func newUpdatePathCmd(gha bool) *cobra.Command {
 	return &cobra.Command{
-		Use:   "update-path",
-		Short: updatePathHelp,
-		Long:  updatePathHelp,
-		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
+		Use:          "update-path",
+		Short:        updatePathHelp,
+		Long:         updatePathHelp,
+		Args:         cobra.NoArgs,
+		SilenceUsage: true,
+		RunE: func(_ *cobra.Command, _ []string) error {
 			execPath, err := os.Executable()
 			if err != nil {
-				loghelper.StdDisplay(err.Error())
-
-				return
+				return err
 			}
 
 			execDirPath := filepath.Dir(execPath)
@@ -213,13 +212,13 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 				if pathfilePath != "" {
 					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 					if err != nil {
-						return
+						return err
 					}
 					defer pathfile.Close()
 
 					_, err = pathfile.Write(append([]byte(execDirPath), '\n'))
 					if err != nil {
-						return
+						return err
 					}
 				}
 			}
@@ -229,6 +228,8 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 			pathBuilder.WriteRune(os.PathListSeparator)
 			pathBuilder.WriteString(os.Getenv(pathEnvName))
 			loghelper.StdDisplay(pathBuilder.String())
+
+			return nil
 		},
 	}
 }
