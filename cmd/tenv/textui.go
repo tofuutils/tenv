@@ -282,9 +282,8 @@ func manageUI(ctx context.Context, versionManager versionmanager.VersionManager)
 	slices.SortFunc(toInstall, semantic.CmpVersion)
 	slices.SortFunc(toUninstall, semantic.CmpVersion)
 
-	err = versionManager.UninstallMultiple(toUninstall)
-	if err != nil {
-		return nil
+	if err = versionManager.UninstallMultiple(toUninstall); err != nil {
+		return err
 	}
 
 	return versionManager.InstallMultiple(ctx, toInstall)
