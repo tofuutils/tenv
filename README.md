@@ -273,6 +273,19 @@ echo "source \$HOME/.tenv.completion.zsh" >> ~/.zshrc
 ```
 </details>
 
+<details><summary><b>Oh My Zsh</b></summary><br>
+
+```console
+tenv completion zsh > ~/.oh-my-zsh/completions/_tenv
+```
+
+Make sure the completions folder `~/.oh-my-zsh/completions` is listed under `$fpath`:
+
+```console
+print -l $fpath
+```
+</details>
+
 <details><summary><b>powershell</b></summary><br>
 
 ```console
@@ -849,7 +862,7 @@ Same as TENV_ROOT (compatibility with [tofuenv](https://github.com/tofuutils/tof
 String (Default: `https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}`)
 
 Used when TOFUENV_INSTALL_MODE is "mirror" (see [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/mirror-spec/MIRROR-SPECIFICATION.md)).
- 
+
 </details>
 
 
