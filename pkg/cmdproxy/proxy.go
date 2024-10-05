@@ -39,15 +39,11 @@ func Run(cmd *exec.Cmd, gha bool) {
 		os.Exit(exitCode)
 	}()
 
-	done, err := initIO(cmd, &exitCode, gha)
-	if err != nil {
-		exitWithErrorMsg(cmd.Path, err, &exitCode)
-
-		return
-	}
+	done := initIO(cmd, &exitCode, gha)
 	defer done()
 
-	if err = cmd.Start(); err != nil {
+	err := cmd.Start()
+	if err != nil {
 		exitWithErrorMsg(cmd.Path, err, &exitCode)
 
 		return
@@ -75,19 +71,24 @@ func exitWithErrorMsg(execPath string, err error, pExitCode *int) {
 	}
 }
 
-func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) (func(), error) {
+func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) func() {
 	cmd.Stdin = os.Stdin
 	if !gha {
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 
-		return noAction, nil
+		return noAction
 	}
 
 	outputPath := os.Getenv("GITHUB_OUTPUT")
 	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644) //nolint
 	if err != nil {
-		return nil, err
+		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint
+
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+
+		return noAction
 	}
 
 	var errBuffer, outBuffer strings.Builder
@@ -121,7 +122,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) (func(), error) {
 			err = fmt.Errorf("exited with code %d", exitCode)
 			exitWithErrorMsg(cmd.Path, err, pExitCode)
 		}
-	}, nil
+	}
 }
 
 func transmitIncreasingSignal(signalReceiver <-chan os.Signal, process *os.Process) {
