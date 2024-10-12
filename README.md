@@ -631,6 +631,15 @@ If set to true **tenv** will automatically install missing tool versions needed.
 </details>
 
 
+<details><summary><b>TENV_DETACHED_PROXY</b></summary><br>
+
+String (Default: false)
+
+Enable **tenv** proxies detached behaviour (use a new process group id when launching tool command).
+
+</details>
+
+
 <details><summary><b>TENV_FORCE_REMOTE</b></summary><br>
 
 String (Default: false)
