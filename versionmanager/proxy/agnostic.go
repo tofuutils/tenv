@@ -76,5 +76,8 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 
 	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
 
-	cmdproxy.Run(exec.CommandContext(ctx, execPath, cmdArgs...), conf.GithubActions)
+	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
+	initDetachedBehaviorFromEnv(cmd)
+
+	cmdproxy.Run(cmd, conf.GithubActions)
 }
