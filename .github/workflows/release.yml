@@ -148,3 +148,9 @@ jobs:
           done
 
           echo "All images and manifests pushed successfully to ${docker_registry}!"
+
+      - name: Create a new MR version for Alpine Aports
+        env:
+          docker_registry: "registry.hub.docker.com"
+        run: |
+          bash .github/scripts/aports.sh
