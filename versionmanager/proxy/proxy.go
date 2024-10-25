@@ -26,12 +26,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v3/config"
-	configutils "github.com/tofuutils/tenv/v3/config/utils"
 	cmdproxy "github.com/tofuutils/tenv/v3/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 	"github.com/tofuutils/tenv/v3/versionmanager/builder"
@@ -85,20 +83,4 @@ func updateWorkPath(conf *config.Config, cmdArgs []string) {
 			return
 		}
 	}
-}
-
-func initDetachedBehaviorFromEnv(cmd *exec.Cmd) {
-	detached, err := configutils.GetenvBool(false, "TENV_DETACHED_PROXY")
-	if err != nil {
-		fmt.Println("Failed to read TENV_DETACHED_PROXY environment variable, disable behavior :", err) //nolint
-	}
-	if !detached {
-		return
-	}
-
-	if cmd.SysProcAttr == nil {
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-	}
-
-	cmd.SysProcAttr.Setpgid = true
 }
