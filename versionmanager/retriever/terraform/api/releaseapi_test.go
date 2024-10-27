@@ -31,27 +31,14 @@ import (
 //go:embed testdata/release.json
 var releaseData []byte
 
-var (
-	releaseValue any
-	errRelease   error
-)
-
 //go:embed testdata/releases.json
 var releasesData []byte
-
-var (
-	releasesValue any
-	errReleases   error
-)
-
-func init() {
-	errRelease = json.Unmarshal(releaseData, &releaseValue)
-	errReleases = json.Unmarshal(releasesData, &releasesValue)
-}
 
 func TestExtractAssetUrls(t *testing.T) {
 	t.Parallel()
 
+	var releaseValue any
+	errRelease := json.Unmarshal(releaseData, &releaseValue)
 	if errRelease != nil {
 		t.Fatal("Unexpected parsing error : ", errRelease)
 	}
@@ -78,8 +65,10 @@ func TestExtractAssetUrls(t *testing.T) {
 func TestExtractReleases(t *testing.T) {
 	t.Parallel()
 
-	if errReleases != nil {
-		t.Fatal("Unexpected parsing error : ", errReleases)
+	var releasesValue any
+	err := json.Unmarshal(releasesData, &releasesValue)
+	if err != nil {
+		t.Fatal("Unexpected parsing error : ", err)
 	}
 
 	releases, err := releaseapi.ExtractReleases(releasesValue)
