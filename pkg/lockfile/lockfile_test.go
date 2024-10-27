@@ -42,6 +42,8 @@ var data2 []byte
 var data3 []byte
 
 func TestParallelWriteRead(t *testing.T) {
+	t.Parallel()
+
 	parallelDirPath := filepath.Join(os.TempDir(), "parallel")
 	parallelFilePath := filepath.Join(parallelDirPath, "rw_test")
 

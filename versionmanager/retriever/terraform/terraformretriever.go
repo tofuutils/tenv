@@ -71,7 +71,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		return err
 	}
 
-	ro := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
 	switch r.conf.Tf.GetInstallMode() {
@@ -95,7 +95,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 
 		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
 
-		value, err := download.JSON(ctx, versionUrl, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, versionUrl, download.NoDisplay, requestOptions...)
 		if err != nil {
 			return err
 		}
@@ -125,12 +125,12 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		return err
 	}
 
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(ctx, fileName, data, assetURLs[1], assetURLs[2], ro); err != nil {
+	if err = r.checkSumAndSig(ctx, fileName, data, assetURLs[1], assetURLs[2], requestOptions); err != nil {
 		return err
 	}
 
@@ -174,8 +174,8 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 	}
 }
 
-func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, ro []download.RequestOption) error {
-	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, ro...)
+func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, options []download.RequestOption) error {
+	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string,
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, ro...)
+	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}

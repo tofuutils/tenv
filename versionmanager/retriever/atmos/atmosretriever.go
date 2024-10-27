@@ -97,13 +97,13 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	ro := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
+	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, ro...)
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	ro := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
 
 	listURL := r.conf.Atmos.GetListURL()
 	switch r.conf.Atmos.GetListMode() {
@@ -138,7 +138,7 @@ func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Atmos.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Atmos.Data, requestOptions)
 	case config.ModeAPI:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 

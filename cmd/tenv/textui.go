@@ -114,17 +114,17 @@ func (d manageItemDelegate) Render(w io.Writer, m list.Model, index int, listIte
 	fmt.Fprint(w, line)
 }
 
-type itemModel struct {
+type itemSelector struct {
 	choices  map[string]struct{}
 	list     list.Model
 	quitting bool
 }
 
-func (m itemModel) Init() tea.Cmd {
+func (m itemSelector) Init() tea.Cmd {
 	return nil
 }
 
-func (m itemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint
+func (m itemSelector) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.list.SetWidth(msg.Width)
@@ -165,7 +165,7 @@ func (m itemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint
 	return m, cmd
 }
 
-func (m itemModel) View() string {
+func (m itemSelector) View() string {
 	if m.quitting {
 		return ""
 	}
@@ -183,28 +183,28 @@ func toolUI(ctx context.Context, conf *config.Config, hclParser *hclparse.Parser
 		choices: selection,
 	}
 
-	l := list.New(tools, delegate, defaultWidth, listHeight)
-	l.Title = "Which tool do you want to manage ?"
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(false)
-	l.Styles.Title = titleStyle
-	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
+	displayList := list.New(tools, delegate, defaultWidth, listHeight)
+	displayList.Title = "Which tool do you want to manage ?"
+	displayList.SetShowStatusBar(false)
+	displayList.SetFilteringEnabled(false)
+	displayList.Styles.Title = titleStyle
+	displayList.Styles.PaginationStyle = paginationStyle
+	displayList.Styles.HelpStyle = helpStyle
 
-	l.AdditionalFullHelpKeys = additionalFullHelpKeys
-	l.AdditionalShortHelpKeys = additionalShortHelpKeys
+	displayList.AdditionalFullHelpKeys = additionalFullHelpKeys
+	displayList.AdditionalShortHelpKeys = additionalShortHelpKeys
 
-	m := itemModel{
+	selector := itemSelector{
 		choices: selection,
-		list:    l,
+		list:    displayList,
 	}
 
-	_, err := tea.NewProgram(m).Run()
+	_, err := tea.NewProgram(selector).Run()
 	if err != nil {
 		return err
 	}
 
-	if len(m.choices) == 0 {
+	if len(selector.choices) == 0 {
 		loghelper.StdDisplay("No selected tool")
 
 		return nil
@@ -243,36 +243,36 @@ func manageUI(ctx context.Context, versionManager versionmanager.VersionManager)
 		installed: installed,
 	}
 
-	l := list.New(items, delegate, defaultWidth, listHeight)
-	l.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to install(I) or uninstall(U) ? (X mark already installed)")
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(false)
-	l.Styles.Title = titleStyle
-	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
+	displayList := list.New(items, delegate, defaultWidth, listHeight)
+	displayList.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to install(I) or uninstall(U) ? (X mark already installed)")
+	displayList.SetShowStatusBar(false)
+	displayList.SetFilteringEnabled(false)
+	displayList.Styles.Title = titleStyle
+	displayList.Styles.PaginationStyle = paginationStyle
+	displayList.Styles.HelpStyle = helpStyle
 
-	l.AdditionalFullHelpKeys = additionalFullHelpKeys
-	l.AdditionalShortHelpKeys = additionalShortHelpKeys
+	displayList.AdditionalFullHelpKeys = additionalFullHelpKeys
+	displayList.AdditionalShortHelpKeys = additionalShortHelpKeys
 
-	m := itemModel{
+	selector := itemSelector{
 		choices: selection,
-		list:    l,
+		list:    displayList,
 	}
 
-	_, err = tea.NewProgram(m).Run()
+	_, err = tea.NewProgram(selector).Run()
 	if err != nil {
 		return err
 	}
 
-	if len(m.choices) == 0 {
+	if len(selector.choices) == 0 {
 		loghelper.StdDisplay(loghelper.Concat("No selected ", versionManager.FolderName, " versions"))
 
 		return nil
 	}
 
-	toInstall := make([]string, 0, len(m.choices))
-	toUninstall := make([]string, 0, len(m.choices))
-	for version := range m.choices {
+	toInstall := make([]string, 0, len(selector.choices))
+	toUninstall := make([]string, 0, len(selector.choices))
+	for version := range selector.choices {
 		if _, installed := installed[version]; installed {
 			toUninstall = append(toUninstall, version)
 		} else {
@@ -307,35 +307,35 @@ func uninstallUI(versionManager versionmanager.VersionManager) error {
 		choices: selection,
 	}
 
-	l := list.New(items, delegate, defaultWidth, listHeight)
-	l.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to uninstall ?")
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(false)
-	l.Styles.Title = titleStyle
-	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
+	displayList := list.New(items, delegate, defaultWidth, listHeight)
+	displayList.Title = loghelper.Concat("Which ", versionManager.FolderName, " version(s) do you want to uninstall ?")
+	displayList.SetShowStatusBar(false)
+	displayList.SetFilteringEnabled(false)
+	displayList.Styles.Title = titleStyle
+	displayList.Styles.PaginationStyle = paginationStyle
+	displayList.Styles.HelpStyle = helpStyle
 
-	l.AdditionalFullHelpKeys = additionalFullHelpKeys
-	l.AdditionalShortHelpKeys = additionalShortHelpKeys
+	displayList.AdditionalFullHelpKeys = additionalFullHelpKeys
+	displayList.AdditionalShortHelpKeys = additionalShortHelpKeys
 
-	m := itemModel{
+	selector := itemSelector{
 		choices: selection,
-		list:    l,
+		list:    displayList,
 	}
 
-	_, err = tea.NewProgram(m).Run()
+	_, err = tea.NewProgram(selector).Run()
 	if err != nil {
 		return err
 	}
 
-	if len(m.choices) == 0 {
+	if len(selector.choices) == 0 {
 		loghelper.StdDisplay(loghelper.Concat("No selected ", versionManager.FolderName, " versions"))
 
 		return nil
 	}
 
-	selected := make([]string, 0, len(m.choices))
-	for version := range m.choices {
+	selected := make([]string, 0, len(selector.choices))
+	for version := range selector.choices {
 		selected = append(selected, version)
 	}
 	slices.SortFunc(selected, semantic.CmpVersion)
