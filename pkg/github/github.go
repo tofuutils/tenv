@@ -82,7 +82,7 @@ func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []stri
 			}
 
 			return assetURLs, nil
-		} else if err != errContinue {
+		} else if !errors.Is(err, errContinue) {
 			return nil, err
 		}
 		page++
@@ -118,7 +118,7 @@ func apiGetRequest(ctx context.Context, callURL string, authorizationHeader stri
 		if authorizationHeader != "" {
 			request.Header.Set("Authorization", authorizationHeader)
 		}
-		request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+		request.Header.Set("X-GitHub-Api-Version", "2022-11-28") //nolint
 	})
 }
 

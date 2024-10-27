@@ -20,6 +20,7 @@ package tofuretriever
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"os"
 	"runtime"
@@ -210,7 +211,7 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 
 	identity := buildIdentity(version, stable)
 	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer, r.conf.Displayer)
-	if err == nil || err != cosigncheck.ErrNotInstalled {
+	if err == nil || !errors.Is(err, cosigncheck.ErrNotInstalled) {
 		return err
 	}
 

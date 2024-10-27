@@ -36,7 +36,7 @@ var assetsData []byte
 
 var (
 	assetsValue any
-	assetsErr   error
+	errAssets   error
 )
 
 //go:embed testdata/release.json
@@ -44,7 +44,7 @@ var releaseData []byte
 
 var (
 	releaseValue any
-	releaseErr   error
+	errRelease   error
 )
 
 //go:embed testdata/releases.json
@@ -52,13 +52,13 @@ var releasesData []byte
 
 var (
 	releasesValue any
-	releasesErr   error
+	errReleases   error
 )
 
 func init() {
-	assetsErr = json.Unmarshal(assetsData, &assetsValue)
-	releaseErr = json.Unmarshal(releaseData, &releaseValue)
-	releasesErr = json.Unmarshal(releasesData, &releasesValue)
+	errAssets = json.Unmarshal(assetsData, &assetsValue)
+	errRelease = json.Unmarshal(releaseData, &releaseValue)
+	errReleases = json.Unmarshal(releasesData, &releasesValue)
 }
 
 func TestExtractAssetsEmpty(t *testing.T) {
@@ -77,8 +77,8 @@ func TestExtractAssetsEmpty(t *testing.T) {
 func TestExtractAssetsMissing(t *testing.T) {
 	t.Parallel()
 
-	if assetsErr != nil {
-		t.Fatal("Unexpected parsing error : ", assetsErr)
+	if errAssets != nil {
+		t.Fatal("Unexpected parsing error : ", errAssets)
 	}
 
 	assets := map[string]string{}
@@ -94,8 +94,8 @@ func TestExtractAssetsMissing(t *testing.T) {
 func TestExtractAssetsPresent(t *testing.T) {
 	t.Parallel()
 
-	if assetsErr != nil {
-		t.Fatal("Unexpected parsing error : ", assetsErr)
+	if errAssets != nil {
+		t.Fatal("Unexpected parsing error : ", errAssets)
 	}
 
 	assets := map[string]string{}
@@ -134,8 +134,8 @@ func TestExtractReleasesEmpty(t *testing.T) {
 func TestExtractReleasesPresent(t *testing.T) {
 	t.Parallel()
 
-	if releasesErr != nil {
-		t.Fatal("Unexpected parsing error : ", releasesErr)
+	if errReleases != nil {
+		t.Fatal("Unexpected parsing error : ", errReleases)
 	}
 
 	var releases []string
@@ -155,8 +155,8 @@ func TestExtractReleasesPresent(t *testing.T) {
 func TestExtractVersion(t *testing.T) {
 	t.Parallel()
 
-	if releaseErr != nil {
-		t.Fatal("Unexpected parsing error : ", releaseErr)
+	if errRelease != nil {
+		t.Fatal("Unexpected parsing error : ", errRelease)
 	}
 
 	version := extractVersion(releaseValue)

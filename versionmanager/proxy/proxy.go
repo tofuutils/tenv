@@ -20,7 +20,6 @@ package proxy
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -37,8 +36,6 @@ import (
 )
 
 const chdirFlagPrefix = "-chdir="
-
-var errDelimiter = errors.New("key and value should not contains delimiter")
 
 // Always call os.Exit.
 func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Parser, execName string, cmdArgs []string) {

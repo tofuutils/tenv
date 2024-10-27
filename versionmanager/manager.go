@@ -396,7 +396,7 @@ func (m VersionManager) UninstallMultiple(versions []string) error {
 func (m VersionManager) Use(ctx context.Context, requestedVersion string, workingDir bool) error {
 	detectedVersion, err := m.Evaluate(ctx, requestedVersion, false)
 	if err != nil {
-		if err != ErrNoCompatibleLocally {
+		if !errors.Is(err, ErrNoCompatibleLocally) {
 			return err
 		}
 
