@@ -30,6 +30,8 @@ import (
 	"strings"
 )
 
+const rwPerm = 0o600
+
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
 // Always call os.Exit.
@@ -81,7 +83,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) func() {
 	}
 
 	outputPath := os.Getenv("GITHUB_OUTPUT")
-	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644) //nolint
+	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
 	if err != nil {
 		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint
 

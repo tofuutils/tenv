@@ -32,7 +32,7 @@ import (
 
 func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error) {
 	joinTransformer := func(assetName string) (string, error) {
-		return url.JoinPath(baseAssetURL, assetName) //nolint
+		return url.JoinPath(baseAssetURL, assetName)
 	}
 
 	return download.ApplyURLTranformer(joinTransformer, assetNames...)

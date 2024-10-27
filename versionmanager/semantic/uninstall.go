@@ -82,7 +82,7 @@ func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string,
 	case strings.HasPrefix(behaviourOrConstraint, notUsedSincePrefix):
 		dateStr := behaviourOrConstraint[notUsedSincePrefixLen:]
 
-		beforeDate, err := time.Parse(time.DateOnly, dateStr) //nolint
+		beforeDate, err := time.Parse(time.DateOnly, dateStr)
 		if err != nil {
 			return nil, err
 		}

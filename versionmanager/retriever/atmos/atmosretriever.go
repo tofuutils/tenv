@@ -76,7 +76,7 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 
 	switch r.conf.Atmos.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Atmos.GetRemoteURL(), cloudposseName, cmdconst.AtmosName, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Atmos.GetRemoteURL(), cloudposseName, cmdconst.AtmosName, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -131,7 +131,7 @@ func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
 	listURL := r.conf.Atmos.GetListURL()
 	switch r.conf.Atmos.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, cloudposseName, cmdconst.AtmosName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, cloudposseName, cmdconst.AtmosName, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}

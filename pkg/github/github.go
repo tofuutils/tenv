@@ -40,7 +40,7 @@ const (
 var errContinue = errors.New("continue")
 
 func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
-	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
+	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag)
 	if err != nil {
 		return nil, err
 	}
