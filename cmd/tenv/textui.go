@@ -124,7 +124,7 @@ func (m itemModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m itemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m itemModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.list.SetWidth(msg.Width)
