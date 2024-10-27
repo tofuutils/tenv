@@ -51,7 +51,7 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 		time.Sleep(time.Second)
 	}
 
-	return sync.OnceFunc(func() { //nolint
+	return sync.OnceFunc(func() {
 		if err := os.RemoveAll(lockPath); err != nil {
 			displayer.Log(hclog.Warn, msgDelete, loghelper.Error, err)
 		}
@@ -66,7 +66,7 @@ func CleanAndExitOnInterrupt(clean func()) func() {
 	go listenToClean(signalChan, endChan, clean)
 	signal.Notify(signalChan, os.Interrupt)
 
-	return sync.OnceFunc(func() { //nolint
+	return sync.OnceFunc(func() {
 		endChan <- struct{}{}
 	})
 }

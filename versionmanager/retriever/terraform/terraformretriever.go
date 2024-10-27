@@ -148,13 +148,13 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 		return nil, err
 	}
 
-	ro := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
 
 	switch r.conf.Tf.GetListMode() {
 	case config.ListModeHTML:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, requestOptions)
 	case config.ModeAPI:
 		releasesURL, err := url.JoinPath(baseURL, indexJSON) //nolint
 		if err != nil {
@@ -163,7 +163,7 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
-		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, requestOptions...)
 		if err != nil {
 			return nil, err
 		}

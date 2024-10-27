@@ -66,18 +66,18 @@ type itemDelegate struct {
 func (d itemDelegate) Height() int                             { return 1 }
 func (d itemDelegate) Spacing() int                            { return 0 }
 func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
-func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+func (d itemDelegate) Render(writer io.Writer, displayList list.Model, index int, listItem list.Item) {
 	version, selected := listItem.FilterValue(), " "
 	if _, ok := d.choices[version]; ok {
 		selected = "X"
 	}
 	line := loghelper.Concat("[", selected, "] ", version)
 
-	if index == m.Index() {
+	if index == displayList.Index() {
 		line = selectedItemStyle.Render(line)
 	}
 
-	fmt.Fprint(w, line)
+	fmt.Fprint(writer, line)
 }
 
 type manageItemDelegate struct {
@@ -88,7 +88,7 @@ type manageItemDelegate struct {
 func (d manageItemDelegate) Height() int                             { return 1 }
 func (d manageItemDelegate) Spacing() int                            { return 0 }
 func (d manageItemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
-func (d manageItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+func (d manageItemDelegate) Render(writer io.Writer, displayList list.Model, index int, listItem list.Item) {
 	version, selectedStr := listItem.FilterValue(), " "
 	_, selected := d.choices[version]
 	_, installed := d.installed[version]
@@ -107,11 +107,11 @@ func (d manageItemDelegate) Render(w io.Writer, m list.Model, index int, listIte
 
 	line := loghelper.Concat("[", selectedStr, "] ", version)
 
-	if index == m.Index() {
+	if index == displayList.Index() {
 		line = selectedItemStyle.Render(line)
 	}
 
-	fmt.Fprint(w, line)
+	fmt.Fprint(writer, line)
 }
 
 type itemSelector struct {

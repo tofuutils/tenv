@@ -96,7 +96,7 @@ func URLTranformer(rewriteRule []string) func(string) (string, error) {
 			return urlValue, nil
 		}
 
-		return url.JoinPath(baseURL, urlValue[prevLen:]) //nolint
+		return url.JoinPath(baseURL, urlValue[prevLen:])
 	}
 }
 
