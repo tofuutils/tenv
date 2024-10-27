@@ -41,6 +41,8 @@ import (
 const (
 	baseFileName   = "atmos_"
 	cloudposseName = "cloudposse"
+
+	rwePerm = 0o755
 )
 
 type AtmosRetriever struct {
@@ -74,7 +76,7 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 
 	switch r.conf.Atmos.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Atmos.GetRemoteURL(), cloudposseName, cmdconst.AtmosName, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Atmos.GetRemoteURL(), cloudposseName, cmdconst.AtmosName, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -89,19 +91,19 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Atmos.GetRewriteRule())
-	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
+	urlTranformer := download.URLTranformer(r.conf.Atmos.GetRewriteRule())
+	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}
 
-	ro := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
+	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, ro...)
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
@@ -110,12 +112,12 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	err = os.MkdirAll(targetPath, 0o755)
+	err = os.MkdirAll(targetPath, rwePerm)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, 0o755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, rwePerm)
 }
 
 func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
@@ -124,19 +126,19 @@ func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	ro := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
 
 	listURL := r.conf.Atmos.GetListURL()
 	switch r.conf.Atmos.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, cloudposseName, cmdconst.AtmosName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, cloudposseName, cmdconst.AtmosName, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Atmos.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Atmos.Data, requestOptions)
 	case config.ModeAPI:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 

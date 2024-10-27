@@ -44,7 +44,7 @@ const (
 	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
 	baseFileName = "terraform_"
-	indexJson    = "index.json"
+	indexJSON    = "index.json"
 )
 
 type TerraformRetriever struct {
@@ -66,12 +66,12 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), cmdconst.TerraformName, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), cmdconst.TerraformName, version)
 	if err != nil {
 		return err
 	}
 
-	ro := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
 	switch r.conf.Tf.GetInstallMode() {
@@ -88,19 +88,19 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 
 		downloadURL, downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1], assetURLs[2]
 	case config.ModeAPI:
-		versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
+		versionURL, err := url.JoinPath(baseVersionURL, indexJSON)
 		if err != nil {
 			return err
 		}
 
-		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
+		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionURL)
 
-		value, err := download.JSON(ctx, versionUrl, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, versionURL, download.NoDisplay, requestOptions...)
 		if err != nil {
 			return err
 		}
 
-		fileName, downloadURL, shaFileName, shaSigFileName, err = releaseapi.ExtractAssetUrls(runtime.GOOS, r.conf.Arch, value)
+		fileName, downloadURL, shaFileName, shaSigFileName, err = releaseapi.ExtractAssetURLs(runtime.GOOS, r.conf.Arch, value)
 		if err != nil {
 			return err
 		}
@@ -119,18 +119,18 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		return config.ErrInstallMode
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tf.GetRewriteRule())
-	assetURLs, err := download.ApplyUrlTranformer(urlTranformer, downloadURL, downloadSumsURL, downloadSumsSigURL)
+	urlTranformer := download.URLTranformer(r.conf.Tf.GetRewriteRule())
+	assetURLs, err := download.ApplyURLTranformer(urlTranformer, downloadURL, downloadSumsURL, downloadSumsSigURL)
 	if err != nil {
 		return err
 	}
 
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(ctx, fileName, data, assetURLs[1], assetURLs[2], ro); err != nil {
+	if err = r.checkSumAndSig(ctx, fileName, data, assetURLs[1], assetURLs[2], requestOptions); err != nil {
 		return err
 	}
 
@@ -143,27 +143,27 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 		return nil, err
 	}
 
-	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), cmdconst.TerraformName) //nolint
+	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), cmdconst.TerraformName)
 	if err != nil {
 		return nil, err
 	}
 
-	ro := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
 
 	switch r.conf.Tf.GetListMode() {
 	case config.ListModeHTML:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, requestOptions)
 	case config.ModeAPI:
-		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
+		releasesURL, err := url.JoinPath(baseURL, indexJSON)
 		if err != nil {
 			return nil, err
 		}
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
-		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, requestOptions...)
 		if err != nil {
 			return nil, err
 		}
@@ -174,8 +174,8 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 	}
 }
 
-func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, ro []download.RequestOption) error {
-	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, ro...)
+func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, options []download.RequestOption) error {
+	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string,
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, ro...)
+	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}

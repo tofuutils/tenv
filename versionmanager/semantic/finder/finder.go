@@ -24,11 +24,7 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-var versionRegexp *regexp.Regexp //nolint
-
-func init() {
-	versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw)
-}
+var versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw) //nolint
 
 // return a version without starting 'v'.
 func Find(versionStr string) string {

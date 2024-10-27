@@ -24,8 +24,10 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/download"
 )
 
-func TestUrlTransformer(t *testing.T) {
-	urlTransformer := download.UrlTranformer([]string{"https://releases.hashicorp.com", "http://localhost:8080"})
+func TestURLTransformer(t *testing.T) {
+	t.Parallel()
+
+	urlTransformer := download.URLTranformer([]string{"https://releases.hashicorp.com", "http://localhost:8080"})
 
 	value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_386.zip")
 	if err != nil {
@@ -37,8 +39,10 @@ func TestUrlTransformer(t *testing.T) {
 	}
 }
 
-func TestUrlTransformerDisabled(t *testing.T) {
-	urlTransformer := download.UrlTranformer(nil)
+func TestURLTransformerDisabled(t *testing.T) {
+	t.Parallel()
+
+	urlTransformer := download.URLTranformer(nil)
 
 	value, err := urlTransformer("test_value")
 	if err != nil {
@@ -50,8 +54,10 @@ func TestUrlTransformerDisabled(t *testing.T) {
 	}
 }
 
-func TestUrlTransformerPrefix(t *testing.T) {
-	urlTransformer := download.UrlTranformer([]string{"https://github.com", "https://go.dev"})
+func TestURLTransformerPrefix(t *testing.T) {
+	t.Parallel()
+
+	urlTransformer := download.URLTranformer([]string{"https://github.com", "https://go.dev"})
 
 	initialValue := "https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip"
 	value, err := urlTransformer(initialValue)
@@ -64,8 +70,10 @@ func TestUrlTransformerPrefix(t *testing.T) {
 	}
 }
 
-func TestUrlTransformerSlash(t *testing.T) {
-	urlTransformer := download.UrlTranformer([]string{"https://releases.hashicorp.com/", "http://localhost"})
+func TestURLTransformerSlash(t *testing.T) {
+	t.Parallel()
+
+	urlTransformer := download.URLTranformer([]string{"https://releases.hashicorp.com/", "http://localhost"})
 
 	value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip")
 	if err != nil {

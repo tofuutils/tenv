@@ -40,15 +40,15 @@ const (
 var errContinue = errors.New("continue")
 
 func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
-	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag) //nolint
+	releaseURL, err := url.JoinPath(githubReleaseURL, "tags", tag)
 	if err != nil {
 		return nil, err
 	}
 
-	display(apimsg.MsgFetchRelease + releaseUrl)
+	display(apimsg.MsgFetchRelease + releaseURL)
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
-	value, err := apiGetRequest(ctx, releaseUrl, authorizationHeader)
+	value, err := apiGetRequest(ctx, releaseURL, authorizationHeader)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []stri
 			}
 
 			return assetURLs, nil
-		} else if err != errContinue {
+		} else if !errors.Is(err, errContinue) {
 			return nil, err
 		}
 		page++
@@ -105,7 +105,7 @@ func ListReleases(ctx context.Context, githubReleaseURL string, githubToken stri
 		releases, err = extractReleases(releases, value)
 		if err == nil {
 			return releases, nil
-		} else if err != errContinue {
+		} else if !errors.Is(err, errContinue) {
 			return nil, err
 		}
 		page++
@@ -118,7 +118,7 @@ func apiGetRequest(ctx context.Context, callURL string, authorizationHeader stri
 		if authorizationHeader != "" {
 			request.Header.Set("Authorization", authorizationHeader)
 		}
-		request.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+		request.Header.Set("X-GitHub-Api-Version", "2022-11-28") //nolint
 	})
 }
 

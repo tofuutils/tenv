@@ -79,7 +79,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 
 		name := entry.Name()
 		for _, extDesc := range exts {
-			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found { //nolint
+			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found {
 				similar[cleanedName] = append(similar[cleanedName], extDesc.Value)
 
 				break

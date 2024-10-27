@@ -33,6 +33,8 @@ import (
 const (
 	msgWrite  = "can not write .lock file, will retry"
 	msgDelete = "can not remove .lock file"
+
+	rwPerm = 0o600
 )
 
 // ! dirPath must already exist (no mkdir here).
@@ -40,9 +42,10 @@ const (
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
-		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0o644) //nolint
+		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, rwPerm)
 		if err == nil {
 			f.Close()
+
 			break
 		}
 
@@ -50,7 +53,7 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 		time.Sleep(time.Second)
 	}
 
-	return sync.OnceFunc(func() { //nolint
+	return sync.OnceFunc(func() {
 		if err := os.RemoveAll(lockPath); err != nil {
 			displayer.Log(hclog.Warn, msgDelete, loghelper.Error, err)
 		}
@@ -60,24 +63,26 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 // the returned function may be used to avoid goroutine leak
 // (also avoid conflicting behavior with versionmanager/proxy.transmitIncreasingSignal).
 func CleanAndExitOnInterrupt(clean func()) func() {
-	signalChan := make(chan os.Signal)
+	signalChan := make(chan os.Signal, 1)
 	endChan := make(chan struct{})
+	go listenToClean(signalChan, endChan, clean)
 	signal.Notify(signalChan, os.Interrupt)
-	go func() {
-		for {
-			select {
-			case <-signalChan:
-				clean()
-				os.Exit(1)
-			case <-endChan:
-				signal.Stop(signalChan)
 
-				break
-			}
-		}
-	}()
-
-	return sync.OnceFunc(func() { //nolint
+	return sync.OnceFunc(func() {
 		endChan <- struct{}{}
 	})
+}
+
+func listenToClean(signalChan chan os.Signal, endChan <-chan struct{}, clean func()) {
+	for {
+		select {
+		case <-signalChan:
+			clean()
+			os.Exit(1)
+		case <-endChan:
+			signal.Stop(signalChan)
+
+			break
+		}
+	}
 }

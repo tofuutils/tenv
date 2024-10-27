@@ -39,7 +39,7 @@ var errNoBuilder = errors.New("no builder for this tool")
 
 type tenvConfig struct {
 	autoInstall    bool
-	builders       map[string]builder.BuilderFunc
+	builders       map[string]builder.Func
 	conf           *config.Config
 	displayer      loghelper.Displayer
 	hclParser      *hclparse.Parser
@@ -50,7 +50,7 @@ type tenvConfig struct {
 type TenvOption func(*tenvConfig)
 
 // add builder or override default builder (see builder.Builders).
-func AddTool(toolName string, builderFunc builder.BuilderFunc) TenvOption {
+func AddTool(toolName string, builderFunc builder.Func) TenvOption {
 	return func(tc *tenvConfig) {
 		tc.builders[toolName] = builderFunc
 	}
@@ -88,7 +88,7 @@ func WithHCLParser(hclParser *hclparse.Parser) TenvOption {
 
 // Not concurrent safe.
 type Tenv struct {
-	builders  map[string]builder.BuilderFunc
+	builders  map[string]builder.Func
 	conf      *config.Config
 	hclParser *hclparse.Parser
 	ignoreEnv bool
@@ -97,52 +97,52 @@ type Tenv struct {
 
 // The returned wrapper is not concurrent safe.
 func Make(options ...TenvOption) (Tenv, error) {
-	builders := map[string]builder.BuilderFunc{}
+	builders := map[string]builder.Func{}
 	for toolName, builderFunc := range builder.Builders {
 		builders[toolName] = builderFunc
 	}
 
-	tc := tenvConfig{
+	wrapperConf := tenvConfig{
 		builders:       builders,
 		initConfigFunc: config.InitConfigFromEnv,
 	}
 
 	for _, option := range options {
-		option(&tc)
+		option(&wrapperConf)
 	}
 
-	if tc.ignoreEnv {
-		tc.initConfigFunc = config.DefaultConfig
+	if wrapperConf.ignoreEnv {
+		wrapperConf.initConfigFunc = config.DefaultConfig
 	}
 
-	if tc.conf == nil {
-		conf, err := tc.initConfigFunc()
+	if wrapperConf.conf == nil {
+		innerConf, err := wrapperConf.initConfigFunc()
 		if err != nil {
 			return Tenv{}, err
 		}
 
-		tc.conf = &conf
+		wrapperConf.conf = &innerConf
 	}
 
-	if tc.autoInstall {
-		tc.conf.SkipInstall = false
+	if wrapperConf.autoInstall {
+		wrapperConf.conf.SkipInstall = false
 	}
 
-	if tc.displayer == nil {
-		tc.conf.InitDisplayer(false)
+	if wrapperConf.displayer == nil {
+		wrapperConf.conf.InitDisplayer(false)
 	} else {
-		tc.conf.Displayer = tc.displayer
+		wrapperConf.conf.Displayer = wrapperConf.displayer
 	}
 
-	if tc.hclParser == nil {
-		tc.hclParser = hclparse.NewParser()
+	if wrapperConf.hclParser == nil {
+		wrapperConf.hclParser = hclparse.NewParser()
 	}
 
 	return Tenv{
 		builders:  builders,
-		conf:      tc.conf,
-		hclParser: tc.hclParser,
-		ignoreEnv: tc.ignoreEnv,
+		conf:      wrapperConf.conf,
+		hclParser: wrapperConf.hclParser,
+		ignoreEnv: wrapperConf.ignoreEnv,
 		managers:  map[string]versionmanager.VersionManager{},
 	}, nil
 }
@@ -264,7 +264,7 @@ func (t Tenv) InstallMultiple(ctx context.Context, toolName string, versions []s
 	return t.managers[toolName].InstallMultiple(ctx, versions)
 }
 
-func (t Tenv) ListLocal(ctx context.Context, toolName string, reverseOrder bool) ([]versionmanager.DatedVersion, error) {
+func (t Tenv) ListLocal(_ context.Context, toolName string, reverseOrder bool) ([]versionmanager.DatedVersion, error) {
 	if err := t.init(toolName); err != nil {
 		return nil, err
 	}
@@ -280,7 +280,7 @@ func (t Tenv) ListRemote(ctx context.Context, toolName string, reverseOrder bool
 	return t.managers[toolName].ListRemote(ctx, reverseOrder)
 }
 
-func (t Tenv) LocallyInstalled(ctx context.Context, toolName string) (map[string]struct{}, error) {
+func (t Tenv) LocallyInstalled(_ context.Context, toolName string) (map[string]struct{}, error) {
 	if err := t.init(toolName); err != nil {
 		return nil, err
 	}
@@ -288,7 +288,7 @@ func (t Tenv) LocallyInstalled(ctx context.Context, toolName string) (map[string
 	return t.managers[toolName].LocalSet(), nil
 }
 
-func (t Tenv) ResetDefaultConstraint(ctx context.Context, toolName string) error {
+func (t Tenv) ResetDefaultConstraint(_ context.Context, toolName string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
@@ -296,7 +296,7 @@ func (t Tenv) ResetDefaultConstraint(ctx context.Context, toolName string) error
 	return t.managers[toolName].ResetConstraint()
 }
 
-func (t Tenv) ResetDefaultVersion(ctx context.Context, toolName string) error {
+func (t Tenv) ResetDefaultVersion(_ context.Context, toolName string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
@@ -304,7 +304,7 @@ func (t Tenv) ResetDefaultVersion(ctx context.Context, toolName string) error {
 	return t.managers[toolName].ResetVersion()
 }
 
-func (t Tenv) SetDefaultConstraint(ctx context.Context, toolName string, constraint string) error {
+func (t Tenv) SetDefaultConstraint(_ context.Context, toolName string, constraint string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
@@ -321,7 +321,7 @@ func (t Tenv) SetDefaultVersion(ctx context.Context, toolName string, requestedV
 }
 
 // Does not handle special behavior.
-func (t Tenv) Uninstall(ctx context.Context, toolName string, requestedVersion string) error {
+func (t Tenv) Uninstall(_ context.Context, toolName string, requestedVersion string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
@@ -329,7 +329,7 @@ func (t Tenv) Uninstall(ctx context.Context, toolName string, requestedVersion s
 	return t.managers[toolName].UninstallMultiple([]string{requestedVersion})
 }
 
-func (t Tenv) UninstallMultiple(ctx context.Context, toolName string, versions []string) error {
+func (t Tenv) UninstallMultiple(_ context.Context, toolName string, versions []string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}

@@ -41,6 +41,8 @@ import (
 const (
 	baseFileName  = "terragrunt_"
 	gruntworkName = "gruntwork-io"
+
+	rwePerm = 0o755
 )
 
 type TerragruntRetriever struct {
@@ -71,7 +73,7 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 
 	switch r.conf.Tg.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -86,19 +88,19 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tg.GetRewriteRule())
-	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
+	urlTranformer := download.URLTranformer(r.conf.Tg.GetRewriteRule())
+	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}
 
-	ro := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
+	requestOptions := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, ro...)
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
@@ -107,12 +109,12 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 		return err
 	}
 
-	err = os.MkdirAll(targetPath, 0o755)
+	err = os.MkdirAll(targetPath, rwePerm)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, 0o755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, rwePerm)
 }
 
 func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error) {
@@ -121,19 +123,19 @@ func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error)
 		return nil, err
 	}
 
-	ro := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
 
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tg.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tg.Data, requestOptions)
 	case config.ModeAPI:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 

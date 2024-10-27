@@ -20,6 +20,7 @@ package sha256check_test
 
 import (
 	_ "embed"
+	"errors"
 	"testing"
 
 	sha256check "github.com/tofuutils/tenv/v3/pkg/check/sha256"
@@ -44,7 +45,7 @@ func TestSha256CheckError(t *testing.T) {
 
 	if err := sha256check.Check(data, dataSums, "hello2.txt"); err == nil {
 		t.Error("Should fail on non corresponding file and fileName")
-	} else if err != sha256check.ErrCheck {
+	} else if !errors.Is(err, sha256check.ErrCheck) {
 		t.Error("Incorrect error reported, get :", err)
 	}
 }
@@ -54,7 +55,7 @@ func TestSha256Extract(t *testing.T) {
 
 	if err := sha256check.Check(data, dataSums, "any_name.txt"); err == nil {
 		t.Error("Should fail on non exiting fileName")
-	} else if err != sha256check.ErrNoSum {
+	} else if !errors.Is(err, sha256check.ErrNoSum) {
 		t.Error("Incorrect error reported, get :", err)
 	}
 }

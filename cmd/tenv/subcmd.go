@@ -21,6 +21,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -87,11 +88,10 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 
 			detectedVersion, err := versionManager.Detect(context.Background(), false)
 			if err != nil {
-				if err == versionmanager.ErrNoCompatibleLocally {
-					loghelper.StdDisplay(err.Error())
-				} else {
+				if !errors.Is(err, versionmanager.ErrNoCompatibleLocally) {
 					return err
 				}
+				loghelper.StdDisplay(err.Error())
 			}
 			loghelper.StdDisplay(loghelper.Concat(versionManager.FolderName, " ", detectedVersion, " will be run from this directory."))
 
@@ -135,7 +135,7 @@ If a parameter is passed, available options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
 			ctx := context.Background()
@@ -198,12 +198,12 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 					if noUseDate {
 						loghelper.StdDisplay(loghelper.Concat("* ", version, " (never used, set by ", filePath, ")"))
 					} else {
-						loghelper.StdDisplay(loghelper.Concat("* ", version, " (used ", useDate.Format(time.DateOnly), ", set by ", filePath, ")")) //nolint
+						loghelper.StdDisplay(loghelper.Concat("* ", version, " (used ", useDate.Format(time.DateOnly), ", set by ", filePath, ")"))
 					}
 				case noUseDate:
 					loghelper.StdDisplay(loghelper.Concat("  ", version, " (never used)"))
 				default:
-					loghelper.StdDisplay(loghelper.Concat("  ", version, " (used ", useDate.Format(time.DateOnly), ")")) //nolint
+					loghelper.StdDisplay(loghelper.Concat("  ", version, " (used ", useDate.Format(time.DateOnly), ")"))
 				}
 			}
 			if conf.DisplayVerbose {
@@ -329,9 +329,9 @@ If a parameter is passed, available parameter options:
 
 			if len(args) == 0 {
 				return uninstallUI(versionManager)
-			} else {
-				return versionManager.Uninstall(args[0])
 			}
+
+			return versionManager.Uninstall(args[0])
 		},
 	}
 

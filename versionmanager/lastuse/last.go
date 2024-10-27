@@ -30,7 +30,11 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 )
 
-const fileName = "last-use.txt"
+const (
+	fileName = "last-use.txt"
+
+	rwPerm = 0o600
+)
 
 func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 	data, err := os.ReadFile(filepath.Join(dirPath, fileName))
@@ -40,7 +44,7 @@ func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 		return time.Time{}
 	}
 
-	parsed, err := time.Parse(time.DateOnly, string(data)) //nolint
+	parsed, err := time.Parse(time.DateOnly, string(data))
 	if err != nil {
 		displayer.Log(hclog.Warn, "Unable to parse date in file", loghelper.Error, err)
 
@@ -52,9 +56,9 @@ func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 
 func WriteNow(dirPath string, displayer loghelper.Displayer) {
 	lastUsePath := filepath.Join(dirPath, fileName)
-	nowData := time.Now().AppendFormat(nil, time.DateOnly) //nolint
+	nowData := time.Now().AppendFormat(nil, time.DateOnly)
 
-	if err := os.WriteFile(lastUsePath, nowData, 0o644); err != nil {
+	if err := os.WriteFile(lastUsePath, nowData, rwPerm); err != nil {
 		displayer.Log(hclog.Warn, "Unable to write date in file", loghelper.Error, err)
 	}
 }

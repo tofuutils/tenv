@@ -26,9 +26,11 @@ import (
 	"net/url"
 )
 
+const ruleSize = 2
+
 type RequestOption = func(*http.Request)
 
-func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
+func ApplyURLTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, 0, len(baseURLs))
 	for _, baseURL := range baseURLs {
 		transformedURL, err := urlTransformer(baseURL)
@@ -77,8 +79,8 @@ func JSON(ctx context.Context, url string, display func(string), requestOptions 
 
 func NoDisplay(string) {}
 
-func UrlTranformer(rewriteRule []string) func(string) (string, error) {
-	if len(rewriteRule) < 2 {
+func URLTranformer(rewriteRule []string) func(string) (string, error) {
+	if len(rewriteRule) < ruleSize {
 		return noTransform
 	}
 
@@ -94,7 +96,7 @@ func UrlTranformer(rewriteRule []string) func(string) (string, error) {
 			return urlValue, nil
 		}
 
-		return url.JoinPath(baseURL, urlValue[prevLen:]) //nolint
+		return url.JoinPath(baseURL, urlValue[prevLen:])
 	}
 }
 

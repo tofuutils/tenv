@@ -20,6 +20,7 @@ package tofuretriever
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"os"
 	"runtime"
@@ -97,7 +98,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 
 	switch r.conf.Tofu.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -116,7 +117,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 			return err2
 		}
 
-		assetURLs, err = download.ApplyUrlTranformer(builder.Build, assetNames...)
+		assetURLs, err = download.ApplyURLTranformer(builder.Build, assetNames...)
 	default:
 		return config.ErrInstallMode
 	}
@@ -124,19 +125,19 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tofu.GetRewriteRule())
-	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
+	urlTranformer := download.URLTranformer(r.conf.Tofu.GetRewriteRule())
+	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}
 
-	ro := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, ro...)
+	requestOptions := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	if err = r.checkSumAndSig(ctx, v, stable, data, assetNames[0], assetURLs, ro); err != nil {
+	if err = r.checkSumAndSig(ctx, v, stable, data, assetNames[0], assetURLs, requestOptions); err != nil {
 		return err
 	}
 
@@ -149,19 +150,19 @@ func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	ro := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
 
 	listURL := r.conf.Tofu.GetListURL()
 	switch r.conf.Tofu.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + baseURL)
 
-		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tofu.Data, ro)
+		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tofu.Data, requestOptions)
 	case config.ModeAPI:
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
@@ -173,7 +174,7 @@ func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
-		value, err := download.JSON(ctx, listURL, download.NoDisplay, ro...)
+		value, err := download.JSON(ctx, listURL, download.NoDisplay, requestOptions...)
 		if err != nil {
 			return nil, err
 		}
@@ -184,8 +185,8 @@ func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
 	}
 }
 
-func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, ro []download.RequestOption) error {
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, ro...)
+func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, options []download.RequestOption) error {
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}
@@ -198,19 +199,19 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(ctx, assetURLs[3], r.conf.Displayer.Display, ro...)
+	dataSumsSig, err := download.Bytes(ctx, assetURLs[3], r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(ctx, assetURLs[2], r.conf.Displayer.Display, ro...)
+	dataSumsCert, err := download.Bytes(ctx, assetURLs[2], r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}
 
 	identity := buildIdentity(version, stable)
 	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer, r.conf.Displayer)
-	if err == nil || err != cosigncheck.ErrNotInstalled {
+	if err == nil || !errors.Is(err, cosigncheck.ErrNotInstalled) {
 		return err
 	}
 
@@ -222,7 +223,7 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 
 	r.conf.Displayer.Display("cosign executable not found, fallback to pgp check")
 
-	dataSumsSig, err = download.Bytes(ctx, assetURLs[4], r.conf.Displayer.Display, ro...)
+	dataSumsSig, err = download.Bytes(ctx, assetURLs[4], r.conf.Displayer.Display, options...)
 	if err != nil {
 		return err
 	}

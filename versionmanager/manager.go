@@ -42,6 +42,11 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
+const (
+	rwePerm = 0o755
+	rwPerm  = 0o600
+)
+
 var (
 	errEmptyVersion        = errors.New("empty version")
 	errNoCompatible        = errors.New("no compatible version found")
@@ -186,7 +191,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 func (m VersionManager) InstallPath() (string, error) {
 	dirPath := filepath.Join(m.conf.RootPath, m.FolderName)
 
-	return dirPath, os.MkdirAll(dirPath, 0o755)
+	return dirPath, os.MkdirAll(dirPath, rwePerm)
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
@@ -353,7 +358,10 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	m.conf.Displayer.Display("Uninstall ? [y/N]")
 
 	buffer := make([]byte, 1)
-	os.Stdin.Read(buffer)
+	if _, err = os.Stdin.Read(buffer); err != nil {
+		return err
+	}
+
 	read := buffer[0]
 
 	if doUninstall := read == 'y' || read == 'Y'; !doUninstall {
@@ -388,7 +396,7 @@ func (m VersionManager) UninstallMultiple(versions []string) error {
 func (m VersionManager) Use(ctx context.Context, requestedVersion string, workingDir bool) error {
 	detectedVersion, err := m.Evaluate(ctx, requestedVersion, false)
 	if err != nil {
-		if err != ErrNoCompatibleLocally {
+		if !errors.Is(err, ErrNoCompatibleLocally) {
 			return err
 		}
 
@@ -556,7 +564,7 @@ func removeFile(filePath string, conf *config.Config) error {
 }
 
 func writeFile(filePath string, content string, conf *config.Config) error {
-	err := os.WriteFile(filePath, []byte(content), 0o644)
+	err := os.WriteFile(filePath, []byte(content), rwPerm)
 	if err == nil {
 		conf.Displayer.Display(loghelper.Concat("Written ", content, " in ", filePath))
 	}

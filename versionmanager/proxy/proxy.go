@@ -20,7 +20,6 @@ package proxy
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -38,10 +37,8 @@ import (
 
 const chdirFlagPrefix = "-chdir="
 
-var errDelimiter = errors.New("key and value should not contains delimiter")
-
 // Always call os.Exit.
-func Exec(conf *config.Config, builderFunc builder.BuilderFunc, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
+func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	versionManager := builderFunc(conf, hclParser)
 
@@ -77,7 +74,7 @@ func ExecPath(installPath string, version string, execName string, displayer log
 
 func updateWorkPath(conf *config.Config, cmdArgs []string) {
 	for _, arg := range cmdArgs {
-		if chdirPath, ok := strings.CutPrefix(arg, chdirFlagPrefix); ok { //nolint
+		if chdirPath, ok := strings.CutPrefix(arg, chdirFlagPrefix); ok {
 			conf.WorkPath = chdirPath
 
 			return

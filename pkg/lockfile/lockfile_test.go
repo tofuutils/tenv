@@ -30,6 +30,8 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 )
 
+const rwPerm = 0o600
+
 //go:embed testdata/data1.txt
 var data1 []byte
 
@@ -40,6 +42,8 @@ var data2 []byte
 var data3 []byte
 
 func TestParallelWriteRead(t *testing.T) {
+	t.Parallel()
+
 	parallelDirPath := filepath.Join(os.TempDir(), "parallel")
 	parallelFilePath := filepath.Join(parallelDirPath, "rw_test")
 
@@ -95,7 +99,7 @@ func writeReadFile(dirPath string, filePath string, data []byte, displayer loghe
 	deleteLock := lockfile.Write(dirPath, displayer)
 	defer deleteLock()
 
-	if err := os.WriteFile(filePath, data, 0o644); err != nil {
+	if err := os.WriteFile(filePath, data, rwPerm); err != nil {
 		return nil, err
 	}
 

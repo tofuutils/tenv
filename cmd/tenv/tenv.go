@@ -48,6 +48,8 @@ const (
 	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
 
 	pathEnvName = "PATH"
+
+	rwPerm = 0o600
 )
 
 // can be overridden with ldflags.
@@ -159,7 +161,7 @@ func manageNoArgsCmd(conf *config.Config, hclParser *hclparse.Parser) {
 
 	ctx := context.Background()
 	if err := toolUI(ctx, conf, hclParser); err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(err.Error()) //nolint
 
 		os.Exit(1)
 	}
@@ -210,7 +212,7 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 			if gha {
 				pathfilePath := os.Getenv("GITHUB_PATH")
 				if pathfilePath != "" {
-					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
 					if err != nil {
 						return err
 					}
