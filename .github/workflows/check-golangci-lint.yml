@@ -15,16 +15,11 @@ jobs:
     name: lint
     runs-on: ubuntu-20.04
     steps:
-      -
-        uses: actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.18
-      -
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      -
-        name: golangci-lint
+          go-version-file: "go.mod"
+      - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.55
+          version: v1.61
