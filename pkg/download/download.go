@@ -26,6 +26,8 @@ import (
 	"net/url"
 )
 
+const ruleSize = 2
+
 type RequestOption = func(*http.Request)
 
 func ApplyURLTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
@@ -78,7 +80,7 @@ func JSON(ctx context.Context, url string, display func(string), requestOptions 
 func NoDisplay(string) {}
 
 func URLTranformer(rewriteRule []string) func(string) (string, error) {
-	if len(rewriteRule) < 2 {
+	if len(rewriteRule) < ruleSize {
 		return noTransform
 	}
 

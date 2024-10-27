@@ -48,6 +48,8 @@ func TestExtractAssets(t *testing.T) {
 	}
 
 	t.Run("Empty", func(t *testing.T) {
+		t.Parallel()
+
 		assets := map[string]string{}
 		searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": {}, "tofu_1.6.0_amd64.apk.gpgsig": {}}
 		err = extractAssets(assets, searchedAssetNames, 2, []any{})
@@ -59,6 +61,8 @@ func TestExtractAssets(t *testing.T) {
 	})
 
 	t.Run("Missing", func(t *testing.T) {
+		t.Parallel()
+
 		assets := map[string]string{}
 		searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": {}, "any_name.zip": {}}
 		err = extractAssets(assets, searchedAssetNames, 2, assetsValue)
@@ -70,6 +74,8 @@ func TestExtractAssets(t *testing.T) {
 	})
 
 	t.Run("Present", func(t *testing.T) {
+		t.Parallel()
+
 		assets := map[string]string{}
 		searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": {}, "tofu_1.6.0_amd64.apk.gpgsig": {}}
 		err = extractAssets(assets, searchedAssetNames, 2, assetsValue)
@@ -96,6 +102,8 @@ func TestExtractReleases(t *testing.T) {
 	}
 
 	t.Run("Empty", func(t *testing.T) {
+		t.Parallel()
+
 		releases, err := extractReleases([]string{"value"}, []any{})
 		if err != nil {
 			t.Fatal("Unexpected extract error : ", err)
@@ -112,6 +120,8 @@ func TestExtractReleases(t *testing.T) {
 	})
 
 	t.Run("Present", func(t *testing.T) {
+		t.Parallel()
+
 		var releases []string
 		releases, err = extractReleases(releases, releasesValue)
 		if err == nil {
