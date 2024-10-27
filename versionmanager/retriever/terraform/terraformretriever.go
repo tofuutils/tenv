@@ -66,7 +66,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		version = version[1:]
 	}
 
-	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), cmdconst.TerraformName, version) //nolint
+	baseVersionURL, err := url.JoinPath(r.conf.Tf.GetRemoteURL(), cmdconst.TerraformName, version)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 
 		downloadURL, downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1], assetURLs[2]
 	case config.ModeAPI:
-		versionUrl, err := url.JoinPath(baseVersionURL, indexJSON) //nolint
+		versionUrl, err := url.JoinPath(baseVersionURL, indexJSON)
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 		return nil, err
 	}
 
-	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), cmdconst.TerraformName) //nolint
+	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), cmdconst.TerraformName)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 
 		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, requestOptions)
 	case config.ModeAPI:
-		releasesURL, err := url.JoinPath(baseURL, indexJSON) //nolint
+		releasesURL, err := url.JoinPath(baseURL, indexJSON)
 		if err != nil {
 			return nil, err
 		}
