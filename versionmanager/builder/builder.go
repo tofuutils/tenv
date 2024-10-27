@@ -44,7 +44,7 @@ var Builders = map[string]BuilderFunc{
 
 type BuilderFunc = func(*config.Config, *hclparse.Parser) versionmanager.VersionManager
 
-func BuildAtmosManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
+func BuildAtmosManager(conf *config.Config, _ *hclparse.Parser) versionmanager.VersionManager {
 	atmosRetriever := atmosretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},

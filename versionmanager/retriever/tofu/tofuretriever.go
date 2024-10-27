@@ -116,7 +116,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 			return err2
 		}
 
-		assetURLs, err = download.ApplyUrlTranformer(builder.Build, assetNames...)
+		assetURLs, err = download.ApplyURLTranformer(builder.Build, assetNames...)
 	default:
 		return config.ErrInstallMode
 	}
@@ -124,8 +124,8 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tofu.GetRewriteRule())
-	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
+	urlTranformer := download.URLTranformer(r.conf.Tofu.GetRewriteRule())
+	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ import (
 
 type RequestOption = func(*http.Request)
 
-func ApplyUrlTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
+func ApplyURLTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, 0, len(baseURLs))
 	for _, baseURL := range baseURLs {
 		transformedURL, err := urlTransformer(baseURL)
@@ -77,7 +77,7 @@ func JSON(ctx context.Context, url string, display func(string), requestOptions 
 
 func NoDisplay(string) {}
 
-func UrlTranformer(rewriteRule []string) func(string) (string, error) {
+func URLTranformer(rewriteRule []string) func(string) (string, error) {
 	if len(rewriteRule) < 2 {
 		return noTransform
 	}

@@ -159,7 +159,7 @@ func manageNoArgsCmd(conf *config.Config, hclParser *hclparse.Parser) {
 
 	ctx := context.Background()
 	if err := toolUI(ctx, conf, hclParser); err != nil {
-		fmt.Println(err.Error())
+		fmt.Println(err.Error()) //nolint
 
 		os.Exit(1)
 	}

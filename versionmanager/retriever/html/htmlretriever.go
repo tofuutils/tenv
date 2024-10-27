@@ -35,7 +35,7 @@ func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error)
 		return url.JoinPath(baseAssetURL, assetName) //nolint
 	}
 
-	return download.ApplyUrlTranformer(joinTransformer, assetNames...)
+	return download.ApplyURLTranformer(joinTransformer, assetNames...)
 }
 
 func ListReleases(ctx context.Context, baseURL string, remoteConf map[string]string, ro []download.RequestOption) ([]string, error) {

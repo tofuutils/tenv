@@ -41,6 +41,8 @@ import (
 const (
 	baseFileName   = "atmos_"
 	cloudposseName = "cloudposse"
+
+	rwePerm = 0o755
 )
 
 type AtmosRetriever struct {
@@ -89,8 +91,8 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Atmos.GetRewriteRule())
-	assetURLs, err = download.ApplyUrlTranformer(urlTranformer, assetURLs...)
+	urlTranformer := download.URLTranformer(r.conf.Atmos.GetRewriteRule())
+	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
 	if err != nil {
 		return err
 	}
@@ -110,12 +112,12 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	err = os.MkdirAll(targetPath, 0o755)
+	err = os.MkdirAll(targetPath, rwePerm)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, 0o755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, rwePerm)
 }
 
 func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {

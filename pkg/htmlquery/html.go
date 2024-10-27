@@ -57,7 +57,7 @@ func extractList(data []byte, selector string, extractor func(*goquery.Selection
 	}
 
 	var extracteds []string
-	doc.Find(selector).Each(func(i int, s *goquery.Selection) {
+	doc.Find(selector).Each(func(_ int, s *goquery.Selection) {
 		if extracted := extractor(s); extracted != "" {
 			extracteds = append(extracteds, extracted)
 		}

@@ -353,7 +353,10 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	m.conf.Displayer.Display("Uninstall ? [y/N]")
 
 	buffer := make([]byte, 1)
-	os.Stdin.Read(buffer)
+	if _, err = os.Stdin.Read(buffer); err != nil {
+		return err
+	}
+
 	read := buffer[0]
 
 	if doUninstall := read == 'y' || read == 'Y'; !doUninstall {

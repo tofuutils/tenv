@@ -44,7 +44,7 @@ const (
 	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
 
 	baseFileName = "terraform_"
-	indexJson    = "index.json"
+	indexJSON    = "index.json"
 )
 
 type TerraformRetriever struct {
@@ -88,7 +88,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 
 		downloadURL, downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1], assetURLs[2]
 	case config.ModeAPI:
-		versionUrl, err := url.JoinPath(baseVersionURL, indexJson) //nolint
+		versionUrl, err := url.JoinPath(baseVersionURL, indexJSON) //nolint
 		if err != nil {
 			return err
 		}
@@ -119,8 +119,8 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		return config.ErrInstallMode
 	}
 
-	urlTranformer := download.UrlTranformer(r.conf.Tf.GetRewriteRule())
-	assetURLs, err := download.ApplyUrlTranformer(urlTranformer, downloadURL, downloadSumsURL, downloadSumsSigURL)
+	urlTranformer := download.URLTranformer(r.conf.Tf.GetRewriteRule())
+	assetURLs, err := download.ApplyURLTranformer(urlTranformer, downloadURL, downloadSumsURL, downloadSumsSigURL)
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 
 		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, ro)
 	case config.ModeAPI:
-		releasesURL, err := url.JoinPath(baseURL, indexJson) //nolint
+		releasesURL, err := url.JoinPath(baseURL, indexJSON) //nolint
 		if err != nil {
 			return nil, err
 		}
