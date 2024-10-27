@@ -21,6 +21,7 @@ package github
 import (
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"slices"
 	"testing"
 
@@ -69,7 +70,7 @@ func TestExtractAssetsEmpty(t *testing.T) {
 	err := extractAssets(assets, searchedAssetNames, 2, []any{})
 	if err == nil {
 		t.Error("Should fail on empty data")
-	} else if err != apimsg.ErrAsset {
+	} else if !errors.Is(err, apimsg.ErrAsset) {
 		t.Error("Unexpected extract error : ", err)
 	}
 }
@@ -86,7 +87,7 @@ func TestExtractAssetsMissing(t *testing.T) {
 	err := extractAssets(assets, searchedAssetNames, 2, assetsValue)
 	if err == nil {
 		t.Error("Should fail on non exiting fileName")
-	} else if err != errContinue {
+	} else if !errors.Is(err, errContinue) {
 		t.Error("Unexpected extract error : ", err)
 	}
 }

@@ -33,7 +33,7 @@ var releaseData []byte
 
 var (
 	releaseValue any
-	releaseErr   error
+	errRelease   error
 )
 
 //go:embed testdata/releases.json
@@ -41,19 +41,19 @@ var releasesData []byte
 
 var (
 	releasesValue any
-	releasesErr   error
+	errReleases   error
 )
 
 func init() {
-	releaseErr = json.Unmarshal(releaseData, &releaseValue)
-	releasesErr = json.Unmarshal(releasesData, &releasesValue)
+	errRelease = json.Unmarshal(releaseData, &releaseValue)
+	errReleases = json.Unmarshal(releasesData, &releasesValue)
 }
 
 func TestExtractAssetUrls(t *testing.T) {
 	t.Parallel()
 
-	if releaseErr != nil {
-		t.Fatal("Unexpected parsing error : ", releaseErr)
+	if errRelease != nil {
+		t.Fatal("Unexpected parsing error : ", errRelease)
 	}
 
 	fileName, downloadURL, shaFileName, shaSigFileName, err := releaseapi.ExtractAssetUrls("linux", "386", releaseValue)
@@ -78,8 +78,8 @@ func TestExtractAssetUrls(t *testing.T) {
 func TestExtractReleases(t *testing.T) {
 	t.Parallel()
 
-	if releasesErr != nil {
-		t.Fatal("Unexpected parsing error : ", releasesErr)
+	if errReleases != nil {
+		t.Fatal("Unexpected parsing error : ", errReleases)
 	}
 
 	releases, err := releaseapi.ExtractReleases(releasesValue)

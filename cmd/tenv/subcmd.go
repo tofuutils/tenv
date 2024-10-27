@@ -330,6 +330,7 @@ If a parameter is passed, available parameter options:
 			if len(args) == 0 {
 				return uninstallUI(versionManager)
 			}
+
 			return versionManager.Uninstall(args[0])
 		},
 	}

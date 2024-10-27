@@ -35,7 +35,7 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
-var Builders = map[string]Func{
+var Builders = map[string]Func{ //nolint
 	cmdconst.TofuName:       BuildTofuManager,
 	cmdconst.TerraformName:  BuildTfManager,
 	cmdconst.TerragruntName: BuildTgManager,

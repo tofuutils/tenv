@@ -44,13 +44,13 @@ const (
 	selectedColorCode = "170"
 )
 
-var tools = []list.Item{item(cmdconst.TofuName), item(cmdconst.TerraformName), item(cmdconst.TerragruntName), item(cmdconst.AtmosName)}
+var tools = []list.Item{item(cmdconst.TofuName), item(cmdconst.TerraformName), item(cmdconst.TerragruntName), item(cmdconst.AtmosName)} //nolint
 
 var (
-	helpStyle         = list.DefaultStyles().HelpStyle
-	paginationStyle   = list.DefaultStyles().PaginationStyle
-	selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(selectedColorCode))
-	titleStyle        = lipgloss.NewStyle()
+	helpStyle         = list.DefaultStyles().HelpStyle                                    //nolint
+	paginationStyle   = list.DefaultStyles().PaginationStyle                              //nolint
+	selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(selectedColorCode)) //nolint
+	titleStyle        = lipgloss.NewStyle()                                               //nolint
 )
 
 type item string

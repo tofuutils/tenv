@@ -105,7 +105,7 @@ func ListReleases(ctx context.Context, githubReleaseURL string, githubToken stri
 		releases, err = extractReleases(releases, value)
 		if err == nil {
 			return releases, nil
-		} else if err != errContinue {
+		} else if !errors.Is(err, errContinue) {
 			return nil, err
 		}
 		page++

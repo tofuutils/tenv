@@ -321,7 +321,7 @@ func (t Tenv) SetDefaultVersion(ctx context.Context, toolName string, requestedV
 }
 
 // Does not handle special behavior.
-func (t Tenv) Uninstall(ctx context.Context, toolName string, requestedVersion string) error {
+func (t Tenv) Uninstall(_ context.Context, toolName string, requestedVersion string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
@@ -329,7 +329,7 @@ func (t Tenv) Uninstall(ctx context.Context, toolName string, requestedVersion s
 	return t.managers[toolName].UninstallMultiple([]string{requestedVersion})
 }
 
-func (t Tenv) UninstallMultiple(ctx context.Context, toolName string, versions []string) error {
+func (t Tenv) UninstallMultiple(_ context.Context, toolName string, versions []string) error {
 	if err := t.init(toolName); err != nil {
 		return err
 	}
