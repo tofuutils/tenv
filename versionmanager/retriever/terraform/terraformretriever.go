@@ -88,19 +88,19 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 
 		downloadURL, downloadSumsURL, downloadSumsSigURL = assetURLs[0], assetURLs[1], assetURLs[2]
 	case config.ModeAPI:
-		versionUrl, err := url.JoinPath(baseVersionURL, indexJSON)
+		versionURL, err := url.JoinPath(baseVersionURL, indexJSON)
 		if err != nil {
 			return err
 		}
 
-		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionUrl)
+		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionURL)
 
-		value, err := download.JSON(ctx, versionUrl, download.NoDisplay, requestOptions...)
+		value, err := download.JSON(ctx, versionURL, download.NoDisplay, requestOptions...)
 		if err != nil {
 			return err
 		}
 
-		fileName, downloadURL, shaFileName, shaSigFileName, err = releaseapi.ExtractAssetUrls(runtime.GOOS, r.conf.Arch, value)
+		fileName, downloadURL, shaFileName, shaSigFileName, err = releaseapi.ExtractAssetURLs(runtime.GOOS, r.conf.Arch, value)
 		if err != nil {
 			return err
 		}

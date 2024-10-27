@@ -198,12 +198,12 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 					if noUseDate {
 						loghelper.StdDisplay(loghelper.Concat("* ", version, " (never used, set by ", filePath, ")"))
 					} else {
-						loghelper.StdDisplay(loghelper.Concat("* ", version, " (used ", useDate.Format(time.DateOnly), ", set by ", filePath, ")")) //nolint
+						loghelper.StdDisplay(loghelper.Concat("* ", version, " (used ", useDate.Format(time.DateOnly), ", set by ", filePath, ")"))
 					}
 				case noUseDate:
 					loghelper.StdDisplay(loghelper.Concat("  ", version, " (never used)"))
 				default:
-					loghelper.StdDisplay(loghelper.Concat("  ", version, " (used ", useDate.Format(time.DateOnly), ")")) //nolint
+					loghelper.StdDisplay(loghelper.Concat("  ", version, " (used ", useDate.Format(time.DateOnly), ")"))
 				}
 			}
 			if conf.DisplayVerbose {

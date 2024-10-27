@@ -43,7 +43,7 @@ func TestExtractAssetUrls(t *testing.T) {
 		t.Fatal("Unexpected parsing error : ", errRelease)
 	}
 
-	fileName, downloadURL, shaFileName, shaSigFileName, err := releaseapi.ExtractAssetUrls("linux", "386", releaseValue)
+	fileName, downloadURL, shaFileName, shaSigFileName, err := releaseapi.ExtractAssetURLs("linux", "386", releaseValue)
 	if err != nil {
 		t.Fatal("Unexpected extract error : ", err)
 	}
