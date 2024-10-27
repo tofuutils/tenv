@@ -73,7 +73,7 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 
 	switch r.conf.Tg.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tg.GetRemoteURL(), gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -128,7 +128,7 @@ func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error)
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, gruntworkName, cmdconst.TerragruntName, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}

@@ -40,15 +40,15 @@ const (
 var errContinue = errors.New("continue")
 
 func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []string, githubReleaseURL string, githubToken string, display func(string)) ([]string, error) {
-	releaseUrl, err := url.JoinPath(githubReleaseURL, "tags", tag)
+	releaseURL, err := url.JoinPath(githubReleaseURL, "tags", tag)
 	if err != nil {
 		return nil, err
 	}
 
-	display(apimsg.MsgFetchRelease + releaseUrl)
+	display(apimsg.MsgFetchRelease + releaseURL)
 
 	authorizationHeader := buildAuthorizationHeader(githubToken)
-	value, err := apiGetRequest(ctx, releaseUrl, authorizationHeader)
+	value, err := apiGetRequest(ctx, releaseURL, authorizationHeader)
 	if err != nil {
 		return nil, err
 	}

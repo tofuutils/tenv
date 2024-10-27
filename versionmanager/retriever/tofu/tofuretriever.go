@@ -98,7 +98,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 
 	switch r.conf.Tofu.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag) //nolint
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -155,7 +155,7 @@ func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
 	listURL := r.conf.Tofu.GetListURL()
 	switch r.conf.Tofu.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download) //nolint
+		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}
