@@ -35,14 +35,14 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
-var Builders = map[string]BuilderFunc{
+var Builders = map[string]Func{
 	cmdconst.TofuName:       BuildTofuManager,
 	cmdconst.TerraformName:  BuildTfManager,
 	cmdconst.TerragruntName: BuildTgManager,
 	cmdconst.AtmosName:      BuildAtmosManager,
 }
 
-type BuilderFunc = func(*config.Config, *hclparse.Parser) versionmanager.VersionManager
+type Func = func(*config.Config, *hclparse.Parser) versionmanager.VersionManager
 
 func BuildAtmosManager(conf *config.Config, _ *hclparse.Parser) versionmanager.VersionManager {
 	atmosRetriever := atmosretriever.Make(conf)

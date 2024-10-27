@@ -28,9 +28,11 @@ import (
 	"strings"
 )
 
+const rwePerm = 0o755
+
 // ensure the directory exists with a MkdirAll call.
 func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error {
-	err := os.MkdirAll(dirPath, 0o755)
+	err := os.MkdirAll(dirPath, rwePerm)
 	if err != nil {
 		return err
 	}
@@ -59,7 +61,7 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) boo
 
 	if destPath[len(destPath)-1] == '/' {
 		// trailing slash indicates a directory
-		return os.MkdirAll(destPath, 0o755)
+		return os.MkdirAll(destPath, rwePerm)
 	}
 
 	reader, err := zipFile.Open()

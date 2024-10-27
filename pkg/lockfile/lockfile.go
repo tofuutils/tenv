@@ -43,6 +43,7 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, 0o644) //nolint
 		if err == nil {
 			f.Close()
+
 			break
 		}
 
@@ -60,24 +61,26 @@ func Write(dirPath string, displayer loghelper.Displayer) func() {
 // the returned function may be used to avoid goroutine leak
 // (also avoid conflicting behavior with versionmanager/proxy.transmitIncreasingSignal).
 func CleanAndExitOnInterrupt(clean func()) func() {
-	signalChan := make(chan os.Signal)
+	signalChan := make(chan os.Signal, 1)
 	endChan := make(chan struct{})
+	go listenToClean(signalChan, endChan, clean)
 	signal.Notify(signalChan, os.Interrupt)
-	go func() {
-		for {
-			select {
-			case <-signalChan:
-				clean()
-				os.Exit(1)
-			case <-endChan:
-				signal.Stop(signalChan)
-
-				break
-			}
-		}
-	}()
 
 	return sync.OnceFunc(func() { //nolint
 		endChan <- struct{}{}
 	})
+}
+
+func listenToClean(signalChan chan os.Signal, endChan <-chan struct{}, clean func()) {
+	for {
+		select {
+		case <-signalChan:
+			clean()
+			os.Exit(1)
+		case <-endChan:
+			signal.Stop(signalChan)
+
+			break
+		}
+	}
 }

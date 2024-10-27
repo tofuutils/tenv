@@ -42,6 +42,11 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
+const (
+	rwePerm = 0o755
+	rwPerm  = 0o600
+)
+
 var (
 	errEmptyVersion        = errors.New("empty version")
 	errNoCompatible        = errors.New("no compatible version found")
@@ -186,7 +191,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 func (m VersionManager) InstallPath() (string, error) {
 	dirPath := filepath.Join(m.conf.RootPath, m.FolderName)
 
-	return dirPath, os.MkdirAll(dirPath, 0o755)
+	return dirPath, os.MkdirAll(dirPath, rwePerm)
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
@@ -559,7 +564,7 @@ func removeFile(filePath string, conf *config.Config) error {
 }
 
 func writeFile(filePath string, content string, conf *config.Config) error {
-	err := os.WriteFile(filePath, []byte(content), 0o644)
+	err := os.WriteFile(filePath, []byte(content), rwPerm)
 	if err == nil {
 		conf.Displayer.Display(loghelper.Concat("Written ", content, " in ", filePath))
 	}

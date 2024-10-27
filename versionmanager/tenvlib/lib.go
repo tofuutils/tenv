@@ -39,7 +39,7 @@ var errNoBuilder = errors.New("no builder for this tool")
 
 type tenvConfig struct {
 	autoInstall    bool
-	builders       map[string]builder.BuilderFunc
+	builders       map[string]builder.Func
 	conf           *config.Config
 	displayer      loghelper.Displayer
 	hclParser      *hclparse.Parser
@@ -50,7 +50,7 @@ type tenvConfig struct {
 type TenvOption func(*tenvConfig)
 
 // add builder or override default builder (see builder.Builders).
-func AddTool(toolName string, builderFunc builder.BuilderFunc) TenvOption {
+func AddTool(toolName string, builderFunc builder.Func) TenvOption {
 	return func(tc *tenvConfig) {
 		tc.builders[toolName] = builderFunc
 	}
@@ -88,7 +88,7 @@ func WithHCLParser(hclParser *hclparse.Parser) TenvOption {
 
 // Not concurrent safe.
 type Tenv struct {
-	builders  map[string]builder.BuilderFunc
+	builders  map[string]builder.Func
 	conf      *config.Config
 	hclParser *hclparse.Parser
 	ignoreEnv bool
@@ -97,7 +97,7 @@ type Tenv struct {
 
 // The returned wrapper is not concurrent safe.
 func Make(options ...TenvOption) (Tenv, error) {
-	builders := map[string]builder.BuilderFunc{}
+	builders := map[string]builder.Func{}
 	for toolName, builderFunc := range builder.Builders {
 		builders[toolName] = builderFunc
 	}

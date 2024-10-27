@@ -41,6 +41,8 @@ import (
 const (
 	baseFileName  = "terragrunt_"
 	gruntworkName = "gruntwork-io"
+
+	rwePerm = 0o755
 )
 
 type TerragruntRetriever struct {
@@ -107,12 +109,12 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 		return err
 	}
 
-	err = os.MkdirAll(targetPath, 0o755)
+	err = os.MkdirAll(targetPath, rwePerm)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, 0o755)
+	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, rwePerm)
 }
 
 func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error) {

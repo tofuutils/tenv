@@ -32,6 +32,8 @@ import (
 const (
 	cosignExecName = "cosign"
 	verified       = "Verified OK"
+
+	rwPerm = 0o600
 )
 
 var (
@@ -93,7 +95,7 @@ func tempFile(name string, data []byte) (string, func(), error) {
 	}
 
 	tmpFileName := tmpFile.Name()
-	if err = os.WriteFile(tmpFileName, data, 0o600); err != nil {
+	if err = os.WriteFile(tmpFileName, data, rwPerm); err != nil {
 		return "", nil, err
 	}
 
