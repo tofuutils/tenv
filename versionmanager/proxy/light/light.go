@@ -26,6 +26,7 @@ import (
 	"os/signal"
 
 	"github.com/tofuutils/tenv/v3/config/cmdconst"
+	detachproxy "github.com/tofuutils/tenv/v3/versionmanager/proxy/detach"
 )
 
 func Exec(execName string) {
@@ -35,6 +36,7 @@ func Exec(execName string) {
 
 	// proxy to selected version
 	cmd := exec.Command(cmdconst.TenvName, cmdArgs...) //nolint
+	detachproxy.InitBehaviorFromEnv(cmd)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

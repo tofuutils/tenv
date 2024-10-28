@@ -33,6 +33,7 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 	"github.com/tofuutils/tenv/v3/versionmanager/builder"
 	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
+	detachproxy "github.com/tofuutils/tenv/v3/versionmanager/proxy/detach"
 )
 
 const chdirFlagPrefix = "-chdir="
@@ -60,7 +61,7 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
-	initDetachedBehaviorFromEnv(cmd)
+	detachproxy.InitBehaviorFromEnv(cmd)
 
 	cmdproxy.Run(cmd, conf.GithubActions)
 }
