@@ -18,7 +18,7 @@
  *
  */
 
-package proxy
+package detachproxy
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ import (
 	configutils "github.com/tofuutils/tenv/v3/config/utils"
 )
 
-func initDetachedBehaviorFromEnv(cmd *exec.Cmd) {
+func InitBehaviorFromEnv(cmd *exec.Cmd) {
 	detached, err := configutils.GetenvBool(false, "TENV_DETACHED_PROXY")
 	if err != nil {
 		fmt.Println("Failed to read TENV_DETACHED_PROXY environment variable, disable behavior :", err) //nolint
