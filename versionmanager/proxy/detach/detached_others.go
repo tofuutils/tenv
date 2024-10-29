@@ -42,4 +42,5 @@ func InitBehaviorFromEnv(cmd *exec.Cmd) {
 	}
 
 	cmd.SysProcAttr.Setpgid = true
+	cmd.SysProcAttr.Foreground = true
 }
