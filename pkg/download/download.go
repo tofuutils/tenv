@@ -26,8 +26,6 @@ import (
 	"net/url"
 )
 
-const ruleSize = 2
-
 type RequestOption = func(*http.Request)
 
 func ApplyURLTransformer(urlTransformer URLTransformer, baseURLs ...string) ([]string, error) {
