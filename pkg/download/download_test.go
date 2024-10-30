@@ -27,7 +27,7 @@ import (
 func TestURLTransformer(t *testing.T) {
 	t.Parallel()
 
-	urlTransformer := download.URLTranformer([]string{"https://releases.hashicorp.com", "http://localhost:8080"})
+	urlTransformer := download.NewURLTransformer("https://releases.hashicorp.com", "http://localhost:8080")
 
 	value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_linux_386.zip")
 	if err != nil {
@@ -39,25 +39,10 @@ func TestURLTransformer(t *testing.T) {
 	}
 }
 
-func TestURLTransformerDisabled(t *testing.T) {
-	t.Parallel()
-
-	urlTransformer := download.URLTranformer(nil)
-
-	value, err := urlTransformer("test_value")
-	if err != nil {
-		t.Fatal("Unexpected error :", err)
-	}
-
-	if value != "test_value" {
-		t.Error("Unexpected result, get :", value)
-	}
-}
-
 func TestURLTransformerPrefix(t *testing.T) {
 	t.Parallel()
 
-	urlTransformer := download.URLTranformer([]string{"https://github.com", "https://go.dev"})
+	urlTransformer := download.NewURLTransformer("https://github.com", "https://go.dev")
 
 	initialValue := "https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip"
 	value, err := urlTransformer(initialValue)
@@ -73,7 +58,7 @@ func TestURLTransformerPrefix(t *testing.T) {
 func TestURLTransformerSlash(t *testing.T) {
 	t.Parallel()
 
-	urlTransformer := download.URLTranformer([]string{"https://releases.hashicorp.com/", "http://localhost"})
+	urlTransformer := download.NewURLTransformer("https://releases.hashicorp.com/", "http://localhost")
 
 	value, err := urlTransformer("https://releases.hashicorp.com/terraform/1.7.0/terraform_1.7.0_darwin_amd64.zip")
 	if err != nil {

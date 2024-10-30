@@ -100,15 +100,15 @@ func (r RemoteConfig) GetRemoteURL() string {
 	return strings.TrimRight(remoteURL, "/")
 }
 
-func (r RemoteConfig) GetRewriteRule() []string {
+func (r RemoteConfig) GetRewriteRule() download.URLTransformer {
 	oldBase := r.Data["old_base_url"]
 	newBase := r.Data["new_base_url"]
 	if oldBase != "" && newBase != "" {
-		return []string{oldBase, newBase}
+		return download.NewURLTransformer(oldBase, newBase)
 	}
 
 	if r.GetInstallMode() == InstallModeDirect {
-		return nil // build correct url
+		return download.NoTransform // build correct url
 	}
 
 	listURL := r.GetListURL()
@@ -116,7 +116,7 @@ func (r RemoteConfig) GetRewriteRule() []string {
 	defaultList := listURL == r.defaultURL
 	defaultRemote := remoteURL == r.defaultURL
 	if defaultList && defaultRemote {
-		return nil // no special behaviour, no rewriting
+		return download.NoTransform // no special behaviour, no rewriting
 	}
 
 	oldBase = r.defaultBaseURL
@@ -125,7 +125,7 @@ func (r RemoteConfig) GetRewriteRule() []string {
 		newBase = remoteURL
 	}
 
-	return []string{oldBase, newBase}
+	return download.NewURLTransformer(oldBase, newBase)
 }
 
 func (r RemoteConfig) getValueForcedDefault(name string, forcedValue string, defaultValue string) string {

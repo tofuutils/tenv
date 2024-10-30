@@ -30,15 +30,15 @@ const ruleSize = 2
 
 type RequestOption = func(*http.Request)
 
-func ApplyURLTranformer(urlTransformer func(string) (string, error), baseURLs ...string) ([]string, error) {
-	transformedURLs := make([]string, 0, len(baseURLs))
-	for _, baseURL := range baseURLs {
+func ApplyURLTransformer(urlTransformer URLTransformer, baseURLs ...string) ([]string, error) {
+	transformedURLs := make([]string, len(baseURLs))
+	for index, baseURL := range baseURLs {
 		transformedURL, err := urlTransformer(baseURL)
 		if err != nil {
 			return nil, err
 		}
 
-		transformedURLs = append(transformedURLs, transformedURL)
+		transformedURLs[index] = transformedURL
 	}
 
 	return transformedURLs, nil
@@ -79,16 +79,12 @@ func JSON(ctx context.Context, url string, display func(string), requestOptions 
 
 func NoDisplay(string) {}
 
-func URLTranformer(rewriteRule []string) func(string) (string, error) {
-	if len(rewriteRule) < ruleSize {
-		return noTransform
-	}
+type URLTransformer = func(string) (string, error)
 
-	prevBaseURL := rewriteRule[0]
-	baseURL := rewriteRule[1]
+func NewURLTransformer(prevBaseURL string, baseURL string) URLTransformer {
 	prevLen := len(prevBaseURL)
 	if prevLen == 0 || baseURL == "" {
-		return noTransform
+		return NoTransform
 	}
 
 	return func(urlValue string) (string, error) {
@@ -106,6 +102,6 @@ func WithBasicAuth(username string, password string) RequestOption {
 	}
 }
 
-func noTransform(value string) (string, error) {
+func NoTransform(value string) (string, error) {
 	return value, nil
 }

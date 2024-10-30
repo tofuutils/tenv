@@ -119,8 +119,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		return config.ErrInstallMode
 	}
 
-	urlTranformer := download.URLTranformer(r.conf.Tf.GetRewriteRule())
-	assetURLs, err := download.ApplyURLTranformer(urlTranformer, downloadURL, downloadSumsURL, downloadSumsSigURL)
+	assetURLs, err := download.ApplyURLTransformer(r.conf.Tf.GetRewriteRule(), downloadURL, downloadSumsURL, downloadSumsSigURL)
 	if err != nil {
 		return err
 	}

@@ -88,8 +88,7 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 		return err
 	}
 
-	urlTranformer := download.URLTranformer(r.conf.Tg.GetRewriteRule())
-	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
+	assetURLs, err = download.ApplyURLTransformer(r.conf.Tg.GetRewriteRule(), assetURLs...)
 	if err != nil {
 		return err
 	}

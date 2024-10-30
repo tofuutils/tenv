@@ -91,8 +91,7 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	urlTranformer := download.URLTranformer(r.conf.Atmos.GetRewriteRule())
-	assetURLs, err = download.ApplyURLTranformer(urlTranformer, assetURLs...)
+	assetURLs, err = download.ApplyURLTransformer(r.conf.Atmos.GetRewriteRule(), assetURLs...)
 	if err != nil {
 		return err
 	}
