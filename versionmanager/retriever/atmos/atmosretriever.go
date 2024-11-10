@@ -157,9 +157,7 @@ func buildAssetNames(version string, arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == winbin.OsName {
-		nameBuilder.WriteString(winbin.Suffix)
-	}
+	winbin.WriteSuffixTo(&nameBuilder)
 
 	return nameBuilder.String(), sumsAssetName
 }

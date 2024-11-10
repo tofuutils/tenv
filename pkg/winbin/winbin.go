@@ -18,17 +18,26 @@
 
 package winbin
 
-import "runtime"
+import (
+	"io"
+	"runtime"
+)
 
 const (
-	Suffix = ".exe"
-	OsName = "windows"
+	suffix = ".exe"
+	osName = "windows"
 )
 
 func GetBinaryName(execName string) string {
-	if runtime.GOOS == OsName {
-		return execName + Suffix
+	if runtime.GOOS == osName {
+		return execName + suffix
 	}
 
 	return execName
+}
+
+func WriteSuffixTo(writer io.StringWriter) {
+	if runtime.GOOS == osName {
+		writer.WriteString(suffix)
+	}
 }
