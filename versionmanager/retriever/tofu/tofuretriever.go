@@ -107,7 +107,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 	case config.ModeAPI:
 		assetURLs, err = github.AssetDownloadURL(ctx, tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	case modeMirroring:
-		urlTemplate := os.Getenv(config.TofuURLTemplateEnvName)
+		urlTemplate := r.conf.Getenv(config.TofuURLTemplateEnvName)
 		if urlTemplate == "" {
 			urlTemplate = defaultTofuURLTemplate
 		}
