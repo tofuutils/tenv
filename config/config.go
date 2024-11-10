@@ -123,6 +123,7 @@ type Config struct {
 	DisplayVerbose   bool
 	ForceQuiet       bool
 	ForceRemote      bool
+	Getenv           configutils.GetenvFunc
 	GithubActions    bool
 	GithubToken      string
 	remoteConfLoaded bool
@@ -148,6 +149,7 @@ func DefaultConfig() (Config, error) {
 	return Config{
 		Arch:             runtime.GOARCH,
 		Atmos:            makeDefaultRemoteConfig(defaultAtmosGithubURL, baseGithubURL),
+		Getenv:           EmptyGetenv,
 		remoteConfLoaded: true,
 		RootPath:         filepath.Join(userPath, defaultDirName),
 		SkipInstall:      true,
@@ -160,56 +162,58 @@ func DefaultConfig() (Config, error) {
 }
 
 func InitConfigFromEnv() (Config, error) {
+	getenv := configutils.GetenvFunc(os.Getenv)
+
 	userPath, err := os.UserHomeDir()
 	if err != nil {
 		return Config{}, err
 	}
 
-	arch := configutils.GetenvFallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
+	arch := getenv.Fallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
 	if arch == "" {
 		arch = runtime.GOARCH
 	}
 
-	autoInstall, err := configutils.GetenvBoolFallback(false, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	autoInstall, err := getenv.BoolFallback(false, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	forceRemote, err := configutils.GetenvBoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
+	forceRemote, err := getenv.BoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	rootPath := configutils.GetenvFallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
+	rootPath := getenv.Fallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
 	if rootPath == "" {
 		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
-	quiet, err := configutils.GetenvBoolFallback(false, tenvQuietEnvName)
+	quiet, err := getenv.BoolFallback(false, tenvQuietEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
-	gha, err := configutils.GetenvBool(false, githubActionsEnvName)
+	gha, err := getenv.Bool(false, githubActionsEnvName)
 	if err != nil {
 		return Config{}, err
 	}
 
 	return Config{
 		Arch:           arch,
-		Atmos:          makeRemoteConfig(AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
+		Atmos:          makeRemoteConfig(getenv, AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		GithubActions:  gha,
-		GithubToken:    configutils.GetenvFallback(tenvTokenEnvName, tofuTokenEnvName),
-		RemoteConfPath: os.Getenv(tenvRemoteConfEnvName),
+		GithubToken:    getenv.Fallback(tenvTokenEnvName, tofuTokenEnvName),
+		RemoteConfPath: getenv(tenvRemoteConfEnvName),
 		RootPath:       rootPath,
 		SkipInstall:    !autoInstall,
-		Tf:             makeRemoteConfig(TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
-		TfKeyPath:      os.Getenv(tfHashicorpPGPKeyEnvName),
-		Tg:             makeRemoteConfig(TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
-		Tofu:           makeRemoteConfig(TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, DefaultTofuGithubURL, baseGithubURL),
-		TofuKeyPath:    os.Getenv(tofuOpenTofuPGPKeyEnvName),
+		Tf:             makeRemoteConfig(getenv, TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
+		TfKeyPath:      getenv(tfHashicorpPGPKeyEnvName),
+		Tg:             makeRemoteConfig(getenv, TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
+		Tofu:           makeRemoteConfig(getenv, TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, DefaultTofuGithubURL, baseGithubURL),
+		TofuKeyPath:    getenv(tofuOpenTofuPGPKeyEnvName),
 		UserPath:       userPath,
 		WorkPath:       ".",
 	}, nil
@@ -223,7 +227,7 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 		logLevel := hclog.Trace
 		if !conf.DisplayVerbose {
 			logLevel = hclog.Warn
-			if logLevelStr := os.Getenv(tenvLogEnvName); logLevelStr != "" {
+			if logLevelStr := conf.Getenv(tenvLogEnvName); logLevelStr != "" {
 				logLevel = hclog.LevelFromString(logLevelStr)
 			}
 		}
@@ -281,4 +285,8 @@ func (conf *Config) InitRemoteConf() error {
 	conf.Atmos.Data = remoteConf[cmdconst.AtmosName]
 
 	return nil
+}
+
+func EmptyGetenv(_ string) string {
+	return ""
 }

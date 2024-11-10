@@ -36,7 +36,7 @@ func Exec(execName string) {
 
 	// proxy to selected version
 	cmd := exec.Command(cmdconst.TenvName, cmdArgs...) //nolint
-	detachproxy.InitBehaviorFromEnv(cmd)
+	detachproxy.InitBehaviorFromEnv(cmd, os.Getenv)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

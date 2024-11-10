@@ -71,7 +71,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
 	switch r.conf.Tf.GetInstallMode() {
@@ -147,7 +147,7 @@ func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) 
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
 
 	switch r.conf.Tf.GetListMode() {
 	case config.ListModeHTML:

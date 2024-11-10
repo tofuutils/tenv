@@ -252,7 +252,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 }
 
 func (m VersionManager) ReadDefaultConstraint() string {
-	if constraint := os.Getenv(m.EnvNames.constraint()); constraint != "" {
+	if constraint := m.conf.Getenv(m.EnvNames.constraint()); constraint != "" {
 		return constraint
 	}
 
@@ -272,7 +272,7 @@ func (m VersionManager) ResetVersion() error {
 // Search the requested version in version files (with fallbacks and env var overloading).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	versionEnvName := m.EnvNames.Version()
-	version := os.Getenv(versionEnvName)
+	version := m.conf.Getenv(versionEnvName)
 	if version != "" {
 		return types.DisplayDetectionInfo(m.conf.Displayer, version, versionEnvName), nil
 	}
@@ -283,7 +283,7 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	}
 
 	defaultVersionEnvName := m.EnvNames.defaultVersion()
-	if version = os.Getenv(defaultVersionEnvName); version != "" {
+	if version = m.conf.Getenv(defaultVersionEnvName); version != "" {
 		return types.DisplayDetectionInfo(m.conf.Displayer, version, defaultVersionEnvName), nil
 	}
 

@@ -93,7 +93,7 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error)
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
 
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {

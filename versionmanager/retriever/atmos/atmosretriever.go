@@ -96,7 +96,7 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
 
 	listURL := r.conf.Atmos.GetListURL()
 	switch r.conf.Atmos.GetListMode() {

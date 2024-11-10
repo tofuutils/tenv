@@ -130,7 +130,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
 
 	listURL := r.conf.Tofu.GetListURL()
 	switch r.conf.Tofu.GetListMode() {
