@@ -29,15 +29,17 @@ const (
 )
 
 func GetBinaryName(execName string) string {
-	if runtime.GOOS == osName {
-		return execName + suffix
+	if runtime.GOOS != osName {
+		return execName
 	}
 
-	return execName
+	return execName + suffix
 }
 
-func WriteSuffixTo(writer io.StringWriter) {
-	if runtime.GOOS == osName {
-		writer.WriteString(suffix)
+func WriteSuffixTo(writer io.StringWriter) (int, error) {
+	if runtime.GOOS != osName {
+		return 0, nil
 	}
+
+	return writer.WriteString(suffix)
 }
