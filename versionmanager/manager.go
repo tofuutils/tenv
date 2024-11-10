@@ -53,9 +53,9 @@ var (
 	ErrNoCompatibleLocally = errors.New("no compatible version found locally")
 )
 
-type ReleaseInfoRetriever interface {
-	InstallRelease(ctx context.Context, version string, targetPath string) error
-	ListReleases(ctx context.Context) ([]string, error)
+type ReleaseRetriever interface {
+	Install(ctx context.Context, version string, targetPath string) error
+	ListVersions(ctx context.Context) ([]string, error)
 }
 
 type DatedVersion struct {
@@ -68,11 +68,11 @@ type VersionManager struct {
 	EnvNames     EnvPrefix
 	FolderName   string
 	iacExts      []iacparser.ExtDescription
-	retriever    ReleaseInfoRetriever
+	retriever    ReleaseRetriever
 	VersionFiles []types.VersionFile
 }
 
-func Make(conf *config.Config, envPrefix string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseInfoRetriever, versionFiles []types.VersionFile) VersionManager {
+func Make(conf *config.Config, envPrefix string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseRetriever, versionFiles []types.VersionFile) VersionManager {
 	return VersionManager{conf: conf, EnvNames: EnvPrefix(envPrefix), FolderName: folderName, iacExts: iacExts, retriever: retriever, VersionFiles: versionFiles}
 }
 
@@ -215,7 +215,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 }
 
 func (m VersionManager) ListRemote(ctx context.Context, reverseOrder bool) ([]string, error) {
-	versions, err := m.retriever.ListReleases(ctx)
+	versions, err := m.retriever.ListVersions(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -507,7 +507,7 @@ func (m VersionManager) installSpecificVersionWithoutLock(ctx context.Context, i
 	m.conf.Displayer.Flush(false)
 	m.conf.Displayer.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
-	err = m.retriever.InstallRelease(ctx, version, filepath.Join(installPath, version))
+	err = m.retriever.Install(ctx, version, filepath.Join(installPath, version))
 	if err == nil {
 		m.conf.Displayer.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
 	}

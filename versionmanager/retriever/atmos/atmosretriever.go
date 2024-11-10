@@ -53,7 +53,7 @@ func Make(conf *config.Config) AtmosRetriever {
 	return AtmosRetriever{conf: conf}
 }
 
-func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
+func (r AtmosRetriever) Install(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, rwePerm)
 }
 
-func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r AtmosRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err

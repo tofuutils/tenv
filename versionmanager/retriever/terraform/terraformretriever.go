@@ -55,7 +55,7 @@ func Make(conf *config.Config) TerraformRetriever {
 	return TerraformRetriever{conf: conf}
 }
 
-func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, targetPath string) error {
+func (r TerraformRetriever) Install(ctx context.Context, version string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -136,7 +136,7 @@ func (r TerraformRetriever) InstallRelease(ctx context.Context, version string, 
 	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TerraformName)))
 }
 
-func (r TerraformRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err

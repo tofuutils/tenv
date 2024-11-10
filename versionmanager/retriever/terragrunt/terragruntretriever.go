@@ -53,7 +53,7 @@ func Make(conf *config.Config) TerragruntRetriever {
 	return TerragruntRetriever{conf: conf}
 }
 
-func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
+func (r TerragruntRetriever) Install(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -116,7 +116,7 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, rwePerm)
 }
 
-func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r TerragruntRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err

@@ -69,7 +69,7 @@ func Make(conf *config.Config) TofuRetriever {
 	return TofuRetriever{conf: conf}
 }
 
-func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
+func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TofuName)))
 }
 
-func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
