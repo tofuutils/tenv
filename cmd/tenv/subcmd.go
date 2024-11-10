@@ -114,7 +114,7 @@ func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionMan
 	descBuilder.WriteString(" (into TENV_ROOT directory from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
-	descBuilder.WriteString(versionManager.VersionEnvName)
+	descBuilder.WriteString(versionManager.EnvNames.Version())
 	descBuilder.WriteString(` or version files
 (searched in working directory, its parents, user home directory or TENV_ROOT directory).
 Use "latest" when none are found.

@@ -50,7 +50,7 @@ func BuildAtmosManager(conf *config.Config, _ *hclparse.Parser) versionmanager.V
 		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},
 	}
 
-	return versionmanager.Make(conf, config.AtmosDefaultConstraintEnvName, "Atmos", nil, atmosRetriever, config.AtmosVersionEnvName, config.AtmosDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.AtmosPrefix, "Atmos", nil, atmosRetriever, versionFiles)
 }
 
 func BuildTfManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
@@ -68,7 +68,7 @@ func BuildTfManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 		{Value: ".tf.json", Parser: hclParser.ParseJSONFile},
 	}
 
-	return versionmanager.Make(conf, config.TfDefaultConstraintEnvName, "Terraform", iacExts, tfRetriever, config.TfVersionEnvName, config.TfDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.TfenvPrefix, "Terraform", iacExts, tfRetriever, versionFiles)
 }
 
 func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
@@ -82,7 +82,7 @@ func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromJSON},
 	}
 
-	return versionmanager.Make(conf, config.TgDefaultConstraintEnvName, "Terragrunt", nil, tgRetriever, config.TgVersionEnvName, config.TgDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.TgPrefix, "Terragrunt", nil, tgRetriever, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
@@ -101,5 +101,5 @@ func BuildTofuManager(conf *config.Config, hclParser *hclparse.Parser) versionma
 		{Value: ".tf.json", Parser: hclParser.ParseJSONFile},
 	}
 
-	return versionmanager.Make(conf, config.TofuDefaultConstraintEnvName, "OpenTofu", iacExts, tofuRetriever, config.TofuVersionEnvName, config.TofuDefaultVersionEnvName, versionFiles)
+	return versionmanager.Make(conf, config.TofuenvPrefix, "OpenTofu", iacExts, tofuRetriever, versionFiles)
 }

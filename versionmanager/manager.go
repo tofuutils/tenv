@@ -64,18 +64,16 @@ type DatedVersion struct {
 }
 
 type VersionManager struct {
-	conf                  *config.Config
-	constraintEnvName     string
-	FolderName            string
-	iacExts               []iacparser.ExtDescription
-	retriever             ReleaseInfoRetriever
-	VersionEnvName        string
-	defaultVersionEnvName string
-	VersionFiles          []types.VersionFile
+	conf         *config.Config
+	EnvNames     EnvPrefix
+	FolderName   string
+	iacExts      []iacparser.ExtDescription
+	retriever    ReleaseInfoRetriever
+	VersionFiles []types.VersionFile
 }
 
-func Make(conf *config.Config, constraintEnvName string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
-	return VersionManager{conf: conf, constraintEnvName: constraintEnvName, FolderName: folderName, iacExts: iacExts, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
+func Make(conf *config.Config, envPrefix string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseInfoRetriever, versionFiles []types.VersionFile) VersionManager {
+	return VersionManager{conf: conf, EnvNames: EnvPrefix(envPrefix), FolderName: folderName, iacExts: iacExts, retriever: retriever, VersionFiles: versionFiles}
 }
 
 // Detect version (resolve and evaluate, can install depending on auto install env var).
@@ -254,7 +252,7 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 }
 
 func (m VersionManager) ReadDefaultConstraint() string {
-	if constraint := os.Getenv(m.constraintEnvName); constraint != "" {
+	if constraint := os.Getenv(m.EnvNames.constraint()); constraint != "" {
 		return constraint
 	}
 
@@ -273,9 +271,10 @@ func (m VersionManager) ResetVersion() error {
 
 // Search the requested version in version files (with fallbacks and env var overloading).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	version := os.Getenv(m.VersionEnvName)
+	versionEnvName := m.EnvNames.Version()
+	version := os.Getenv(versionEnvName)
 	if version != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, version, m.VersionEnvName), nil
+		return types.DisplayDetectionInfo(m.conf.Displayer, version, versionEnvName), nil
 	}
 
 	version, err := m.ResolveWithVersionFiles()
@@ -283,8 +282,9 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 		return version, err
 	}
 
-	if version = os.Getenv(m.defaultVersionEnvName); version != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, version, m.defaultVersionEnvName), nil
+	defaultVersionEnvName := m.EnvNames.defaultVersion()
+	if version = os.Getenv(defaultVersionEnvName); version != "" {
+		return types.DisplayDetectionInfo(m.conf.Displayer, version, defaultVersionEnvName), nil
 	}
 
 	if version, err = flatparser.RetrieveVersion(m.RootVersionFilePath(), m.conf); err != nil || version != "" {
