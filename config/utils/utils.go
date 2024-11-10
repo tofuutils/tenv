@@ -18,30 +18,29 @@
 
 package configutils
 
-import (
-	"os"
-	"strconv"
-)
+import "strconv"
 
-func GetenvBool(defaultValue bool, key string) (bool, error) {
-	if valueStr := os.Getenv(key); valueStr != "" {
+type GetenvFunc func(string) string
+
+func (getenv GetenvFunc) Bool(defaultValue bool, key string) (bool, error) {
+	if valueStr := getenv(key); valueStr != "" {
 		return strconv.ParseBool(valueStr)
 	}
 
 	return defaultValue, nil
 }
 
-func GetenvBoolFallback(defaultValue bool, keys ...string) (bool, error) {
-	if valueStr := GetenvFallback(keys...); valueStr != "" {
+func (getenv GetenvFunc) BoolFallback(defaultValue bool, keys ...string) (bool, error) {
+	if valueStr := getenv.Fallback(keys...); valueStr != "" {
 		return strconv.ParseBool(valueStr)
 	}
 
 	return defaultValue, nil
 }
 
-func GetenvFallback(keys ...string) string {
+func (getenv GetenvFunc) Fallback(keys ...string) string {
 	for _, key := range keys {
-		if value := os.Getenv(key); value != "" {
+		if value := getenv(key); value != "" {
 			return value
 		}
 	}

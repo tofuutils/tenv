@@ -16,30 +16,20 @@
  *
  */
 
-package winbin
+package versionmanager
 
-import (
-	"io"
-	"runtime"
-)
+import "github.com/tofuutils/tenv/v3/config"
 
-const (
-	suffix = ".exe"
-	osName = "windows"
-)
+type EnvPrefix string
 
-func GetBinaryName(execName string) string {
-	if runtime.GOOS != osName {
-		return execName
-	}
-
-	return execName + suffix
+func (prefix EnvPrefix) Version() string {
+	return string(prefix) + config.Version
 }
 
-func WriteSuffixTo(writer io.StringWriter) (int, error) {
-	if runtime.GOOS != osName {
-		return 0, nil
-	}
+func (prefix EnvPrefix) constraint() string {
+	return string(prefix) + config.DefaultConstraint
+}
 
-	return writer.WriteString(suffix)
+func (prefix EnvPrefix) defaultVersion() string {
+	return string(prefix) + config.DefaultVersion
 }

@@ -53,7 +53,7 @@ func Make(conf *config.Config) AtmosRetriever {
 	return AtmosRetriever{conf: conf}
 }
 
-func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
+func (r AtmosRetriever) Install(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
@@ -119,13 +119,13 @@ func (r AtmosRetriever) InstallRelease(ctx context.Context, versionStr string, t
 	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.AtmosName)), data, rwePerm)
 }
 
-func (r AtmosRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r AtmosRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.AtmosRemoteUserEnvName, config.AtmosRemotePassEnvName)
 
 	listURL := r.conf.Atmos.GetListURL()
 	switch r.conf.Atmos.GetListMode() {
@@ -157,9 +157,7 @@ func buildAssetNames(version string, arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == winbin.OsName {
-		nameBuilder.WriteString(winbin.Suffix)
-	}
+	_, _ = winbin.WriteSuffixTo(&nameBuilder)
 
 	return nameBuilder.String(), sumsAssetName
 }

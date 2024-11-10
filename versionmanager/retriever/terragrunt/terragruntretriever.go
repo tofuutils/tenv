@@ -53,7 +53,7 @@ func Make(conf *config.Config) TerragruntRetriever {
 	return TerragruntRetriever{conf: conf}
 }
 
-func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
+func (r TerragruntRetriever) Install(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
@@ -116,13 +116,13 @@ func (r TerragruntRetriever) InstallRelease(ctx context.Context, versionStr stri
 	return os.WriteFile(filepath.Join(targetPath, winbin.GetBinaryName(cmdconst.TerragruntName)), data, rwePerm)
 }
 
-func (r TerragruntRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r TerragruntRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
 
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {
@@ -150,9 +150,7 @@ func buildAssetNames(arch string) (string, string) {
 	nameBuilder.WriteString(runtime.GOOS)
 	nameBuilder.WriteByte('_')
 	nameBuilder.WriteString(arch)
-	if runtime.GOOS == winbin.OsName {
-		nameBuilder.WriteString(winbin.Suffix)
-	}
+	_, _ = winbin.WriteSuffixTo(&nameBuilder)
 
 	return nameBuilder.String(), "SHA256SUMS"
 }

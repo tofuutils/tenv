@@ -61,9 +61,9 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
-	detachproxy.InitBehaviorFromEnv(cmd)
+	detachproxy.InitBehaviorFromEnv(cmd, conf.Getenv)
 
-	cmdproxy.Run(cmd, conf.GithubActions)
+	cmdproxy.Run(cmd, conf.GithubActions, conf.Getenv)
 }
 
 func ExecPath(installPath string, version string, execName string, displayer loghelper.Displayer) string {

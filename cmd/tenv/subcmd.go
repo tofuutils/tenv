@@ -36,7 +36,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func newConstraintCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newConstraintCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Set a default constraint expression for ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -55,7 +55,7 @@ The default constraint is added while using latest-allowed, min-required or cust
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, args []string) error {
-			conf.InitDisplayer(false)
+			versionManager.Conf.InitDisplayer(false)
 
 			if len(args) == 0 || args[0] == "" {
 				return versionManager.ResetConstraint()
@@ -68,7 +68,9 @@ The default constraint is added while using latest-allowed, min-required or cust
 	return constraintCmd
 }
 
-func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -107,14 +109,16 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 	return detectCmd
 }
 
-func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newInstallCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" (into TENV_ROOT directory from ")
 	descBuilder.WriteString(params.remoteEnvName)
 	descBuilder.WriteString(" url).\n\nWithout parameter the version to use is resolved automatically via ")
-	descBuilder.WriteString(versionManager.VersionEnvName)
+	descBuilder.WriteString(versionManager.EnvNames.Version())
 	descBuilder.WriteString(` or version files
 (searched in working directory, its parents, user home directory or TENV_ROOT directory).
 Use "latest" when none are found.
@@ -159,7 +163,9 @@ If a parameter is passed, available options:
 	return installCmd
 }
 
-func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newListCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -219,7 +225,9 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	return listCmd
 }
 
-func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newListRemoteCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -278,7 +286,7 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	return listRemoteCmd
 }
 
-func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -293,7 +301,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 		Args:         cobra.NoArgs,
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			conf.InitDisplayer(false)
+			versionManager.Conf.InitDisplayer(false)
 
 			return versionManager.ResetVersion()
 		},
@@ -302,7 +310,7 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	return resetCmd
 }
 
-func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newUninstallCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -325,7 +333,7 @@ If a parameter is passed, available parameter options:
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, args []string) error {
-			conf.InitDisplayer(false)
+			versionManager.Conf.InitDisplayer(false)
 
 			if len(args) == 0 {
 				return uninstallUI(versionManager)
@@ -338,7 +346,9 @@ If a parameter is passed, available parameter options:
 	return uninstallCmd
 }
 
-func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newUseCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)

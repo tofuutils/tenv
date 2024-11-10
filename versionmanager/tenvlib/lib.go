@@ -31,8 +31,6 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager"
 	"github.com/tofuutils/tenv/v3/versionmanager/builder"
 	"github.com/tofuutils/tenv/v3/versionmanager/proxy"
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
-	flatparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/flat"
 )
 
 var errNoBuilder = errors.New("no builder for this tool")
@@ -91,7 +89,6 @@ type Tenv struct {
 	builders  map[string]builder.Func
 	conf      *config.Config
 	hclParser *hclparse.Parser
-	ignoreEnv bool
 	managers  map[string]versionmanager.VersionManager
 }
 
@@ -142,7 +139,6 @@ func Make(options ...TenvOption) (Tenv, error) {
 		builders:  builders,
 		conf:      wrapperConf.conf,
 		hclParser: wrapperConf.hclParser,
-		ignoreEnv: wrapperConf.ignoreEnv,
 		managers:  map[string]versionmanager.VersionManager{},
 	}, nil
 }
@@ -171,7 +167,7 @@ func (t Tenv) CommandProxy(ctx context.Context, toolName string, requestedVersio
 		return err
 	}
 
-	cmdproxy.Run(cmd, t.conf.GithubActions)
+	cmdproxy.Run(cmd, t.conf.GithubActions, t.conf.Getenv)
 
 	return nil
 }
@@ -183,30 +179,7 @@ func (t Tenv) Detect(ctx context.Context, toolName string) (string, error) {
 		return "", err
 	}
 
-	manager := t.managers[toolName]
-	if !t.ignoreEnv {
-		return manager.Detect(ctx, false)
-	}
-
-	resolvedVersion, err := manager.ResolveWithVersionFiles()
-	if err != nil {
-		return "", err
-	}
-
-	if resolvedVersion != "" {
-		return manager.Evaluate(ctx, resolvedVersion, false)
-	}
-
-	resolvedVersion, err = flatparser.RetrieveVersion(manager.RootVersionFilePath(), t.conf)
-	if err != nil {
-		return "", err
-	}
-
-	if resolvedVersion == "" {
-		resolvedVersion = semantic.LatestAllowedKey
-	}
-
-	return manager.Evaluate(ctx, resolvedVersion, false)
+	return t.managers[toolName].Detect(ctx, false)
 }
 
 // Use the result of Tenv.Detect to call Tenv.Command.
@@ -234,7 +207,7 @@ func (t Tenv) DetectedCommandProxy(ctx context.Context, toolName string, cmdArgs
 		return err
 	}
 
-	cmdproxy.Run(cmd, t.conf.GithubActions)
+	cmdproxy.Run(cmd, t.conf.GithubActions, t.conf.Getenv)
 
 	return nil
 }

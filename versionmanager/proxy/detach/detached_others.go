@@ -25,13 +25,16 @@ import (
 	"os/exec"
 	"syscall"
 
+	"github.com/tofuutils/tenv/v3/config"
 	configutils "github.com/tofuutils/tenv/v3/config/utils"
 )
 
-func InitBehaviorFromEnv(cmd *exec.Cmd) {
-	detached, err := configutils.GetenvBool(false, "TENV_DETACHED_PROXY")
+const msgErr = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
+
+func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
+	detached, err := getenv.Bool(false, config.TenvDetachedProxyEnvName)
 	if err != nil {
-		fmt.Println("Failed to read TENV_DETACHED_PROXY environment variable, disable behavior :", err) //nolint
+		fmt.Println(msgErr, err) //nolint
 	}
 	if !detached {
 		return

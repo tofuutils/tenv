@@ -28,6 +28,9 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+
+	"github.com/tofuutils/tenv/v3/config"
+	configutils "github.com/tofuutils/tenv/v3/config/utils"
 )
 
 const rwPerm = 0o600
@@ -35,13 +38,13 @@ const rwPerm = 0o600
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
 // Always call os.Exit.
-func Run(cmd *exec.Cmd, gha bool) {
+func Run(cmd *exec.Cmd, gha bool, getenv configutils.GetenvFunc) {
 	exitCode := 0
 	defer func() {
 		os.Exit(exitCode)
 	}()
 
-	done := initIO(cmd, &exitCode, gha)
+	done := initIO(cmd, &exitCode, gha, getenv)
 	defer done()
 
 	err := cmd.Start()
@@ -73,7 +76,7 @@ func exitWithErrorMsg(execPath string, err error, pExitCode *int) {
 	}
 }
 
-func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) func() {
+func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFunc) func() {
 	cmd.Stdin = os.Stdin
 	if !gha {
 		cmd.Stderr = os.Stderr
@@ -82,7 +85,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) func() {
 		return noAction
 	}
 
-	outputPath := os.Getenv("GITHUB_OUTPUT")
+	outputPath := getenv(config.GithubOutputEnvName)
 	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
 	if err != nil {
 		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint

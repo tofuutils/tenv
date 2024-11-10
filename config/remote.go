@@ -20,9 +20,9 @@ package config
 
 import (
 	"errors"
-	"os"
 	"strings"
 
+	configutils "github.com/tofuutils/tenv/v3/config/utils"
 	"github.com/tofuutils/tenv/v3/pkg/download"
 )
 
@@ -62,10 +62,10 @@ func makeDefaultRemoteConfig(defaultURL string, defaultBaseURL string) RemoteCon
 	}
 }
 
-func makeRemoteConfig(remoteURLEnvName string, listURLEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
+func makeRemoteConfig(getenv configutils.GetenvFunc, remoteURLEnvName string, listURLEnvName string, installModeEnvName string, listModeEnvName string, defaultURL string, defaultBaseURL string) RemoteConfig {
 	return RemoteConfig{
-		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, installMode: os.Getenv(installModeEnvName), listMode: os.Getenv(listModeEnvName),
-		listURL: os.Getenv(listURLEnvName), RemoteURLEnv: os.Getenv(remoteURLEnvName),
+		defaultBaseURL: defaultBaseURL, defaultURL: defaultURL, installMode: getenv(installModeEnvName), listMode: getenv(listModeEnvName),
+		listURL: getenv(listURLEnvName), RemoteURLEnv: getenv(remoteURLEnvName),
 	}
 }
 
@@ -144,8 +144,8 @@ func MapGetDefault(m map[string]string, key string, defaultValue string) string 
 	return defaultValue
 }
 
-func GetBasicAuthOption(userEnvName string, passEnvName string) []download.RequestOption {
-	username, password := os.Getenv(userEnvName), os.Getenv(passEnvName)
+func GetBasicAuthOption(getenv configutils.GetenvFunc, userEnvName string, passEnvName string) []download.RequestOption {
+	username, password := getenv(userEnvName), getenv(passEnvName)
 	if username == "" || password == "" {
 		return nil
 	}

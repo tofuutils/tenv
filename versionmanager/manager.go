@@ -53,9 +53,9 @@ var (
 	ErrNoCompatibleLocally = errors.New("no compatible version found locally")
 )
 
-type ReleaseInfoRetriever interface {
-	InstallRelease(ctx context.Context, version string, targetPath string) error
-	ListReleases(ctx context.Context) ([]string, error)
+type ReleaseRetriever interface {
+	Install(ctx context.Context, version string, targetPath string) error
+	ListVersions(ctx context.Context) ([]string, error)
 }
 
 type DatedVersion struct {
@@ -64,25 +64,23 @@ type DatedVersion struct {
 }
 
 type VersionManager struct {
-	conf                  *config.Config
-	constraintEnvName     string
-	FolderName            string
-	iacExts               []iacparser.ExtDescription
-	retriever             ReleaseInfoRetriever
-	VersionEnvName        string
-	defaultVersionEnvName string
-	VersionFiles          []types.VersionFile
+	Conf         *config.Config
+	EnvNames     EnvPrefix
+	FolderName   string
+	iacExts      []iacparser.ExtDescription
+	retriever    ReleaseRetriever
+	VersionFiles []types.VersionFile
 }
 
-func Make(conf *config.Config, constraintEnvName string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseInfoRetriever, versionEnvName string, defaultVersionEnvName string, versionFiles []types.VersionFile) VersionManager {
-	return VersionManager{conf: conf, constraintEnvName: constraintEnvName, FolderName: folderName, iacExts: iacExts, retriever: retriever, VersionEnvName: versionEnvName, defaultVersionEnvName: defaultVersionEnvName, VersionFiles: versionFiles}
+func Make(conf *config.Config, envPrefix string, folderName string, iacExts []iacparser.ExtDescription, retriever ReleaseRetriever, versionFiles []types.VersionFile) VersionManager {
+	return VersionManager{Conf: conf, EnvNames: EnvPrefix(envPrefix), FolderName: folderName, iacExts: iacExts, retriever: retriever, VersionFiles: versionFiles}
 }
 
 // Detect version (resolve and evaluate, can install depending on auto install env var).
 func (m VersionManager) Detect(ctx context.Context, proxyCall bool) (string, error) {
 	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
 	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
+		m.Conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
@@ -95,7 +93,7 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 	parsedVersion, err := version.NewVersion(requestedVersion)
 	if err == nil {
 		cleanedVersion := parsedVersion.String() // use a parsable version
-		if m.conf.SkipInstall {
+		if m.Conf.SkipInstall {
 			_, installed, err := m.checkVersionInstallation("", cleanedVersion)
 			if err != nil {
 				return "", err
@@ -104,7 +102,7 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 			if !installed {
 				return cleanedVersion, m.autoInstallDisabledMsg(cleanedVersion)
 			}
-			m.conf.Displayer.Flush(proxyCall)
+			m.Conf.Displayer.Flush(proxyCall)
 
 			return cleanedVersion, nil
 		}
@@ -112,41 +110,41 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 		return cleanedVersion, m.installSpecificVersion(ctx, cleanedVersion, proxyCall)
 	}
 
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.conf)
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.Conf)
 	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
+		m.Conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
 
 	installPath, err := m.InstallPath()
 	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
+		m.Conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
 
-	if !m.conf.ForceRemote {
+	if !m.Conf.ForceRemote {
 		versions, err := m.innerListLocal(installPath, predicateInfo.ReverseOrder)
 		if err != nil {
-			m.conf.Displayer.Flush(proxyCall)
+			m.Conf.Displayer.Flush(proxyCall)
 
 			return "", err
 		}
 
 		for _, version := range versions {
 			if predicateInfo.Predicate(version) {
-				m.conf.Displayer.Display("Found compatible version installed locally : " + version)
-				m.conf.Displayer.Flush(proxyCall)
+				m.Conf.Displayer.Display("Found compatible version installed locally : " + version)
+				m.Conf.Displayer.Flush(proxyCall)
 
 				return version, nil
 			}
 		}
 
-		m.conf.Displayer.Display("No compatible version found locally, search a remote one...")
+		m.Conf.Displayer.Display("No compatible version found locally, search a remote one...")
 	}
 
-	return m.searchInstallRemote(ctx, predicateInfo, m.conf.SkipInstall, proxyCall)
+	return m.searchInstallRemote(ctx, predicateInfo, m.Conf.SkipInstall, proxyCall)
 }
 
 func (m VersionManager) Install(ctx context.Context, requestedVersion string) error {
@@ -155,7 +153,7 @@ func (m VersionManager) Install(ctx context.Context, requestedVersion string) er
 		return m.installSpecificVersion(ctx, parsedVersion.String(), false) // use a parsable version
 	}
 
-	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.conf)
+	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.Conf)
 	if err != nil {
 		return err
 	}
@@ -172,7 +170,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 		return err
 	}
 
-	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -189,7 +187,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 // try to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() (string, error) {
-	dirPath := filepath.Join(m.conf.RootPath, m.FolderName)
+	dirPath := filepath.Join(m.Conf.RootPath, m.FolderName)
 
 	return dirPath, os.MkdirAll(dirPath, rwePerm)
 }
@@ -208,7 +206,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 	datedVersions := make([]DatedVersion, 0, len(versions))
 	for _, version := range versions {
 		datedVersions = append(datedVersions, DatedVersion{
-			UseDate: lastuse.Read(filepath.Join(installPath, version), m.conf.Displayer),
+			UseDate: lastuse.Read(filepath.Join(installPath, version), m.Conf.Displayer),
 			Version: version,
 		})
 	}
@@ -217,7 +215,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 }
 
 func (m VersionManager) ListRemote(ctx context.Context, reverseOrder bool) ([]string, error) {
-	versions, err := m.retriever.ListReleases(ctx)
+	versions, err := m.retriever.ListVersions(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -231,14 +229,14 @@ func (m VersionManager) ListRemote(ctx context.Context, reverseOrder bool) ([]st
 func (m VersionManager) LocalSet() map[string]struct{} {
 	installPath, err := m.InstallPath()
 	if err != nil {
-		m.conf.Displayer.Log(hclog.Warn, "Can not create installation directory", loghelper.Error, err)
+		m.Conf.Displayer.Log(hclog.Warn, "Can not create installation directory", loghelper.Error, err)
 
 		return nil
 	}
 
 	entries, err := os.ReadDir(installPath)
 	if err != nil {
-		m.conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
+		m.Conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Can not read installed versions", loghelper.Error, err)
 
 		return nil
 	}
@@ -254,28 +252,29 @@ func (m VersionManager) LocalSet() map[string]struct{} {
 }
 
 func (m VersionManager) ReadDefaultConstraint() string {
-	if constraint := os.Getenv(m.constraintEnvName); constraint != "" {
+	if constraint := m.Conf.Getenv(m.EnvNames.constraint()); constraint != "" {
 		return constraint
 	}
 
-	constraint, _ := flatparser.Retrieve(m.RootConstraintFilePath(), m.conf, flatparser.NoMsg)
+	constraint, _ := flatparser.Retrieve(m.RootConstraintFilePath(), m.Conf, flatparser.NoMsg)
 
 	return constraint
 }
 
 func (m VersionManager) ResetConstraint() error {
-	return removeFile(m.RootConstraintFilePath(), m.conf)
+	return removeFile(m.RootConstraintFilePath(), m.Conf)
 }
 
 func (m VersionManager) ResetVersion() error {
-	return removeFile(m.RootVersionFilePath(), m.conf)
+	return removeFile(m.RootVersionFilePath(), m.Conf)
 }
 
 // Search the requested version in version files (with fallbacks and env var overloading).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
-	version := os.Getenv(m.VersionEnvName)
+	versionEnvName := m.EnvNames.Version()
+	version := m.Conf.Getenv(versionEnvName)
 	if version != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, version, m.VersionEnvName), nil
+		return types.DisplayDetectionInfo(m.Conf.Displayer, version, versionEnvName), nil
 	}
 
 	version, err := m.ResolveWithVersionFiles()
@@ -283,31 +282,32 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 		return version, err
 	}
 
-	if version = os.Getenv(m.defaultVersionEnvName); version != "" {
-		return types.DisplayDetectionInfo(m.conf.Displayer, version, m.defaultVersionEnvName), nil
+	defaultVersionEnvName := m.EnvNames.defaultVersion()
+	if version = m.Conf.Getenv(defaultVersionEnvName); version != "" {
+		return types.DisplayDetectionInfo(m.Conf.Displayer, version, defaultVersionEnvName), nil
 	}
 
-	if version, err = flatparser.RetrieveVersion(m.RootVersionFilePath(), m.conf); err != nil || version != "" {
+	if version, err = flatparser.RetrieveVersion(m.RootVersionFilePath(), m.Conf); err != nil || version != "" {
 		return version, err
 	}
-	m.conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
+	m.Conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
 
 	return defaultStrategy, nil
 }
 
 // Search the requested version in version files.
 func (m VersionManager) ResolveWithVersionFiles() (string, error) {
-	return semantic.RetrieveVersion(m.VersionFiles, m.conf)
+	return semantic.RetrieveVersion(m.VersionFiles, m.Conf)
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootConstraintFilePath() string {
-	return filepath.Join(m.conf.RootPath, m.FolderName, "constraint")
+	return filepath.Join(m.Conf.RootPath, m.FolderName, "constraint")
 }
 
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) RootVersionFilePath() string {
-	return filepath.Join(m.conf.RootPath, m.FolderName, "version")
+	return filepath.Join(m.Conf.RootPath, m.FolderName, "version")
 }
 
 func (m VersionManager) SetConstraint(constraint string) error {
@@ -316,7 +316,7 @@ func (m VersionManager) SetConstraint(constraint string) error {
 		return err
 	}
 
-	return writeFile(m.RootConstraintFilePath(), constraint, m.conf)
+	return writeFile(m.RootConstraintFilePath(), constraint, m.Conf)
 }
 
 func (m VersionManager) Uninstall(requestedVersion string) error {
@@ -325,7 +325,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
-	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -342,20 +342,20 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
-	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.conf.Displayer)
+	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.Conf.Displayer)
 	if err != nil {
 		return err
 	}
 
 	if len(selected) == 0 {
-		m.conf.Displayer.Display(loghelper.Concat("No matching ", m.FolderName, " versions"))
+		m.Conf.Displayer.Display(loghelper.Concat("No matching ", m.FolderName, " versions"))
 
 		return nil
 	}
 
-	m.conf.Displayer.Display(loghelper.Concat("Selected ", m.FolderName, " versions for uninstallation :"))
-	m.conf.Displayer.Display(strings.Join(selected, ", "))
-	m.conf.Displayer.Display("Uninstall ? [y/N]")
+	m.Conf.Displayer.Display(loghelper.Concat("Selected ", m.FolderName, " versions for uninstallation :"))
+	m.Conf.Displayer.Display(strings.Join(selected, ", "))
+	m.Conf.Displayer.Display("Uninstall ? [y/N]")
 
 	buffer := make([]byte, 1)
 	if _, err = os.Stdin.Read(buffer); err != nil {
@@ -381,7 +381,7 @@ func (m VersionManager) UninstallMultiple(versions []string) error {
 		return err
 	}
 
-	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -400,7 +400,7 @@ func (m VersionManager) Use(ctx context.Context, requestedVersion string, workin
 			return err
 		}
 
-		m.conf.Displayer.Display(err.Error())
+		m.Conf.Displayer.Display(err.Error())
 	}
 
 	targetFilePath := m.VersionFiles[0].Name
@@ -408,18 +408,18 @@ func (m VersionManager) Use(ctx context.Context, requestedVersion string, workin
 		targetFilePath = m.RootVersionFilePath()
 	}
 
-	return writeFile(targetFilePath, detectedVersion, m.conf)
+	return writeFile(targetFilePath, detectedVersion, m.Conf)
 }
 
 func (m VersionManager) alreadyInstalledMsg(version string, proxyCall bool) {
-	m.conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
-	m.conf.Displayer.Flush(proxyCall)
+	m.Conf.Displayer.Display(loghelper.Concat(m.FolderName, " ", version, " already installed"))
+	m.Conf.Displayer.Flush(proxyCall)
 }
 
 func (m VersionManager) autoInstallDisabledMsg(version string) error {
 	cmdName := strings.ToLower(m.FolderName)
-	m.conf.Displayer.Flush(false) // Always normal display when installation is missing
-	m.conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", m.FolderName, " version ", version, ", you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
+	m.Conf.Displayer.Flush(false) // Always normal display when installation is missing
+	m.Conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", m.FolderName, " version ", version, ", you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
 
 	return ErrNoCompatibleLocally
 }
@@ -465,7 +465,7 @@ func (m VersionManager) innerListLocal(installPath string, reverseOrder bool) ([
 
 func (m VersionManager) installSpecificVersion(ctx context.Context, version string, proxyCall bool) error {
 	if version == "" {
-		m.conf.Displayer.Flush(proxyCall)
+		m.Conf.Displayer.Flush(proxyCall)
 
 		return errEmptyVersion
 	}
@@ -482,7 +482,7 @@ func (m VersionManager) installSpecificVersion(ctx context.Context, version stri
 		return nil
 	}
 
-	deleteLock := lockfile.Write(installPath, m.conf.Displayer)
+	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -504,12 +504,12 @@ func (m VersionManager) installSpecificVersionWithoutLock(ctx context.Context, i
 	}
 
 	// Always normal display when installation is needed
-	m.conf.Displayer.Flush(false)
-	m.conf.Displayer.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
+	m.Conf.Displayer.Flush(false)
+	m.Conf.Displayer.Display(loghelper.Concat("Installing ", m.FolderName, " ", version))
 
-	err = m.retriever.InstallRelease(ctx, version, filepath.Join(installPath, version))
+	err = m.retriever.Install(ctx, version, filepath.Join(installPath, version))
 	if err == nil {
-		m.conf.Displayer.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
+		m.Conf.Displayer.Display(loghelper.Concat("Installation of ", m.FolderName, " ", version, " successful"))
 	}
 
 	return err
@@ -518,14 +518,14 @@ func (m VersionManager) installSpecificVersionWithoutLock(ctx context.Context, i
 func (m VersionManager) searchInstallRemote(ctx context.Context, predicateInfo types.PredicateInfo, noInstall bool, proxyCall bool) (string, error) {
 	versions, err := m.ListRemote(ctx, predicateInfo.ReverseOrder)
 	if err != nil {
-		m.conf.Displayer.Flush(proxyCall)
+		m.Conf.Displayer.Flush(proxyCall)
 
 		return "", err
 	}
 
 	for _, version := range versions {
 		if predicateInfo.Predicate(version) {
-			m.conf.Displayer.Display("Found compatible version remotely : " + version)
+			m.Conf.Displayer.Display("Found compatible version remotely : " + version)
 			if noInstall {
 				return version, m.autoInstallDisabledMsg(version)
 			}
@@ -533,14 +533,14 @@ func (m VersionManager) searchInstallRemote(ctx context.Context, predicateInfo t
 			return version, m.installSpecificVersion(ctx, version, proxyCall)
 		}
 	}
-	m.conf.Displayer.Flush(proxyCall)
+	m.Conf.Displayer.Flush(proxyCall)
 
 	return "", errNoCompatible
 }
 
 func (m VersionManager) uninstallSpecificVersion(installPath string, version string) {
 	if version == "" {
-		m.conf.Displayer.Display(errEmptyVersion.Error())
+		m.Conf.Displayer.Display(errEmptyVersion.Error())
 
 		return
 	}
@@ -548,9 +548,9 @@ func (m VersionManager) uninstallSpecificVersion(installPath string, version str
 	targetPath := filepath.Join(installPath, version)
 	err := os.RemoveAll(targetPath)
 	if err == nil {
-		m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " successful (directory ", targetPath, " removed)"))
+		m.Conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " successful (directory ", targetPath, " removed)"))
 	} else {
-		m.conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " failed with error : ", err.Error()))
+		m.Conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " failed with error : ", err.Error()))
 	}
 }
 

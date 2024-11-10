@@ -69,7 +69,7 @@ func Make(conf *config.Config) TofuRetriever {
 	return TofuRetriever{conf: conf}
 }
 
-func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, targetPath string) error {
+func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPath string) error {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 	case config.ModeAPI:
 		assetURLs, err = github.AssetDownloadURL(ctx, tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	case modeMirroring:
-		urlTemplate := os.Getenv(config.TofuURLTemplateEnvName)
+		urlTemplate := r.conf.Getenv(config.TofuURLTemplateEnvName)
 		if urlTemplate == "" {
 			urlTemplate = defaultTofuURLTemplate
 		}
@@ -130,7 +130,7 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
 	if err != nil {
 		return err
@@ -143,13 +143,13 @@ func (r TofuRetriever) InstallRelease(ctx context.Context, versionStr string, ta
 	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TofuName)))
 }
 
-func (r TofuRetriever) ListReleases(ctx context.Context) ([]string, error) {
+func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	err := r.conf.InitRemoteConf()
 	if err != nil {
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
 
 	listURL := r.conf.Tofu.GetListURL()
 	switch r.conf.Tofu.GetListMode() {
