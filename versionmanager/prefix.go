@@ -22,12 +22,12 @@ import "github.com/tofuutils/tenv/v3/config"
 
 type EnvPrefix string
 
-func (prefix EnvPrefix) constraint() string {
-	return string(prefix) + config.DefaultConstraint
-}
-
 func (prefix EnvPrefix) Version() string {
 	return string(prefix) + config.Version
+}
+
+func (prefix EnvPrefix) constraint() string {
+	return string(prefix) + config.DefaultConstraint
 }
 
 func (prefix EnvPrefix) defaultVersion() string {
