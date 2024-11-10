@@ -27,13 +27,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+
 	"github.com/tofuutils/tenv/v3/config"
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 	"github.com/tofuutils/tenv/v3/versionmanager"
 	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 func newConstraintCmd(versionManager versionmanager.VersionManager) *cobra.Command {

@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
+
 	"github.com/tofuutils/tenv/v3/pkg/loghelper"
 	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
 )

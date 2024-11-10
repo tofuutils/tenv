@@ -26,6 +26,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/hashicorp/go-hclog"
+
 	"github.com/tofuutils/tenv/v3/config"
 	"github.com/tofuutils/tenv/v3/config/cmdconst"
 	"github.com/tofuutils/tenv/v3/pkg/apimsg"
@@ -34,8 +36,6 @@ import (
 	"github.com/tofuutils/tenv/v3/pkg/github"
 	"github.com/tofuutils/tenv/v3/pkg/winbin"
 	htmlretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/html"
-
-	"github.com/hashicorp/go-hclog"
 )
 
 const (
