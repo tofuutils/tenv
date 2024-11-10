@@ -37,8 +37,6 @@ import (
 )
 
 func newConstraintCmd(versionManager versionmanager.VersionManager) *cobra.Command {
-	conf := versionManager.Conf
-
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Set a default constraint expression for ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -57,7 +55,7 @@ The default constraint is added while using latest-allowed, min-required or cust
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, args []string) error {
-			conf.InitDisplayer(false)
+			versionManager.Conf.InitDisplayer(false)
 
 			if len(args) == 0 || args[0] == "" {
 				return versionManager.ResetConstraint()
@@ -289,8 +287,6 @@ func newListRemoteCmd(versionManager versionmanager.VersionManager, params subCm
 }
 
 func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
-	conf := versionManager.Conf
-
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -305,7 +301,7 @@ func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 		Args:         cobra.NoArgs,
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			conf.InitDisplayer(false)
+			versionManager.Conf.InitDisplayer(false)
 
 			return versionManager.ResetVersion()
 		},
@@ -315,8 +311,6 @@ func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 }
 
 func newUninstallCmd(versionManager versionmanager.VersionManager) *cobra.Command {
-	conf := versionManager.Conf
-
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -339,7 +333,7 @@ If a parameter is passed, available parameter options:
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, args []string) error {
-			conf.InitDisplayer(false)
+			versionManager.Conf.InitDisplayer(false)
 
 			if len(args) == 0 {
 				return uninstallUI(versionManager)
