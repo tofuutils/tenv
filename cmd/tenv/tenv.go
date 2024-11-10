@@ -175,8 +175,8 @@ func manageHiddenCallCmd(conf *config.Config, hclParser *hclparse.Parser) {
 	}
 
 	calledNamed, cmdArgs := os.Args[2], os.Args[3:]
-	if builder, ok := builder.Builders[calledNamed]; ok {
-		proxy.Exec(conf, builder, hclParser, calledNamed, cmdArgs)
+	if builderFunc, ok := builder.Builders[calledNamed]; ok {
+		proxy.Exec(conf, builderFunc, hclParser, calledNamed, cmdArgs)
 	} else if calledNamed == cmdconst.AgnosticName {
 		proxy.ExecAgnostic(conf, hclParser, cmdArgs)
 	}
