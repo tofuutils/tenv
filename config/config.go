@@ -204,6 +204,7 @@ func InitConfigFromEnv() (Config, error) {
 		Atmos:          makeRemoteConfig(getenv, AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
+		Getenv:         getenv,
 		GithubActions:  gha,
 		GithubToken:    getenv.Fallback(tenvTokenEnvName, tofuTokenEnvName),
 		RemoteConfPath: getenv(tenvRemoteConfEnvName),
