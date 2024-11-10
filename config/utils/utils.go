@@ -18,9 +18,7 @@
 
 package configutils
 
-import (
-	"strconv"
-)
+import "strconv"
 
 type GetenvFunc func(string) string
 
