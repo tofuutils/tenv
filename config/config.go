@@ -56,7 +56,7 @@ const (
 	githubPrefix         = "GITHUB_"
 	githubActionsEnvName = githubPrefix + "ACTIONS"
 	GithubOutputEnvName  = githubPrefix + "OUTPUT"
-	tokenEnvName         = githubPrefix + "TOKEN" //nolint
+	tokenEnvName         = githubPrefix + "TOKEN"
 
 	AtmosPrefix             = "ATMOS_"
 	atmosInstallModeEnvName = AtmosPrefix + installModeEnvName
