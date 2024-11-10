@@ -36,7 +36,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func newConstraintCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newConstraintCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Set a default constraint expression for ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -68,7 +70,9 @@ The default constraint is added while using latest-allowed, min-required or cust
 	return constraintCmd
 }
 
-func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Display ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -107,7 +111,9 @@ func newDetectCmd(conf *config.Config, versionManager versionmanager.VersionMana
 	return detectCmd
 }
 
-func newInstallCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newInstallCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Install a specific version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -159,7 +165,9 @@ If a parameter is passed, available options:
 	return installCmd
 }
 
-func newListCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newListCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installed ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -219,7 +227,9 @@ func newListCmd(conf *config.Config, versionManager versionmanager.VersionManage
 	return listCmd
 }
 
-func newListRemoteCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newListRemoteCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("List installable ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -278,7 +288,9 @@ func newListRemoteCmd(conf *config.Config, versionManager versionmanager.Version
 	return listRemoteCmd
 }
 
-func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Reset used version of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -302,7 +314,9 @@ func newResetCmd(conf *config.Config, versionManager versionmanager.VersionManag
 	return resetCmd
 }
 
-func newUninstallCmd(conf *config.Config, versionManager versionmanager.VersionManager) *cobra.Command {
+func newUninstallCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -338,7 +352,9 @@ If a parameter is passed, available parameter options:
 	return uninstallCmd
 }
 
-func newUseCmd(conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+func newUseCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
+	conf := versionManager.Conf
+
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Switch the default ")
 	descBuilder.WriteString(versionManager.FolderName)

@@ -104,7 +104,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
-	initSubCmds(tofuCmd, conf, builder.BuildTofuManager(conf, hclParser), tofuParams)
+	initSubCmds(tofuCmd, builder.BuildTofuManager(conf, hclParser), tofuParams)
 
 	rootCmd.AddCommand(tofuCmd)
 
@@ -119,7 +119,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 		needToken: false, remoteEnvName: config.TfRemoteURLEnvName,
 		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
-	initSubCmds(tfCmd, conf, builder.BuildTfManager(conf, hclParser), tfParams)
+	initSubCmds(tfCmd, builder.BuildTfManager(conf, hclParser), tfParams)
 
 	rootCmd.AddCommand(tfCmd)
 
@@ -133,7 +133,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	tgParams := subCmdParams{
 		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.Tg.RemoteURL,
 	}
-	initSubCmds(tgCmd, conf, builder.BuildTgManager(conf, hclParser), tgParams)
+	initSubCmds(tgCmd, builder.BuildTgManager(conf, hclParser), tgParams)
 
 	rootCmd.AddCommand(tgCmd)
 
@@ -147,7 +147,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	atmosParams := subCmdParams{
 		needToken: true, remoteEnvName: config.AtmosRemoteURLEnvName, pRemote: &conf.Atmos.RemoteURL,
 	}
-	initSubCmds(atmosCmd, conf, builder.BuildAtmosManager(conf, hclParser), atmosParams)
+	initSubCmds(atmosCmd, builder.BuildAtmosManager(conf, hclParser), atmosParams)
 
 	rootCmd.AddCommand(atmosCmd)
 
@@ -236,13 +236,13 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 	}
 }
 
-func initSubCmds(cmd *cobra.Command, conf *config.Config, versionManager versionmanager.VersionManager, params subCmdParams) {
-	cmd.AddCommand(newConstraintCmd(conf, versionManager))
-	cmd.AddCommand(newDetectCmd(conf, versionManager, params))
-	cmd.AddCommand(newInstallCmd(conf, versionManager, params))
-	cmd.AddCommand(newListCmd(conf, versionManager))
-	cmd.AddCommand(newListRemoteCmd(conf, versionManager, params))
-	cmd.AddCommand(newResetCmd(conf, versionManager))
-	cmd.AddCommand(newUninstallCmd(conf, versionManager))
-	cmd.AddCommand(newUseCmd(conf, versionManager, params))
+func initSubCmds(cmd *cobra.Command, versionManager versionmanager.VersionManager, params subCmdParams) {
+	cmd.AddCommand(newConstraintCmd(versionManager))
+	cmd.AddCommand(newDetectCmd(versionManager, params))
+	cmd.AddCommand(newInstallCmd(versionManager, params))
+	cmd.AddCommand(newListCmd(versionManager))
+	cmd.AddCommand(newListRemoteCmd(versionManager, params))
+	cmd.AddCommand(newResetCmd(versionManager))
+	cmd.AddCommand(newUninstallCmd(versionManager))
+	cmd.AddCommand(newUseCmd(versionManager, params))
 }
