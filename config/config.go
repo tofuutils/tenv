@@ -189,7 +189,7 @@ func InitConfigFromEnv() (Config, error) {
 		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
-	quiet, err := getenv.BoolFallback(false, tenvQuietEnvName)
+	quiet, err := getenv.Bool(false, tenvQuietEnvName)
 	if err != nil {
 		return Config{}, err
 	}
