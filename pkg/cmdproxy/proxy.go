@@ -28,6 +28,8 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+
+	"github.com/tofuutils/tenv/v3/config"
 )
 
 const rwPerm = 0o600
@@ -82,7 +84,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool) func() {
 		return noAction
 	}
 
-	outputPath := os.Getenv("GITHUB_OUTPUT")
+	outputPath := os.Getenv(config.GithubOutputEnvName)
 	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
 	if err != nil {
 		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint

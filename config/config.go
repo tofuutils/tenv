@@ -35,8 +35,7 @@ import (
 )
 
 const (
-	defaultDirName       = ".tenv"
-	githubActionsEnvName = "GITHUB_ACTIONS"
+	defaultDirName = ".tenv"
 
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
@@ -52,8 +51,12 @@ const (
 	remoteURLEnvName   = "REMOTE"
 	remoteUserEnvName  = "REMOTE_USER"
 	rootPathEnvName    = "ROOT"
-	tokenEnvName       = "GITHUB_TOKEN" //nolint
 	version            = "VERSION"
+
+	githubPrefix         = "GITHUB_"
+	githubActionsEnvName = githubPrefix + "ACTIONS"
+	GithubOutputEnvName  = githubPrefix + "OUTPUT"
+	tokenEnvName         = githubPrefix + "TOKEN" //nolint
 
 	atmosPrefix                   = "ATMOS_"
 	AtmosDefaultConstraintEnvName = atmosPrefix + defaultConstraint
@@ -66,15 +69,16 @@ const (
 	AtmosRemoteUserEnvName        = atmosPrefix + remoteUserEnvName
 	AtmosVersionEnvName           = atmosPrefix + version
 
-	tenvPrefix             = "TENV_"
-	tenvArchEnvName        = tenvPrefix + archEnvName
-	tenvAutoInstallEnvName = tenvPrefix + autoInstallEnvName
-	tenvForceRemoteEnvName = tenvPrefix + forceRemoteEnvName
-	tenvLogEnvName         = tenvPrefix + logEnvName
-	tenvQuietEnvName       = tenvPrefix + quietEnvName
-	tenvRemoteConfEnvName  = tenvPrefix + "REMOTE_CONF"
-	tenvRootPathEnvName    = tenvPrefix + rootPathEnvName
-	tenvTokenEnvName       = tenvPrefix + tokenEnvName
+	tenvPrefix               = "TENV_"
+	tenvArchEnvName          = tenvPrefix + archEnvName
+	tenvAutoInstallEnvName   = tenvPrefix + autoInstallEnvName
+	TenvDetachedProxyEnvName = tenvPrefix + "DETACHED_PROXY"
+	tenvForceRemoteEnvName   = tenvPrefix + forceRemoteEnvName
+	tenvLogEnvName           = tenvPrefix + logEnvName
+	tenvQuietEnvName         = tenvPrefix + quietEnvName
+	tenvRemoteConfEnvName    = tenvPrefix + "REMOTE_CONF"
+	tenvRootPathEnvName      = tenvPrefix + rootPathEnvName
+	tenvTokenEnvName         = tenvPrefix + tokenEnvName
 
 	tfenvPrefix                = "TFENV_"
 	tfenvTerraformPrefix       = tfenvPrefix + "TERRAFORM_"
