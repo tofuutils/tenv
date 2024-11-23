@@ -142,12 +142,13 @@ func checkRateLimit(resp *http.Response) error {
 	if rateLimitRemaining == "0" {
 		return apimsg.ErrRateLimit
 	}
+
 	return nil
 }
 
 func downloadWithHeaders(ctx context.Context, url string, modifyRequest func(*http.Request)) (*http.Response, error) {
 	client := &http.Client{}
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +159,7 @@ func downloadWithHeaders(ctx context.Context, url string, modifyRequest func(*ht
 	if err != nil {
 		return nil, err
 	}
+
 	return resp, nil
 }
 
