@@ -95,7 +95,7 @@ func (r TerraformRetriever) Install(ctx context.Context, version string, targetP
 
 		r.conf.Displayer.Display(apimsg.MsgFetchRelease + versionURL)
 
-		value, err := download.JSON(ctx, versionURL, download.NoDisplay, requestOptions...)
+		value, err := download.JSON(ctx, versionURL, download.NoDisplay, download.NoCheck, requestOptions...)
 		if err != nil {
 			return err
 		}
@@ -124,7 +124,7 @@ func (r TerraformRetriever) Install(ctx context.Context, version string, targetP
 		return err
 	}
 
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) 
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
 
-		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, requestOptions...)
+		value, err := download.JSON(ctx, releasesURL, download.NoDisplay, download.NoCheck, requestOptions...)
 		if err != nil {
 			return nil, err
 		}
@@ -174,7 +174,7 @@ func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) 
 }
 
 func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, options []download.RequestOption) error {
-	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, options...)
+	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
 	}
@@ -187,14 +187,14 @@ func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string,
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, options...)
+	dataSumsSig, err := download.Bytes(ctx, downloadSumsSigURL, r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display)
+		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display, download.NoCheck)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
 	}

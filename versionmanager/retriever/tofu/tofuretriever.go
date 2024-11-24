@@ -131,7 +131,7 @@ func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPat
 	}
 
 	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + listURL)
 
-		value, err := download.JSON(ctx, listURL, download.NoDisplay, requestOptions...)
+		value, err := download.JSON(ctx, listURL, download.NoDisplay, download.NoCheck, requestOptions...)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +185,7 @@ func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 }
 
 func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, options []download.RequestOption) error {
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, options...)
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
 	}
@@ -198,12 +198,12 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 		return nil
 	}
 
-	dataSumsSig, err := download.Bytes(ctx, assetURLs[3], r.conf.Displayer.Display, options...)
+	dataSumsSig, err := download.Bytes(ctx, assetURLs[3], r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
 	}
 
-	dataSumsCert, err := download.Bytes(ctx, assetURLs[2], r.conf.Displayer.Display, options...)
+	dataSumsCert, err := download.Bytes(ctx, assetURLs[2], r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
 	}
@@ -222,14 +222,14 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 
 	r.conf.Displayer.Display("cosign executable not found, fallback to pgp check")
 
-	dataSumsSig, err = download.Bytes(ctx, assetURLs[4], r.conf.Displayer.Display, options...)
+	dataSumsSig, err = download.Bytes(ctx, assetURLs[4], r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
 	}
 
 	var dataPublicKey []byte
 	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display)
+		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display, download.NoCheck)
 	} else {
 		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
 	}

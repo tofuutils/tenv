@@ -29,7 +29,7 @@ import (
 )
 
 func Request(ctx context.Context, callURL string, selector string, extractor func(*goquery.Selection) string, ro ...download.RequestOption) ([]string, error) {
-	data, err := download.Bytes(ctx, callURL, download.NoDisplay, ro...)
+	data, err := download.Bytes(ctx, callURL, download.NoDisplay, download.NoCheck, ro...)
 	if err != nil {
 		return nil, err
 	}
