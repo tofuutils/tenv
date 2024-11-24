@@ -28,6 +28,7 @@ const (
 )
 
 var (
-	ErrAsset  = errors.New("searched asset not found")
-	ErrReturn = errors.New("unexpected value returned by API")
+	ErrAsset     = errors.New("searched asset not found")
+	ErrReturn    = errors.New("unexpected value returned by API")
+	ErrRateLimit = errors.New("you are rate-limited by GitHub. Consider using a token by setting the TENV_GITHUB_TOKEN env variable to increase the rate limit")
 )
