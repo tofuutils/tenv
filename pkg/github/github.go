@@ -20,13 +20,13 @@ package github
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/tofuutils/tenv/v3/pkg/apimsg"
+	"github.com/tofuutils/tenv/v3/pkg/download"
 	versionfinder "github.com/tofuutils/tenv/v3/versionmanager/semantic/finder"
 )
 
@@ -113,28 +113,13 @@ func ListReleases(ctx context.Context, githubReleaseURL string, githubToken stri
 }
 
 func apiGetRequest(ctx context.Context, callURL string, authorizationHeader string) (any, error) {
-	resp, err := downloadWithHeaders(ctx, callURL, func(request *http.Request) {
+	return download.JSON(ctx, callURL, download.NoDisplay, checkRateLimit, func(request *http.Request) {
 		request.Header.Set("Accept", "application/vnd.github+json")
 		if authorizationHeader != "" {
 			request.Header.Set("Authorization", authorizationHeader)
 		}
 		request.Header.Set("X-GitHub-Api-Version", "2022-11-28") //nolint
 	})
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if err := checkRateLimit(resp); err != nil {
-		return nil, err
-	}
-
-	var result any
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, apimsg.ErrReturn
-	}
-
-	return result, nil
 }
 
 func checkRateLimit(resp *http.Response) error {
@@ -144,23 +129,6 @@ func checkRateLimit(resp *http.Response) error {
 	}
 
 	return nil
-}
-
-func downloadWithHeaders(ctx context.Context, url string, modifyRequest func(*http.Request)) (*http.Response, error) {
-	client := &http.Client{}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	if modifyRequest != nil {
-		modifyRequest(req)
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
 }
 
 func buildAuthorizationHeader(token string) string {

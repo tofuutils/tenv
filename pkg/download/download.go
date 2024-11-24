@@ -28,6 +28,8 @@ import (
 
 type RequestOption = func(*http.Request)
 
+type ResponseChecker = func(*http.Response) error
+
 func ApplyURLTransformer(urlTransformer URLTransformer, baseURLs ...string) ([]string, error) {
 	transformedURLs := make([]string, len(baseURLs))
 	for index, baseURL := range baseURLs {
@@ -42,7 +44,7 @@ func ApplyURLTransformer(urlTransformer URLTransformer, baseURLs ...string) ([]s
 	return transformedURLs, nil
 }
 
-func Bytes(ctx context.Context, url string, display func(string), requestOptions ...RequestOption) ([]byte, error) {
+func Bytes(ctx context.Context, url string, display func(string), checker ResponseChecker, requestOptions ...RequestOption) ([]byte, error) {
 	display("Downloading " + url)
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
@@ -60,11 +62,15 @@ func Bytes(ctx context.Context, url string, display func(string), requestOptions
 	}
 	defer response.Body.Close()
 
+	if err = checker(response); err != nil {
+		return nil, err
+	}
+
 	return io.ReadAll(response.Body)
 }
 
-func JSON(ctx context.Context, url string, display func(string), requestOptions ...RequestOption) (any, error) {
-	data, err := Bytes(ctx, url, display, requestOptions...)
+func JSON(ctx context.Context, url string, display func(string), checker ResponseChecker, requestOptions ...RequestOption) (any, error) {
+	data, err := Bytes(ctx, url, display, checker, requestOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -102,4 +108,8 @@ func WithBasicAuth(username string, password string) RequestOption {
 
 func NoTransform(value string) (string, error) {
 	return value, nil
+}
+
+func NoCheck(*http.Response) error {
+	return nil
 }

@@ -94,12 +94,12 @@ func (r TerragruntRetriever) Install(ctx context.Context, versionStr string, tar
 	}
 
 	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
-	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, requestOptions...)
+	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
 	if err != nil {
 		return err
 	}
 
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, requestOptions...)
+	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
 	if err != nil {
 		return err
 	}
