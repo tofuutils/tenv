@@ -1,0 +1,76 @@
+---
+name: "Create new release tag"
+
+on:
+  workflow_dispatch:
+    inputs:
+      increment_type:
+        description: 'Type of version increment (patch, minor, major)'
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  create-new-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          latest_tag=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
+          echo "[INFO] Latest tag: ${latest_tag}"
+          echo "::set-output name=latest_tag::${latest_tag}"
+
+      - name: Increment version
+        id: increment_version
+        run: |
+          increment_type="${{ github.event.inputs.increment_type }}"
+          if [ -z "${{ steps.get_latest_tag.outputs.latest_tag }}" ]; then
+            new_tag="v1.0.0"
+          else
+            latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+            major=$(echo "${latest_tag}" | cut -d'.' -f1 | cut -c2-)
+            minor=$(echo "${latest_tag}" | cut -d'.' -f2)
+            patch=$(echo "${latest_tag}" | cut -d'.' -f3)
+
+            case $increment_type in
+              patch)
+                new_patch=$((patch + 1))
+                new_tag="v${major}.${minor}.${new_patch}"
+                ;;
+              minor)
+                new_minor=$((minor + 1))
+                new_tag="v${major}.${new_minor}.0"
+                ;;
+              major)
+                new_major=$((major + 1))
+                new_tag="v${new_major}.0.0"
+                ;;
+              *)
+                echo "Invalid increment type: $increment_type"
+                exit 1
+                ;;
+            esac
+          fi
+          echo "[INFO] New tag: ${new_tag}"
+          echo "::set-output name=new_tag::${new_tag}"
+
+      - name: Create new tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          new_tag="${{ steps.increment_version.outputs.new_tag }}"
+          git tag "${new_tag}"
+          git push origin "${new_tag}"
