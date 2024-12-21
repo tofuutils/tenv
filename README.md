@@ -1407,6 +1407,7 @@ The version resolution order is :
 
 - TOFUENV_TOFU_VERSION environment variable
 - `.opentofu-version` file
+- `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terraform_version_constraint` from `terragrunt.hcl` file
 - `terraform_version_constraint` from `terragrunt.hcl.json` file
 - TOFUENV_TOFU_DEFAULT_VERSION environment variable
@@ -1426,6 +1427,7 @@ The version resolution order is :
 - TFENV_TERRAFORM_VERSION environment variable
 - `.terraform-version` file
 - `.tfswitchrc` file
+- `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terraform_version_constraint` from `terragrunt.hcl` file
 - `terraform_version_constraint` from `terragrunt.hcl.json` file
 - TFENV_TERRAFORM_DEFAULT_VERSION environment variable
@@ -1447,6 +1449,7 @@ The version resolution order is :
 - `.terragrunt-version` file
 - `.tgswitchrc` file
 - `version` from `tgswitch.toml` file
+- `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terragrunt_version_constraint` from `terragrunt.hcl` file
 - `terragrunt_version_constraint` from `terragrunt.hcl.json` file
 - TG_DEFAULT_VERSION environment variable
@@ -1465,6 +1468,7 @@ The version resolution order is :
 
 - ATMOS_VERSION environment variable
 - `.atmos-version` file
+- `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - ATMOS_DEFAULT_VERSION environment variable
 - `${TENV_ROOT}/Atmos/version` file (can be written with `tenv atmos use`)
 - `latest-allowed`
