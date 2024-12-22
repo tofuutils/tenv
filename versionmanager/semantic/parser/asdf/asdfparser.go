@@ -75,7 +75,7 @@ func parseVersionFromToolFileReader(filePath string, reader io.Reader, toolName 
 
 		parts := strings.Fields(trimmedLine)
 		if len(parts) >= 2 && parts[0] == toolName {
-			resolvedVersion, _, _ = strings.Cut(parts[1], "#") // handle comment no separated by space
+			resolvedVersion, _, _ = strings.Cut(parts[1], "#") // handle comment not separated by space
 		}
 	}
 
