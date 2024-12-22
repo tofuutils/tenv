@@ -21,6 +21,7 @@ package asdfparser
 import (
 	"bufio"
 	"errors"
+	"io"
 	"io/fs"
 	"os"
 	"strings"
@@ -59,8 +60,12 @@ func retrieveVersionFromToolFile(filePath, toolName string, conf *config.Config)
 	}
 	defer file.Close()
 
+	return parseVersionFromToolFileReader(filePath, file, toolName, conf.Displayer)
+}
+
+func parseVersionFromToolFileReader(filePath string, reader io.Reader, toolName string, displayer loghelper.Displayer) (string, error) {
 	resolvedVersion := ""
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		trimmedLine := strings.TrimSpace(scanner.Text())
 
@@ -78,7 +83,7 @@ func retrieveVersionFromToolFile(filePath, toolName string, conf *config.Config)
 	}
 
 	if err := scanner.Err(); err != nil {
-		conf.Displayer.Log(hclog.Warn, "Failed to parse tool file", loghelper.Error, err)
+		displayer.Log(hclog.Warn, "Failed to parse tool file", loghelper.Error, err)
 
 		return "", nil
 	}
@@ -87,5 +92,5 @@ func retrieveVersionFromToolFile(filePath, toolName string, conf *config.Config)
 		return "", nil
 	}
 
-	return types.DisplayDetectionInfo(conf.Displayer, resolvedVersion, filePath), nil
+	return types.DisplayDetectionInfo(displayer, resolvedVersion, filePath), nil
 }
