@@ -639,9 +639,9 @@ If set to true **tenv** will automatically install missing tool versions needed.
 
 <details><summary><b>TENV_DETACHED_PROXY</b></summary><br>
 
-String (Default: false)
+String (Default: false on Windows OS, true on other OS)
 
-Enable **tenv** proxies detached behaviour (use a new process group id when launching tool command, allow to avoid killing proxied tool process earlier than expected when proxies redirect interrupt signal already sended to whole process group (issue occurrences known on macOS)).
+Enable **tenv** proxies detached behaviour (use a new process group id when launching tool command, allow to avoid killing proxied tool process earlier than expected when proxies redirect interrupt signal already sended to whole process group (issue occurrences known on macOS and Linux)).
 
 </details>
 
