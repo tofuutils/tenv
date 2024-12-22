@@ -60,10 +60,10 @@ func retrieveVersionFromToolFile(filePath, toolName string, conf *config.Config)
 	}
 	defer file.Close()
 
-	return parseVersionFromToolFileReader(filePath, file, toolName, conf.Displayer)
+	return parseVersionFromToolFileReader(filePath, file, toolName, conf.Displayer), nil
 }
 
-func parseVersionFromToolFileReader(filePath string, reader io.Reader, toolName string, displayer loghelper.Displayer) (string, error) {
+func parseVersionFromToolFileReader(filePath string, reader io.Reader, toolName string, displayer loghelper.Displayer) string {
 	resolvedVersion := ""
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
@@ -75,19 +75,19 @@ func parseVersionFromToolFileReader(filePath string, reader io.Reader, toolName 
 
 		parts := strings.Fields(trimmedLine)
 		if len(parts) >= 2 && parts[0] == toolName {
-			resolvedVersion, _, _ = strings.Cut(parts[1], "#") // handle comment no separeted by space
+			resolvedVersion, _, _ = strings.Cut(parts[1], "#") // handle comment no separated by space
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
 		displayer.Log(hclog.Warn, "Failed to parse tool file", loghelper.Error, err)
 
-		return "", nil
+		return ""
 	}
 
 	if resolvedVersion == "" {
-		return "", nil
+		return ""
 	}
 
-	return types.DisplayDetectionInfo(displayer, resolvedVersion, filePath), nil
+	return types.DisplayDetectionInfo(displayer, resolvedVersion, filePath)
 }
