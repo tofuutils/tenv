@@ -53,4 +53,15 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 			t.Fatal("Unexpected version : ", version)
 		}
 	})
+
+	t.Run("LineFallback", func(t *testing.T) {
+		version, err := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "python", loghelper.InertDisplayer)
+		if err != nil {
+			t.Fatal("Unexpected parse error : ", err)
+		}
+
+		if version != "3.7.2" {
+			t.Fatal("Unexpected version : ", version)
+		}
+	})
 }
