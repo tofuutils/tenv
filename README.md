@@ -1487,15 +1487,13 @@ The `tf` command is a proxy to `tofu` or `terraform` depending on the version fi
 The version resolution order is :
 
 - `.opentofu-version` file (launch `tofu`)
+- `tofu` version from `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terraform_version_constraint` from `terragrunt.hcl` file (launch `tofu`)
 - `terraform_version_constraint` from `terragrunt.hcl.json` file (launch `tofu`)
-- `tofu` version from `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `.terraform-version` file (launch `terraform`)
 - `.tfswitchrc` file  (launch `terraform`)
 - `terraform` version from `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
-
 - fail with a message
-
 
 </details>
 
