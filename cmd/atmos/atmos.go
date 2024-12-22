@@ -19,8 +19,8 @@
 package main
 
 import (
-	"github.com/tofuutils/tenv/v3/config/cmdconst"
-	lightproxy "github.com/tofuutils/tenv/v3/versionmanager/proxy/light"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	lightproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/light"
 )
 
 func main() {

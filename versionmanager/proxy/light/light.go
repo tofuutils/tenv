@@ -25,8 +25,8 @@ import (
 	"os/exec"
 	"os/signal"
 
-	"github.com/tofuutils/tenv/v3/config/cmdconst"
-	detachproxy "github.com/tofuutils/tenv/v3/versionmanager/proxy/detach"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	detachproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/detach"
 )
 
 func Exec(execName string) {

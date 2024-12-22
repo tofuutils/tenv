@@ -27,8 +27,8 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
-	"github.com/tofuutils/tenv/v3/versionmanager/lastuse"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
 )
 
 const (

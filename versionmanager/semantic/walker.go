@@ -21,8 +21,8 @@ package semantic
 import (
 	"path/filepath"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
 )
 
 func RetrieveVersion(versionFiles []types.VersionFile, conf *config.Config) (string, error) {

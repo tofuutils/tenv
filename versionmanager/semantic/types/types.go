@@ -19,8 +19,8 @@
 package types
 
 import (
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 type ConstraintInfo interface {

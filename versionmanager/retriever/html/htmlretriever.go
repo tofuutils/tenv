@@ -24,10 +24,10 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/pkg/download"
-	"github.com/tofuutils/tenv/v3/pkg/htmlquery"
-	versionfinder "github.com/tofuutils/tenv/v3/versionmanager/semantic/finder"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/pkg/download"
+	"github.com/tofuutils/tenv/v4/pkg/htmlquery"
+	versionfinder "github.com/tofuutils/tenv/v4/versionmanager/semantic/finder"
 )
 
 func BuildAssetURLs(baseAssetURL string, assetNames ...string) ([]string, error) {

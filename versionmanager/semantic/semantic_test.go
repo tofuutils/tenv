@@ -22,7 +22,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
 )
 
 func TestCmpVersion(t *testing.T) {

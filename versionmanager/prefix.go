@@ -18,7 +18,7 @@
 
 package versionmanager
 
-import "github.com/tofuutils/tenv/v3/config"
+import "github.com/tofuutils/tenv/v4/config"
 
 type EnvPrefix string
 

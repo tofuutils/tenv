@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/tofuutils/tenv/v3/config"
-	configutils "github.com/tofuutils/tenv/v3/config/utils"
+	"github.com/tofuutils/tenv/v4/config"
+	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
 const (

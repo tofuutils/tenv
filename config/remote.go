@@ -22,8 +22,8 @@ import (
 	"errors"
 	"strings"
 
-	configutils "github.com/tofuutils/tenv/v3/config/utils"
-	"github.com/tofuutils/tenv/v3/pkg/download"
+	configutils "github.com/tofuutils/tenv/v4/config/utils"
+	"github.com/tofuutils/tenv/v4/pkg/download"
 )
 
 const (

@@ -28,14 +28,14 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/config/cmdconst"
-	"github.com/tofuutils/tenv/v3/pkg/apimsg"
-	sha256check "github.com/tofuutils/tenv/v3/pkg/check/sha256"
-	"github.com/tofuutils/tenv/v3/pkg/download"
-	"github.com/tofuutils/tenv/v3/pkg/github"
-	"github.com/tofuutils/tenv/v3/pkg/winbin"
-	htmlretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/html"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/pkg/apimsg"
+	sha256check "github.com/tofuutils/tenv/v4/pkg/check/sha256"
+	"github.com/tofuutils/tenv/v4/pkg/download"
+	"github.com/tofuutils/tenv/v4/pkg/github"
+	"github.com/tofuutils/tenv/v4/pkg/winbin"
+	htmlretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/html"
 )
 
 const (

@@ -22,8 +22,8 @@ import (
 	_ "embed"
 	"testing"
 
-	cosigncheck "github.com/tofuutils/tenv/v3/pkg/check/cosign"
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	cosigncheck "github.com/tofuutils/tenv/v4/pkg/check/cosign"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (

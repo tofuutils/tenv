@@ -22,7 +22,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/tofuutils/tenv/v3/pkg/apimsg"
+	"github.com/tofuutils/tenv/v4/pkg/apimsg"
 )
 
 type artifactDesc struct {

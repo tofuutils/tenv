@@ -24,8 +24,8 @@ import (
 	"slices"
 	"testing"
 
-	releaseapi "github.com/tofuutils/tenv/v3/versionmanager/retriever/terraform/api"
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
+	releaseapi "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/api"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
 )
 
 //go:embed testdata/release.json

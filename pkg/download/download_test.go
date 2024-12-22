@@ -21,7 +21,7 @@ package download_test
 import (
 	"testing"
 
-	"github.com/tofuutils/tenv/v3/pkg/download"
+	"github.com/tofuutils/tenv/v4/pkg/download"
 )
 
 func TestURLTransformer(t *testing.T) {

@@ -27,7 +27,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (

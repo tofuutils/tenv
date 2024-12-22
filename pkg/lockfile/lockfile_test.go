@@ -26,8 +26,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tofuutils/tenv/v3/pkg/lockfile"
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/pkg/lockfile"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const rwPerm = 0o600

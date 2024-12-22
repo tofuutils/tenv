@@ -25,10 +25,10 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
-	iacparser "github.com/tofuutils/tenv/v3/versionmanager/semantic/parser/iac"
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
+	iacparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
 )
 
 const (

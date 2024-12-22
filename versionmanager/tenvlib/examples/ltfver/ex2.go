@@ -22,10 +22,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/config/cmdconst"
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
-	"github.com/tofuutils/tenv/v3/versionmanager/tenvlib"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
+	"github.com/tofuutils/tenv/v4/versionmanager/tenvlib"
 )
 
 func main() {

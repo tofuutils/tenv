@@ -25,8 +25,8 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/tofuutils/tenv/v3/config"
-	configutils "github.com/tofuutils/tenv/v3/config/utils"
+	"github.com/tofuutils/tenv/v4/config"
+	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
 const msgErr = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"

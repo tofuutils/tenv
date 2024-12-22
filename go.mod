@@ -1,4 +1,4 @@
-module github.com/tofuutils/tenv/v3
+module github.com/tofuutils/tenv/v4
 
 go 1.23.3
 

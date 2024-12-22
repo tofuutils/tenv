@@ -25,12 +25,12 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/pkg/cmdproxy"
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
-	"github.com/tofuutils/tenv/v3/versionmanager"
-	"github.com/tofuutils/tenv/v3/versionmanager/builder"
-	"github.com/tofuutils/tenv/v3/versionmanager/proxy"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/pkg/cmdproxy"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/versionmanager"
+	"github.com/tofuutils/tenv/v4/versionmanager/builder"
+	"github.com/tofuutils/tenv/v4/versionmanager/proxy"
 )
 
 var errNoBuilder = errors.New("no builder for this tool")

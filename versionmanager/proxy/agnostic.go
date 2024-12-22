@@ -26,11 +26,11 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/config/cmdconst"
-	cmdproxy "github.com/tofuutils/tenv/v3/pkg/cmdproxy"
-	"github.com/tofuutils/tenv/v3/versionmanager/builder"
-	detachproxy "github.com/tofuutils/tenv/v3/versionmanager/proxy/detach"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	cmdproxy "github.com/tofuutils/tenv/v4/pkg/cmdproxy"
+	"github.com/tofuutils/tenv/v4/versionmanager/builder"
+	detachproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/detach"
 )
 
 // Always call os.Exit.

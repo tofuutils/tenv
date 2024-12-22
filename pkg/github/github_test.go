@@ -25,8 +25,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/tofuutils/tenv/v3/pkg/apimsg"
-	"github.com/tofuutils/tenv/v3/versionmanager/semantic"
+	"github.com/tofuutils/tenv/v4/pkg/apimsg"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
 )
 
 //go:embed testdata/assets.json

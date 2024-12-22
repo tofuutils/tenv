@@ -23,7 +23,7 @@ import (
 	_ "embed"
 	"testing"
 
-	"github.com/tofuutils/tenv/v3/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 //go:embed testdata/.tool-versions

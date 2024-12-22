@@ -25,7 +25,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 
-	"github.com/tofuutils/tenv/v3/pkg/download"
+	"github.com/tofuutils/tenv/v4/pkg/download"
 )
 
 func Request(ctx context.Context, callURL string, selector string, extractor func(*goquery.Selection) string, ro ...download.RequestOption) ([]string, error) {

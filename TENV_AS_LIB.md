@@ -11,7 +11,7 @@
 `tenvlib` package is available since tenv v3.2
 
 ```console
-go get -u github.com/tofuutils/tenv/v3@latest
+go get -u github.com/tofuutils/tenv/v4@latest
 ```
 
 ### Basic example
@@ -23,8 +23,8 @@ import (
     "context"
     "fmt"
 
-    "github.com/tofuutils/tenv/v3/config/cmdconst"
-    "github.com/tofuutils/tenv/v3/versionmanager/tenvlib"
+    "github.com/tofuutils/tenv/v4/config/cmdconst"
+    "github.com/tofuutils/tenv/v4/versionmanager/tenvlib"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 
 ## Documentation
 
-See the [API documentation on go.dev](https://pkg.go.dev/github.com/tofuutils/tenv/v3/versionmanager/tenvlib) and [examples](https://github.com/tofuutils/tenv/tree/main/versionmanager/tenvlib/examples).
+See the [API documentation on go.dev](https://pkg.go.dev/github.com/tofuutils/tenv/v4/versionmanager/tenvlib) and [examples](https://github.com/tofuutils/tenv/tree/main/versionmanager/tenvlib/examples).
 
 ### Overview
 

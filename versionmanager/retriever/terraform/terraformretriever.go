@@ -27,17 +27,17 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/tofuutils/tenv/v3/config"
-	"github.com/tofuutils/tenv/v3/config/cmdconst"
-	"github.com/tofuutils/tenv/v3/pkg/apimsg"
-	pgpcheck "github.com/tofuutils/tenv/v3/pkg/check/pgp"
-	sha256check "github.com/tofuutils/tenv/v3/pkg/check/sha256"
-	"github.com/tofuutils/tenv/v3/pkg/download"
-	"github.com/tofuutils/tenv/v3/pkg/pathfilter"
-	"github.com/tofuutils/tenv/v3/pkg/winbin"
-	"github.com/tofuutils/tenv/v3/pkg/zip"
-	htmlretriever "github.com/tofuutils/tenv/v3/versionmanager/retriever/html"
-	releaseapi "github.com/tofuutils/tenv/v3/versionmanager/retriever/terraform/api"
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/pkg/apimsg"
+	pgpcheck "github.com/tofuutils/tenv/v4/pkg/check/pgp"
+	sha256check "github.com/tofuutils/tenv/v4/pkg/check/sha256"
+	"github.com/tofuutils/tenv/v4/pkg/download"
+	"github.com/tofuutils/tenv/v4/pkg/pathfilter"
+	"github.com/tofuutils/tenv/v4/pkg/winbin"
+	"github.com/tofuutils/tenv/v4/pkg/zip"
+	htmlretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/html"
+	releaseapi "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/api"
 )
 
 const (
