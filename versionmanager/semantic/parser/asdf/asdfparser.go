@@ -32,6 +32,8 @@ import (
 	"github.com/tofuutils/tenv/v3/versionmanager/semantic/types"
 )
 
+const ToolFileName = ".tool-versions"
+
 func RetrieveTofuVersion(filePath string, conf *config.Config) (string, error) {
 	return retrieveVersionFromToolFile(filePath, cmdconst.TofuName, conf)
 }

@@ -49,7 +49,7 @@ func BuildAtmosManager(conf *config.Config, _ *hclparse.Parser) versionmanager.V
 	atmosRetriever := atmosretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".atmos-version", Parser: flatparser.RetrieveVersion},
-		{Name: ".tool-versions", Parser: asdfparser.RetrieveAtmosVersion},
+		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveAtmosVersion},
 	}
 
 	return versionmanager.Make(conf, config.AtmosPrefix, "Atmos", nil, atmosRetriever, versionFiles)
@@ -61,7 +61,7 @@ func BuildTfManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 	versionFiles := []types.VersionFile{
 		{Name: ".terraform-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tfswitchrc", Parser: flatparser.RetrieveVersion},
-		{Name: ".tool-versions", Parser: asdfparser.RetrieveTfVersion},
+		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTfVersion},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
@@ -81,7 +81,7 @@ func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 		{Name: ".terragrunt-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tgswitchrc", Parser: flatparser.RetrieveVersion},
 		{Name: ".tgswitch.toml", Parser: tomlparser.RetrieveVersion},
-		{Name: ".tool-versions", Parser: asdfparser.RetrieveTgVersion},
+		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTgVersion},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromHCL},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromJSON},
 	}
@@ -94,7 +94,7 @@ func BuildTofuManager(conf *config.Config, hclParser *hclparse.Parser) versionma
 	gruntParser := terragruntparser.Make(hclParser)
 	versionFiles := []types.VersionFile{
 		{Name: ".opentofu-version", Parser: flatparser.RetrieveVersion},
-		{Name: ".tool-versions", Parser: asdfparser.RetrieveTofuVersion},
+		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTofuVersion},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
