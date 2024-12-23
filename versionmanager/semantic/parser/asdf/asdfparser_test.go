@@ -35,8 +35,8 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 	t.Run("BasicLine", func(t *testing.T) {
 		t.Parallel()
 
-		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "nodejs", loghelper.InertDisplayer)
-		if version != "10.15.0" {
+		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "atmos", loghelper.InertDisplayer)
+		if version != "1.130.0" {
 			t.Fatal("Unexpected version : ", version)
 		}
 	})
@@ -44,8 +44,8 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 	t.Run("LineWithComment", func(t *testing.T) {
 		t.Parallel()
 
-		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "ruby", loghelper.InertDisplayer)
-		if version != "2.5.3" {
+		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "opentofu", loghelper.InertDisplayer)
+		if version != "1.8.7" {
 			t.Fatal("Unexpected version : ", version)
 		}
 	})
@@ -53,8 +53,8 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 	t.Run("LineFallback", func(t *testing.T) {
 		t.Parallel()
 
-		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "python", loghelper.InertDisplayer)
-		if version != "3.7.2" {
+		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "terragrunt", loghelper.InertDisplayer)
+		if version != "0.71.1" {
 			t.Fatal("Unexpected version : ", version)
 		}
 	})
