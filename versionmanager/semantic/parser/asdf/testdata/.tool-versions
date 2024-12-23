@@ -1,4 +1,4 @@
-ruby 2.5.3# This is a comment
+atmos 1.130.0# This is a comment
 # This is another comment
-nodejs 10.15.0
-python 3.7.2 2.7.15
+opentofu 1.8.6
+terragrunt 0.71.1 2.7.15
