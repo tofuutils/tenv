@@ -23,6 +23,7 @@ import (
 	_ "embed"
 	"testing"
 
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
@@ -35,7 +36,7 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 	t.Run("BasicLine", func(t *testing.T) {
 		t.Parallel()
 
-		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "atmos", loghelper.InertDisplayer)
+		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), cmdconst.AtmosName, loghelper.InertDisplayer)
 		if version != "1.130.0" {
 			t.Fatal("Unexpected version : ", version)
 		}
@@ -44,7 +45,7 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 	t.Run("LineWithComment", func(t *testing.T) {
 		t.Parallel()
 
-		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "opentofu", loghelper.InertDisplayer)
+		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), cmdconst.OpentofuName, loghelper.InertDisplayer)
 		if version != "1.8.7" {
 			t.Fatal("Unexpected version : ", version)
 		}
@@ -53,7 +54,7 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 	t.Run("LineFallback", func(t *testing.T) {
 		t.Parallel()
 
-		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), "terragrunt", loghelper.InertDisplayer)
+		version := parseVersionFromToolFileReader("", bytes.NewReader(toolFileData), cmdconst.TerragruntName, loghelper.InertDisplayer)
 		if version != "0.71.1" {
 			t.Fatal("Unexpected version : ", version)
 		}

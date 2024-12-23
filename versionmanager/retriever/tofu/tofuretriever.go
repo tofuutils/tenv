@@ -58,7 +58,6 @@ const (
 	unstableIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/main"
 
 	baseFileName = "tofu_"
-	opentofu     = "opentofu"
 )
 
 type TofuRetriever struct {
@@ -98,7 +97,7 @@ func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPat
 
 	switch r.conf.Tofu.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), opentofu, opentofu, github.Releases, github.Download, tag)
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tofu.GetRemoteURL(), cmdconst.OpentofuName, cmdconst.OpentofuName, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -154,7 +153,7 @@ func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	listURL := r.conf.Tofu.GetListURL()
 	switch r.conf.Tofu.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, opentofu, opentofu, github.Releases, github.Download)
+		baseURL, err := url.JoinPath(listURL, cmdconst.OpentofuName, cmdconst.OpentofuName, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}

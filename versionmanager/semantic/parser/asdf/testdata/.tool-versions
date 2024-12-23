@@ -1,4 +1,4 @@
 atmos 1.130.0# This is a comment
 # This is another comment
 opentofu 1.8.6
-terragrunt 0.71.1 2.7.15
+terragrunt 0.71.1 0.70.0

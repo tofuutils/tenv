@@ -19,6 +19,7 @@
 package cmdconst
 
 const (
+	// tools name.
 	AgnosticName   = "tf"
 	AtmosName      = "atmos"
 	TenvName       = "tenv"
@@ -26,5 +27,9 @@ const (
 	TerragruntName = "terragrunt"
 	TofuName       = "tofu"
 
+	// full project name.
+	OpentofuName = "opentofu"
+
+	// hiden proxy sub command.
 	CallSubCmd = "call"
 )

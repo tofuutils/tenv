@@ -34,10 +34,9 @@ import (
 )
 
 const ToolFileName = ".tool-versions"
-const TofuAsdfPluginName = "opentofu"
 
 func RetrieveTofuVersion(filePath string, conf *config.Config) (string, error) {
-	return retrieveVersionFromToolFile(filePath, TofuAsdfPluginName, conf)
+	return retrieveVersionFromToolFile(filePath, cmdconst.OpentofuName, conf)
 }
 
 func RetrieveTfVersion(filePath string, conf *config.Config) (string, error) {
