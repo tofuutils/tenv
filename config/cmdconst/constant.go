@@ -30,6 +30,6 @@ const (
 	// full project name.
 	OpentofuName = "opentofu"
 
-	// hiden proxy sub command.
+	// hidden proxy sub command.
 	CallSubCmd = "call"
 )
