@@ -29,13 +29,14 @@ import (
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
+const msgCiErr = "Failed to read " + config.CiEnvName + " environment variable, disable behavior :"
 const msgErr = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
 
 func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
-        ci, ciErr := getenv.Bool(false, config.TenvCiEnvName)
-        if ciErr != nil {
-                fmt.println(msgErr, ciErr) //nolint
-        }
+	ci, ciErr := getenv.Bool(false, config.CiEnvName)
+	if ciErr != nil {
+		fmt.Println(msgCiErr, ciErr) //nolint
+	}
 	detached, err := getenv.Bool(true, config.TenvDetachedProxyEnvName)
 	if err != nil {
 		fmt.Println(msgErr, err) //nolint

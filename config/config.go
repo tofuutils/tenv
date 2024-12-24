@@ -39,6 +39,7 @@ const (
 
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
+	CiEnvName          = "CI"
 	DefaultConstraint  = "DEFAULT_CONSTRAINT"
 	DefaultVersion     = "DEFAULT_" + Version
 	forceRemoteEnvName = "FORCE_REMOTE"
