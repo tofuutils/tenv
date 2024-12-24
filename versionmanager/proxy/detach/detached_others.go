@@ -33,7 +33,7 @@ const msgCiErr = "Failed to read " + config.CiEnvName + " environment variable, 
 const msgErr = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
 
 func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
-	ci, ciErr := getenv.Bool(false, config.CiEnvName)
+	ciEnv, ciErr := getenv.Bool(false, config.CiEnvName)
 	if ciErr != nil {
 		fmt.Println(msgCiErr, ciErr) //nolint
 	}
@@ -41,7 +41,7 @@ func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
 	if err != nil {
 		fmt.Println(msgErr, err) //nolint
 	}
-	if ci || !detached {
+	if ciEnv || !detached {
 		return
 	}
 
