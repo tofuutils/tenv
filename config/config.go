@@ -39,7 +39,7 @@ const (
 
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
-        PipelineWsEnvName  = "PIPELINE_WORKSPACE"
+	PipelineWsEnvName  = "PIPELINE_WORKSPACE"
 	CiEnvName          = "CI"
 	DefaultConstraint  = "DEFAULT_CONSTRAINT"
 	DefaultVersion     = "DEFAULT_" + Version
