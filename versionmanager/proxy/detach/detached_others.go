@@ -32,11 +32,15 @@ import (
 const msgErr = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
 
 func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
+        ci, ciErr := getenv.Bool(false, config.TenvCiEnvName)
+        if ciErr != nil {
+                fmt.println(msgErr, ciErr) //nolint
+        }
 	detached, err := getenv.Bool(true, config.TenvDetachedProxyEnvName)
 	if err != nil {
 		fmt.Println(msgErr, err) //nolint
 	}
-	if !detached {
+	if ci || !detached {
 		return
 	}
 
