@@ -29,24 +29,25 @@ import (
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
-const msgCiErr = "Failed to read " + config.CiEnvName + " environment variable, disable behavior :"
-const msgErr = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
-const msgPipelineWsErr = "Failed to read " + config.PipelineWsEnvName + " environment variable, disable behavior :"
+const (
+	msgDisableErr = msgStart + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
+	msgKeepErr    = msgStart + config.CiEnvName + " or " + config.PipelineWsEnvName + " environment variable, keep detached default behavior to true :"
+	msgStart      = "Failed to read "
+)
 
 func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
-	ciEnv, ciErr := getenv.Bool(false, config.CiEnvName)
+	ciEnv, ciErr := getenv.BoolFallback(false, config.CiEnvName, config.PipelineWsEnvName)
 	if ciErr != nil {
-		fmt.Println(msgCiErr, ciErr) //nolint
+		fmt.Println(msgKeepErr, ciErr) //nolint
 	}
-	detached, err := getenv.Bool(true, config.TenvDetachedProxyEnvName)
+
+	defaultDetached := !ciEnv
+	detached, err := getenv.Bool(defaultDetached, config.TenvDetachedProxyEnvName)
 	if err != nil {
-		fmt.Println(msgErr, err) //nolint
+		fmt.Println(msgDisableErr, err) //nolint
 	}
-	pipelineWsEnv, pipelineWsErr := getenv.Bool(false, config.PipelineWsEnvName)
-	if pipelineWsErr != nil {
-		fmt.Println(msgPipelineWsErr, pipelineWsErr) //nolint
-	}
-	if ciEnv || pipelineWsEnv || !detached {
+
+	if !detached {
 		return
 	}
 
