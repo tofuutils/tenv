@@ -27,15 +27,15 @@ import (
 )
 
 const (
-	msgErr        = msgStart + "failed to read environment variable :"
-	msgNotApplied = msgStart + "can not apply environment variable"
-	msgStart      = config.TenvDetachedProxyEnvName + " behavior is always disabled on Windows OS, "
+	msgFailReadErr = msgStart + "failed to read environment variable :"
+	msgNotApplied  = msgStart + "can not apply environment variable"
+	msgStart       = config.TenvDetachedProxyEnvName + " behavior is always disabled on Windows OS, "
 )
 
 func InitBehaviorFromEnv(_ *exec.Cmd, getenv configutils.GetenvFunc) {
 	switch detached, err := getenv.Bool(false, config.TenvDetachedProxyEnvName); {
 	case err != nil:
-		fmt.Println(msgErr, err) //nolint
+		fmt.Println(msgFailReadErr, err) //nolint
 	case detached:
 		fmt.Println(msgNotApplied) //nolint
 	}

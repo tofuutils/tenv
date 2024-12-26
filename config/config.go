@@ -39,8 +39,6 @@ const (
 
 	archEnvName        = "ARCH"
 	autoInstallEnvName = "AUTO_INSTALL"
-	PipelineWsEnvName  = "PIPELINE_WORKSPACE"
-	CiEnvName          = "CI"
 	DefaultConstraint  = "DEFAULT_CONSTRAINT"
 	DefaultVersion     = "DEFAULT_" + Version
 	forceRemoteEnvName = "FORCE_REMOTE"
@@ -54,6 +52,9 @@ const (
 	remoteUserEnvName  = "REMOTE_USER"
 	rootPathEnvName    = "ROOT"
 	Version            = "VERSION"
+
+	CiEnvName         = "CI"
+	PipelineWsEnvName = "PIPELINE_WORKSPACE"
 
 	githubPrefix         = "GITHUB_"
 	githubActionsEnvName = githubPrefix + "ACTIONS"
