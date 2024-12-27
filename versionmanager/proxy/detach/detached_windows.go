@@ -32,8 +32,8 @@ const (
 	msgStart       = config.TenvDetachedProxyEnvName + " behavior is always disabled on Windows OS, "
 )
 
-func InitBehaviorFromEnv(_ *exec.Cmd, getenv configutils.GetenvFunc) {
-	switch detached, err := getenv.Bool(false, config.TenvDetachedProxyEnvName); {
+func InitBehaviorFromEnv(_ *exec.Cmd, getenv configutils.GetenvFunc, defaultDetached bool) {
+	switch detached, err := getenv.Bool(defaultDetached, config.TenvDetachedProxyEnvName); {
 	case err != nil:
 		fmt.Println(msgFailReadErr, err) //nolint
 	case detached:

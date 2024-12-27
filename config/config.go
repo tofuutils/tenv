@@ -53,9 +53,6 @@ const (
 	rootPathEnvName    = "ROOT"
 	Version            = "VERSION"
 
-	CiEnvName         = "CI"
-	PipelineWsEnvName = "PIPELINE_WORKSPACE"
-
 	githubPrefix         = "GITHUB_"
 	githubActionsEnvName = githubPrefix + "ACTIONS"
 	GithubOutputEnvName  = githubPrefix + "OUTPUT"
@@ -69,16 +66,17 @@ const (
 	AtmosRemoteURLEnvName   = AtmosPrefix + remoteURLEnvName
 	AtmosRemoteUserEnvName  = AtmosPrefix + remoteUserEnvName
 
-	tenvPrefix               = "TENV_"
-	tenvArchEnvName          = tenvPrefix + archEnvName
-	tenvAutoInstallEnvName   = tenvPrefix + autoInstallEnvName
-	TenvDetachedProxyEnvName = tenvPrefix + "DETACHED_PROXY"
-	tenvForceRemoteEnvName   = tenvPrefix + forceRemoteEnvName
-	tenvLogEnvName           = tenvPrefix + logEnvName
-	tenvQuietEnvName         = tenvPrefix + quietEnvName
-	tenvRemoteConfEnvName    = tenvPrefix + "REMOTE_CONF"
-	tenvRootPathEnvName      = tenvPrefix + rootPathEnvName
-	tenvTokenEnvName         = tenvPrefix + tokenEnvName
+	tenvPrefix                      = "TENV_"
+	tenvArchEnvName                 = tenvPrefix + archEnvName
+	tenvAutoInstallEnvName          = tenvPrefix + autoInstallEnvName
+	TenvDetachedProxyEnvName        = tenvPrefix + "DETACHED_PROXY"
+	TenvDetachedProxyDefaultEnvName = TenvDetachedProxyEnvName + "_DEFAULT"
+	tenvForceRemoteEnvName          = tenvPrefix + forceRemoteEnvName
+	tenvLogEnvName                  = tenvPrefix + logEnvName
+	tenvQuietEnvName                = tenvPrefix + quietEnvName
+	tenvRemoteConfEnvName           = tenvPrefix + "REMOTE_CONF"
+	tenvRootPathEnvName             = tenvPrefix + rootPathEnvName
+	tenvTokenEnvName                = tenvPrefix + tokenEnvName
 
 	TfenvPrefix              = "TFENV_"
 	tfenvTerraformPrefix     = TfenvPrefix + "TERRAFORM_"

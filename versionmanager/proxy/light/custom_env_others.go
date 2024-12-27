@@ -18,33 +18,24 @@
  *
  */
 
-package detachproxy
+package lightproxy
 
 import (
-	"fmt"
+	"os"
 	"os/exec"
-	"syscall"
 
 	"github.com/tofuutils/tenv/v4/config"
-	configutils "github.com/tofuutils/tenv/v4/config/utils"
+	"github.com/tofuutils/tenv/v4/pkg/tty"
 )
 
-const msgDisableStart = "Failed to read " + config.TenvDetachedProxyEnvName + " environment variable, use"
+const changeDefaultDetach = config.TenvDetachedProxyDefaultEnvName + "=true"
 
-func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc, defaultDetached bool) {
-	detached, err := getenv.Bool(defaultDetached, config.TenvDetachedProxyEnvName)
-	if err != nil {
-		fmt.Println(msgDisableStart, defaultDetached, ":", err) //nolint
+func updateDefaultDetachInCmdEnv(cmd *exec.Cmd) bool {
+	if tty.Detect() {
+		cmd.Env = append(os.Environ(), changeDefaultDetach)
+
+		return true
 	}
 
-	if !detached {
-		return
-	}
-
-	if cmd.SysProcAttr == nil {
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-	}
-
-	cmd.SysProcAttr.Setpgid = true
-	cmd.SysProcAttr.Foreground = true
+	return false
 }
