@@ -73,6 +73,7 @@ jobs:
           GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
