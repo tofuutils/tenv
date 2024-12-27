@@ -31,6 +31,7 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
 	cosigncheck "github.com/tofuutils/tenv/v4/pkg/check/cosign"
 	pgpcheck "github.com/tofuutils/tenv/v4/pkg/check/pgp"
@@ -106,7 +107,7 @@ func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPat
 	case config.ModeAPI:
 		assetURLs, err = github.AssetDownloadURL(ctx, tag, assetNames, r.conf.Tofu.GetRemoteURL(), r.conf.GithubToken, r.conf.Displayer.Display)
 	case modeMirroring:
-		urlTemplate := r.conf.Getenv(config.TofuURLTemplateEnvName)
+		urlTemplate := r.conf.Getenv(envname.TofuURLTemplate)
 		if urlTemplate == "" {
 			urlTemplate = defaultTofuURLTemplate
 		}
@@ -129,7 +130,7 @@ func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPat
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TofuRemoteUser, envname.TofuRemotePass)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
 	if err != nil {
 		return err
@@ -148,7 +149,7 @@ func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TofuRemoteUserEnvName, config.TofuRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TofuRemoteUser, envname.TofuRemotePass)
 
 	listURL := r.conf.Tofu.GetListURL()
 	switch r.conf.Tofu.GetListMode() {

@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	cmdproxy "github.com/tofuutils/tenv/v4/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
@@ -36,7 +37,11 @@ import (
 	detachproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/detach"
 )
 
-const chdirFlagPrefix = "-chdir="
+const (
+	chdirFlagPrefix = "-chdir="
+
+	msgReadDefaultDetachErr = "Failed to read " + envname.TenvDetachedProxyDefault + " environment variable, default to false :"
+)
 
 // Always call os.Exit.
 func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
@@ -61,7 +66,13 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
-	detachproxy.InitBehaviorFromEnv(cmd, conf.Getenv)
+
+	defaultDetach, err := conf.Getenv.Bool(false, envname.TenvDetachedProxyDefault)
+	if err != nil {
+		fmt.Println(msgReadDefaultDetachErr, err) //nolint
+	}
+
+	detachproxy.InitBehaviorFromEnv(cmd, conf.Getenv, defaultDetach)
 
 	cmdproxy.Run(cmd, conf.GithubActions, conf.Getenv)
 }

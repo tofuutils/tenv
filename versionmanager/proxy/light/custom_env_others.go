@@ -1,3 +1,5 @@
+//go:build !windows
+
 /*
  *
  * Copyright 2024 tofuutils authors.
@@ -16,27 +18,24 @@
  *
  */
 
-package detachproxy
+package lightproxy
 
 import (
-	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/tofuutils/tenv/v4/config/envname"
-	configutils "github.com/tofuutils/tenv/v4/config/utils"
+	"github.com/tofuutils/tenv/v4/pkg/tty"
 )
 
-const (
-	msgFailReadErr = msgStart + "failed to read environment variable :"
-	msgNotApplied  = msgStart + "can not apply environment variable"
-	msgStart       = envname.TenvDetachedProxy + " behavior is always disabled on Windows OS, "
-)
+const changeDefaultDetach = envname.TenvDetachedProxyDefault + "=true"
 
-func InitBehaviorFromEnv(_ *exec.Cmd, getenv configutils.GetenvFunc, defaultDetached bool) {
-	switch detached, err := getenv.Bool(defaultDetached, envname.TenvDetachedProxy); {
-	case err != nil:
-		fmt.Println(msgFailReadErr, err) //nolint
-	case detached:
-		fmt.Println(msgNotApplied) //nolint
+func updateDefaultDetachInCmdEnv(cmd *exec.Cmd) bool {
+	if tty.Detect() {
+		cmd.Env = append(os.Environ(), changeDefaultDetach)
+
+		return true
 	}
+
+	return false
 }

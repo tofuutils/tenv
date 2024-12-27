@@ -47,3 +47,7 @@ func (getenv GetenvFunc) Fallback(keys ...string) string {
 
 	return ""
 }
+
+func (getenv GetenvFunc) Present(key string) bool {
+	return getenv(key) != ""
+}

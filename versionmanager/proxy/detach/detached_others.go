@@ -25,26 +25,16 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
-const (
-	msgDisableErr = msgStart + config.TenvDetachedProxyEnvName + " environment variable, disable behavior :"
-	msgKeepErr    = msgStart + config.CiEnvName + " or " + config.PipelineWsEnvName + " environment variable, keep detached default behavior to true :"
-	msgStart      = "Failed to read "
-)
+const msgDisableStart = "Failed to read " + envname.TenvDetachedProxy + " environment variable, use"
 
-func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc) {
-	ciEnv, ciErr := getenv.BoolFallback(false, config.CiEnvName, config.PipelineWsEnvName)
-	if ciErr != nil {
-		fmt.Println(msgKeepErr, ciErr) //nolint
-	}
-
-	defaultDetached := !ciEnv
-	detached, err := getenv.Bool(defaultDetached, config.TenvDetachedProxyEnvName)
+func InitBehaviorFromEnv(cmd *exec.Cmd, getenv configutils.GetenvFunc, defaultDetached bool) {
+	detached, err := getenv.Bool(defaultDetached, envname.TenvDetachedProxy)
 	if err != nil {
-		fmt.Println(msgDisableErr, err) //nolint
+		fmt.Println(msgDisableStart, defaultDetached, ":", err) //nolint
 	}
 
 	if !detached {

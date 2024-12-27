@@ -30,6 +30,7 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
 	sha256check "github.com/tofuutils/tenv/v4/pkg/check/sha256"
 	"github.com/tofuutils/tenv/v4/pkg/download"
@@ -93,7 +94,7 @@ func (r TerragruntRetriever) Install(ctx context.Context, versionStr string, tar
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TgRemoteUser, envname.TgRemotePass)
 	data, err := download.Bytes(ctx, assetURLs[0], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
 	if err != nil {
 		return err
@@ -122,7 +123,7 @@ func (r TerragruntRetriever) ListVersions(ctx context.Context) ([]string, error)
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TgRemoteUserEnvName, config.TgRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TgRemoteUser, envname.TgRemotePass)
 
 	listURL := r.conf.Tg.GetListURL()
 	switch r.conf.Tg.GetListMode() {

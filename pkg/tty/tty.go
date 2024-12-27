@@ -16,20 +16,22 @@
  *
  */
 
-package versionmanager
+package tty
 
-import "github.com/tofuutils/tenv/v4/config/envname"
+import (
+	"fmt"
+	"os"
+)
 
-type EnvPrefix string
+const msgDetectErr = "Failed to detect TTY mode, assume output is redirected :"
 
-func (prefix EnvPrefix) Version() string {
-	return string(prefix) + envname.VersionSuffix
-}
+func Detect() bool {
+	outInfo, err := os.Stdout.Stat()
+	if err != nil {
+		fmt.Println(msgDetectErr, err) //nolint
 
-func (prefix EnvPrefix) constraint() string {
-	return string(prefix) + envname.DefaultConstraintSuffix
-}
+		return false
+	}
 
-func (prefix EnvPrefix) defaultVersion() string {
-	return string(prefix) + envname.DefaultVersionSuffix
+	return outInfo.Mode()&os.ModeCharDevice != 0
 }

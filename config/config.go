@@ -30,93 +30,13 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
 	defaultDirName = ".tenv"
-
-	archEnvName        = "ARCH"
-	autoInstallEnvName = "AUTO_INSTALL"
-	DefaultConstraint  = "DEFAULT_CONSTRAINT"
-	DefaultVersion     = "DEFAULT_" + Version
-	forceRemoteEnvName = "FORCE_REMOTE"
-	installModeEnvName = "INSTALL_MODE"
-	listModeEnvName    = "LIST_MODE"
-	listURLEnvName     = "LIST_URL"
-	logEnvName         = "LOG"
-	quietEnvName       = "QUIET"
-	remotePassEnvName  = "REMOTE_PASSWORD"
-	remoteURLEnvName   = "REMOTE"
-	remoteUserEnvName  = "REMOTE_USER"
-	rootPathEnvName    = "ROOT"
-	Version            = "VERSION"
-
-	CiEnvName         = "CI"
-	PipelineWsEnvName = "PIPELINE_WORKSPACE"
-
-	githubPrefix         = "GITHUB_"
-	githubActionsEnvName = githubPrefix + "ACTIONS"
-	GithubOutputEnvName  = githubPrefix + "OUTPUT"
-	tokenEnvName         = githubPrefix + "TOKEN"
-
-	AtmosPrefix             = "ATMOS_"
-	atmosInstallModeEnvName = AtmosPrefix + installModeEnvName
-	atmosListModeEnvName    = AtmosPrefix + listModeEnvName
-	atmosListURLEnvName     = AtmosPrefix + listURLEnvName
-	AtmosRemotePassEnvName  = AtmosPrefix + remotePassEnvName
-	AtmosRemoteURLEnvName   = AtmosPrefix + remoteURLEnvName
-	AtmosRemoteUserEnvName  = AtmosPrefix + remoteUserEnvName
-
-	tenvPrefix               = "TENV_"
-	tenvArchEnvName          = tenvPrefix + archEnvName
-	tenvAutoInstallEnvName   = tenvPrefix + autoInstallEnvName
-	TenvDetachedProxyEnvName = tenvPrefix + "DETACHED_PROXY"
-	tenvForceRemoteEnvName   = tenvPrefix + forceRemoteEnvName
-	tenvLogEnvName           = tenvPrefix + logEnvName
-	tenvQuietEnvName         = tenvPrefix + quietEnvName
-	tenvRemoteConfEnvName    = tenvPrefix + "REMOTE_CONF"
-	tenvRootPathEnvName      = tenvPrefix + rootPathEnvName
-	tenvTokenEnvName         = tenvPrefix + tokenEnvName
-
-	TfenvPrefix              = "TFENV_"
-	tfenvTerraformPrefix     = TfenvPrefix + "TERRAFORM_"
-	tfArchEnvName            = TfenvPrefix + archEnvName
-	tfAutoInstallEnvName     = TfenvPrefix + autoInstallEnvName
-	tfForceRemoteEnvName     = TfenvPrefix + forceRemoteEnvName
-	tfHashicorpPGPKeyEnvName = TfenvPrefix + "HASHICORP_PGP_KEY"
-	tfInstallModeEnvName     = TfenvPrefix + installModeEnvName
-	tfListModeEnvName        = TfenvPrefix + listModeEnvName
-	tfListURLEnvName         = TfenvPrefix + listURLEnvName
-	TfRemotePassEnvName      = TfenvPrefix + remotePassEnvName
-	TfRemoteURLEnvName       = TfenvPrefix + remoteURLEnvName
-	TfRemoteUserEnvName      = TfenvPrefix + remoteUserEnvName
-	tfRootPathEnvName        = TfenvPrefix + rootPathEnvName
-
-	TgPrefix             = "TG_"
-	tgInstallModeEnvName = TgPrefix + installModeEnvName
-	tgListModeEnvName    = TgPrefix + listModeEnvName
-	tgListURLEnvName     = TgPrefix + listURLEnvName
-	TgRemotePassEnvName  = TgPrefix + remotePassEnvName
-	TgRemoteURLEnvName   = TgPrefix + remoteURLEnvName
-	TgRemoteUserEnvName  = TgPrefix + remoteUserEnvName
-
-	TofuenvPrefix             = "TOFUENV_"
-	tofuenvTofuPrefix         = TofuenvPrefix + "TOFU_"
-	tofuArchEnvName           = TofuenvPrefix + archEnvName
-	tofuAutoInstallEnvName    = TofuenvPrefix + autoInstallEnvName
-	tofuForceRemoteEnvName    = TofuenvPrefix + forceRemoteEnvName
-	tofuInstallModeEnvName    = TofuenvPrefix + installModeEnvName
-	tofuListModeEnvName       = TofuenvPrefix + listModeEnvName
-	tofuListURLEnvName        = TofuenvPrefix + listURLEnvName
-	tofuOpenTofuPGPKeyEnvName = TofuenvPrefix + "OPENTOFU_PGP_KEY"
-	TofuRemotePassEnvName     = TofuenvPrefix + remotePassEnvName
-	TofuRemoteURLEnvName      = TofuenvPrefix + remoteURLEnvName
-	TofuRemoteUserEnvName     = TofuenvPrefix + remoteUserEnvName
-	tofuRootPathEnvName       = TofuenvPrefix + rootPathEnvName
-	tofuTokenEnvName          = TofuenvPrefix + tokenEnvName
-	TofuURLTemplateEnvName    = TofuenvPrefix + "URL_TEMPLATE"
 )
 
 type Config struct {
@@ -172,52 +92,47 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
-	arch := getenv.Fallback(tenvArchEnvName, tofuArchEnvName, tfArchEnvName)
+	arch := getenv.Fallback(envname.TenvArch, envname.TofuArch, envname.TfArch)
 	if arch == "" {
 		arch = runtime.GOARCH
 	}
 
-	autoInstall, err := getenv.BoolFallback(false, tenvAutoInstallEnvName, tofuAutoInstallEnvName, tfAutoInstallEnvName)
+	autoInstall, err := getenv.BoolFallback(false, envname.TenvAutoInstall, envname.TofuAutoInstall, envname.TfAutoInstall)
 	if err != nil {
 		return Config{}, err
 	}
 
-	forceRemote, err := getenv.BoolFallback(false, tenvForceRemoteEnvName, tofuForceRemoteEnvName, tfForceRemoteEnvName)
+	forceRemote, err := getenv.BoolFallback(false, envname.TenvForceRemote, envname.TofuForceRemote, envname.TfForceRemote)
 	if err != nil {
 		return Config{}, err
 	}
 
-	rootPath := getenv.Fallback(tenvRootPathEnvName, tofuRootPathEnvName, tfRootPathEnvName)
+	rootPath := getenv.Fallback(envname.TenvRootPath, envname.TofuRootPath, envname.TfRootPath)
 	if rootPath == "" {
 		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
-	quiet, err := getenv.Bool(false, tenvQuietEnvName)
-	if err != nil {
-		return Config{}, err
-	}
-
-	gha, err := getenv.Bool(false, githubActionsEnvName)
+	quiet, err := getenv.Bool(false, envname.TenvQuiet)
 	if err != nil {
 		return Config{}, err
 	}
 
 	return Config{
 		Arch:           arch,
-		Atmos:          makeRemoteConfig(getenv, AtmosRemoteURLEnvName, atmosListURLEnvName, atmosInstallModeEnvName, atmosListModeEnvName, defaultAtmosGithubURL, baseGithubURL),
+		Atmos:          makeRemoteConfig(getenv, envname.AtmosRemoteURL, envname.AtmosListURL, envname.AtmosInstallMode, envname.AtmosListMode, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		Getenv:         getenv,
-		GithubActions:  gha,
-		GithubToken:    getenv.Fallback(tenvTokenEnvName, tofuTokenEnvName),
-		RemoteConfPath: getenv(tenvRemoteConfEnvName),
+		GithubActions:  getenv.Present(envname.GithubActions),
+		GithubToken:    getenv.Fallback(envname.TenvToken, envname.TofuToken),
+		RemoteConfPath: getenv(envname.TenvRemoteConf),
 		RootPath:       rootPath,
 		SkipInstall:    !autoInstall,
-		Tf:             makeRemoteConfig(getenv, TfRemoteURLEnvName, tfListURLEnvName, tfInstallModeEnvName, tfListModeEnvName, defaultHashicorpURL, defaultHashicorpURL),
-		TfKeyPath:      getenv(tfHashicorpPGPKeyEnvName),
-		Tg:             makeRemoteConfig(getenv, TgRemoteURLEnvName, tgListURLEnvName, tgInstallModeEnvName, tgListModeEnvName, defaultTerragruntGithubURL, baseGithubURL),
-		Tofu:           makeRemoteConfig(getenv, TofuRemoteURLEnvName, tofuListURLEnvName, tofuInstallModeEnvName, tofuListModeEnvName, DefaultTofuGithubURL, baseGithubURL),
-		TofuKeyPath:    getenv(tofuOpenTofuPGPKeyEnvName),
+		Tf:             makeRemoteConfig(getenv, envname.TfRemoteURL, envname.TfListURL, envname.TfInstallMode, envname.TfListMode, defaultHashicorpURL, defaultHashicorpURL),
+		TfKeyPath:      getenv(envname.TfHashicorpPGPKey),
+		Tg:             makeRemoteConfig(getenv, envname.TgRemoteURL, envname.TgListURL, envname.TgInstallMode, envname.TgListMode, defaultTerragruntGithubURL, baseGithubURL),
+		Tofu:           makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, DefaultTofuGithubURL, baseGithubURL),
+		TofuKeyPath:    getenv(envname.TofuOpenTofuPGPKey),
 		UserPath:       userPath,
 		WorkPath:       ".",
 	}, nil
@@ -231,7 +146,7 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 		logLevel := hclog.Trace
 		if !conf.DisplayVerbose {
 			logLevel = hclog.Warn
-			if logLevelStr := conf.Getenv(tenvLogEnvName); logLevelStr != "" {
+			if logLevelStr := conf.Getenv(envname.TenvLog); logLevelStr != "" {
 				logLevel = hclog.LevelFromString(logLevelStr)
 			}
 		}
