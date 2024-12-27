@@ -474,6 +474,14 @@ dmg:
     replace: true
     mod_timestamp: "{{ .CommitTimestamp }}"
 
+cloudsmiths:
+  - organization: tofuutils
+    repository: tenv
+    distributions:
+      deb: "ubuntu/xenial"
+      alpine: "alpine/v3.8"
+      rpm: "el/7"
+
 aurs:
   - name: tenv-bin
     # Artifact IDs to filter for.
