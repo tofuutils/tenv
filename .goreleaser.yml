@@ -357,11 +357,7 @@ release:
   prerelease: auto
 
 changelog:
-  use: github-native
-  sort: asc
-  filters:
-    exclude:
-      - "^test:"
+  disable: "{{ .Env.DISABLE_CHANGELOG }}"
 
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Tag }}_checksums.txt"
