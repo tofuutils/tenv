@@ -78,6 +78,7 @@ jobs:
           args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }} ${{ steps.prepare_goreleaser_extra_commands.outputs.EXTRA_GORELEASER_COMMANDS }}
         env:
           AUR_KEY: ${{ secrets.AUR_KEY }}
+          DISABLE_CHANGELOG: ${{ vars.DISABLE_CHANGELOG}}
           GITHUB_TOKEN: ${{ secrets.TENV_GITHUB_TOKEN }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
           GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
