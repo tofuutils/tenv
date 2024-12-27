@@ -460,6 +460,20 @@ snapcrafts:
         command: atmos
         aliases: [atmos]
 
+dmg:
+  - id: tenv
+    name: "{{.ProjectName}}-{{.Arch}}"
+    # IDs of the archives to use.
+    # Empty means all IDs.
+    ids: []
+    use: binary
+    if: '{{ eq .Os "linux" }}'
+    goamd64: v1
+    extra_files: []
+    templated_extra_files: []
+    replace: true
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
 aurs:
   - name: tenv-bin
     # Artifact IDs to filter for.
