@@ -1,6 +1,23 @@
 project_name: tenv
 version: 2
 
+announce:
+  slack:
+    enabled: true
+    message_template: ":tada: tenv {{.Tag}} is available! See what's new here - https://github.com/aquasecurity/tenv/releases/tag/{{.Tag}}"
+    channel: "#tofuutils"
+    username: "tofuutils-notifications"
+    icon_emoji: ""
+    icon_url: ""
+    blocks: []
+    attachments: []
+
+  telegram:
+    enabled: true
+    chat_id: -4020097127
+    message_template: "🎉 tenv {{.Tag}} is available! See what's new here - https://github.com/aquasecurity/tenv/releases/tag/{{.Tag}}"
+    parse_mode: MarkdownV2
+
 before:
   hooks:
     - go mod tidy
