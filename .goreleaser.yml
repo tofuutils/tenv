@@ -353,6 +353,8 @@ archives:
 
 release:
   name_template: "Release {{.Tag}}"
+  discussion_category_name: Release
+  prerelease: auto
 
 changelog:
   use: github-native
