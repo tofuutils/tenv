@@ -117,18 +117,13 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
-	gha, err := getenv.Bool(false, envname.GithubActions)
-	if err != nil {
-		return Config{}, err
-	}
-
 	return Config{
 		Arch:           arch,
 		Atmos:          makeRemoteConfig(getenv, envname.AtmosRemoteURL, envname.AtmosListURL, envname.AtmosInstallMode, envname.AtmosListMode, defaultAtmosGithubURL, baseGithubURL),
 		ForceQuiet:     quiet,
 		ForceRemote:    forceRemote,
 		Getenv:         getenv,
-		GithubActions:  gha,
+		GithubActions:  getenv.Present(envname.GithubActions),
 		GithubToken:    getenv.Fallback(envname.TenvToken, envname.TofuToken),
 		RemoteConfPath: getenv(envname.TenvRemoteConf),
 		RootPath:       rootPath,
