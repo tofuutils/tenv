@@ -24,11 +24,11 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	"github.com/tofuutils/tenv/v4/pkg/tty"
 )
 
-const changeDefaultDetach = config.TenvDetachedProxyDefaultEnvName + "=true"
+const changeDefaultDetach = envname.TenvDetachedProxyDefault + "=true"
 
 func updateDefaultDetachInCmdEnv(cmd *exec.Cmd) bool {
 	if tty.Detect() {

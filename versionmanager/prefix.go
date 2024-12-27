@@ -18,18 +18,18 @@
 
 package versionmanager
 
-import "github.com/tofuutils/tenv/v4/config"
+import "github.com/tofuutils/tenv/v4/config/envname"
 
 type EnvPrefix string
 
 func (prefix EnvPrefix) Version() string {
-	return string(prefix) + config.Version
+	return string(prefix) + envname.VersionSuffix
 }
 
 func (prefix EnvPrefix) constraint() string {
-	return string(prefix) + config.DefaultConstraint
+	return string(prefix) + envname.DefaultConstraintSuffix
 }
 
 func (prefix EnvPrefix) defaultVersion() string {
-	return string(prefix) + config.DefaultVersion
+	return string(prefix) + envname.DefaultVersionSuffix
 }

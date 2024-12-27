@@ -29,7 +29,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
@@ -85,7 +85,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFu
 		return noAction
 	}
 
-	outputPath := getenv(config.GithubOutputEnvName)
+	outputPath := getenv(envname.GithubOutput)
 	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
 	if err != nil {
 		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint

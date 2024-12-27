@@ -29,6 +29,7 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
@@ -100,7 +101,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	}
 
 	tofuParams := subCmdParams{
-		needToken: true, remoteEnvName: config.TofuRemoteURLEnvName,
+		needToken: true, remoteEnvName: envname.TofuRemoteURL,
 		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
 	}
 	initSubCmds(tofuCmd, builder.BuildTofuManager(conf, hclParser), tofuParams)
@@ -115,7 +116,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	}
 
 	tfParams := subCmdParams{
-		needToken: false, remoteEnvName: config.TfRemoteURLEnvName,
+		needToken: false, remoteEnvName: envname.TfRemoteURL,
 		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
 	}
 	initSubCmds(tfCmd, builder.BuildTfManager(conf, hclParser), tfParams)
@@ -130,7 +131,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	}
 
 	tgParams := subCmdParams{
-		needToken: true, remoteEnvName: config.TgRemoteURLEnvName, pRemote: &conf.Tg.RemoteURL,
+		needToken: true, remoteEnvName: envname.TgRemoteURL, pRemote: &conf.Tg.RemoteURL,
 	}
 	initSubCmds(tgCmd, builder.BuildTgManager(conf, hclParser), tgParams)
 
@@ -144,7 +145,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	}
 
 	atmosParams := subCmdParams{
-		needToken: true, remoteEnvName: config.AtmosRemoteURLEnvName, pRemote: &conf.Atmos.RemoteURL,
+		needToken: true, remoteEnvName: envname.AtmosRemoteURL, pRemote: &conf.Atmos.RemoteURL,
 	}
 	initSubCmds(atmosCmd, builder.BuildAtmosManager(conf, hclParser), atmosParams)
 

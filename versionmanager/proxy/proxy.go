@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	cmdproxy "github.com/tofuutils/tenv/v4/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
@@ -39,7 +40,7 @@ import (
 const (
 	chdirFlagPrefix = "-chdir="
 
-	msgReadDefaultDetachErr = "Failed to read " + config.TenvDetachedProxyDefaultEnvName + " environment variable, default to false :"
+	msgReadDefaultDetachErr = "Failed to read " + envname.TenvDetachedProxyDefault + " environment variable, default to false :"
 )
 
 // Always call os.Exit.
@@ -66,7 +67,7 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
 
-	defaultDetach, err := conf.Getenv.Bool(false, config.TenvDetachedProxyDefaultEnvName)
+	defaultDetach, err := conf.Getenv.Bool(false, envname.TenvDetachedProxyDefault)
 	if err != nil {
 		fmt.Println(msgReadDefaultDetachErr, err) //nolint
 	}

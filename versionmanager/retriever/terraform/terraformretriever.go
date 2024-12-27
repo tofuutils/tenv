@@ -29,6 +29,7 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
 	pgpcheck "github.com/tofuutils/tenv/v4/pkg/check/pgp"
 	sha256check "github.com/tofuutils/tenv/v4/pkg/check/sha256"
@@ -71,7 +72,7 @@ func (r TerraformRetriever) Install(ctx context.Context, version string, targetP
 		return err
 	}
 
-	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TfRemoteUser, envname.TfRemotePass)
 
 	var fileName, shaFileName, shaSigFileName, downloadURL, downloadSumsURL, downloadSumsSigURL string
 	switch r.conf.Tf.GetInstallMode() {
@@ -147,7 +148,7 @@ func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) 
 		return nil, err
 	}
 
-	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, config.TfRemoteUserEnvName, config.TfRemotePassEnvName)
+	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TfRemoteUser, envname.TfRemotePass)
 
 	switch r.conf.Tf.GetListMode() {
 	case config.ListModeHTML:

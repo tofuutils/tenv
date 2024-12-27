@@ -28,6 +28,7 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	cmdproxy "github.com/tofuutils/tenv/v4/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
 	detachproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/detach"
@@ -79,7 +80,7 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
 
-	defaultDetach, err := conf.Getenv.Bool(false, config.TenvDetachedProxyDefaultEnvName)
+	defaultDetach, err := conf.Getenv.Bool(false, envname.TenvDetachedProxyDefault)
 	if err != nil {
 		fmt.Println(msgReadDefaultDetachErr, err) //nolint
 	}
