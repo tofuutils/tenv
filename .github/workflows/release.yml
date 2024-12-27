@@ -70,6 +70,9 @@ jobs:
           GPG_KEY_FILE: ${{ steps.gpg.outputs.GPG_KEY_FILE }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
