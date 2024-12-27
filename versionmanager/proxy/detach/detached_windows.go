@@ -22,18 +22,18 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 )
 
 const (
 	msgFailReadErr = msgStart + "failed to read environment variable :"
 	msgNotApplied  = msgStart + "can not apply environment variable"
-	msgStart       = config.TenvDetachedProxyEnvName + " behavior is always disabled on Windows OS, "
+	msgStart       = envname.TenvDetachedProxy + " behavior is always disabled on Windows OS, "
 )
 
 func InitBehaviorFromEnv(_ *exec.Cmd, getenv configutils.GetenvFunc, defaultDetached bool) {
-	switch detached, err := getenv.Bool(defaultDetached, config.TenvDetachedProxyEnvName); {
+	switch detached, err := getenv.Bool(defaultDetached, envname.TenvDetachedProxy); {
 	case err != nil:
 		fmt.Println(msgFailReadErr, err) //nolint
 	case detached:
