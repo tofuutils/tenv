@@ -1,6 +1,31 @@
 project_name: tenv
 version: 2
 
+announce:
+  linkedin:
+    enabled: true
+    message_template: "🎉 tenv {{.Tag}} is available now!! See what's new here - https://github.com/aquasecurity/tenv/releases/tag/{{.Tag}}"
+
+  slack:
+    enabled: true
+    message_template: ":tada: tenv {{.Tag}} is available now!! See what's new here - https://github.com/aquasecurity/tenv/releases/tag/{{.Tag}}"
+    channel: "#tofuutils"
+    username: ""
+    icon_emoji: ""
+    icon_url: ""
+    blocks: []
+    attachments: []
+
+  telegram:
+    enabled: true
+    chat_id: 123456
+    message_template: "🎉 tenv {{.Tag}} is available now!! See what's new here - https://github.com/aquasecurity/tenv/releases/tag/{{.Tag}}"
+    parse_mode: HTML # MarkdownV2
+
+  twitter:
+    enabled: true
+    message_template: "🎉 tenv {{.Tag}} is available now!! See what's new here - https://github.com/aquasecurity/tenv/releases/tag/{{.Tag}} #tenv #terraform #opentofu"
+
 before:
   hooks:
     - go mod tidy
@@ -353,10 +378,31 @@ archives:
 
 release:
   name_template: "Release {{.Tag}}"
+  discussion_category_name: Release
+  prerelease: auto
 
 changelog:
-  use: github-native
+  use: github
   sort: asc
+  format: "{{.SHA}}: {{.Message}} (@{{.AuthorUsername}})"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: "Bug fixes"
+      regexp: '^.*?bug(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+      groups:
+        - title: "Docs"
+          regex: ".*docs.*"
+          order: 1
+        - title: "CI"
+          regex: ".*build.*"
+          order: 2
+
+  divider: "---"
   filters:
     exclude:
       - "^test:"
@@ -398,6 +444,14 @@ nfpms:
     archlinux:
       pkgbase: tenv
       packager: tofuutils <tofuutils@gmail.com>
+
+cloudsmiths:
+  - organization: tofuutils
+    repository: tenv
+    distributions:
+      deb: "ubuntu/xenial"
+      alpine: "alpine/v3.8"
+      rpm: "el/7"
 
 snapcrafts:
   - name: tenv
