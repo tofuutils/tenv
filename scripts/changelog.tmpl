@@ -1,0 +1,62 @@
+{{- if index .NotesByType "upgrade-guide" }}
+{{range index .NotesByType "upgrade-guide" -}}
+{{ template "note" .}}
+{{ end -}}
+{{- end -}}
+
+{{- if index .NotesByType "breaking-change" }}
+BREAKING CHANGES:
+
+{{range index .NotesByType "breaking-change" -}}
+{{ template "note" .}}
+{{ end -}}
+{{- end -}}
+
+{{- if .NotesByType.note }}
+NOTES:
+
+{{range .NotesByType.note -}}
+{{ template "note" .}}
+{{ end -}}
+{{- end -}}
+
+{{- $features := combineTypes .NotesByType.feature (index .NotesByType "new-resource" ) (index .NotesByType "new-data-source") (index .NotesByType "new-guide") }}
+{{- if $features }}
+FEATURES:
+
+{{range $features | sort -}}
+{{ template "note" . }}
+{{ end -}}
+{{- end -}}
+
+{{- if .NotesByType.enhancement }}
+ENHANCEMENTS:
+
+{{range .NotesByType.enhancement | sort -}}
+{{ template "note" .}}
+{{ end -}}
+{{- end -}}
+
+{{- if .NotesByType.bug }}
+BUG FIXES:
+
+{{range .NotesByType.bug | sort -}}
+{{ template "note" . }}
+{{ end -}}
+{{- end -}}
+
+{{- if .NotesByType.internal }}
+INTERNAL:
+
+{{range .NotesByType.internal | sort -}}
+{{ template "note" . }}
+{{ end -}}
+{{- end -}}
+
+{{- if .NotesByType.dependency }}
+DEPENDENCIES:
+
+{{range .NotesByType.dependency | sort -}}
+{{ template "note" . }}
+{{ end -}}
+{{- end -}}

@@ -1,0 +1,9 @@
+{{- define "note" -}}
+{{- if eq "new-guide" .Type -}}
+* **New Guide:** `{{.Body}}` ([#{{- .Issue -}}](https://github.com/tofuutils/tenv/issues/{{- .Issue -}}))
+{{- else if eq "upgrade-guide" .Type -}}
+{{.Body}}
+{{- else -}}
+* {{.Body}} ([#{{- .Issue -}}](https://github.com/tofuutils/tenv/issues/{{- .Issue -}}))
+{{- end -}}
+{{- end -}}
