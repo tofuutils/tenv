@@ -33,3 +33,6 @@ tofu
 atmos
 
 ./build/**
+
+# File for changelog process
+release-notes.txt
