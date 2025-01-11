@@ -26,9 +26,8 @@ This information will help us triage your report more quickly.
 We prefer all communications to be in English.
 
 ## Contact
-Email: [security@example.com](mailto:security@example.com)
-GPG Key (Optional): [Link to GPG Key]
-Response time: We aim to respond to all reports as quickly as possible and provide a timeline for resolution.
+To contact us, use [OpenTofu Community`](https://opentofucommunity.slack.com/) slack, `#tofuutils` channel. You can ping Alexander Sharov or Denis Vaumoron there to discuss any issues.
+
 
 ## Disclosure Policy
 
