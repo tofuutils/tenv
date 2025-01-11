@@ -26,8 +26,8 @@ This information will help us triage your report more quickly.
 We prefer all communications to be in English.
 
 ## Contact
-To contact us, use [OpenTofu Community`](https://opentofucommunity.slack.com/) slack, `#tofuutils` channel. You can ping Alexander Sharov or Denis Vaumoron there to discuss any issues.
-
+To contact us, use [OpenTofu Community](https://opentofucommunity.slack.com/) slack, `#tofuutils` channel. You can ping Alexander Sharov or Denis Vaumoron there to discuss any issues.
+g
 
 ## Disclosure Policy
 
