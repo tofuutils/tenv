@@ -242,6 +242,27 @@ nix-env -i tenv
 
 </details>
 
+<details><summary><b>NixOS</b></summary>
+
+#### nix-env
+
+```sh
+nix-env -iA nixos.tenv
+```
+
+#### NixOS Configuration
+Add the following Nix code to your NixOS Configuration, usually located in /etc/nixos/configuration.nix
+```console
+environment.systemPackages = [
+    pkgs.tenv
+  ];
+```
+#### nix-shell
+
+```sh
+nix-shell -p tenv
+```
+</details>
 
 <a id="manual-installation"></a>
 #### Manual Installation
