@@ -88,7 +88,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		}
 	}
 
-	var requireds []string
+	var requiredVersions []string
 	var parsedFile *hcl.File
 	var diags hcl.Diagnostics
 	foundFiles = make([]string, 0, len(similar))
@@ -106,10 +106,10 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		}
 
 		extracted := extractRequiredVersion(parsedFile.Body, conf)
-		requireds = append(requireds, extracted...)
+		requiredVersions = append(requiredVersions, extracted...)
 	}
 
-	return requireds, nil
+	return requiredVersions, nil
 }
 
 func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
@@ -120,7 +120,7 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 		return nil
 	}
 
-	requireds := make([]string, 0, 1)
+	requiredVersions := make([]string, 0, 1)
 	for _, block := range rootContent.Blocks {
 		content, _, diags := block.Body.PartialContent(versionPartialSchema)
 		if diags.HasErrors() {
@@ -159,10 +159,10 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 
 			continue
 		}
-		requireds = append(requireds, val.AsString())
+		requiredVersions = append(requiredVersions, val.AsString())
 	}
 
-	return requireds
+	return requiredVersions
 }
 
 func filterExts(fileExts int, exts []ExtDescription) ExtDescription {
