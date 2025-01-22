@@ -111,14 +111,14 @@ func StableVersion(versionStr string) bool {
 	return err == nil && v.Prerelease() == ""
 }
 
-func addDefaultConstraint(constraintInfo types.ConstraintInfo, conf *config.Config, requireds ...string) (version.Constraints, error) {
+func addDefaultConstraint(constraintInfo types.ConstraintInfo, conf *config.Config, requiredVersions ...string) (version.Constraints, error) {
 	if defaultConstraint := constraintInfo.ReadDefaultConstraint(); defaultConstraint != "" {
-		requireds = append(requireds, defaultConstraint)
+		requiredVersions = append(requiredVersions, defaultConstraint)
 	}
-	conf.Displayer.Log(hclog.Debug, "Find", "constraints", requireds)
+	conf.Displayer.Log(hclog.Debug, "Find", "constraints", requiredVersions)
 
 	var constraint version.Constraints
-	for _, required := range requireds {
+	for _, required := range requiredVersions {
 		temp, err := version.NewConstraint(required)
 		if err != nil {
 			return nil, err
@@ -142,10 +142,10 @@ func predicateFromConstraint(constraint version.Constraints) func(string) bool {
 }
 
 func readIACfiles(constraintInfo types.ConstraintInfo, iacExts []iacparser.ExtDescription, conf *config.Config) (version.Constraints, error) {
-	requireds, err := iacparser.GatherRequiredVersion(conf, iacExts)
+	requiredVersions, err := iacparser.GatherRequiredVersion(conf, iacExts)
 	if err != nil {
 		return nil, err
 	}
 
-	return addDefaultConstraint(constraintInfo, conf, requireds...)
+	return addDefaultConstraint(constraintInfo, conf, requiredVersions...)
 }
