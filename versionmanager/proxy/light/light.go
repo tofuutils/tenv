@@ -26,7 +26,6 @@ import (
 	"os/signal"
 
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
-	detachproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/detach"
 )
 
 func Exec(execName string) {
@@ -36,8 +35,6 @@ func Exec(execName string) {
 
 	// proxy to selected version
 	cmd := exec.Command(cmdconst.TenvName, cmdArgs...) //nolint
-	defaultDetach := updateDefaultDetachInCmdEnv(cmd)
-	detachproxy.InitBehaviorFromEnv(cmd, os.Getenv, defaultDetach)
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -62,10 +59,4 @@ func Exec(execName string) {
 func exitWithErrorMsg(execName string, err error) {
 	fmt.Println("Failure during", execName, "call :", err) //nolint
 	os.Exit(1)
-}
-
-func transmitSignal(signalReceiver <-chan os.Signal, process *os.Process) {
-	for range signalReceiver {
-		_ = process.Signal(os.Interrupt)
-	}
 }

@@ -130,18 +130,6 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFu
 	}
 }
 
-func transmitIncreasingSignal(signalReceiver <-chan os.Signal, process *os.Process) {
-	first := true
-	for range signalReceiver {
-		if first {
-			_ = process.Signal(os.Interrupt)
-			first = false
-		} else {
-			_ = process.Signal(os.Kill)
-		}
-	}
-}
-
 func writeMultiline(file *os.File, key string, value string) error {
 	delimiter := "ghadelimeter_" + strconv.Itoa(rand.Int()) //nolint
 	if strings.Contains(key, delimiter) || strings.Contains(value, delimiter) {
