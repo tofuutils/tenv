@@ -23,7 +23,7 @@ package cmdproxy
 import "os"
 
 func transmitIncreasingSignal(signalReceiver <-chan os.Signal, _ *os.Process) {
-	for range signalReceiver {
+	for range signalReceiver { //nolint
 		// discard signals on non Windows OS (already send to whole process group)
 	}
 }
