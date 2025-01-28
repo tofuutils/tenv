@@ -1,3 +1,5 @@
+//go:build !windows
+
 /*
  *
  * Copyright 2024 tofuutils authors.
@@ -16,10 +18,12 @@
  *
  */
 
-package lightproxy
+package cmdproxy
 
-import "os/exec"
+import "os"
 
-func updateDefaultDetachInCmdEnv(_ *exec.Cmd) bool {
-	return false
+func transmitIncreasingSignal(signalReceiver <-chan os.Signal, _ *os.Process) {
+	for range signalReceiver { //nolint
+		// discard signals on non Windows OS (already send to whole process group)
+	}
 }

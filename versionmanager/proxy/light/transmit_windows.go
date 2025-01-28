@@ -1,5 +1,3 @@
-//go:build !windows
-
 /*
  *
  * Copyright 2024 tofuutils authors.
@@ -20,22 +18,10 @@
 
 package lightproxy
 
-import (
-	"os"
-	"os/exec"
+import "os"
 
-	"github.com/tofuutils/tenv/v4/config/envname"
-	"github.com/tofuutils/tenv/v4/pkg/tty"
-)
-
-const changeDefaultDetach = envname.TenvDetachedProxyDefault + "=true"
-
-func updateDefaultDetachInCmdEnv(cmd *exec.Cmd) bool {
-	if tty.Detect() {
-		cmd.Env = append(os.Environ(), changeDefaultDetach)
-
-		return true
+func transmitSignal(signalReceiver <-chan os.Signal, process *os.Process) {
+	for range signalReceiver {
+		_ = process.Signal(os.Interrupt)
 	}
-
-	return false
 }

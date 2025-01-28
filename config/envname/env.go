@@ -48,17 +48,15 @@ const (
 	AtmosRemoteURL   = AtmosPrefix + remoteURL
 	AtmosRemoteUser  = AtmosPrefix + remoteUser
 
-	tenvPrefix               = "TENV_"
-	TenvArch                 = tenvPrefix + arch
-	TenvAutoInstall          = tenvPrefix + autoInstall
-	TenvDetachedProxy        = tenvPrefix + "DETACHED_PROXY"
-	TenvDetachedProxyDefault = TenvDetachedProxy + "_DEFAULT"
-	TenvForceRemote          = tenvPrefix + forceRemote
-	TenvLog                  = tenvPrefix + log
-	TenvQuiet                = tenvPrefix + quiet
-	TenvRemoteConf           = tenvPrefix + "REMOTE_CONF"
-	TenvRootPath             = tenvPrefix + rootPath
-	TenvToken                = tenvPrefix + token
+	tenvPrefix      = "TENV_"
+	TenvArch        = tenvPrefix + arch
+	TenvAutoInstall = tenvPrefix + autoInstall
+	TenvForceRemote = tenvPrefix + forceRemote
+	TenvLog         = tenvPrefix + log
+	TenvQuiet       = tenvPrefix + quiet
+	TenvRemoteConf  = tenvPrefix + "REMOTE_CONF"
+	TenvRootPath    = tenvPrefix + rootPath
+	TenvToken       = tenvPrefix + token
 
 	TfenvPrefix          = "TFENV_"
 	tfenvTerraformPrefix = TfenvPrefix + "TERRAFORM_"
