@@ -32,7 +32,7 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.7.0
+        uses: sigstore/cosign-installer@v3.8.0
 
       - name: Import GPG key
         id: gpg
