@@ -175,10 +175,10 @@ func manageHiddenCallCmd(conf *config.Config, hclParser *hclparse.Parser) {
 	}
 
 	calledNamed, cmdArgs := os.Args[2], os.Args[3:]
-	if builderFunc, ok := builder.Builders[calledNamed]; ok {
-		proxy.Exec(conf, builderFunc, hclParser, calledNamed, cmdArgs)
-	} else if calledNamed == cmdconst.AgnosticName {
+	if _, ok := initAgnosticProxySet(conf)[calledNamed]; ok {
 		proxy.ExecAgnostic(conf, hclParser, cmdArgs)
+	} else if builderFunc, ok := builder.Builders[calledNamed]; ok {
+		proxy.Exec(conf, builderFunc, hclParser, calledNamed, cmdArgs)
 	}
 }
 
@@ -245,4 +245,21 @@ func initSubCmds(cmd *cobra.Command, versionManager versionmanager.VersionManage
 	cmd.AddCommand(newResetCmd(versionManager))
 	cmd.AddCommand(newUninstallCmd(versionManager))
 	cmd.AddCommand(newUseCmd(versionManager, params))
+}
+
+func initAgnosticProxySet(conf *config.Config) map[string]struct{} {
+	agnosticProxies := map[string]struct{}{
+		cmdconst.AgnosticName: {},
+	}
+
+	agnostic, err := conf.Getenv.Bool(false, envname.TofuAgnostic)
+	if err == nil && agnostic {
+		agnosticProxies[cmdconst.TofuName] = struct{}{}
+	}
+	agnostic, err = conf.Getenv.Bool(false, envname.TfAgnostic)
+	if err == nil && agnostic {
+		agnosticProxies[cmdconst.TerraformName] = struct{}{}
+	}
+
+	return agnosticProxies
 }

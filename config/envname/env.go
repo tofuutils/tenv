@@ -19,6 +19,7 @@
 package envname
 
 const (
+	agnosticProxy           = "AGNOSTIC_PROXY"
 	arch                    = "ARCH"
 	autoInstall             = "AUTO_INSTALL"
 	DefaultConstraintSuffix = "DEFAULT_CONSTRAINT"
@@ -60,6 +61,7 @@ const (
 
 	TfenvPrefix          = "TFENV_"
 	TfenvTerraformPrefix = TfenvPrefix + "TERRAFORM_"
+	TfAgnostic           = TfenvPrefix + agnosticProxy
 	TfArch               = TfenvPrefix + arch
 	TfAutoInstall        = TfenvPrefix + autoInstall
 	TfForceRemote        = TfenvPrefix + forceRemote
@@ -82,6 +84,7 @@ const (
 
 	TofuenvPrefix      = "TOFUENV_"
 	TofuenvTofuPrefix  = TofuenvPrefix + "TOFU_"
+	TofuAgnostic       = TofuenvPrefix + agnosticProxy
 	TofuArch           = TofuenvPrefix + arch
 	TofuAutoInstall    = TofuenvPrefix + autoInstall
 	TofuForceRemote    = TofuenvPrefix + forceRemote
