@@ -36,3 +36,6 @@ atmos
 
 # File for changelog process
 release-notes.txt
+
+# CI files
+.goreleaser_ci.yml

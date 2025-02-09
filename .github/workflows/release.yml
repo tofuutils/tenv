@@ -57,25 +57,23 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_TOKEN }}
 
-      - name: Prepare extra command for goreleaser
-        id: prepare_goreleaser_extra_commands
+      - name: Prepare goreleaser file
         run: |
           set -x
-          EXTRA_GORELEASER_COMMANDS=""
-
+          
           TAG=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
           if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            EXTRA_GORELEASER_COMMANDS="-f .goreleaser_release_only.yml ${EXTRA_GORELEASER_COMMANDS}"
+            yq eval-all '. as $item ireduce ({}; . * $item)' .goreleaser.yml .goreleaser_release_only.yml > .goreleaser_ci.yml
+          else
+            cp .goreleaser.yml .goreleaser_ci.yml
           fi
-
-          echo "EXTRA_GORELEASER_COMMANDS=${EXTRA_GORELEASER_COMMANDS}" >> $GITHUB_OUTPUT
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser-pro
           version: "~> v2"
-          args: release --clean -f ${{ vars.GORELEASER_CONFIG_PATH }} ${{ steps.prepare_goreleaser_extra_commands.outputs.EXTRA_GORELEASER_COMMANDS }}
+          args: release --clean -f .goreleaser_ci.yml
         env:
           AUR_KEY: ${{ secrets.AUR_KEY }}
           DISABLE_CHANGELOG: ${{ vars.DISABLE_CHANGELOG}}
