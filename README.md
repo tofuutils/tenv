@@ -754,6 +754,13 @@ Used by `tenv update-path` when GITHUB_ACTIONS is set to true, path to a file to
 <a id="tofu-env-vars"></a>
 ### OpenTofu environment variables
 
+<details><summary><b>TOFUENV_AGNOSTIC_PROXY</b></summary><br>
+
+Switch `tofu` proxy to an agnostic proxy (behave like `tf`, see [resolution order](#project-binaries)).
+
+</details>
+
+
 <details><summary><b>TOFUENV_ARCH</b></summary><br>
 
 Same as TENV_ARCH (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
@@ -947,6 +954,13 @@ on linux_amd64
 
 <a id="tf-env-vars"></a>
 ### Terraform environment variables
+
+<details><summary><b>TFENV_AGNOSTIC_PROXY</b></summary><br>
+
+Switch `terraform` proxy to an agnostic proxy (behave like `tf`, see [resolution order](#project-binaries)).
+
+</details>
+
 
 <details><summary><b>TFENV_ARCH</b></summary><br>
 
