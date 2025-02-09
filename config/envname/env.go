@@ -60,8 +60,8 @@ const (
 	TenvToken       = tenvPrefix + token
 
 	TfenvPrefix          = "TFENV_"
-	tfenvTerraformPrefix = TfenvPrefix + "TERRAFORM_"
-	TfAgnostic           = TfenvPrefix + agnosticProxy
+	TfenvTerraformPrefix = TfenvPrefix + "TERRAFORM_"
+  TfAgnostic           = TfenvPrefix + agnosticProxy
 	TfArch               = TfenvPrefix + arch
 	TfAutoInstall        = TfenvPrefix + autoInstall
 	TfForceRemote        = TfenvPrefix + forceRemote
@@ -83,7 +83,7 @@ const (
 	TgRemoteUser  = TgPrefix + remoteUser
 
 	TofuenvPrefix      = "TOFUENV_"
-	tofuenvTofuPrefix  = TofuenvPrefix + "TOFU_"
+	TofuenvTofuPrefix  = TofuenvPrefix + "TOFU_"
 	TofuAgnostic       = TofuenvPrefix + agnosticProxy
 	TofuArch           = TofuenvPrefix + arch
 	TofuAutoInstall    = TofuenvPrefix + autoInstall

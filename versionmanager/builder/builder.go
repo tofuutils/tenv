@@ -72,7 +72,7 @@ func BuildTfManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 		{Value: ".tf.json", Parser: hclParser.ParseJSONFile},
 	}
 
-	return versionmanager.Make(conf, envname.TfenvPrefix, "Terraform", iacExts, tfRetriever, versionFiles)
+	return versionmanager.Make(conf, envname.TfenvTerraformPrefix, "Terraform", iacExts, tfRetriever, versionFiles)
 }
 
 func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
@@ -107,5 +107,5 @@ func BuildTofuManager(conf *config.Config, hclParser *hclparse.Parser) versionma
 		{Value: ".tf.json", Parser: hclParser.ParseJSONFile},
 	}
 
-	return versionmanager.Make(conf, envname.TofuenvPrefix, "OpenTofu", iacExts, tofuRetriever, versionFiles)
+	return versionmanager.Make(conf, envname.TofuenvTofuPrefix, "OpenTofu", iacExts, tofuRetriever, versionFiles)
 }
