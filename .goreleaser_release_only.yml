@@ -1,5 +1,3 @@
-version: 2
-
 announce:
   slack:
     enabled: true
@@ -14,8 +12,8 @@ announce:
   telegram:
     enabled: true
     chat_id: -4020097127
-    message_template: "🎉 tenv {{ mdv2escape .Tag}} is available{{ mdv2escape '!' }} See what is new here - https://github.com/tofuutils/tenv/releases/tag/{{ mdv2escape .Tag}}"
-    parse_mode: HTML
+    message_template: '🎉 tenv {{ mdv2escape .Tag}} is available{{ mdv2escape "!" }} See what is new here - https://github.com/tofuutils/tenv/releases/tag/{{ mdv2escape .Tag}}'
+    parse_mode: MarkdownV2
 
 cloudsmiths:
   - organization: tofuutils
