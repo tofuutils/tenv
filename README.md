@@ -756,6 +756,8 @@ Used by `tenv update-path` when GITHUB_ACTIONS is set to true, path to a file to
 
 <details><summary><b>TOFUENV_AGNOSTIC_PROXY</b></summary><br>
 
+String (Default: false)
+
 Switch `tofu` proxy to an agnostic proxy (behave like `tf`, see [resolution order](#project-binaries)).
 
 </details>
@@ -956,6 +958,8 @@ on linux_amd64
 ### Terraform environment variables
 
 <details><summary><b>TFENV_AGNOSTIC_PROXY</b></summary><br>
+
+String (Default: false)
 
 Switch `terraform` proxy to an agnostic proxy (behave like `tf`, see [resolution order](#project-binaries)).
 
