@@ -61,7 +61,7 @@ const (
 
 	TfenvPrefix          = "TFENV_"
 	TfenvTerraformPrefix = TfenvPrefix + "TERRAFORM_"
-  TfAgnostic           = TfenvPrefix + agnosticProxy
+	TfAgnostic           = TfenvPrefix + agnosticProxy
 	TfArch               = TfenvPrefix + arch
 	TfAutoInstall        = TfenvPrefix + autoInstall
 	TfForceRemote        = TfenvPrefix + forceRemote
