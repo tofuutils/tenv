@@ -1,10 +1,12 @@
 run:
-  deadline: 1m
-  skip-files:
-    - ".*\\.pb\\.go"
-  skip-dirs:
-    - pkg/client
+  timeout: 1m
   modules-download-mode: readonly
+
+issues:
+  exclude-files:
+    - ".*\\.pb\\.go"
+  exclude-dirs:
+    - pkg/client
 
 linters:
   enable-all: true
@@ -13,8 +15,8 @@ linters:
     - testpackage # testpackage is a golang linter that makes you use a separate _test package.
     - wsl
     - wrapcheck
-    - goerr113
-    - gomnd
+    - err113
+    - mnd
     - exhaustruct
     - nestif
     - gofumpt
@@ -25,12 +27,6 @@ linters:
     - gci
     - lll
     - gocognit
-    - ifshort # deprecated
-    - maligned # deprecated
-    - golint # deprecated
-    - interfacer  #deprecated
-    - scopelint # deprecated
-    - exhaustivestruct # deprecated
 
 linters-settings:
   gosimple:
