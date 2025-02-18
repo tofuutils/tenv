@@ -9,7 +9,7 @@ on:
 jobs:
   goreleaser:
     name: "Build and release packages"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       id-token: write # For cosign
       packages: write # For GHCR
