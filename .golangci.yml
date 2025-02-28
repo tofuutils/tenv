@@ -27,6 +27,7 @@ linters:
     - gci
     - lll
     - gocognit
+    - tenv
 
 linters-settings:
   gosimple:
