@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-.PHONY: build test clean
+.PHONY: build test e2e_test clean
 
 ##@ General
 help: ## Display this help.
@@ -49,6 +49,10 @@ lint: ## Run Go linter
 ##@ Test
 test: ## Run Go tests
 	go test ./...
+
+##@ E2e_test
+e2e_test: build ## Run e2e Go tests
+	TENV_BIN="$(CURDIR)/build/tenv" go test -tags=e2e ./test/e2e/... -v 
 
 ##@ Clean
 clean:
