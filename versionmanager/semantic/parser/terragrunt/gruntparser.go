@@ -35,8 +35,13 @@ import (
 )
 
 const (
-	HCLName  = "terragrunt.hcl"
-	JSONName = "terragrunt.hcl.json"
+	HCLName  = "root.hcl"
+	JSONName = "root.hcl.json"
+
+	// HCLNameLegacy is the legacy file name for the root Terragrunt HCL file.
+	HCLNameLegacy = "terragrunt.hcl"
+	// JSONNameLegacy is the legacy file name for the root Terragrunt JSON file.
+	JSONNameLegacy = "terragrunt.hcl.json"
 
 	terraformVersionConstraintName  = "terraform_version_constraint"
 	terragruntVersionConstraintName = "terragrunt_version_constraint"

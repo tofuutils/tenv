@@ -63,7 +63,9 @@ func BuildTfManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 		{Name: ".terraform-version", Parser: flatparser.RetrieveVersion},
 		{Name: ".tfswitchrc", Parser: flatparser.RetrieveVersion},
 		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTfVersion},
+		{Name: terragruntparser.HCLNameLegacy, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
+		{Name: terragruntparser.JSONNameLegacy, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
 
@@ -83,7 +85,9 @@ func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 		{Name: ".tgswitchrc", Parser: flatparser.RetrieveVersion},
 		{Name: ".tgswitch.toml", Parser: tomlparser.RetrieveVersion},
 		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTgVersion},
+		{Name: terragruntparser.HCLNameLegacy, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromHCL},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromHCL},
+		{Name: terragruntparser.JSONNameLegacy, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromJSON},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerragruntVersionConstraintFromJSON},
 	}
 
@@ -96,7 +100,9 @@ func BuildTofuManager(conf *config.Config, hclParser *hclparse.Parser) versionma
 	versionFiles := []types.VersionFile{
 		{Name: ".opentofu-version", Parser: flatparser.RetrieveVersion},
 		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTofuVersion},
+		{Name: terragruntparser.HCLNameLegacy, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
 		{Name: terragruntparser.HCLName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromHCL},
+		{Name: terragruntparser.JSONNameLegacy, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 		{Name: terragruntparser.JSONName, Parser: gruntParser.RetrieveTerraformVersionConstraintFromJSON},
 	}
 
