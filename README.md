@@ -1390,9 +1390,14 @@ Recognize same values as `tenv tg use` command.
 
 
 <a id="terragrunt-hcl-file"></a>
-<details><summary><b>terragrunt.hcl file</b></summary><br>
+<details><summary><b>terragrunt.hcl or root.hcl file</b></summary><br>
 
-If you have a terragrunt.hcl or terragrunt.hcl.json in the working directory, one of its parent directory, or user home directory, **tenv** will read constraint from `terraform_version_constraint` or `terragrunt_version_constraint` field in it (depending on proxy or subcommand used).
+[Terragrunt now recommends](https://terragrunt.gruntwork.io/docs/migrate/migrating-from-root-terragrunt-hcl/) using `root.hcl` instead of `terragrunt.hcl` as the root configuration file name.
+
+If a `terragrunt.hcl`, `root.hcl`, or their `.json` equivalents exist in the working directory, a parent directory, or the user home directory, **tenv** will read constraints from the `terraform_version_constraint` or `terragrunt_version_constraint` field (depending on proxy or subcommand used).
+
+
+If both `root.hcl` and `terragrunt.hcl` (or their `.json` versions) are present, `terragrunt.hcl` takes precedence.
 
 </details>
 
@@ -1440,6 +1445,8 @@ The version resolution order is :
 - `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terraform_version_constraint` from `terragrunt.hcl` file
 - `terraform_version_constraint` from `terragrunt.hcl.json` file
+- `terraform_version_constraint` from `root.hcl` file
+- `terraform_version_constraint` from `root.hcl.json` file
 - TOFUENV_TOFU_DEFAULT_VERSION environment variable
 - `${TENV_ROOT}/OpenTofu/version` file (can be written with `tenv tofu use`)
 - `latest-allowed`
@@ -1460,6 +1467,8 @@ The version resolution order is :
 - `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terraform_version_constraint` from `terragrunt.hcl` file
 - `terraform_version_constraint` from `terragrunt.hcl.json` file
+- `terraform_version_constraint` from `root.hcl` file
+- `terraform_version_constraint` from `root.hcl.json` file
 - TFENV_TERRAFORM_DEFAULT_VERSION environment variable
 - `${TENV_ROOT}/Terraform/version` file (can be written with `tenv tf use`)
 - `latest-allowed`
@@ -1482,6 +1491,8 @@ The version resolution order is :
 - `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terragrunt_version_constraint` from `terragrunt.hcl` file
 - `terragrunt_version_constraint` from `terragrunt.hcl.json` file
+- `terragrunt_version_constraint` from `root.hcl` file
+- `terragrunt_version_constraint` from `root.hcl.json` file
 - TG_DEFAULT_VERSION environment variable
 - `${TENV_ROOT}/Terragrunt/version` file (can be written with `tenv tg use`)
 - `latest-allowed`
@@ -1520,6 +1531,8 @@ The version resolution order is :
 - `tofu` version from `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
 - `terraform_version_constraint` from `terragrunt.hcl` file (launch `tofu`)
 - `terraform_version_constraint` from `terragrunt.hcl.json` file (launch `tofu`)
+- `terraform_version_constraint` from `root.hcl` file (launch `tofu`)
+- `terraform_version_constraint` from `root.hcl.json` file (launch `tofu`)
 - `.terraform-version` file (launch `terraform`)
 - `.tfswitchrc` file  (launch `terraform`)
 - `terraform` version from `.tool-versions` [file](https://asdf-vm.com/manage/configuration.html#tool-versions)
