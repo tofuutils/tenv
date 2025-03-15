@@ -42,7 +42,7 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 	detectedVersion, err := manager.ResolveWithVersionFiles()
 	if err != nil {
 		fmt.Println("Failed to resolve a version allowing to call tofu :", err) //nolint
-		os.Exit(1)
+		os.Exit(cmdconst.EarlyErrorExitCode)
 	}
 
 	execName := cmdconst.TofuName
@@ -52,26 +52,26 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 		detectedVersion, err = manager.ResolveWithVersionFiles()
 		if err != nil {
 			fmt.Println("Failed to resolve a version allowing to call terraform :", err) //nolint
-			os.Exit(1)
+			os.Exit(cmdconst.EarlyErrorExitCode)
 		}
 
 		if detectedVersion == "" {
 			fmt.Println("No version files found corresponding to opentofu or terraform") //nolint
-			os.Exit(1)
+			os.Exit(cmdconst.EarlyErrorExitCode)
 		}
 	}
 
 	installPath, err := manager.InstallPath()
 	if err != nil {
 		fmt.Println("Failed to create installation directory for", execName, ":", err) //nolint
-		os.Exit(1)
+		os.Exit(cmdconst.EarlyErrorExitCode)
 	}
 
 	ctx := context.Background()
 	detectedVersion, err = manager.Evaluate(ctx, detectedVersion, true)
 	if err != nil {
 		fmt.Println("Failed to evaluate the requested version in a specific version allowing to call", execName, ":", err) //nolint
-		os.Exit(1)
+		os.Exit(cmdconst.EarlyErrorExitCode)
 	}
 
 	execPath := ExecPath(installPath, detectedVersion, execName, conf)

@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
@@ -48,7 +49,7 @@ func Run(cmd *exec.Cmd, gha bool, getenv configutils.GetenvFunc) {
 
 	err := cmd.Start()
 	if err != nil {
-		exitWithErrorMsg(cmd.Path, err, &exitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode, cmdconst.BasicErrorExitCode)
 
 		return
 	}
@@ -64,14 +65,14 @@ func Run(cmd *exec.Cmd, gha bool, getenv configutils.GetenvFunc) {
 
 			return
 		}
-		exitWithErrorMsg(cmd.Path, err, &exitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode, cmdconst.BasicErrorExitCode)
 	}
 }
 
-func exitWithErrorMsg(execPath string, err error, pExitCode *int) {
+func exitWithErrorMsg(execPath string, err error, pExitCode *int, defaultExitCode int) {
 	fmt.Println("Failure during", execPath, "call :", err) //nolint
 	if *pExitCode == 0 {
-		*pExitCode = 1
+		*pExitCode = defaultExitCode
 	}
 }
 
@@ -104,27 +105,27 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFu
 
 		err = writeMultiline(outputFile, "stderr", errBuffer.String())
 		if err != nil {
-			exitWithErrorMsg(cmd.Path, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
 
 			return
 		}
 
 		if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
-			exitWithErrorMsg(cmd.Path, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
 
 			return
 		}
 
 		exitCode := *pExitCode
 		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(exitCode)); err != nil {
-			exitWithErrorMsg(cmd.Path, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
 
 			return
 		}
 
 		if exitCode != 0 && exitCode != 2 {
 			err = fmt.Errorf("exited with code %d", exitCode)
-			exitWithErrorMsg(cmd.Path, err, pExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
 		}
 	}
 }

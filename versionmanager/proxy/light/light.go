@@ -58,5 +58,5 @@ func Exec(execName string) {
 
 func exitWithErrorMsg(execName string, err error) {
 	fmt.Println("Failure during", execName, "call :", err) //nolint
-	os.Exit(1)
+	os.Exit(cmdconst.BasicErrorExitCode)
 }
