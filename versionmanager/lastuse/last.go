@@ -27,13 +27,12 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
 	fileName = "last-use.txt"
-
-	rwPerm = 0o600
 )
 
 func Read(dirPath string, displayer loghelper.Displayer) time.Time {
@@ -58,7 +57,7 @@ func WriteNow(dirPath string, displayer loghelper.Displayer) {
 	lastUsePath := filepath.Join(dirPath, fileName)
 	nowData := time.Now().AppendFormat(nil, time.DateOnly)
 
-	if err := os.WriteFile(lastUsePath, nowData, rwPerm); err != nil {
+	if err := os.WriteFile(lastUsePath, nowData, fileperm.RW); err != nil {
 		displayer.Log(hclog.Warn, "Unable to write date in file", loghelper.Error, err)
 	}
 }

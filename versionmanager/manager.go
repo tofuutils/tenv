@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/go-version"
 
 	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/lockfile"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/pkg/reversecmp"
@@ -40,11 +41,6 @@ import (
 	flatparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/flat"
 	iacparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
-)
-
-const (
-	rwePerm = 0o755
-	rwPerm  = 0o600
 )
 
 var (
@@ -189,7 +185,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 func (m VersionManager) InstallPath() (string, error) {
 	dirPath := filepath.Join(m.Conf.RootPath, m.FolderName)
 
-	return dirPath, os.MkdirAll(dirPath, rwePerm)
+	return dirPath, os.MkdirAll(dirPath, fileperm.RWE)
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
@@ -564,7 +560,7 @@ func removeFile(filePath string, conf *config.Config) error {
 }
 
 func writeFile(filePath string, content string, conf *config.Config) error {
-	err := os.WriteFile(filePath, []byte(content), rwPerm)
+	err := os.WriteFile(filePath, []byte(content), fileperm.RW)
 	if err == nil {
 		conf.Displayer.Display(loghelper.Concat("Written ", content, " in ", filePath))
 	}

@@ -26,14 +26,13 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
 	cosignExecName = "cosign"
 	verified       = "Verified OK"
-
-	rwPerm = 0o600
 )
 
 var (
@@ -95,7 +94,7 @@ func tempFile(name string, data []byte) (string, func(), error) {
 	}
 
 	tmpFileName := tmpFile.Name()
-	if err = os.WriteFile(tmpFileName, data, rwPerm); err != nil {
+	if err = os.WriteFile(tmpFileName, data, fileperm.RW); err != nil {
 		return "", nil, err
 	}
 
