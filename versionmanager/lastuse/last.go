@@ -62,6 +62,7 @@ func WriteNow(dirPath string, conf *config.Config) {
 	switch {
 	case err != nil:
 		conf.Displayer.Log(hclog.Warn, skipLastUseErrMsg, loghelper.Error, err)
+
 		fallthrough
 	case skipLastUse:
 		return
