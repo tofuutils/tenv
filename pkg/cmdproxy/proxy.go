@@ -49,7 +49,7 @@ func Run(cmd *exec.Cmd, gha bool, getenv configutils.GetenvFunc) {
 
 	err := cmd.Start()
 	if err != nil {
-		exitWithErrorMsg(cmd.Path, err, &exitCode, cmdconst.BasicErrorExitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode)
 
 		return
 	}
@@ -65,14 +65,14 @@ func Run(cmd *exec.Cmd, gha bool, getenv configutils.GetenvFunc) {
 
 			return
 		}
-		exitWithErrorMsg(cmd.Path, err, &exitCode, cmdconst.BasicErrorExitCode)
+		exitWithErrorMsg(cmd.Path, err, &exitCode)
 	}
 }
 
-func exitWithErrorMsg(execPath string, err error, pExitCode *int, defaultExitCode int) {
+func exitWithErrorMsg(execPath string, err error, pExitCode *int) {
 	fmt.Println("Failure during", execPath, "call :", err) //nolint
 	if *pExitCode == 0 {
-		*pExitCode = defaultExitCode
+		*pExitCode = cmdconst.BasicErrorExitCode
 	}
 }
 
@@ -105,27 +105,27 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFu
 
 		err = writeMultiline(outputFile, "stderr", errBuffer.String())
 		if err != nil {
-			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 
 			return
 		}
 
 		if err = writeMultiline(outputFile, "stdout", outBuffer.String()); err != nil {
-			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 
 			return
 		}
 
 		exitCode := *pExitCode
 		if err = writeMultiline(outputFile, "exitcode", strconv.Itoa(exitCode)); err != nil {
-			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 
 			return
 		}
 
 		if exitCode != 0 && exitCode != 2 {
 			err = fmt.Errorf("exited with code %d", exitCode)
-			exitWithErrorMsg(cmd.Path, err, pExitCode, cmdconst.BasicErrorExitCode)
+			exitWithErrorMsg(cmd.Path, err, pExitCode)
 		}
 	}
 }
