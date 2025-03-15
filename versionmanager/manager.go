@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/go-version"
 
 	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/lockfile"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/pkg/reversecmp"
@@ -40,11 +41,6 @@ import (
 	flatparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/flat"
 	iacparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
-)
-
-const (
-	rwePerm = 0o755
-	rwPerm  = 0o600
 )
 
 var (
@@ -189,7 +185,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 func (m VersionManager) InstallPath() (string, error) {
 	dirPath := filepath.Join(m.Conf.RootPath, m.FolderName)
 
-	return dirPath, os.MkdirAll(dirPath, rwePerm)
+	return dirPath, os.MkdirAll(dirPath, fileperm.RWE)
 }
 
 func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
@@ -206,7 +202,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 	datedVersions := make([]DatedVersion, 0, len(versions))
 	for _, version := range versions {
 		datedVersions = append(datedVersions, DatedVersion{
-			UseDate: lastuse.Read(filepath.Join(installPath, version), m.Conf.Displayer),
+			UseDate: lastuse.Read(filepath.Join(installPath, version), m.Conf),
 			Version: version,
 		})
 	}
@@ -342,7 +338,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
-	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.Conf.Displayer)
+	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.Conf)
 	if err != nil {
 		return err
 	}
@@ -564,7 +560,7 @@ func removeFile(filePath string, conf *config.Config) error {
 }
 
 func writeFile(filePath string, content string, conf *config.Config) error {
-	err := os.WriteFile(filePath, []byte(content), rwPerm)
+	err := os.WriteFile(filePath, []byte(content), fileperm.RW)
 	if err == nil {
 		conf.Displayer.Display(loghelper.Concat("Written ", content, " in ", filePath))
 	}

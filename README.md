@@ -724,6 +724,15 @@ The path to a directory where the local OpenTofu versions, Terraform versions, T
 </details>
 
 
+<details><summary><b>TENV_SKIP_LAST_USE</b></summary><br>
+
+String (Default: false)
+
+If set to true **tenv** disable tracking of last use date for installed versions. It allow to avoid warning message when **tenv** is installed as root user and run with a normal user by skipping the writing of `last-use.txt`. This will lead to misselection with `not-used-for` and `not-used-since` behavior of `tenv uninstall`.
+
+</details>
+
+
 <details><summary><b>GITHUB_ACTIONS</b></summary><br>
 
 String (Default: false)

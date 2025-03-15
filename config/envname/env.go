@@ -57,6 +57,7 @@ const (
 	TenvQuiet       = tenvPrefix + quiet
 	TenvRemoteConf  = tenvPrefix + "REMOTE_CONF"
 	TenvRootPath    = tenvPrefix + rootPath
+	TenvSkipLastUse = tenvPrefix + "SKIP_LAST_USE"
 	TenvToken       = tenvPrefix + token
 
 	TfenvPrefix          = "TFENV_"

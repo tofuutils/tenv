@@ -31,9 +31,8 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 )
-
-const rwPerm = 0o600
 
 var errDelimiter = errors.New("key and value should not contains delimiter")
 
@@ -86,7 +85,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFu
 	}
 
 	outputPath := getenv(envname.GithubOutput)
-	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
+	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, fileperm.RW)
 	if err != nil {
 		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint
 

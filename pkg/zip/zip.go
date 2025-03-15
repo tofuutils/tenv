@@ -26,13 +26,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-)
 
-const rwePerm = 0o755
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
+)
 
 // ensure the directory exists with a MkdirAll call.
 func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error {
-	err := os.MkdirAll(dirPath, rwePerm)
+	err := os.MkdirAll(dirPath, fileperm.RWE)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) boo
 
 	if destPath[len(destPath)-1] == '/' {
 		// trailing slash indicates a directory
-		return os.MkdirAll(destPath, rwePerm)
+		return os.MkdirAll(destPath, fileperm.RWE)
 	}
 
 	reader, err := zipFile.Open()

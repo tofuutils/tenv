@@ -27,26 +27,29 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/envname"
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
 	fileName = "last-use.txt"
 
-	rwPerm = 0o600
+	skipLastUseErrMsg = "Unable to retrieve " + envname.TenvSkipLastUse + " environment variable"
 )
 
-func Read(dirPath string, displayer loghelper.Displayer) time.Time {
+func Read(dirPath string, conf *config.Config) time.Time {
 	data, err := os.ReadFile(filepath.Join(dirPath, fileName))
 	if err != nil {
-		displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Unable to read date in file", loghelper.Error, err)
+		conf.Displayer.Log(loghelper.LevelWarnOrDebug(errors.Is(err, fs.ErrNotExist)), "Unable to read date in file", loghelper.Error, err)
 
 		return time.Time{}
 	}
 
 	parsed, err := time.Parse(time.DateOnly, string(data))
 	if err != nil {
-		displayer.Log(hclog.Warn, "Unable to parse date in file", loghelper.Error, err)
+		conf.Displayer.Log(hclog.Warn, "Unable to parse date in file", loghelper.Error, err)
 
 		return time.Time{}
 	}
@@ -54,11 +57,21 @@ func Read(dirPath string, displayer loghelper.Displayer) time.Time {
 	return parsed
 }
 
-func WriteNow(dirPath string, displayer loghelper.Displayer) {
+func WriteNow(dirPath string, conf *config.Config) {
+	skipLastUse, err := conf.Getenv.Bool(false, envname.TenvSkipLastUse)
+	switch {
+	case err != nil:
+		conf.Displayer.Log(hclog.Warn, skipLastUseErrMsg, loghelper.Error, err)
+
+		fallthrough
+	case skipLastUse:
+		return
+	}
+
 	lastUsePath := filepath.Join(dirPath, fileName)
 	nowData := time.Now().AppendFormat(nil, time.DateOnly)
 
-	if err := os.WriteFile(lastUsePath, nowData, rwPerm); err != nil {
-		displayer.Log(hclog.Warn, "Unable to write date in file", loghelper.Error, err)
+	if err := os.WriteFile(lastUsePath, nowData, fileperm.RW); err != nil {
+		conf.Displayer.Log(hclog.Warn, "Unable to write date in file", loghelper.Error, err)
 	}
 }

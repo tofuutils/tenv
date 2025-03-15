@@ -30,7 +30,6 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/cmdproxy"
-	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
 	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
 )
@@ -57,16 +56,16 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 		os.Exit(1)
 	}
 
-	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
+	execPath := ExecPath(installPath, detectedVersion, execName, conf)
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
 
 	cmdproxy.Run(cmd, conf.GithubActions, conf.Getenv)
 }
 
-func ExecPath(installPath string, version string, execName string, displayer loghelper.Displayer) string {
+func ExecPath(installPath string, version string, execName string, conf *config.Config) string {
 	versionPath := filepath.Join(installPath, version)
-	lastuse.WriteNow(versionPath, displayer)
+	lastuse.WriteNow(versionPath, conf)
 
 	return filepath.Join(versionPath, execName)
 }

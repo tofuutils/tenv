@@ -26,11 +26,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/lockfile"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
-
-const rwPerm = 0o600
 
 //go:embed testdata/data1.txt
 var data1 []byte
@@ -99,7 +98,7 @@ func writeReadFile(dirPath string, filePath string, data []byte, displayer loghe
 	deleteLock := lockfile.Write(dirPath, displayer)
 	defer deleteLock()
 
-	if err := os.WriteFile(filePath, data, rwPerm); err != nil {
+	if err := os.WriteFile(filePath, data, fileperm.RW); err != nil {
 		return nil, err
 	}
 

@@ -27,14 +27,13 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
 	msgWrite  = "can not write .lock file, will retry"
 	msgDelete = "can not remove .lock file"
-
-	rwPerm = 0o600
 )
 
 // ! dirPath must already exist (no mkdir here).
@@ -42,7 +41,7 @@ const (
 func Write(dirPath string, displayer loghelper.Displayer) func() {
 	lockPath := filepath.Join(dirPath, ".lock")
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
-		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, rwPerm)
+		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, fileperm.RW)
 		if err == nil {
 			f.Close()
 

@@ -74,7 +74,7 @@ func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []str
 		os.Exit(1)
 	}
 
-	execPath := ExecPath(installPath, detectedVersion, execName, conf.Displayer)
+	execPath := ExecPath(installPath, detectedVersion, execName, conf)
 
 	cmd := exec.CommandContext(ctx, execPath, cmdArgs...)
 
