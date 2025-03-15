@@ -202,7 +202,7 @@ func (m VersionManager) ListLocal(reverseOrder bool) ([]DatedVersion, error) {
 	datedVersions := make([]DatedVersion, 0, len(versions))
 	for _, version := range versions {
 		datedVersions = append(datedVersions, DatedVersion{
-			UseDate: lastuse.Read(filepath.Join(installPath, version), m.Conf.Displayer),
+			UseDate: lastuse.Read(filepath.Join(installPath, version), m.Conf),
 			Version: version,
 		})
 	}
@@ -338,7 +338,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
-	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.Conf.Displayer)
+	selected, err := semantic.SelectVersionsToUninstall(requestedVersion, installPath, versions, m.Conf)
 	if err != nil {
 		return err
 	}

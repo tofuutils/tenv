@@ -155,7 +155,7 @@ func (t Tenv) Command(ctx context.Context, toolName string, requestedVersion str
 		return nil, err
 	}
 
-	execPath := proxy.ExecPath(installPath, requestedVersion, toolName, t.conf.Displayer)
+	execPath := proxy.ExecPath(installPath, requestedVersion, toolName, t.conf)
 
 	return exec.CommandContext(ctx, execPath, cmdArgs...), nil
 }
@@ -195,7 +195,7 @@ func (t Tenv) DetectedCommand(ctx context.Context, toolName string, cmdArgs ...s
 		return nil, err
 	}
 
-	execPath := proxy.ExecPath(installPath, detectedVersion, toolName, t.conf.Displayer)
+	execPath := proxy.ExecPath(installPath, detectedVersion, toolName, t.conf)
 
 	return exec.CommandContext(ctx, execPath, cmdArgs...), nil
 }

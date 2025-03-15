@@ -27,7 +27,7 @@ import (
 
 	"github.com/hashicorp/go-version"
 
-	"github.com/tofuutils/tenv/v4/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
 )
 
@@ -45,7 +45,7 @@ const (
 var errDurationParsing = errors.New("unrecognized duration format")
 
 // versions must be sorted in descending order.
-func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string, versions []string, displayer loghelper.Displayer) ([]string, error) {
+func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string, versions []string, conf *config.Config) ([]string, error) {
 	switch {
 	case behaviourOrConstraint == allKey:
 		return versions, nil
@@ -77,7 +77,7 @@ func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string,
 		}
 
 		beforeDate := time.Now().AddDate(0, -monthsInt, -daysInt)
-		pred := predicateBeforeDate(installPath, beforeDate, displayer)
+		pred := predicateBeforeDate(installPath, beforeDate, conf)
 
 		return filterStrings(versions, pred), nil
 	case strings.HasPrefix(behaviourOrConstraint, notUsedSincePrefix):
@@ -87,7 +87,7 @@ func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string,
 		if err != nil {
 			return nil, err
 		}
-		pred := predicateBeforeDate(installPath, beforeDate, displayer)
+		pred := predicateBeforeDate(installPath, beforeDate, conf)
 
 		return filterStrings(versions, pred), nil
 	default:
@@ -112,9 +112,9 @@ func filterStrings(stringSlice []string, pred func(string) bool) []string {
 	return selected
 }
 
-func predicateBeforeDate(installPath string, beforeDate time.Time, displayer loghelper.Displayer) func(string) bool {
+func predicateBeforeDate(installPath string, beforeDate time.Time, conf *config.Config) func(string) bool {
 	return func(versionStr string) bool {
-		useDate := lastuse.Read(filepath.Join(installPath, versionStr), displayer)
+		useDate := lastuse.Read(filepath.Join(installPath, versionStr), conf)
 
 		return useDate.Before(beforeDate)
 	}
