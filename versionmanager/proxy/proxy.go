@@ -29,6 +29,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 
 	"github.com/tofuutils/tenv/v4/config"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
 	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
@@ -47,13 +48,13 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 	detectedVersion, err := versionManager.Detect(ctx, true)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
-		os.Exit(1)
+		os.Exit(cmdconst.EarlyErrorExitCode)
 	}
 
 	installPath, err := versionManager.InstallPath()
 	if err != nil {
 		fmt.Println("Failed to create installation directory for", execName, ":", err) //nolint
-		os.Exit(1)
+		os.Exit(cmdconst.EarlyErrorExitCode)
 	}
 
 	execPath := ExecPath(installPath, detectedVersion, execName, conf)

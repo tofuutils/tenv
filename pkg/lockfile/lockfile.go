@@ -27,6 +27,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
@@ -77,11 +78,11 @@ func listenToClean(signalChan chan os.Signal, endChan <-chan struct{}, clean fun
 		select {
 		case <-signalChan:
 			clean()
-			os.Exit(1)
+			os.Exit(cmdconst.BasicErrorExitCode)
 		case <-endChan:
 			signal.Stop(signalChan)
 
-			break
+			return
 		}
 	}
 }
