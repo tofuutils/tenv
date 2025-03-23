@@ -32,4 +32,8 @@ const (
 
 	// hidden proxy sub command.
 	CallSubCmd = "call"
+
+	BasicErrorExitCode = 1
+	// exit code used by tenv proxy to signal a failure before the proxied command call.
+	EarlyErrorExitCode = 42
 )

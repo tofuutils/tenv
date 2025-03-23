@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
@@ -71,7 +72,7 @@ func Run(cmd *exec.Cmd, gha bool, getenv configutils.GetenvFunc) {
 func exitWithErrorMsg(execPath string, err error, pExitCode *int) {
 	fmt.Println("Failure during", execPath, "call :", err) //nolint
 	if *pExitCode == 0 {
-		*pExitCode = 1
+		*pExitCode = cmdconst.BasicErrorExitCode
 	}
 }
 
