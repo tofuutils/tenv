@@ -1443,6 +1443,8 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 <a id="project-binaries"></a>
 ### Project binaries
 
+All the proxy binaries return the exit code `42` on error happening before proxied command call.
+
 <details><summary><b>tofu</b></summary><br>
 
 The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by **tenv**.
