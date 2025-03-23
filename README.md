@@ -1,5 +1,11 @@
 <!-- BADGES -->
-[![Github release](https://img.shields.io/github/v/release/tofuutils/tenv?style=for-the-badge)](https://github.com/tofuutils/tenv/releases) [![Contributors](https://img.shields.io/github/contributors/tofuutils/tenv?style=for-the-badge)](https://github.com/tofuutils/tenv/graphs/contributors) ![maintenance status](https://img.shields.io/maintenance/yes/2025.svg?style=for-the-badge) [![Go report](https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=for-the-badge)](https://goreportcard.com/report/github.com/tofuutils/tenv/) [![codecov](https://img.shields.io/codecov/c/github/tofuutils/tenv?token=BDU9X0BAZV&style=for-the-badge)](https://codecov.io/gh/tofuutils/tenv)
+<p align="center">
+  <a href="https://github.com/tofuutils/tenv/releases"><img src="https://img.shields.io/github/v/release/tofuutils/tenv?style=for-the-badge" alt="Github release"></a>
+  <a href="https://github.com/tofuutils/tenv/graphs/contributors"><img src="https://img.shields.io/github/contributors/tofuutils/tenv?style=for-the-badge" alt="Contributors"></a>
+  <img src="https://img.shields.io/maintenance/yes/2025.svg?style=for-the-badge" alt="maintenance status">
+  <a href="https://goreportcard.com/report/github.com/tofuutils/tenv/"><img src="https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=for-the-badge" alt="Go report"></a>
+  <a href="https://codecov.io/gh/tofuutils/tenv"><img src="https://img.shields.io/codecov/c/github/tofuutils/tenv?token=BDU9X0BAZV&style=for-the-badge" alt="codecov"></a>
+</p>
 
 
 <!-- LOGO -->
@@ -16,6 +22,7 @@
     <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=issue%3A+bug&projects=&template=bug_report.md&title=">Report Bug</a>
     ·
     <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
+    ·
   </p>
 </div>
 
@@ -63,7 +70,7 @@ which certainly makes it challenging to be performant, whereas **tenv** is writt
 <a id="table-of-contents"></a>
 ## Table of Contents
 <!-- TABLE OF CONTENTS -->
-<details>
+<details markdown="1">
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -103,7 +110,7 @@ which certainly makes it challenging to be performant, whereas **tenv** is writt
 ### Prerequisites
 If you need to enable cosign checks, install `cosign` (v.2.0+) tool via one of the following commands:
 
-<details><summary><b>MacOS (Homebrew)</b></summary><br>
+<details markdown="1"><summary><b>MacOS (Homebrew)</b></summary><br>
 
 ```sh
 brew install cosign
@@ -112,7 +119,7 @@ brew install cosign
 </details>
 
 
-<details><summary><b>Windows (go install)</b></summary><br>
+<details markdown="1"><summary><b>Windows (go install)</b></summary><br>
 
 ```sh
 go install github.com/sigstore/cosign/v2/cmd/cosign@latest
@@ -120,7 +127,7 @@ go install github.com/sigstore/cosign/v2/cmd/cosign@latest
 
 </details>
 
-<details><summary><b>Alpine Linux</b></summary><br>
+<details markdown="1"><summary><b>Alpine Linux</b></summary><br>
 
 ```sh
 apk add cosign
@@ -128,7 +135,7 @@ apk add cosign
 
 </details>
 
-<details><summary><b>Arch Linux</b></summary><br>
+<details markdown="1"><summary><b>Arch Linux</b></summary><br>
 
 ```sh
 sudo pacman -S cosign
@@ -136,7 +143,7 @@ sudo pacman -S cosign
 
 </details>
 
-<details><summary><b>Linux: RPM</b></summary><br>
+<details markdown="1"><summary><b>Linux: RPM</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
@@ -145,7 +152,7 @@ sudo rpm -ivh cosign-${LATEST_VERSION}-1.x86_64.rpm
 ```
 
 </details>
-<details><summary><b>Linux: dkpg</b></summary><br>
+<details markdown="1"><summary><b>Linux: dkpg</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
@@ -161,7 +168,7 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 
 <a id="automatic-installation"></a>
 #### Automatic Installation
-<details><summary><b>Arch Linux (AUR, Nix)</b></summary><br>
+<details markdown="1"><summary><b>Arch Linux (AUR, Nix)</b></summary><br>
 
 This package is available on the Arch Linux User Repository.
 It can be installed using the yay AUR helper:
@@ -176,7 +183,7 @@ nix-env -i tenv
 
 </details>
 
-<details><summary><b>MacOS (Homebrew, Nix)</b></summary><br>
+<details markdown="1"><summary><b>MacOS (Homebrew, Nix)</b></summary><br>
 
 ```console
 brew install tenv
@@ -189,7 +196,7 @@ nix-env -i tenv
 
 </details>
 
-<details><summary><b>Windows (Chocolatey, Scoop, Nix)</b></summary><br>
+<details markdown="1"><summary><b>Windows (Chocolatey, Scoop, Nix)</b></summary><br>
 
 Installation via Chocolatey:
 ```console
@@ -208,7 +215,7 @@ nix-env -i tenv
 
 </details>
 
-<details><summary><b>Linux: Snapcraft</b></summary><br>
+<details markdown="1"><summary><b>Linux: Snapcraft</b></summary><br>
 
 ```sh
 snap install tenv
@@ -216,7 +223,7 @@ snap install tenv
 
 </details>
 
-<details><summary><b>Alpine</b></summary><br>
+<details markdown="1"><summary><b>Alpine</b></summary><br>
 
 ```sh
 apk add tenv --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
@@ -224,7 +231,7 @@ apk add tenv --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 
 </details>
 
-<details><summary><b>Ubuntu</b></summary><br>
+<details markdown="1"><summary><b>Ubuntu</b></summary><br>
 
 #### Install via dpkg
 
@@ -242,7 +249,7 @@ nix-env -i tenv
 
 </details>
 
-<details><summary><b>NixOS</b></summary>
+<details markdown="1"><summary><b>NixOS</b></summary>
 
 #### nix-env
 
@@ -286,7 +293,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 > [!NOTE]
 > If you install tenv via Brew or Nix, completion will be installed automatically.
 
-<details><summary><b>zsh</b></summary><br>
+<details markdown="1"><summary><b>zsh</b></summary><br>
 
 ```console
 tenv completion zsh > ~/.tenv.completion.zsh
@@ -294,7 +301,7 @@ echo "source \$HOME/.tenv.completion.zsh" >> ~/.zshrc
 ```
 </details>
 
-<details><summary><b>Oh My Zsh</b></summary><br>
+<details markdown="1"><summary><b>Oh My Zsh</b></summary><br>
 
 ```console
 tenv completion zsh > ~/.oh-my-zsh/completions/_tenv
@@ -307,14 +314,14 @@ print -l $fpath
 ```
 </details>
 
-<details><summary><b>powershell</b></summary><br>
+<details markdown="1"><summary><b>powershell</b></summary><br>
 
 ```console
 tenv completion powershell | Out-String | Invoke-Expression
 ```
 </details>
 
-<details><summary><b>bash</b></summary><br>
+<details markdown="1"><summary><b>bash</b></summary><br>
 
 ```console
 tenv completion bash > ~/.tenv.completion.bash
@@ -322,7 +329,7 @@ echo "source \$HOME/.tenv.completion.bash" >> ~/.bashrc
 ```
 </details>
 
-<details><summary><b>fish</b></summary><br>
+<details markdown="1"><summary><b>fish</b></summary><br>
 
 ```console
 tenv completion fish > ~/.tenv.completion.fish
@@ -347,13 +354,11 @@ echo "source \$HOME/.tenv.completion.fish" >> ~/.config/fish/config.fish
 Without subcommand `tenv` display interactive menus to manage tools and their versions.
 <p align="center">
   <a href="https://asciinema.org/a/670790">
-    <img alt="tenv interactive" src="/assets/tenv.gif" width="100%">
+    <img alt="tenv interactive" src="https://raw.githubusercontent.com/tofuutils/tenv/main/assets/tenv.gif" width="100%">
   </a>
-  <br>
 </p>
 
-
-<details><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; install [version]</b></summary><br>
 
 Install a requested version of the tool (into `TENV_ROOT` directory from `<TOOL>_REMOTE` url).
 
@@ -396,7 +401,7 @@ Installation of OpenTofu 1.6.0 successful
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; use  &lt;version&gt;</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; use  &lt;version&gt;</b></summary><br>
 
 Switch the default tool version to use (set in `TENV_ROOT/<TOOL>/version` file).
 
@@ -421,7 +426,7 @@ tenv tofu use latest-allowed
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; detect</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; detect</b></summary><br>
 
 Detect the used version of tool for the working directory.
 
@@ -441,7 +446,7 @@ Atmos 1.72.0 will be run from this directory.
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; reset</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; reset</b></summary><br>
 
 Reset used version of tool (remove `TENV_ROOT/<TOOL>/version` file).
 
@@ -453,7 +458,7 @@ Removed /home/dvaumoron/.tenv/OpenTofu/version
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; uninstall [version]</b></summary><br>
 
 Uninstall versions of the tool (remove it from `TENV_ROOT` directory).
 
@@ -476,7 +481,7 @@ Uninstallation of OpenTofu 1.6.0-alpha4 successful (directory /home/dvaumoron/.t
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; list</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; list</b></summary><br>
 
 List installed tool versions (located in `TENV_ROOT` directory), sorted in ascending version order.
 
@@ -492,7 +497,7 @@ found 2 OpenTofu version(s) managed by tenv.
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; list-remote</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; list-remote</b></summary><br>
 
 List installable tool versions (from `<TOOL>_REMOTE` url), sorted in ascending version order.
 
@@ -521,7 +526,7 @@ Fetching all releases information from https://api.github.com/repos/opentofu/ope
 </details>
 
 
-<details><summary><b>tenv &lt;tool&gt; constraint [expression]</b></summary><br>
+<details markdown="1"><summary><b>tenv &lt;tool&gt; constraint [expression]</b></summary><br>
 
 Set or reset a default constraint expression for the tool.
 
@@ -540,7 +545,7 @@ Removed /home/dvaumoron/.tenv/Terragrunt/constraint
 </details>
 
 
-<details><summary><b>tenv help [command]</b></summary><br>
+<details markdown="1"><summary><b>tenv help [command]</b></summary><br>
 
 Help about any command.
 
@@ -601,7 +606,7 @@ Global Flags:
 </details>
 
 
-<details><summary><b>tenv update-path</b></summary><br>
+<details markdown="1"><summary><b>tenv update-path</b></summary><br>
 
 Display PATH updated with tenv directory location first. With GITHUB_ACTIONS set to true, write tenv directory location to GITHUB_PATH.
 
@@ -614,7 +619,7 @@ export PATH=$(tenv update-path)
 </details>
 
 
-<details><summary><b>tenv version</b></summary><br>
+<details markdown="1"><summary><b>tenv version</b></summary><br>
 
 Display tenv current version.
 
@@ -636,7 +641,7 @@ tenv version v1.7.0
 <a id="tenv-vars"></a>
 ### Global tenv environment variables
 
-<details><summary><b>TENV_ARCH</b></summary><br>
+<details markdown="1"><summary><b>TENV_ARCH</b></summary><br>
 
 String (Default: current tenv binaries architecture)
 
@@ -647,7 +652,7 @@ Allow to override the default architecture for binaries downloading during insta
 </details>
 
 
-<details><summary><b>TENV_AUTO_INSTALL</b></summary><br>
+<details markdown="1"><summary><b>TENV_AUTO_INSTALL</b></summary><br>
 
 String (Default: false)
 
@@ -658,7 +663,7 @@ If set to true **tenv** will automatically install missing tool versions needed.
 </details>
 
 
-<details><summary><b>TENV_FORCE_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>TENV_FORCE_REMOTE</b></summary><br>
 
 String (Default: false)
 
@@ -669,7 +674,7 @@ If set to true **tenv** detection of needed version will skip local check and ve
 </details>
 
 
-<details><summary><b>TENV_GITHUB_TOKEN</b></summary><br>
+<details markdown="1"><summary><b>TENV_GITHUB_TOKEN</b></summary><br>
 
 String (Default: "")
 
@@ -680,7 +685,7 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 </details>
 
 
-<details><summary><b>TENV_QUIET</b></summary><br>
+<details markdown="1"><summary><b>TENV_QUIET</b></summary><br>
 
 String (Default: false)
 
@@ -691,7 +696,7 @@ If set to true **tenv** disable unnecessary output (including log level forced t
 </details>
 
 
-<details><summary><b>TENV_LOG</b></summary><br>
+<details markdown="1"><summary><b>TENV_LOG</b></summary><br>
 
 String (Default: "warn")
 
@@ -702,7 +707,7 @@ Set **tenv** log level (possibilities sorted by decreasing verbosity : "trace", 
 </details>
 
 
-<details><summary><b>TENV_REMOTE_CONF</b></summary><br>
+<details markdown="1"><summary><b>TENV_REMOTE_CONF</b></summary><br>
 
 String (Default: `${TENV_ROOT}/remote.yaml`)
 
@@ -713,7 +718,7 @@ The path to a yaml file for [advanced remote configuration](#advanced-remote-con
 </details>
 
 
-<details><summary><b>TENV_ROOT</b></summary><br>
+<details markdown="1"><summary><b>TENV_ROOT</b></summary><br>
 
 String (Default: `${HOME}/.tenv`)
 
@@ -724,7 +729,7 @@ The path to a directory where the local OpenTofu versions, Terraform versions, T
 </details>
 
 
-<details><summary><b>TENV_SKIP_LAST_USE</b></summary><br>
+<details markdown="1"><summary><b>TENV_SKIP_LAST_USE</b></summary><br>
 
 String (Default: false)
 
@@ -733,7 +738,7 @@ If set to true **tenv** disable tracking of last use date for installed versions
 </details>
 
 
-<details><summary><b>GITHUB_ACTIONS</b></summary><br>
+<details markdown="1"><summary><b>GITHUB_ACTIONS</b></summary><br>
 
 String (Default: false)
 
@@ -742,7 +747,7 @@ If set to true **tenv** proxies exposes proxied output `stdout`, `stderr`, and `
 </details>
 
 
-<details><summary><b>GITHUB_OUTPUT</b></summary><br>
+<details markdown="1"><summary><b>GITHUB_OUTPUT</b></summary><br>
 
 String (Default: "")
 
@@ -751,7 +756,7 @@ Needed when GITHUB_ACTIONS is set to true, path to a file to write proxied outpu
 </details>
 
 
-<details><summary><b>GITHUB_PATH</b></summary><br>
+<details markdown="1"><summary><b>GITHUB_PATH</b></summary><br>
 
 String (Default: "")
 
@@ -763,7 +768,7 @@ Used by `tenv update-path` when GITHUB_ACTIONS is set to true, path to a file to
 <a id="tofu-env-vars"></a>
 ### OpenTofu environment variables
 
-<details><summary><b>TOFUENV_AGNOSTIC_PROXY</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_AGNOSTIC_PROXY</b></summary><br>
 
 String (Default: false)
 
@@ -772,14 +777,14 @@ Switch `tofu` proxy to an agnostic proxy (behave like `tf`, see [resolution orde
 </details>
 
 
-<details><summary><b>TOFUENV_ARCH</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_ARCH</b></summary><br>
 
 Same as TENV_ARCH (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
 
 </details>
 
 
-<details><summary><b>TOFUENV_AUTO_INSTALL</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_AUTO_INSTALL</b></summary><br>
 
 Same as TENV_AUTO_INSTALL (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
 
@@ -809,14 +814,14 @@ Written 1.6.0 in /home/dvaumoron/.tenv/OpenTofu/version
 </details>
 
 
-<details><summary><b>TOFUENV_FORCE_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_FORCE_REMOTE</b></summary><br>
 
 Same as TENV_FORCE_REMOTE.
 
 </details>
 
 
-<details><summary><b>TOFUENV_INSTALL_MODE</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_INSTALL_MODE</b></summary><br>
 
 String (the default depend on TOFUENV_REMOTE, without change on it, it is "api" else it is "direct")
 
@@ -829,7 +834,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TOFUENV_LIST_MODE</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_LIST_MODE</b></summary><br>
 
 String (the default depend on TOFUENV_LIST_URL, without change on it, it is "api" else it is "html")
 
@@ -842,7 +847,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TOFUENV_LIST_URL</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_LIST_URL</b></summary><br>
 
 String (Default: copy TOFUENV_REMOTE, default is overloaded by "https://get.opentofu.org/tofu/api.json" when TOFUENV_LIST_MODE is "mirror")
 
@@ -853,7 +858,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TOFUENV_OPENTOFU_PGP_KEY</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_OPENTOFU_PGP_KEY</b></summary><br>
 
 String (Default: "")
 
@@ -864,7 +869,7 @@ Allow to specify a local file path to OpenTofu PGP public key, if not present do
 </details>
 
 
-<details><summary><b>TOFUENV_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_REMOTE</b></summary><br>
 
 String (Default: https://api.github.com/repos/opentofu/opentofu/releases)
 
@@ -877,7 +882,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TOFUENV_REMOTE_PASSWORD</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_REMOTE_PASSWORD</b></summary><br>
 
 String (Default: "")
 
@@ -886,7 +891,7 @@ Could be used with TOFUENV_REMOTE_USER to specify HTTP basic auth when same cred
 </details>
 
 
-<details><summary><b>TOFUENV_REMOTE_USER</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_REMOTE_USER</b></summary><br>
 
 String (Default: "")
 
@@ -895,14 +900,14 @@ Could be used with TOFUENV_REMOTE_PASSWORD to specify HTTP basic auth when same 
 </details>
 
 
-<details><summary><b>TOFUENV_ROOT</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_ROOT</b></summary><br>
 
 Same as TENV_ROOT (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
 
 </details>
 
 
-<details><summary><b>TOFUENV_URL_TEMPLATE</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_URL_TEMPLATE</b></summary><br>
 
 String (Default: `https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}`)
 
@@ -911,14 +916,14 @@ Used when TOFUENV_INSTALL_MODE is "mirror" (see [TofuDL mirror specification](ht
 </details>
 
 
-<details><summary><b>TOFUENV_GITHUB_TOKEN</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_GITHUB_TOKEN</b></summary><br>
 
 Same as TENV_GITHUB_TOKEN (compatibility with [tofuenv](https://github.com/tofuutils/tofuenv)).
 
 </details>
 
 
-<details><summary><b>TOFUENV_TOFU_DEFAULT_CONSTRAINT</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_TOFU_DEFAULT_CONSTRAINT</b></summary><br>
 
 String (Default: "")
 
@@ -927,7 +932,7 @@ If not empty string, this variable overrides OpenTofu default constraint, specif
 </details>
 
 
-<details><summary><b>TOFUENV_TOFU_DEFAULT_VERSION</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_TOFU_DEFAULT_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -936,7 +941,7 @@ If not empty string, this variable overrides OpenTofu fallback version, specifie
 </details>
 
 
-<details><summary><b>TOFUENV_TOFU_VERSION</b></summary><br>
+<details markdown="1"><summary><b>TOFUENV_TOFU_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -966,7 +971,7 @@ on linux_amd64
 <a id="tf-env-vars"></a>
 ### Terraform environment variables
 
-<details><summary><b>TFENV_AGNOSTIC_PROXY</b></summary><br>
+<details markdown="1"><summary><b>TFENV_AGNOSTIC_PROXY</b></summary><br>
 
 String (Default: false)
 
@@ -975,28 +980,28 @@ Switch `terraform` proxy to an agnostic proxy (behave like `tf`, see [resolution
 </details>
 
 
-<details><summary><b>TFENV_ARCH</b></summary><br>
+<details markdown="1"><summary><b>TFENV_ARCH</b></summary><br>
 
 Same as TENV_ARCH (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
 
 </details>
 
 
-<details><summary><b>TFENV_AUTO_INSTALL</b></summary><br>
+<details markdown="1"><summary><b>TFENV_AUTO_INSTALL</b></summary><br>
 
 Same as TENV_AUTO_INSTALL (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
 
 </details>
 
 
-<details><summary><b>TFENV_FORCE_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>TFENV_FORCE_REMOTE</b></summary><br>
 
 Same as TENV_FORCE_REMOTE.
 
 </details>
 
 
-<details><summary><b>TFENV_HASHICORP_PGP_KEY</b></summary><br>
+<details markdown="1"><summary><b>TFENV_HASHICORP_PGP_KEY</b></summary><br>
 
 String (Default: "")
 
@@ -1007,7 +1012,7 @@ Allow to specify a local file path to Hashicorp PGP public key, if not present d
 </details>
 
 
-<details><summary><b>TFENV_INSTALL_MODE</b></summary><br>
+<details markdown="1"><summary><b>TFENV_INSTALL_MODE</b></summary><br>
 
 String (Default: "api")
 
@@ -1019,7 +1024,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TFENV_LIST_MODE</b></summary><br>
+<details markdown="1"><summary><b>TFENV_LIST_MODE</b></summary><br>
 
 String (the default depend on TFENV_LIST_URL, without change on it, it is "api" else it is "html")
 
@@ -1031,7 +1036,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TFENV_LIST_URL</b></summary><br>
+<details markdown="1"><summary><b>TFENV_LIST_URL</b></summary><br>
 
 String (Default: copy TFENV_REMOTE)
 
@@ -1042,7 +1047,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TFENV_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>TFENV_REMOTE</b></summary><br>
 
 String (Default: https://releases.hashicorp.com)
 
@@ -1055,7 +1060,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TFENV_REMOTE_PASSWORD</b></summary><br>
+<details markdown="1"><summary><b>TFENV_REMOTE_PASSWORD</b></summary><br>
 
 String (Default: "")
 
@@ -1064,7 +1069,7 @@ Could be used with TFENV_REMOTE_USER to specify HTTP basic auth when same creden
 </details>
 
 
-<details><summary><b>TFENV_REMOTE_USER</b></summary><br>
+<details markdown="1"><summary><b>TFENV_REMOTE_USER</b></summary><br>
 
 String (Default: "")
 
@@ -1073,14 +1078,14 @@ Could be used with TFENV_REMOTE_PASSWORD to specify HTTP basic auth when same cr
 </details>
 
 
-<details><summary><b>TFENV_ROOT</b></summary><br>
+<details markdown="1"><summary><b>TFENV_ROOT</b></summary><br>
 
 Same as TENV_ROOT (compatibility with [tfenv](https://github.com/tfutils/tfenv)).
 
 </details>
 
 
-<details><summary><b>TFENV_TERRAFORM_DEFAULT_CONSTRAINT</b></summary><br>
+<details markdown="1"><summary><b>TFENV_TERRAFORM_DEFAULT_CONSTRAINT</b></summary><br>
 
 String (Default: "")
 
@@ -1089,7 +1094,7 @@ If not empty string, this variable overrides Terraform default constraint, speci
 </details>
 
 
-<details><summary><b>TFENV_TERRAFORM_DEFAULT_VERSION</b></summary><br>
+<details markdown="1"><summary><b>TFENV_TERRAFORM_DEFAULT_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -1098,7 +1103,7 @@ If not empty string, this variable overrides Terraform fallback version, specifi
 </details>
 
 
-<details><summary><b>TFENV_TERRAFORM_VERSION</b></summary><br>
+<details markdown="1"><summary><b>TFENV_TERRAFORM_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -1132,7 +1137,7 @@ is 1.7.2. You can update by downloading from https://www.terraform.io/downloads.
 ### Terragrunt environment variables
 
 
-<details><summary><b>TG_INSTALL_MODE</b></summary><br>
+<details markdown="1"><summary><b>TG_INSTALL_MODE</b></summary><br>
 
 String (the default depend on TG_REMOTE, without change on it, it is "api" else it is "direct")
 
@@ -1144,7 +1149,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TG_LIST_MODE</b></summary><br>
+<details markdown="1"><summary><b>TG_LIST_MODE</b></summary><br>
 
 String (the default depend on TG_LIST_URL, without change on it, it is "api" else it is "html")
 
@@ -1156,7 +1161,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TG_LIST_URL</b></summary><br>
+<details markdown="1"><summary><b>TG_LIST_URL</b></summary><br>
 
 String (Default: copy TG_REMOTE)
 
@@ -1167,7 +1172,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TG_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>TG_REMOTE</b></summary><br>
 
 String (Default: https://api.github.com/repos/gruntwork-io/terragrunt/releases)
 
@@ -1180,7 +1185,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>TG_REMOTE_PASSWORD</b></summary><br>
+<details markdown="1"><summary><b>TG_REMOTE_PASSWORD</b></summary><br>
 
 String (Default: "")
 
@@ -1189,7 +1194,7 @@ Could be used with TG_REMOTE_USER to specify HTTP basic auth when same credentia
 </details>
 
 
-<details><summary><b>TG_REMOTE_USER</b></summary><br>
+<details markdown="1"><summary><b>TG_REMOTE_USER</b></summary><br>
 
 String (Default: "")
 
@@ -1198,7 +1203,7 @@ Could be used with TG_REMOTE_PASSWORD to specify HTTP basic auth when same crede
 </details>
 
 
-<details><summary><b>TG_DEFAULT_CONSTRAINT</b></summary><br>
+<details markdown="1"><summary><b>TG_DEFAULT_CONSTRAINT</b></summary><br>
 
 String (Default: "")
 
@@ -1207,7 +1212,7 @@ If not empty string, this variable overrides Terragrunt default constraint, spec
 </details>
 
 
-<details><summary><b>TG_DEFAULT_VERSION</b></summary><br>
+<details markdown="1"><summary><b>TG_DEFAULT_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -1216,7 +1221,7 @@ If not empty string, this variable overrides Terragrunt fallback version, specif
 </details>
 
 
-<details><summary><b>TG_VERSION</b></summary><br>
+<details markdown="1"><summary><b>TG_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -1244,7 +1249,7 @@ terragrunt version v0.54.1
 ### Atmos environment variables
 
 
-<details><summary><b>ATMOS_INSTALL_MODE</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_INSTALL_MODE</b></summary><br>
 
 String (the default depend on ATMOS_REMOTE, without change on it, it is "api" else it is "direct")
 
@@ -1256,7 +1261,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>ATMOS_LIST_MODE</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_LIST_MODE</b></summary><br>
 
 String (the default depend on ATMOS_LIST_URL, without change on it, it is "api" else it is "html")
 
@@ -1268,7 +1273,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>ATMOS_LIST_URL</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_LIST_URL</b></summary><br>
 
 String (Default: copy ATMOS_REMOTE)
 
@@ -1279,7 +1284,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>ATMOS_REMOTE</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_REMOTE</b></summary><br>
 
 String (Default: https://api.github.com/repos/cloudposse/atmos/releases)
 
@@ -1292,7 +1297,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 </details>
 
 
-<details><summary><b>ATMOS_REMOTE_PASSWORD</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_REMOTE_PASSWORD</b></summary><br>
 
 String (Default: "")
 
@@ -1301,7 +1306,7 @@ Could be used with ATMOS_REMOTE_USER to specify HTTP basic auth when same creden
 </details>
 
 
-<details><summary><b>ATMOS_REMOTE_USER</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_REMOTE_USER</b></summary><br>
 
 String (Default: "")
 
@@ -1310,7 +1315,7 @@ Could be used with ATMOS_REMOTE_PASSWORD to specify HTTP basic auth when same cr
 </details>
 
 
-<details><summary><b>ATMOS_DEFAULT_CONSTRAINT</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_DEFAULT_CONSTRAINT</b></summary><br>
 
 String (Default: "")
 
@@ -1319,7 +1324,7 @@ If not empty string, this variable overrides Atmos default constraint, specified
 </details>
 
 
-<details><summary><b>ATMOS_DEFAULT_VERSION</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_DEFAULT_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -1328,7 +1333,7 @@ If not empty string, this variable overrides Atmos fallback version, specified i
 </details>
 
 
-<details><summary><b>ATMOS_VERSION</b></summary><br>
+<details markdown="1"><summary><b>ATMOS_VERSION</b></summary><br>
 
 String (Default: "")
 
@@ -1357,14 +1362,14 @@ $ ATMOS_VERSION=1.70 atmos version
 ## version files
 
 <a id="default-version-file"></a>
-<details><summary><b>default version file</b></summary><br>
+<details markdown="1"><summary><b>default version file</b></summary><br>
 
 The `TENV_ROOT/<TOOL>/version` file is the tool default version used when no project specific or user specific are found. It can be written with `tenv <tool> use`.
 
 </details>
 
 <a id="opentofu-version-files"></a>
-<details><summary><b>opentofu version files</b></summary><br>
+<details markdown="1"><summary><b>opentofu version files</b></summary><br>
 
 If you put a `.opentofu-version` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
 Note, that TOFUENV_TOFU_VERSION can be used to override version specified by `.opentofu-version` file.
@@ -1376,7 +1381,7 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 </details>
 
 <a id="terraform-version-files"></a>
-<details><summary><b>terraform version files</b></summary><br>
+<details markdown="1"><summary><b>terraform version files</b></summary><br>
 
 If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
 Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by those files.
@@ -1388,7 +1393,7 @@ See [required_version](https://developer.hashicorp.com/terraform/language/settin
 </details>
 
 <a id="terragrunt-version-files"></a>
-<details><summary><b>terragrunt version files</b></summary><br>
+<details markdown="1"><summary><b>terragrunt version files</b></summary><br>
 
 If you put a `.terragrunt-version` or a `.tgswitchrc` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it. **tenv** also detect a `version` field in a `.tgswitch.toml` in same places.
 Note, that TG_VERSION can be used to override version specified by those files.
@@ -1399,7 +1404,7 @@ Recognize same values as `tenv tg use` command.
 
 
 <a id="terragrunt-hcl-file"></a>
-<details><summary><b>terragrunt.hcl or root.hcl file</b></summary><br>
+<details markdown="1"><summary><b>terragrunt.hcl or root.hcl file</b></summary><br>
 
 [Terragrunt now recommends](https://terragrunt.gruntwork.io/docs/migrate/migrating-from-root-terragrunt-hcl/) using `root.hcl` instead of `terragrunt.hcl` as the root configuration file name.
 
@@ -1411,7 +1416,7 @@ If both `root.hcl` and `terragrunt.hcl` (or their `.json` versions) are present,
 </details>
 
 <a id="atmos-version-files"></a>
-<details><summary><b>atmos version files</b></summary><br>
+<details markdown="1"><summary><b>atmos version files</b></summary><br>
 
 If you put a `.atmos-version` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
 Note, that ATMOS_VERSION can be used to override version specified by those files.
@@ -1421,7 +1426,7 @@ Recognize same values as `tenv atmos use` command.
 </details>
 
 <a id="required_version"></a>
-<details><summary><b>required_version</b></summary><br>
+<details markdown="1"><summary><b>required_version</b></summary><br>
 
 the `latest-allowed` or `min-required` strategies scan through your IAC files (see list in [project binaries](#project-binaries)) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files and no default constraint are found, and can optionally be used with a default constraint as detailed in [project binaries](#project-binaries).
 
@@ -1445,7 +1450,8 @@ This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 All the proxy binaries return the exit code `42` on error happening before proxied command call.
 
-<details><summary><b>tofu</b></summary><br>
+
+<details markdown="1"><summary><b>tofu</b></summary><br>
 
 The `tofu` command in this project is a proxy to OpenTofu's `tofu` command  managed by **tenv**.
 
@@ -1466,7 +1472,7 @@ The `latest-allowed` strategy rely on [required_version](#required_version) from
 
 </details>
 
-<details><summary><b>terraform</b></summary><br>
+<details markdown="1"><summary><b>terraform</b></summary><br>
 
 The `terraform` command in this project is a proxy to HashiCorp's `terraform` command managed by **tenv**.
 
@@ -1489,7 +1495,7 @@ The `latest-allowed` strategy rely on [required_version](#required_version) from
 </details>
 
 
-<details><summary><b>terragrunt</b></summary><br>
+<details markdown="1"><summary><b>terragrunt</b></summary><br>
 
 The `terragrunt` command in this project is a proxy to Gruntwork's `terragrunt` command managed by **tenv**.
 
@@ -1512,7 +1518,7 @@ The `latest-allowed` strategy has no information for Terragrunt and will fallbac
 
 </details>
 
-<details><summary><b>atmos</b></summary><br>
+<details markdown="1"><summary><b>atmos</b></summary><br>
 
 The `atmos` command in this project is a proxy to Cloudposse's `atmos` command managed by **tenv**.
 
@@ -1532,7 +1538,7 @@ be written with `tenv atmos constraint`). The default constraint is added while 
 
 </details>
 
-<details><summary><b>tf</b></summary><br>
+<details markdown="1"><summary><b>tf</b></summary><br>
 
 The `tf` command is a proxy to `tofu` or `terraform` depending on the version files present in project.
 
@@ -1559,7 +1565,7 @@ This advanced configuration is meant to call artifact mirror (like [JFrog Artifa
 
 The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : `tofu`, `terraform`, `terragrunt` and `atmos`.
 
-<details><summary><b>yaml fields description</b></summary><br>
+<details markdown="1"><summary><b>yaml fields description</b></summary><br>
 
 Each part can have the following string field : `install_mode`, `list_mode`, `list_url`, `url`, `new_base_url`, `old_base_url`, `selector` and `part`
 
@@ -1580,7 +1586,7 @@ If `old_base_url` and `new_base_url` are empty, **tenv** try to guess right beha
 </details>
 
 
-<details><summary><b>Examples</b></summary><br>
+<details markdown="1"><summary><b>Examples</b></summary><br>
 
 Those examples assume that a GitHub proxy at https://artifactory.example.com/artifactory/github have the same behavior than [JFrog Artifactory](https://jfrog.com/artifactory) :
 
@@ -1639,25 +1645,25 @@ terraform:
 <a id="signature-support"></a>
 ### Signature support
 
-<details><summary><b>OpenTofu signature support</b></summary><br>
+<details markdown="1"><summary><b>OpenTofu signature support</b></summary><br>
 
 **tenv** checks the sha256 checksum and the signature of the checksum file with [cosign](https://github.com/sigstore/cosign) (if present on your machine) or PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)). However, unstable OpenTofu versions are signed only with cosign (in this case, if cosign is not found tenv will display a warning).
 
 </details>
 
-<details><summary><b>Terraform signature support</b></summary><br>
+<details markdown="1"><summary><b>Terraform signature support</b></summary><br>
 
 **tenv** checks the sha256 checksum and the PGP signature of the checksum file (via [gopenpgp](https://github.com/ProtonMail/gopenpgp), there is no cosign signature available).
 
 </details>
 
-<details><summary><b>Terragrunt signature support</b></summary><br>
+<details markdown="1"><summary><b>Terragrunt signature support</b></summary><br>
 
 **tenv** checks the sha256 checksum (there is no signature available).
 
 </details>
 
-<details><summary><b>Atmos signature support</b></summary><br>
+<details markdown="1"><summary><b>Atmos signature support</b></summary><br>
 
 **tenv** checks the sha256 checksum (there is no signature available).
 
