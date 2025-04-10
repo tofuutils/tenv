@@ -16,23 +16,19 @@
  *
  */
 
-package asdfparser
+package flatparser
 
 import (
-	_ "embed"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"testing"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/tofuutils/tenv/v4/config"
-	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	"github.com/tofuutils/tenv/v4/pkg/loghelper"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
 )
-
-//go:embed testdata/.tool-versions
-var toolFileData []byte
 
 // mockDisplayer implements loghelper.Displayer for testing
 type mockDisplayer struct{}
@@ -43,81 +39,74 @@ func (m *mockDisplayer) IsDebug() bool                           { return false 
 func (m *mockDisplayer) IsTrace() bool                           { return false }
 func (m *mockDisplayer) Flush(bool)                              {}
 
-func TestRetrieveTofuVersion(t *testing.T) {
+func TestRetrieve(t *testing.T) {
 	t.Parallel()
-	testRetrieveVersion(t, cmdconst.OpentofuName, RetrieveTofuVersion)
-}
 
-func TestRetrieveTfVersion(t *testing.T) {
-	t.Parallel()
-	testRetrieveVersion(t, cmdconst.TerraformName, RetrieveTfVersion)
-}
-
-func TestRetrieveTgVersion(t *testing.T) {
-	t.Parallel()
-	testRetrieveVersion(t, cmdconst.TerragruntName, RetrieveTgVersion)
-}
-
-func TestRetrieveAtmosVersion(t *testing.T) {
-	t.Parallel()
-	testRetrieveVersion(t, cmdconst.AtmosName, RetrieveAtmosVersion)
-}
-
-func testRetrieveVersion(t *testing.T, toolName string, retrieveFunc func(string, *config.Config) (string, error)) {
 	tests := []struct {
 		name           string
 		content        string
+		displayMsg     func(loghelper.Displayer, string, string) string
 		expectedResult string
 		expectError    bool
 	}{
 		{
-			name:           "valid version",
-			content:        toolName + " 1.0.0",
+			name:           "valid version with NoMsg",
+			content:        "1.0.0",
+			displayMsg:     NoMsg,
 			expectedResult: "1.0.0",
 		},
 		{
-			name:           "version with comment",
-			content:        toolName + " 1.0.0 # comment",
+			name:           "valid version with DisplayDetectionInfo",
+			content:        "1.0.0",
+			displayMsg:     types.DisplayDetectionInfo,
 			expectedResult: "1.0.0",
 		},
 		{
-			name:           "version with inline comment",
-			content:        toolName + " 1.0.0#comment",
+			name:           "version with spaces",
+			content:        "    1.0.0    ",
+			displayMsg:     NoMsg,
 			expectedResult: "1.0.0",
 		},
 		{
-			name:           "multiple tools",
-			content:        "nodejs 14.0.0\n" + toolName + " 1.0.0\npython 3.8.0",
+			name:           "version with tabs",
+			content:        "\t1.0.0\t",
+			displayMsg:     NoMsg,
 			expectedResult: "1.0.0",
 		},
 		{
 			name:           "empty file",
 			content:        "",
+			displayMsg:     NoMsg,
 			expectedResult: "",
 		},
 		{
-			name:           "comments only",
-			content:        "# comment\n# another comment",
+			name:           "whitespace only",
+			content:        "    \t    ",
+			displayMsg:     NoMsg,
 			expectedResult: "",
 		},
 		{
-			name:           "tool not found",
-			content:        "nodejs 14.0.0\npython 3.8.0",
+			name:           "newlines only",
+			content:        "\n\n\n",
+			displayMsg:     NoMsg,
 			expectedResult: "",
 		},
 		{
-			name:           "multiple versions",
-			content:        toolName + " 1.0.0\n" + toolName + " 2.0.0",
+			name:           "version with newlines",
+			content:        "\n1.0.0\n",
+			displayMsg:     NoMsg,
 			expectedResult: "1.0.0",
 		},
 		{
-			name:           "version with spaces",
-			content:        toolName + "    1.0.0    ",
-			expectedResult: "1.0.0",
+			name:           "version with comments",
+			content:        "1.0.0 # comment",
+			displayMsg:     NoMsg,
+			expectedResult: "1.0.0 # comment",
 		},
 		{
-			name:           "version with tabs",
-			content:        toolName + "\t1.0.0\t",
+			name:           "version with multiple lines",
+			content:        "1.0.0\n2.0.0",
+			displayMsg:     NoMsg,
 			expectedResult: "1.0.0",
 		},
 	}
@@ -129,7 +118,7 @@ func testRetrieveVersion(t *testing.T, toolName string, retrieveFunc func(string
 
 			// Setup temp directory
 			tempDir := t.TempDir()
-			filePath := filepath.Join(tempDir, ToolFileName)
+			filePath := filepath.Join(tempDir, "version.txt")
 
 			// Create test file
 			err := os.WriteFile(filePath, []byte(tt.content), 0600)
@@ -143,7 +132,104 @@ func testRetrieveVersion(t *testing.T, toolName string, retrieveFunc func(string
 			}
 
 			// Run test
-			result, err := retrieveFunc(filePath, conf)
+			result, err := Retrieve(filePath, conf, tt.displayMsg)
+
+			if tt.expectError {
+				if err == nil {
+					t.Error("expected error but got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if result != tt.expectedResult {
+				t.Errorf("expected %s but got %s", tt.expectedResult, result)
+			}
+		})
+	}
+}
+
+func TestRetrieveVersion(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		content        string
+		expectedResult string
+		expectError    bool
+	}{
+		{
+			name:           "valid version",
+			content:        "1.0.0",
+			expectedResult: "1.0.0",
+		},
+		{
+			name:           "version with spaces",
+			content:        "    1.0.0    ",
+			expectedResult: "1.0.0",
+		},
+		{
+			name:           "version with tabs",
+			content:        "\t1.0.0\t",
+			expectedResult: "1.0.0",
+		},
+		{
+			name:           "empty file",
+			content:        "",
+			expectedResult: "",
+		},
+		{
+			name:           "whitespace only",
+			content:        "    \t    ",
+			expectedResult: "",
+		},
+		{
+			name:           "newlines only",
+			content:        "\n\n\n",
+			expectedResult: "",
+		},
+		{
+			name:           "version with newlines",
+			content:        "\n1.0.0\n",
+			expectedResult: "1.0.0",
+		},
+		{
+			name:           "version with comments",
+			content:        "1.0.0 # comment",
+			expectedResult: "1.0.0 # comment",
+		},
+		{
+			name:           "version with multiple lines",
+			content:        "1.0.0\n2.0.0",
+			expectedResult: "1.0.0",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Setup temp directory
+			tempDir := t.TempDir()
+			filePath := filepath.Join(tempDir, "version.txt")
+
+			// Create test file
+			err := os.WriteFile(filePath, []byte(tt.content), 0600)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			// Create config
+			conf := &config.Config{
+				Displayer: &mockDisplayer{},
+			}
+
+			// Run test
+			result, err := RetrieveVersion(filePath, conf)
 
 			if tt.expectError {
 				if err == nil {
@@ -168,10 +254,10 @@ func TestConcurrentAccess(t *testing.T) {
 
 	// Setup temp directory
 	tempDir := t.TempDir()
-	filePath := filepath.Join(tempDir, ToolFileName)
+	filePath := filepath.Join(tempDir, "version.txt")
 
 	// Create test file
-	content := "terraform 1.0.0\nterragrunt 1.2.0\nopentofu 1.3.0\natmos 1.4.0"
+	content := "1.0.0"
 	err := os.WriteFile(filePath, []byte(content), 0600)
 	if err != nil {
 		t.Fatal(err)
@@ -191,15 +277,12 @@ func TestConcurrentAccess(t *testing.T) {
 	for i := 0; i < numGoroutines; i++ {
 		go func() {
 			defer wg.Done()
-			// Test all version retrieval functions
+			// Test both Retrieve and RetrieveVersion
 			funcs := []struct {
 				name string
 				fn   func(string, *config.Config) (string, error)
 			}{
-				{"RetrieveTfVersion", RetrieveTfVersion},
-				{"RetrieveTgVersion", RetrieveTgVersion},
-				{"RetrieveTofuVersion", RetrieveTofuVersion},
-				{"RetrieveAtmosVersion", RetrieveAtmosVersion},
+				{"RetrieveVersion", RetrieveVersion},
 			}
 
 			for _, f := range funcs {
@@ -208,19 +291,8 @@ func TestConcurrentAccess(t *testing.T) {
 					t.Error(err)
 					return
 				}
-				expected := ""
-				switch f.name {
-				case "RetrieveTfVersion":
-					expected = "1.0.0"
-				case "RetrieveTgVersion":
-					expected = "1.2.0"
-				case "RetrieveTofuVersion":
-					expected = "1.3.0"
-				case "RetrieveAtmosVersion":
-					expected = "1.4.0"
-				}
-				if result != expected {
-					t.Errorf("for %s, expected %s but got %s", f.name, expected, result)
+				if result != "1.0.0" {
+					t.Errorf("for %s, expected 1.0.0 but got %s", f.name, result)
 				}
 			}
 		}()
@@ -247,8 +319,8 @@ func TestFileErrors(t *testing.T) {
 		{
 			name: "unreadable file",
 			setup: func(dir string) error {
-				filePath := filepath.Join(dir, ToolFileName)
-				if err := os.WriteFile(filePath, []byte("terraform 1.0.0"), 0600); err != nil {
+				filePath := filepath.Join(dir, "version.txt")
+				if err := os.WriteFile(filePath, []byte("1.0.0"), 0600); err != nil {
 					return err
 				}
 				return os.Chmod(filePath, 0000)
@@ -258,7 +330,7 @@ func TestFileErrors(t *testing.T) {
 		{
 			name: "directory instead of file",
 			setup: func(dir string) error {
-				filePath := filepath.Join(dir, ToolFileName)
+				filePath := filepath.Join(dir, "version.txt")
 				return os.Mkdir(filePath, 0700)
 			},
 			expectError: true,
@@ -284,8 +356,8 @@ func TestFileErrors(t *testing.T) {
 			}
 
 			// Run test
-			filePath := filepath.Join(tempDir, ToolFileName)
-			_, err := RetrieveTfVersion(filePath, conf)
+			filePath := filepath.Join(tempDir, "version.txt")
+			_, err := RetrieveVersion(filePath, conf)
 
 			if tt.expectError {
 				if err == nil {
@@ -296,98 +368,6 @@ func TestFileErrors(t *testing.T) {
 
 			if err != nil {
 				t.Fatal(err)
-			}
-		})
-	}
-}
-
-func TestParseVersionFromToolFileReader(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name           string
-		content        string
-		toolName       string
-		expectedResult string
-	}{
-		{
-			name:           "valid version",
-			content:        "terraform 1.0.0",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-		{
-			name:           "version with comment",
-			content:        "terraform 1.0.0 # comment",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-		{
-			name:           "version with inline comment",
-			content:        "terraform 1.0.0#comment",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-		{
-			name:           "multiple tools",
-			content:        "nodejs 14.0.0\nterraform 1.0.0\npython 3.8.0",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-		{
-			name:           "empty content",
-			content:        "",
-			toolName:       "terraform",
-			expectedResult: "",
-		},
-		{
-			name:           "comments only",
-			content:        "# comment\n# another comment",
-			toolName:       "terraform",
-			expectedResult: "",
-		},
-		{
-			name:           "tool not found",
-			content:        "nodejs 14.0.0\npython 3.8.0",
-			toolName:       "terraform",
-			expectedResult: "",
-		},
-		{
-			name:           "multiple versions",
-			content:        "terraform 1.0.0\nterraform 2.0.0",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-		{
-			name:           "version with spaces",
-			content:        "terraform    1.0.0    ",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-		{
-			name:           "version with tabs",
-			content:        "terraform\t1.0.0\t",
-			toolName:       "terraform",
-			expectedResult: "1.0.0",
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			// Create reader
-			reader := strings.NewReader(tt.content)
-
-			// Create displayer
-			displayer := &mockDisplayer{}
-
-			// Run test
-			result := parseVersionFromToolFileReader("test.tool-versions", reader, tt.toolName, displayer)
-
-			if result != tt.expectedResult {
-				t.Errorf("expected %s but got %s", tt.expectedResult, result)
 			}
 		})
 	}
@@ -404,22 +384,22 @@ func TestFileEncodings(t *testing.T) {
 	}{
 		{
 			name:           "UTF-8",
-			content:        []byte("terraform 1.0.0"),
+			content:        []byte("1.0.0"),
 			expectedResult: "1.0.0",
 		},
 		{
 			name:           "UTF-8 with BOM",
-			content:        append([]byte{0xEF, 0xBB, 0xBF}, []byte("terraform 1.0.0")...),
+			content:        append([]byte{0xEF, 0xBB, 0xBF}, []byte("1.0.0")...),
 			expectedResult: "1.0.0",
 		},
 		{
 			name:        "UTF-16",
-			content:     append([]byte{0xFF, 0xFE}, []byte("terraform 1.0.0")...),
+			content:     append([]byte{0xFF, 0xFE}, []byte("1.0.0")...),
 			expectError: true,
 		},
 		{
 			name:           "ASCII",
-			content:        []byte("terraform 1.0.0"),
+			content:        []byte("1.0.0"),
 			expectedResult: "1.0.0",
 		},
 	}
@@ -431,7 +411,7 @@ func TestFileEncodings(t *testing.T) {
 
 			// Setup temp directory
 			tempDir := t.TempDir()
-			filePath := filepath.Join(tempDir, ToolFileName)
+			filePath := filepath.Join(tempDir, "version.txt")
 
 			// Create test file
 			err := os.WriteFile(filePath, tt.content, 0600)
@@ -445,7 +425,7 @@ func TestFileEncodings(t *testing.T) {
 			}
 
 			// Run test
-			result, err := RetrieveTfVersion(filePath, conf)
+			result, err := RetrieveVersion(filePath, conf)
 
 			if tt.expectError {
 				if err == nil {
@@ -470,11 +450,11 @@ func TestLargeFiles(t *testing.T) {
 
 	// Setup temp directory
 	tempDir := t.TempDir()
-	filePath := filepath.Join(tempDir, ToolFileName)
+	filePath := filepath.Join(tempDir, "version.txt")
 
 	// Create a large file with version constraint
 	content := make([]byte, 10*1024*1024) // 10MB
-	copy(content, []byte("terraform 1.0.0"))
+	copy(content, []byte("1.0.0"))
 
 	// Create test file
 	err := os.WriteFile(filePath, content, 0600)
@@ -488,7 +468,7 @@ func TestLargeFiles(t *testing.T) {
 	}
 
 	// Run test
-	result, err := RetrieveTfVersion(filePath, conf)
+	result, err := RetrieveVersion(filePath, conf)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -503,11 +483,11 @@ func TestSymbolicLinks(t *testing.T) {
 
 	// Setup temp directory
 	tempDir := t.TempDir()
-	originalPath := filepath.Join(tempDir, "original.tool-versions")
-	linkPath := filepath.Join(tempDir, ToolFileName)
+	originalPath := filepath.Join(tempDir, "original.txt")
+	linkPath := filepath.Join(tempDir, "version.txt")
 
 	// Create original file
-	content := "terraform 1.0.0"
+	content := "1.0.0"
 	err := os.WriteFile(originalPath, []byte(content), 0600)
 	if err != nil {
 		t.Fatal(err)
@@ -525,7 +505,7 @@ func TestSymbolicLinks(t *testing.T) {
 	}
 
 	// Run test
-	result, err := RetrieveTfVersion(linkPath, conf)
+	result, err := RetrieveVersion(linkPath, conf)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -547,16 +527,16 @@ func TestMultipleFiles(t *testing.T) {
 		content string
 	}{
 		{
-			name:    ToolFileName,
-			content: "terraform 1.0.0",
+			name:    "version.txt",
+			content: "1.0.0",
 		},
 		{
-			name:    "other.tool-versions",
-			content: "terraform 1.1.0",
+			name:    "other.txt",
+			content: "1.1.0",
 		},
 		{
-			name:    "config.tool-versions",
-			content: "nodejs 14.0.0",
+			name:    "config.txt",
+			content: "2.0.0",
 		},
 	}
 
@@ -573,21 +553,13 @@ func TestMultipleFiles(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		result, err := RetrieveTfVersion(filePath, conf)
+		result, err := RetrieveVersion(filePath, conf)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		expected := ""
-		if file.name != "config.tool-versions" {
-			expected = "1.0.0"
-			if file.name == "other.tool-versions" {
-				expected = "1.1.0"
-			}
-		}
-
-		if result != expected {
-			t.Errorf("for file %s, expected %s but got %s", file.name, expected, result)
+		if result != file.content {
+			t.Errorf("for file %s, expected %s but got %s", file.name, file.content, result)
 		}
 	}
 }
