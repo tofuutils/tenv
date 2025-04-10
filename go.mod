@@ -1,13 +1,14 @@
 module github.com/tofuutils/tenv/v4
 
 go 1.23.3
+
 toolchain go1.24.1
 
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/ProtonMail/gopenpgp/v2 v2.8.3
 	github.com/PuerkitoBio/goquery v1.10.2
-	github.com/charmbracelet/bubbles v0.20.0
+	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/fatih/color v1.18.0
