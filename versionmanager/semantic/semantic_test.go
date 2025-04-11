@@ -16,49 +16,28 @@
  *
  */
 
-package semantic
+package semantic_test
 
 import (
+	"context"
+	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/go-version"
-
-	"os"
-	"path/filepath"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
+	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
-	"github.com/tofuutils/tenv/v4/versionmanager/version"
 )
 
-func TestCmpVersion(t *testing.T) {
-	t.Parallel()
-
-	versions := []string{"1.6.0-beta5", "1.5.2", "1.6.0-alpha5", "1.6.0", "1.5.1", "1.5.0", "1.6.0-rc1"}
-	slices.SortFunc(versions, CmpVersion)
-	if !slices.Equal(versions, []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0-alpha5", "1.6.0-beta5", "1.6.0-rc1", "1.6.0"}) {
-		t.Error("Unmatching results, get :", versions)
-	}
-}
-
-func TestStableVersion(t *testing.T) {
-	t.Parallel()
-
-	var filtered []string
-	for _, version := range []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0-alpha5", "1.6.0-beta5", "1.6.0-rc1", "1.6.0"} {
-		if StableVersion(version) {
-			filtered = append(filtered, version)
-		}
-	}
-
-	if !slices.Equal(filtered, []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0"}) {
-		t.Error("Unmatching results, get :", filtered)
-	}
-}
+const (
+	allKey  = "all"
+	butLast = "butlast"
+)
 
 type mockConstraintInfo struct {
 	constraint string
@@ -68,28 +47,106 @@ func (m *mockConstraintInfo) ReadDefaultConstraint() string {
 	return m.constraint
 }
 
+type mockVersionManager struct {
+	listVersionsFunc func() ([]string, error)
+}
+
+func (m *mockVersionManager) ListRemote(ctx context.Context, reverseOrder bool) ([]string, error) {
+	if m.listVersionsFunc != nil {
+		return m.listVersionsFunc()
+	}
+	return nil, nil
+}
+
+func (m *mockVersionManager) Detect(ctx context.Context, folderName string, conf *config.Config) (string, error) {
+	return "", nil
+}
+
+func (m *mockVersionManager) Evaluate(ctx context.Context, versionStr string, folderName string, conf *config.Config) (string, error) {
+	return "", nil
+}
+
+func (m *mockVersionManager) Install(ctx context.Context, versionStr string, conf *config.Config) error {
+	return nil
+}
+
+func (m *mockVersionManager) Uninstall(ctx context.Context, versionStr string, conf *config.Config) error {
+	return nil
+}
+
+func (m *mockVersionManager) ListLocal(ctx context.Context) ([]string, error) {
+	return nil, nil
+}
+
+func (m *mockVersionManager) Use(ctx context.Context, versionStr string, conf *config.Config) error {
+	return nil
+}
+
+func (m *mockVersionManager) GetLastUse(ctx context.Context) (*lastuse.LastUse, error) {
+	return nil, nil
+}
+
+func (m *mockVersionManager) WriteLastUse(ctx context.Context, lastUse *lastuse.LastUse) error {
+	return nil
+}
+
+func TestCmpVersion(t *testing.T) {
+	t.Parallel()
+
+	versions := []string{"1.6.0-beta5", "1.5.2", "1.6.0-alpha5", "1.6.0", "1.5.1", "1.5.0", "1.6.0-rc1"}
+	slices.SortFunc(versions, semantic.CmpVersion)
+	if !slices.Equal(versions, []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0-alpha5", "1.6.0-beta5", "1.6.0-rc1", "1.6.0"}) {
+		t.Error("Unmatching results, get :", versions)
+	}
+}
+
+func TestStableVersion(t *testing.T) {
+	t.Parallel()
+
+	var filtered []string
+	for _, v := range []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0-alpha5", "1.6.0-beta5", "1.6.0-rc1", "1.6.0"} {
+		if semantic.StableVersion(v) {
+			filtered = append(filtered, v)
+		}
+	}
+	if !slices.Equal(filtered, []string{"1.5.0", "1.5.1", "1.5.2", "1.6.0"}) {
+		t.Error("Unmatching results, get :", filtered)
+	}
+}
+
 func TestParsePredicate(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name       string
-		constraint string
+		versionStr string
+		folderName string
+		vm         types.ConstraintInfo
+		conf       *config.Config
 		want       types.PredicateInfo
 		wantErr    bool
 	}{
 		{
-			name:       "valid constraint",
-			constraint: ">= 1.0.0",
+			name:       "valid version",
+			versionStr: "1.0.0",
+			folderName: "test",
+			vm:         &mockConstraintInfo{},
+			conf:       &config.Config{},
 			want: types.PredicateInfo{
 				Predicate: func(v string) bool {
-					ver, _ := version.NewVersion(v)
-					return ver.Compare(version.Must(version.NewVersion("1.0.0"))) >= 0
+					ver, err := version.NewVersion(v)
+					return err == nil && ver.String() == "1.0.0"
 				},
 				ReverseOrder: false,
 			},
 			wantErr: false,
 		},
 		{
-			name:       "invalid constraint",
-			constraint: "invalid",
+			name:       "invalid version",
+			versionStr: "invalid",
+			folderName: "test",
+			vm:         &mockConstraintInfo{},
+			conf:       &config.Config{},
 			want:       types.PredicateInfo{},
 			wantErr:    true,
 		},
@@ -97,17 +154,13 @@ func TestParsePredicate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParsePredicate(tt.constraint)
+			got, err := semantic.ParsePredicate(tt.versionStr, tt.folderName, tt.vm, nil, tt.conf)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParsePredicate() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !tt.wantErr {
-				// Test with a sample version
-				testVer := "1.1.0"
-				if got.Predicate(testVer) != tt.want.Predicate(testVer) {
-					t.Errorf("ParsePredicate() = %v, want %v", got, tt.want)
-				}
+			if err == nil && !got.Predicate("1.0.0") {
+				t.Error("ParsePredicate() = false, want true")
 			}
 		})
 	}
@@ -134,7 +187,7 @@ func TestAddDefaultConstraint(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			info := &mockConstraintInfo{constraint: tt.constraint}
-			if got := AddDefaultConstraint(info); got != tt.want {
+			if got := semantic.AddDefaultConstraint(info); got != tt.want {
 				t.Errorf("AddDefaultConstraint() = %v, want %v", got, tt.want)
 			}
 		})
@@ -170,7 +223,7 @@ func TestPredicateFromConstraint(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := PredicateFromConstraint(tt.constraint)
+			got, err := semantic.PredicateFromConstraint(tt.constraint)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("PredicateFromConstraint() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -285,7 +338,7 @@ func TestSelectVersionsToUninstall(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got, err := SelectVersionsToUninstall(tt.behaviour, testPath, tt.versions, testConfig)
+			got, err := semantic.SelectVersionsToUninstall(tt.behaviour, testPath, tt.versions, testConfig)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SelectVersionsToUninstall() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -387,6 +440,47 @@ func TestPredicateBeforeDate(t *testing.T) {
 			pred := predicateBeforeDate(testPath, tt.beforeDate, &config.Config{})
 			if got := pred(testVersion); got != tt.want {
 				t.Errorf("predicateBeforeDate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseVersion(t *testing.T) {
+	tests := []struct {
+		name    string
+		version string
+		want    *version.Version
+		wantErr bool
+	}{
+		{
+			name:    "valid version",
+			version: "1.0.0",
+			want:    version.Must(version.NewVersion("1.0.0")),
+			wantErr: false,
+		},
+		{
+			name:    "invalid version",
+			version: "invalid",
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "empty version",
+			version: "",
+			want:    nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseVersion(tt.version)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseVersion() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err == nil && got.String() != tt.want.String() {
+				t.Errorf("ParseVersion() = %v, want %v", got, tt.want)
 			}
 		})
 	}
