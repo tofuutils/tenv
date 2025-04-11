@@ -43,6 +43,27 @@ func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error 
 		return err
 	}
 
+	// First pass: create all directories
+	for _, file := range zipReader.File {
+		destPath, err := SanitizeArchivePath(dirPath, file.Name)
+		if err != nil {
+			return err
+		}
+
+		if destPath[len(destPath)-1] == '/' {
+			// trailing slash indicates a directory
+			if err := os.MkdirAll(destPath, fileperm.RWE); err != nil {
+				return err
+			}
+		} else {
+			// Create parent directory for files
+			if err := os.MkdirAll(filepath.Dir(destPath), fileperm.RWE); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Second pass: extract files
 	for _, file := range zipReader.File {
 		if err = copyZipFileToDir(file, dirPath, filter); err != nil {
 			return err
@@ -54,14 +75,14 @@ func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error 
 
 // a separate function allows deferred Close to execute earlier.
 func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) bool) error {
-	destPath, err := sanitizeArchivePath(dirPath, zipFile.Name)
+	destPath, err := SanitizeArchivePath(dirPath, zipFile.Name)
 	if err != nil {
 		return err
 	}
 
 	if destPath[len(destPath)-1] == '/' {
-		// trailing slash indicates a directory
-		return os.MkdirAll(destPath, fileperm.RWE)
+		// Directory already created in first pass
+		return nil
 	}
 
 	reader, err := zipFile.Open()
@@ -82,12 +103,29 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) boo
 	return os.WriteFile(destPath, data, zipFile.Mode())
 }
 
-// Sanitize archive file pathing from "G305" (file traversal).
-func sanitizeArchivePath(dirPath string, fileName string) (string, error) {
-	destPath := filepath.Join(dirPath, fileName)
-	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
-		return destPath, nil
+// SanitizeArchivePath sanitizes archive file pathing from "G305" (file traversal).
+func SanitizeArchivePath(dirPath string, fileName string) (string, error) {
+	// Handle empty filename
+	if fileName == "" {
+		return dirPath, nil
 	}
 
-	return "", fmt.Errorf("content filepath is tainted: %s", fileName)
+	// Check for absolute paths
+	if filepath.IsAbs(fileName) {
+		return "", fmt.Errorf("content filepath is tainted: %s", fileName)
+	}
+
+	// Clean the paths to handle any path traversal attempts
+	cleanDirPath := filepath.Clean(dirPath)
+	cleanFileName := filepath.Clean(fileName)
+
+	// Join the paths
+	destPath := filepath.Join(cleanDirPath, cleanFileName)
+
+	// Check if the resulting path is still within the target directory
+	if !strings.HasPrefix(destPath, cleanDirPath) {
+		return "", fmt.Errorf("content filepath is tainted: %s", fileName)
+	}
+
+	return destPath, nil
 }
