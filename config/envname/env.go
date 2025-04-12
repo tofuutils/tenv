@@ -83,6 +83,14 @@ const (
 	TgRemoteURL   = TgPrefix + remoteURL
 	TgRemoteUser  = TgPrefix + remoteUser
 
+	TmPrefix      = "TM_"
+	TmInstallMode = TmPrefix + installMode
+	TmListMode    = TmPrefix + listMode
+	TmListURL     = TmPrefix + listURL
+	TmRemotePass  = TmPrefix + remotePass
+	TmRemoteURL   = TmPrefix + remoteURL
+	TmRemoteUser  = TmPrefix + remoteUser
+
 	TofuenvPrefix      = "TOFUENV_"
 	TofuenvTofuPrefix  = TofuenvPrefix + "TOFU_"
 	TofuAgnostic       = TofuenvPrefix + agnosticProxy

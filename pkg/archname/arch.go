@@ -16,40 +16,18 @@
  *
  */
 
-package winbin
+package archname
 
-import (
-	"io"
-	"runtime"
-)
-
-const (
-	suffix      = ".exe"
-	osName      = "windows"
-	zipSuffix   = ".zip"
-	tarGzSuffix = ".tar.gz"
-)
-
-func GetArchiveFormat() string {
-	if runtime.GOOS == osName {
-		return zipSuffix
-	}
-
-	return tarGzSuffix
+var conversion = map[string]string{
+	"amd64": "x86_64",
+	"386":   "i386",
 }
 
-func GetBinaryName(execName string) string {
-	if runtime.GOOS != osName {
-		return execName
+func Convert(archName string) string {
+	newValue, ok := conversion[archName]
+	if ok {
+		return newValue
 	}
 
-	return execName + suffix
-}
-
-func WriteSuffixTo(writer io.StringWriter) (int, error) {
-	if runtime.GOOS != osName {
-		return 0, nil
-	}
-
-	return writer.WriteString(suffix)
+	return archName
 }

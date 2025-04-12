@@ -47,6 +47,10 @@ func RetrieveTgVersion(filePath string, conf *config.Config) (string, error) {
 	return retrieveVersionFromToolFile(filePath, cmdconst.TerragruntName, conf)
 }
 
+func RetrieveTmVersion(filePath string, conf *config.Config) (string, error) {
+	return retrieveVersionFromToolFile(filePath, cmdconst.TerramateName, conf)
+}
+
 func RetrieveAtmosVersion(filePath string, conf *config.Config) (string, error) {
 	return retrieveVersionFromToolFile(filePath, cmdconst.AtmosName, conf)
 }

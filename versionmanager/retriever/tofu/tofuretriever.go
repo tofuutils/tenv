@@ -39,8 +39,8 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/download"
 	"github.com/tofuutils/tenv/v4/pkg/github"
 	"github.com/tofuutils/tenv/v4/pkg/pathfilter"
+	"github.com/tofuutils/tenv/v4/pkg/uncompress"
 	"github.com/tofuutils/tenv/v4/pkg/winbin"
-	"github.com/tofuutils/tenv/v4/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/html"
 	tofudlmirroring "github.com/tofuutils/tenv/v4/versionmanager/retriever/tofu/dl"
 )
@@ -136,11 +136,12 @@ func (r TofuRetriever) Install(ctx context.Context, versionStr string, targetPat
 		return err
 	}
 
-	if err = r.checkSumAndSig(ctx, v, stable, data, assetNames[0], assetURLs, requestOptions); err != nil {
+	fileName := assetNames[0]
+	if err = r.checkSumAndSig(ctx, v, stable, data, fileName, assetURLs, requestOptions); err != nil {
 		return err
 	}
 
-	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TofuName)))
+	return uncompress.ToDir(data, fileName, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TofuName)))
 }
 
 func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {

@@ -21,22 +21,14 @@ package zip
 import (
 	"archive/zip"
 	"bytes"
-	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
+	"github.com/tofuutils/tenv/v4/pkg/uncompress/sanitize"
 )
 
-// ensure the directory exists with a MkdirAll call.
 func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error {
-	err := os.MkdirAll(dirPath, fileperm.RWE)
-	if err != nil {
-		return err
-	}
-
 	dataReader := bytes.NewReader(dataZip)
 	zipReader, err := zip.NewReader(dataReader, int64(len(dataZip)))
 	if err != nil {
@@ -54,7 +46,7 @@ func UnzipToDir(dataZip []byte, dirPath string, filter func(string) bool) error 
 
 // a separate function allows deferred Close to execute earlier.
 func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) bool) error {
-	destPath, err := sanitizeArchivePath(dirPath, zipFile.Name)
+	destPath, err := sanitize.ArchivePath(dirPath, zipFile.Name)
 	if err != nil {
 		return err
 	}
@@ -80,14 +72,4 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) boo
 	}
 
 	return os.WriteFile(destPath, data, zipFile.Mode())
-}
-
-// Sanitize archive file pathing from "G305" (file traversal).
-func sanitizeArchivePath(dirPath string, fileName string) (string, error) {
-	destPath := filepath.Join(dirPath, fileName)
-	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
-		return destPath, nil
-	}
-
-	return "", fmt.Errorf("content filepath is tainted: %s", fileName)
 }

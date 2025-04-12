@@ -44,7 +44,7 @@ const (
 	selectedColorCode = "170"
 )
 
-var tools = []list.Item{item(cmdconst.TofuName), item(cmdconst.TerraformName), item(cmdconst.TerragruntName), item(cmdconst.AtmosName)} //nolint
+var tools = []list.Item{item(cmdconst.TofuName), item(cmdconst.TerraformName), item(cmdconst.TerragruntName), item(cmdconst.TerramateName), item(cmdconst.AtmosName)} //nolint
 
 var (
 	helpStyle         = list.DefaultStyles().HelpStyle                                    //nolint

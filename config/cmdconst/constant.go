@@ -25,6 +25,7 @@ const (
 	TenvName       = "tenv"
 	TerraformName  = "terraform"
 	TerragruntName = "terragrunt"
+	TerramateName  = "terramate"
 	TofuName       = "tofu"
 
 	// full project name.

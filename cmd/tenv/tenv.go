@@ -45,6 +45,7 @@ const (
 	atmosHelp  = helpPrefix + "Atmos (https://atmos.tools)."
 	tfHelp     = helpPrefix + "Terraform (https://www.terraform.io)."
 	tgHelp     = helpPrefix + "Terragrunt (https://terragrunt.gruntwork.io)."
+	tmHelp     = helpPrefix + "Terramate (https://terramate.io)."
 	tofuHelp   = helpPrefix + "OpenTofu (https://opentofu.org)."
 
 	pathEnvName = "PATH"
@@ -150,6 +151,20 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 	initSubCmds(atmosCmd, builder.BuildAtmosManager(conf, hclParser), atmosParams)
 
 	rootCmd.AddCommand(atmosCmd)
+
+	tmCmd := &cobra.Command{
+		Use:     "tm",
+		Aliases: []string{cmdconst.TerramateName},
+		Short:   tmHelp,
+		Long:    tmHelp,
+	}
+
+	tmParams := subCmdParams{
+		needToken: true, remoteEnvName: envname.TmRemoteURL, pRemote: &conf.Tm.RemoteURL,
+	}
+	initSubCmds(tmCmd, builder.BuildTmManager(conf, hclParser), tmParams)
+
+	rootCmd.AddCommand(tmCmd)
 
 	return rootCmd
 }
