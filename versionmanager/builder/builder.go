@@ -28,6 +28,7 @@ import (
 	atmosretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/atmos"
 	terraformretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform"
 	terragruntretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/terragrunt"
+	terramateretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/terramate"
 	tofuretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/tofu"
 	asdfparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/asdf"
 	flatparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/flat"
@@ -41,6 +42,7 @@ var Builders = map[string]Func{ //nolint
 	cmdconst.TofuName:       BuildTofuManager,
 	cmdconst.TerraformName:  BuildTfManager,
 	cmdconst.TerragruntName: BuildTgManager,
+	cmdconst.TerramateName:  BuildTmManager,
 	cmdconst.AtmosName:      BuildAtmosManager,
 }
 
@@ -92,6 +94,16 @@ func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 	}
 
 	return versionmanager.Make(conf, envname.TgPrefix, "Terragrunt", nil, tgRetriever, versionFiles)
+}
+
+func BuildTmManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
+	tmRetriever := terramateretriever.Make(conf)
+	versionFiles := []types.VersionFile{
+		{Name: ".terramate-version", Parser: flatparser.RetrieveVersion},
+		{Name: asdfparser.ToolFileName, Parser: asdfparser.RetrieveTmVersion},
+	}
+
+	return versionmanager.Make(conf, envname.TmPrefix, "Terramate", nil, tmRetriever, versionFiles)
 }
 
 func BuildTofuManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {

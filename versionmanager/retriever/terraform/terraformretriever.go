@@ -35,8 +35,8 @@ import (
 	sha256check "github.com/tofuutils/tenv/v4/pkg/check/sha256"
 	"github.com/tofuutils/tenv/v4/pkg/download"
 	"github.com/tofuutils/tenv/v4/pkg/pathfilter"
+	"github.com/tofuutils/tenv/v4/pkg/uncompress"
 	"github.com/tofuutils/tenv/v4/pkg/winbin"
-	"github.com/tofuutils/tenv/v4/pkg/zip"
 	htmlretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/html"
 	releaseapi "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/api"
 )
@@ -134,7 +134,7 @@ func (r TerraformRetriever) Install(ctx context.Context, version string, targetP
 		return err
 	}
 
-	return zip.UnzipToDir(data, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TerraformName)))
+	return uncompress.ToDir(data, fileName, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TerraformName)))
 }
 
 func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) {

@@ -16,40 +16,13 @@
  *
  */
 
-package winbin
+package main
 
 import (
-	"io"
-	"runtime"
+	"github.com/tofuutils/tenv/v4/config/cmdconst"
+	lightproxy "github.com/tofuutils/tenv/v4/versionmanager/proxy/light"
 )
 
-const (
-	suffix      = ".exe"
-	osName      = "windows"
-	zipSuffix   = ".zip"
-	tarGzSuffix = ".tar.gz"
-)
-
-func GetArchiveFormat() string {
-	if runtime.GOOS == osName {
-		return zipSuffix
-	}
-
-	return tarGzSuffix
-}
-
-func GetBinaryName(execName string) string {
-	if runtime.GOOS != osName {
-		return execName
-	}
-
-	return execName + suffix
-}
-
-func WriteSuffixTo(writer io.StringWriter) (int, error) {
-	if runtime.GOOS != osName {
-		return 0, nil
-	}
-
-	return writer.WriteString(suffix)
+func main() {
+	lightproxy.Exec(cmdconst.TerramateName)
 }
