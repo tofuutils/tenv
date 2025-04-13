@@ -110,10 +110,16 @@ which certainly makes it challenging to be performant, whereas **tenv** is writt
 ### Prerequisites
 If you need to enable cosign checks, install `cosign` (v.2.0+) tool via one of the following commands:
 
-<details markdown="1"><summary><b>MacOS (Homebrew)</b></summary><br>
+<details markdown="1"><summary><b>MacOS (Homebrew, MacPorts)</b></summary><br>
 
+Installation via Homebrew:
 ```sh
 brew install cosign
+```
+
+Installation via MacPorts:
+```sh
+sudo port install cosign
 ```
 
 </details>
@@ -183,10 +189,16 @@ nix-env -i tenv
 
 </details>
 
-<details markdown="1"><summary><b>MacOS (Homebrew, Nix)</b></summary><br>
+<details markdown="1"><summary><b>MacOS (Homebrew, MacPorts, Nix)</b></summary><br>
 
+Installation via Homebrew:
 ```console
 brew install tenv
+```
+
+Installation via MacPorts:
+```console
+sudo port install tenv
 ```
 
 Installation via Nix package manager:
@@ -291,7 +303,7 @@ The docker container is not meant as a way to run tenv for CI pipelines, for loc
 ### Install shell completion
 
 > [!NOTE]
-> If you install tenv via Brew or Nix, completion will be installed automatically.
+> If you install tenv via Brew, MacPorts, or Nix, completion will be installed automatically.
 
 <details markdown="1"><summary><b>zsh</b></summary><br>
 
