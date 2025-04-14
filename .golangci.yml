@@ -1,42 +1,53 @@
+version: "2"
 run:
-  timeout: 1m
   modules-download-mode: readonly
-
-issues:
-  exclude-files:
-    - ".*\\.pb\\.go"
-  exclude-dirs:
-    - pkg/client
-
 linters:
-  enable-all: true
-  disable-all: false
+  default: all
   disable:
-    - testpackage # testpackage is a golang linter that makes you use a separate _test package.
-    - wsl
-    - wrapcheck
-    - err113
-    - mnd
-    - exhaustruct
-    - nestif
-    - gofumpt
-    - gochecknoinits
-    - funlen
     - cyclop
-    - goimports
-    - gci
-    - lll
+    - err113
+    - exhaustruct
+    - funlen
+    - gochecknoinits
     - gocognit
-    - tenv
-
-linters-settings:
-  gosimple:
-    checks:
-      - all
-      - '-S1024' # disable the rule S1024
-  depguard:
-    rules:
-      main:
-        deny:
-          - pkg: io/ioutil
-            desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1"
+    - lll
+    - mnd
+    - nestif
+    - testpackage
+    - wrapcheck
+    - wsl
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: io/ioutil
+              desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1"
+    staticcheck:
+      checks:
+        - -S1024
+        - all
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - .*\.pb\.go
+      - pkg/client
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - .*\.pb\.go
+      - pkg/client
+      - third_party$
+      - builtin$
+      - examples$
