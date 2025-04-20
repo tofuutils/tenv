@@ -241,6 +241,18 @@ snap install tenv
 apk add tenv --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 ```
 
+#### Installation via Cloudsmith Artifact Management platform.
+
+Setup Cloudsmith repository [automatically](https://help.cloudsmith.io/docs/alpine-repository#public-repositories):
+```sh
+sudo apk add --no-cache bash
+curl -1sLf 'https://dl.cloudsmith.io/public/tofuutils/tenv/cfg/setup/bash.alpine.sh' | sudo bash
+```
+Install via apk:
+```sh
+apk add tenv
+```
+
 </details>
 
 <details markdown="1"><summary><b>Ubuntu</b></summary><br>
@@ -257,6 +269,30 @@ sudo dpkg -i "tenv_${LATEST_VERSION}_amd64.deb"
 Installation via Nix package manager:
 ```console
 nix-env -i tenv
+```
+
+#### Installation via Cloudsmith Artifact Management platform.
+Setup Cloudsmith repository [automatically](https://help.cloudsmith.io/docs/debian-repository#public-repositories):
+```sh
+curl -1sLf 'https://dl.cloudsmith.io/public/tofuutils/tenv/cfg/setup/bash.deb.sh' | sudo bash
+```
+Install via apt:
+```sh
+sudo apt install tenv
+```
+
+</details>
+
+<details markdown="1"><summary><b>RedHat</b></summary><br>
+
+#### Installation via Cloudsmith Artifact Management platform.
+Setup Cloudsmith repository [automatically](https://help.cloudsmith.io/docs/redhat-repository#public-repositories):
+```sh
+curl -1sLf 'https://dl.cloudsmith.io/public/tofuutils/tenv/cfg/setup/bash.rpm.sh' | sudo bash
+```
+Install via yum:
+```sh
+sudo yum install tenv
 ```
 
 </details>
