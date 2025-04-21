@@ -34,7 +34,7 @@
 ## About The Project
 
 Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org),
-[Terraform](https://www.terraform.io/), [Terragrunt](https://terragrunt.gruntwork.io/) and
+[Terraform](https://www.terraform.io/), [Terragrunt](https://terragrunt.gruntwork.io/), [Terramate](https://https://terramate.io/) and
 [Atmos](https://atmos.tools), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
 
 **tenv** is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
@@ -43,7 +43,7 @@ Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu
 ### Key Features
 
 - Versatile version management: Easily switch between different versions of OpenTofu,
-Terraform, Terragrunt and Atmos.
+Terraform, Terragrunt, Terramate and Atmos.
 - [Semver 2.0.0](https://semver.org/) Compatibility: Utilizes [go-version](https://github.com/hashicorp/go-version) for semantic versioning and use the [HCL](https://github.com/hashicorp/hcl) parser to extract required version constraint from OpenTofu/Terraform/Terragrunt files (see [required_version](#required_version) and [Terragrunt hcl](#terragrunt-hcl-file)).
 - Signature verification: Supports [cosign](https://github.com/sigstore/cosign) (if present on your machine) and PGP (via [gopenpgp](https://github.com/ProtonMail/gopenpgp)), see [signature support](#signature-support).
 - Intuitive installation: Simple installation process with Homebrew and manual options.
@@ -55,7 +55,7 @@ Terraform, Terragrunt and Atmos.
 [asdf-vm](https://asdf-vm.com/) share the same goals than **tenv** : simplify the usage of several version of tools.
 
 asdf-vm is generic and extensible with a plugin system, key **tenv** differences :
-- **tenv** is more specific and has features dedicated to OpenTofu, Terraform, Terragrunt
+- **tenv** is more specific and has features dedicated to OpenTofu, Terraform, Terragrunt, Terramate 
 and Atmos, like [HCL](https://github.com/hashicorp/hcl) parsing based detection (see [Key Features](#key-features)).
 - **tenv** is distributed as independent binaries and does not rely on any shell or other CLI executable.
 - **tenv** does better in terms of performance and platform compatibility. It works uniformly across all modern operating systems,
@@ -388,7 +388,7 @@ echo "source \$HOME/.tenv.completion.fish" >> ~/.config/fish/config.fish
 ## Usage
 
 **tenv** supports [OpenTofu](https://opentofu.org),
-[Terragrunt](https://terragrunt.gruntwork.io/), [Terraform](https://www.terraform.io/) and
+[Terraform](https://www.terraform.io/), [Terragrunt](https://terragrunt.gruntwork.io/), [Terramate](https://terramate.io/) and
 [Atmos](https://atmos.tools). To manage each binary you can use `tenv <tool> <command>`. Below is a list of tools and commands that use actual subcommands:
 
 | tool (alias)        | env vars                   | description                                    |
@@ -396,6 +396,7 @@ echo "source \$HOME/.tenv.completion.fish" >> ~/.config/fish/config.fish
 | `tofu` (`opentofu`) | [TOFUENV_](#tofu-env-vars) | [OpenTofu](https://opentofu.org)               |
 | `tf` (`terraform`)  | [TFENV_](#tf-env-vars)     | [Terraform](https://www.terraform.io/)         |
 | `tg` (`terragrunt`) | [TG_](#tg-env-vars)        | [Terragrunt](https://terragrunt.gruntwork.io/) |
+| `tm` (`terramate`)  | [TM_](#tm-env-vars)        | [Terramate](https://terramate.io/)             |
 | `at` (`atmos`)      | [ATMOS_](#atmos-env-vars)  | [Atmos](https://atmos.tools)                   |
 
 
@@ -1293,6 +1294,120 @@ terragrunt version v0.54.1
 
 </details>
 
+
+<a id="tm-env-vars"></a>
+### Terramate environment variables
+
+
+<details markdown="1"><summary><b>TM_INSTALL_MODE</b></summary><br>
+
+String (the default depend on TM_REMOTE, without change on it, it is "api" else it is "direct")
+
+- "api" install mode retrieve download url of Terramate from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TM_REMOTE must comply with it).
+- "direct" install mode generate download url of Terramate based on TM_REMOTE.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_LIST_MODE</b></summary><br>
+
+String (the default depend on TM_LIST_URL, without change on it, it is "api" else it is "html")
+
+- "api" list mode retrieve information of Terramate releases from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TM_LIST_URL must comply with it).
+- "html" list mode extract information of Terramate releases from parsing an html page in TM_LIST_URL.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_LIST_URL</b></summary><br>
+
+String (Default: copy TM_REMOTE)
+
+Allow to override the remote url only for the releases listing.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_REMOTE</b></summary><br>
+
+String (Default: https://api.github.com/repos/terramate-io/terramate/releases)
+
+URL to install Terramate, when TM_REMOTE differ from its default value, TM_INSTALL_MODE is set to "direct" and TM_LIST_MODE is set to "html" (assume an artifact proxy usage).
+
+`tenv tm` subcommands `detect`, `install`, `list-remote` and `use` support a `--remote-url`, `-u` flag version.
+
+See [advanced remote configuration](#advanced-remote-configuration) for more details.
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_REMOTE_PASSWORD</b></summary><br>
+
+String (Default: "")
+
+Could be used with TM_REMOTE_USER to specify HTTP basic auth when same credential are used with TM_REMOTE and TM_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_REMOTE_USER</b></summary><br>
+
+String (Default: "")
+
+Could be used with TM_REMOTE_PASSWORD to specify HTTP basic auth when same credential are used with TM_REMOTE and TM_LIST_URL (instead of `https://user:password@host.org` URL format).
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_DEFAULT_CONSTRAINT</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terramate default constraint, specified in ${TENV_ROOT}/Terramate/constraint file.
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_DEFAULT_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terramate fallback version, specified in ${TENV_ROOT}/Terramate/version file.
+
+</details>
+
+
+<details markdown="1"><summary><b>TM_VERSION</b></summary><br>
+
+String (Default: "")
+
+If not empty string, this variable overrides Terramate version, specified in [`.terramate-version`](#terramate-version-files) files.
+
+`tenv tm` subcommands `install` and `detect` also respects this variable.
+
+e.g. with :
+
+```console
+$ terramate version
+0.13.0
+```
+
+then :
+
+```console
+$ TM_VERSION=0.12.0 terramate version
+0.12.0
+```
+
+</details>
+
+
 <a id="atmos-env-vars"></a>
 ### Atmos environment variables
 
@@ -1463,6 +1578,16 @@ If both `root.hcl` and `terragrunt.hcl` (or their `.json` versions) are present,
 
 </details>
 
+<a id="terramate-version-files"></a>
+<details markdown="1"><summary><b>terramate version files</b></summary><br>
+
+If you put a `.terramate-version` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
+Note, that TM_VERSION can be used to override version specified by those files.
+
+Recognize same values as `tenv tm use` command.
+
+</details>
+
 <a id="atmos-version-files"></a>
 <details markdown="1"><summary><b>atmos version files</b></summary><br>
 
@@ -1565,6 +1690,24 @@ The version resolution order is :
 The `latest-allowed` strategy has no information for Terragrunt and will fallback to `latest` unless there is default constraint. Adding a default constraint could be done with TG_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/Terragrunt/constraint` file (can be written with `tenv tg constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid there fallback to `latest`.
 
 </details>
+
+
+<details markdown="1"><summary><b>terramate</b></summary><br>
+
+The `terramate` command in this project is a proxy to Terramate's `terramate` command managed by **tenv**.
+
+The version resolution order is :
+
+- TM_VERSION environment variable
+- `.terramate-version` file
+- TM_DEFAULT_VERSION environment variable
+- `${TENV_ROOT}/Terramate/version` file (can be written with `tenv tm use`)
+- `latest-allowed`
+
+The `latest-allowed` strategy has no information for Terramate and will fallback to `latest` unless there is default constraint. Adding a default constraint could be done with TM_DEFAULT_CONSTRAINT environment variable or `${TENV_ROOT}/Terramate/constraint` file (can be written with `tenv tm constraint`). The default constraint is added while using `latest-allowed`, `min-required` or custom constraint. A default constraint with `latest-allowed` or `min-required` will avoid there fallback to `latest`.
+
+</details>
+
 
 <details markdown="1"><summary><b>atmos</b></summary><br>
 
