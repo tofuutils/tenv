@@ -57,6 +57,7 @@ type Config struct {
 	Tf               RemoteConfig
 	TfKeyPath        string
 	Tg               RemoteConfig
+	Tm               RemoteConfig
 	Tofu             RemoteConfig
 	TofuKeyPath      string
 	UserPath         string
@@ -78,6 +79,7 @@ func DefaultConfig() (Config, error) {
 		SkipInstall:      true,
 		Tf:               makeDefaultRemoteConfig(defaultHashicorpURL, defaultHashicorpURL),
 		Tg:               makeDefaultRemoteConfig(defaultTerragruntGithubURL, baseGithubURL),
+		Tm:               makeDefaultRemoteConfig(defaultTerramateGithubURL, baseGithubURL),
 		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
 		UserPath:         userPath,
 		WorkPath:         ".",
@@ -131,6 +133,7 @@ func InitConfigFromEnv() (Config, error) {
 		Tf:             makeRemoteConfig(getenv, envname.TfRemoteURL, envname.TfListURL, envname.TfInstallMode, envname.TfListMode, defaultHashicorpURL, defaultHashicorpURL),
 		TfKeyPath:      getenv(envname.TfHashicorpPGPKey),
 		Tg:             makeRemoteConfig(getenv, envname.TgRemoteURL, envname.TgListURL, envname.TgInstallMode, envname.TgListMode, defaultTerragruntGithubURL, baseGithubURL),
+		Tm:             makeRemoteConfig(getenv, envname.TmRemoteURL, envname.TmListURL, envname.TmInstallMode, envname.TmListMode, defaultTerramateGithubURL, baseGithubURL),
 		Tofu:           makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, DefaultTofuGithubURL, baseGithubURL),
 		TofuKeyPath:    getenv(envname.TofuOpenTofuPGPKey),
 		UserPath:       userPath,

@@ -9,6 +9,7 @@ before:
     - go get -u ./cmd/tofu
     - go get -u ./cmd/terraform
     - go get -u ./cmd/terragrunt
+    - go get -u ./cmd/terramate
     - go get -u ./cmd/tf
     - go get -u ./cmd/atmos
 
@@ -105,6 +106,35 @@ builds:
   - id: terragrunt
     binary: terragrunt
     main: ./cmd/terragrunt
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+      - freebsd
+      - openbsd
+      - solaris
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: "386"
+      - goos: darwin
+        goarch: arm
+      - goos: solaris
+        goarch: "386"
+      - goos: solaris
+        goarch: arm
+      - goos: solaris
+        goarch: arm64
+
+  - id: terramate
+    binary: terramate
+    main: ./cmd/terramate
     env:
       - CGO_ENABLED=0
     goos:

@@ -82,7 +82,7 @@ type logWrapper struct {
 }
 
 func (lw logWrapper) Display(msg string) {
-	lw.Displayer.Log(hclog.Debug, msg)
+	lw.Log(hclog.Debug, msg)
 }
 
 type recordedMessage struct {

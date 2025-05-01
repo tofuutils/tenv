@@ -31,7 +31,7 @@ import (
 func main() {
 	conf, err := config.DefaultConfig() // does not read environment variables
 	if err != nil {
-		fmt.Println("init failed :", err)
+		fmt.Println("init failed :", err) //nolint
 
 		return
 	}
@@ -40,7 +40,7 @@ func main() {
 
 	tenv, err := tenvlib.Make(tenvlib.WithConfig(&conf), tenvlib.DisableDisplay)
 	if err != nil {
-		fmt.Println("should not occur when calling WithConfig :", err)
+		fmt.Println("should not occur when calling WithConfig :", err) //nolint
 
 		return
 	}
@@ -48,7 +48,7 @@ func main() {
 	ctx := context.Background()
 	version, err := tenv.Evaluate(ctx, cmdconst.TerraformName, semantic.LatestKey)
 	if err != nil {
-		fmt.Println("eval failed :", err)
+		fmt.Println("eval failed :", err) //nolint
 
 		return
 	}
@@ -57,7 +57,7 @@ func main() {
 
 	remoteVersion, err := tenv.Evaluate(ctx, cmdconst.TerraformName, semantic.LatestKey)
 	if err != nil {
-		fmt.Println("eval remote failed :", err)
+		fmt.Println("eval remote failed :", err) //nolint
 
 		return
 	}
@@ -65,9 +65,9 @@ func main() {
 	if version != remoteVersion {
 		err = tenv.Uninstall(ctx, cmdconst.TerraformName, version)
 		if err != nil {
-			fmt.Println("uninstall failed :", err)
+			fmt.Println("uninstall failed :", err) //nolint
 		}
 	}
 
-	fmt.Println("Last Terraform version :", version, "(local),", remoteVersion, "(remote)")
+	fmt.Println("Last Terraform version :", version, "(local),", remoteVersion, "(remote)") //nolint
 }

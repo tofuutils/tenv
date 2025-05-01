@@ -35,6 +35,7 @@ const (
 	defaultGithubURL           = "https://api.github.com/repos/"
 	defaultHashicorpURL        = "https://releases.hashicorp.com"
 	defaultTerragruntGithubURL = defaultGithubURL + "gruntwork-io/terragrunt" + slashReleases
+	defaultTerramateGithubURL  = defaultGithubURL + "terramate-io/terramate" + slashReleases
 	DefaultTofuGithubURL       = defaultGithubURL + "opentofu/opentofu" + slashReleases
 	defaultAtmosGithubURL      = defaultGithubURL + "cloudposse/atmos" + slashReleases
 	slashReleases              = "/releases"
