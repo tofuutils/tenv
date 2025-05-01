@@ -41,8 +41,8 @@ import (
 )
 
 const (
-	baseFileName     = "terramate_"
-	terramate_ioName = "terramate-io"
+	baseFileName    = "terramate_"
+	terramateIoName = "terramate-io"
 )
 
 type TerramateRetriever struct {
@@ -76,7 +76,7 @@ func (r TerramateRetriever) Install(ctx context.Context, versionStr string, targ
 
 	switch r.conf.Tm.GetInstallMode() {
 	case config.InstallModeDirect:
-		baseAssetURL, err2 := url.JoinPath(r.conf.Tm.GetRemoteURL(), terramate_ioName, cmdconst.TerramateName, github.Releases, github.Download, tag)
+		baseAssetURL, err2 := url.JoinPath(r.conf.Tm.GetRemoteURL(), terramateIoName, cmdconst.TerramateName, github.Releases, github.Download, tag)
 		if err2 != nil {
 			return err2
 		}
@@ -125,7 +125,7 @@ func (r TerramateRetriever) ListVersions(ctx context.Context) ([]string, error) 
 	listURL := r.conf.Tm.GetListURL()
 	switch r.conf.Tm.GetListMode() {
 	case config.ListModeHTML:
-		baseURL, err := url.JoinPath(listURL, terramate_ioName, cmdconst.TerramateName, github.Releases, github.Download)
+		baseURL, err := url.JoinPath(listURL, terramateIoName, cmdconst.TerramateName, github.Releases, github.Download)
 		if err != nil {
 			return nil, err
 		}

@@ -22,6 +22,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -29,6 +30,8 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/uncompress/sanitize"
 )
+
+const copyAllowedSize = 200 << 20 // 200MB, should be enough for our use cases.
 
 func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) error {
 	uncompressedStream, err := gzip.NewReader(bytes.NewReader(dataTarGz))
@@ -41,7 +44,7 @@ func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) erro
 	for {
 		header, err := tarReader.Next()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return nil
 			}
 
@@ -70,7 +73,7 @@ func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) erro
 			}
 			defer destFile.Close()
 
-			if _, err := io.Copy(destFile, tarReader); err != nil {
+			if _, err := io.CopyN(destFile, tarReader, copyAllowedSize); err != nil {
 				return err
 			}
 		default:

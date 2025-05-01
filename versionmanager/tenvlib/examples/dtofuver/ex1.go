@@ -29,13 +29,13 @@ import (
 func main() {
 	tenv, err := tenvlib.Make(tenvlib.AutoInstall, tenvlib.IgnoreEnv, tenvlib.DisableDisplay)
 	if err != nil {
-		fmt.Println("init failed :", err)
+		fmt.Println("init failed :", err) //nolint
 
 		return
 	}
 
 	err = tenv.DetectedCommandProxy(context.Background(), cmdconst.TofuName, "version")
 	if err != nil {
-		fmt.Println("proxy call failed :", err)
+		fmt.Println("proxy call failed :", err) //nolint
 	}
 }

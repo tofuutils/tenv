@@ -194,11 +194,10 @@ func newListCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 			}
 			usedVersion := string(bytes.TrimSpace(data))
 
-			nilTime := time.Time{}
 			for _, datedVersion := range datedVersions {
 				useDate := datedVersion.UseDate
 				version := datedVersion.Version
-				noUseDate := useDate == nilTime
+				noUseDate := useDate.IsZero()
 				switch {
 				case usedVersion == version:
 					if noUseDate {

@@ -18,7 +18,7 @@
 
 package archname
 
-var conversion = map[string]string{
+var conversion = map[string]string{ //nolint
 	"amd64": "x86_64",
 	"386":   "i386",
 }

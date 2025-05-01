@@ -96,7 +96,7 @@ func BuildTgManager(conf *config.Config, hclParser *hclparse.Parser) versionmana
 	return versionmanager.Make(conf, envname.TgPrefix, "Terragrunt", nil, tgRetriever, versionFiles)
 }
 
-func BuildTmManager(conf *config.Config, hclParser *hclparse.Parser) versionmanager.VersionManager {
+func BuildTmManager(conf *config.Config, _ *hclparse.Parser) versionmanager.VersionManager {
 	tmRetriever := terramateretriever.Make(conf)
 	versionFiles := []types.VersionFile{
 		{Name: ".terramate-version", Parser: flatparser.RetrieveVersion},
