@@ -67,6 +67,14 @@ func TestFindVersionPrefixV(t *testing.T) {
 func TestFindVersionTerragruntAlpha(t *testing.T) {
 	t.Parallel()
 
+	if version := versionfinder.Find("alpha2025022701"); version != "alpha2025022701" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestFindVersionTerragruntAlphaDash(t *testing.T) {
+	t.Parallel()
+
 	if version := versionfinder.Find("gruntwork-io/terragrunt/releases/tag/alpha-2025040801/"); version != "alpha-2025040801" {
 		t.Error("Unexpected result, get :", version)
 	}
