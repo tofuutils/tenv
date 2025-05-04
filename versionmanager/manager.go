@@ -38,6 +38,7 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/reversecmp"
 	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
+	versionfinder "github.com/tofuutils/tenv/v4/versionmanager/semantic/finder"
 	flatparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/flat"
 	iacparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
@@ -86,9 +87,8 @@ func (m VersionManager) Detect(ctx context.Context, proxyCall bool) (string, err
 
 // Evaluate version resolution strategy or version constraint (can install depending on auto install env var).
 func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, proxyCall bool) (string, error) {
-	parsedVersion, err := version.NewVersion(requestedVersion)
-	if err == nil {
-		cleanedVersion := parsedVersion.String() // use a parsable version
+	cleanedVersion := versionfinder.Find(requestedVersion) // use a known version format
+	if cleanedVersion != "" {
 		if m.Conf.SkipInstall {
 			_, installed, err := m.checkVersionInstallation("", cleanedVersion)
 			if err != nil {
@@ -144,9 +144,9 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 }
 
 func (m VersionManager) Install(ctx context.Context, requestedVersion string) error {
-	parsedVersion, err := version.NewVersion(requestedVersion)
-	if err == nil {
-		return m.installSpecificVersion(ctx, parsedVersion.String(), false) // use a parsable version
+	cleanedVersion := versionfinder.Find(requestedVersion)
+	if cleanedVersion != "" {
+		return m.installSpecificVersion(ctx, cleanedVersion, false) // use a known version format
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.Conf)
@@ -326,9 +326,9 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	defer disableExit()
 	defer deleteLock()
 
-	parsedVersion, err := version.NewVersion(requestedVersion) // check the use of a parsable version
-	if err == nil {
-		m.uninstallSpecificVersion(installPath, parsedVersion.String())
+	cleanedVersion := versionfinder.Find(requestedVersion) // check the use of a known version format
+	if cleanedVersion != "" {
+		m.uninstallSpecificVersion(installPath, cleanedVersion)
 
 		return nil
 	}

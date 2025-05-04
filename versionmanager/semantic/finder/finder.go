@@ -20,11 +20,11 @@ package versionfinder
 
 import (
 	"regexp"
-
-	"github.com/hashicorp/go-version"
 )
 
-var versionRegexp = regexp.MustCompilePOSIX(version.VersionRegexpRaw) //nolint
+const versionRegexpRaw string = `(v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z\-.]+)?|alpha\-?[0-9]+)`
+
+var versionRegexp = regexp.MustCompilePOSIX(versionRegexpRaw) //nolint
 
 // return a version without starting 'v'.
 func Find(versionStr string) string {
