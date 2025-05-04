@@ -396,7 +396,7 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 func addInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
 	flags.StringVarP(&conf.Arch, "arch", "a", conf.Arch, "specify arch for binaries downloading")
 	if params.pPublicKeyPath != nil {
-		flags.StringVarP(params.pPublicKeyPath, "key-file", "k", "", "local path to PGP public key file (replace check against remote one)")
+		flags.StringVarP(params.pPublicKeyPath, "key-file", "k", *params.pPublicKeyPath, "local path to PGP public key file (replace check against remote one)")
 		flags.BoolVarP(&conf.SkipSignature, "skip-signature", "s", false, "skip signature checking")
 	}
 }
