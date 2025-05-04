@@ -1052,12 +1052,9 @@ Same as TENV_FORCE_REMOTE.
 
 <details markdown="1"><summary><b>TFENV_HASHICORP_PGP_KEY</b></summary><br>
 
-String (Default: "")
-
-Allow to specify a local file path to Hashicorp PGP public key, if not present download https://www.hashicorp.com/.well-known/pgp-key.txt.
+Allow to specify a local file path or URL to Hashicorp PGP public key. If a URL is provided (starting with "http://" or "https://"), the key will be downloaded from that URL. If a local file path is provided, the key will be read from that location. If not set, the key will be downloaded from the default URL (https://www.hashicorp.com/.well-known/pgp-key.txt).
 
 `tenv tf` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
-
 </details>
 
 
