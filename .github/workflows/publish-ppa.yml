@@ -17,7 +17,7 @@ jobs:
 
           release_tag=${{ github.event.release.tag_name }}
           release_version="${release_tag#v}"
-          
+
           mkdir -p /tmp/tenv
 
           echo "[INFO] Download release's tarballs"
@@ -27,7 +27,7 @@ jobs:
             https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz
 
       - name: Publish PPA
-        uses: yuezk/publish-ppa-package@v2
+        uses: yuezk/publish-ppa-package@aef2cd26952551ca7d7f7ed15d75d067364cfa45 # ratchet:yuezk/publish-ppa-package@v2
         with:
           repository: "kvendingoldo/tenv"
           gpg_private_key: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
