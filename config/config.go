@@ -31,8 +31,8 @@ import (
 
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"
-	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/download"
+	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
@@ -56,8 +56,7 @@ type Config struct {
 	SkipInstall      bool
 	SkipSignature    bool
 	Tf               RemoteConfig
-	TfKeyPath        string
-	TfKeyURL         string
+	TfKeyPathOrURL   string
 	Tg               RemoteConfig
 	Tm               RemoteConfig
 	Tofu             RemoteConfig
@@ -85,8 +84,7 @@ func DefaultConfig() (Config, error) {
 		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
 		UserPath:         userPath,
 		WorkPath:         ".",
-		TfKeyPath:        "",
-		TfKeyURL:         download.DefaultHashicorpPGPKeyURL,
+		TfKeyPathOrURL:   download.DefaultHashicorpPGPKeyURL,
 	}, nil
 }
 
@@ -135,8 +133,7 @@ func InitConfigFromEnv() (Config, error) {
 		RootPath:       rootPath,
 		SkipInstall:    !autoInstall,
 		Tf:             makeRemoteConfig(getenv, envname.TfRemoteURL, envname.TfListURL, envname.TfInstallMode, envname.TfListMode, defaultHashicorpURL, defaultHashicorpURL),
-		TfKeyPath:      getenv(envname.TfHashicorpPGPKey),
-		TfKeyURL:       getenv.Fallback(envname.TfHashicorpPGPKey, download.DefaultHashicorpPGPKeyURL),
+		TfKeyPathOrURL: getenv.Fallback(envname.TfHashicorpPGPKey, download.DefaultHashicorpPGPKeyURL),
 		Tg:             makeRemoteConfig(getenv, envname.TgRemoteURL, envname.TgListURL, envname.TgInstallMode, envname.TgListMode, defaultTerragruntGithubURL, baseGithubURL),
 		Tm:             makeRemoteConfig(getenv, envname.TmRemoteURL, envname.TmListURL, envname.TmInstallMode, envname.TmListMode, defaultTerramateGithubURL, baseGithubURL),
 		Tofu:           makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, DefaultTofuGithubURL, baseGithubURL),

@@ -192,11 +192,7 @@ func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string,
 		return err
 	}
 
-	keyPath := r.conf.TfKeyPath
-	if keyPath == "" {
-		keyPath = r.conf.TfKeyURL
-	}
-	dataPublicKey, err := download.GetPGPKey(ctx, keyPath, r.conf.Displayer.Display)
+	dataPublicKey, err := download.GetPGPKey(ctx, r.conf.TfKeyPathOrURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
