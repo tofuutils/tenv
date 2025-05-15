@@ -34,7 +34,7 @@
 ## About The Project
 
 Welcome to **tenv**, a versatile version manager for [OpenTofu](https://opentofu.org),
-[Terraform](https://www.terraform.io/), [Terragrunt](https://terragrunt.gruntwork.io/), [Terramate](https://https://terramate.io/) and
+[Terraform](https://www.terraform.io/), [Terragrunt](https://terragrunt.gruntwork.io/), [Terramate](https://terramate.io/) and
 [Atmos](https://atmos.tools), written in Go. Our tool simplifies the complexity of handling different versions of these powerful tools, ensuring developers and DevOps professionals can focus on what matters most - building and deploying efficiently.
 
 **tenv** is a successor of [tofuenv](https://github.com/tofuutils/tofuenv) and [tfenv](https://github.com/tfutils/tfenv).
