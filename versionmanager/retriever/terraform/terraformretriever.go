@@ -21,7 +21,6 @@ package terraformretriever
 import (
 	"context"
 	"net/url"
-	"os"
 	"runtime"
 	"strings"
 
@@ -193,13 +192,7 @@ func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string,
 		return err
 	}
 
-	var dataPublicKey []byte
-	if r.conf.TfKeyPath == "" {
-		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display, download.NoCheck)
-	} else {
-		dataPublicKey, err = os.ReadFile(r.conf.TfKeyPath)
-	}
-
+	dataPublicKey, err := download.GetPGPKey(ctx, r.conf.TfKeyPathOrURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
