@@ -118,7 +118,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 
 	tfParams := subCmdParams{
 		needToken: false, remoteEnvName: envname.TfRemoteURL,
-		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPath,
+		pRemote: &conf.Tf.RemoteURL, pPublicKeyPath: &conf.TfKeyPathOrURL,
 	}
 	initSubCmds(tfCmd, builder.BuildTfManager(conf, hclParser), tfParams)
 
