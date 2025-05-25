@@ -44,11 +44,7 @@ func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) erro
 	for {
 		header, err := tarReader.Next()
 		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return nil
-			}
-
-			return err
+			return filterEOF(err)
 		}
 
 		headerName := header.Name
@@ -74,10 +70,17 @@ func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) erro
 			defer destFile.Close()
 
 			if _, err := io.CopyN(destFile, tarReader, copyAllowedSize); err != nil {
-				return err
+				return filterEOF(err)
 			}
 		default:
 			return fmt.Errorf("unknown type during tar extraction : %c in %s", typeflag, headerName)
 		}
 	}
+}
+
+func filterEOF(err error) error {
+	if errors.Is(err, io.EOF) {
+		return nil
+	}
+	return err
 }
