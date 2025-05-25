@@ -21,10 +21,10 @@ package zip
 import (
 	"archive/zip"
 	"bytes"
-	"io"
 	"os"
 
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
+	"github.com/tofuutils/tenv/v4/pkg/uncompress/limitedcopy"
 	"github.com/tofuutils/tenv/v4/pkg/uncompress/sanitize"
 )
 
@@ -56,20 +56,15 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) boo
 		return os.MkdirAll(destPath, fileperm.RWE)
 	}
 
+	if !filter(destPath) {
+		return nil
+	}
+
 	reader, err := zipFile.Open()
 	if err != nil {
 		return err
 	}
 	defer reader.Close()
 
-	data, err := io.ReadAll(reader)
-	if err != nil {
-		return err
-	}
-
-	if !filter(destPath) {
-		return nil
-	}
-
-	return os.WriteFile(destPath, data, zipFile.Mode())
+	return limitedcopy.Copy(destPath, reader, zipFile.Mode())
 }
