@@ -33,6 +33,8 @@ import (
 
 const copyAllowedSize = 200 << 20 // 200MB, should be enough for our use cases.
 
+var errFileTooBig = errors.New("file too big, max allowed size is 200MB")
+
 func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) error {
 	uncompressedStream, err := gzip.NewReader(bytes.NewReader(dataTarGz))
 	if err != nil {
@@ -69,8 +71,11 @@ func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) erro
 			}
 			defer destFile.Close()
 
-			if _, err := io.CopyN(destFile, tarReader, copyAllowedSize); err != nil {
+			switch n, err := io.CopyN(destFile, tarReader, copyAllowedSize); {
+			case err != nil:
 				return filterEOF(err)
+			case n == copyAllowedSize:
+				return errFileTooBig
 			}
 		default:
 			return fmt.Errorf("unknown type during tar extraction : %c in %s", typeflag, headerName)
