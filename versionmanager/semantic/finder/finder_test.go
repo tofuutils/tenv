@@ -136,6 +136,22 @@ func TestIsValidIP(t *testing.T) {
 	}
 }
 
+func TestIsValidEmpty(t *testing.T) {
+	t.Parallel()
+
+	if versionfinder.IsValid("") {
+		t.Error("Unexpected result : should not be valid")
+	}
+}
+
+func TestIsValidSpace(t *testing.T) {
+	t.Parallel()
+
+	if versionfinder.IsValid(" ") {
+		t.Error("Unexpected result : should not be valid")
+	}
+}
+
 func TestIsValidVersionTerragruntAlpha(t *testing.T) {
 	t.Parallel()
 
