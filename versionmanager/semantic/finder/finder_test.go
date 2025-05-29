@@ -79,3 +79,123 @@ func TestFindVersionTerragruntAlphaDash(t *testing.T) {
 		t.Error("Unexpected result, get :", version)
 	}
 }
+
+func TestFindVersionConstraint(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Find("~> v1.11.0"); version != "1.11.0" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestIsValidVersion(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("1.11.0") {
+		t.Error("Unexpected result : should be valid")
+	}
+}
+
+func TestIsValidVersionV(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("v2.13.0") {
+		t.Error("Unexpected result : should be valid")
+	}
+}
+
+func TestIsValidVersionNoFixes(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("3.12") {
+		t.Error("Unexpected result : should be valid")
+	}
+}
+
+func TestIsValidVersionVNoMinor(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("v4") {
+		t.Error("Unexpected result : should be valid")
+	}
+}
+
+func TestIsValidVersionConstraint(t *testing.T) {
+	t.Parallel()
+
+	if versionfinder.IsValid("~> v1.11.0") {
+		t.Error("Unexpected result : should not be valid")
+	}
+}
+
+func TestIsValidIP(t *testing.T) {
+	t.Parallel()
+
+	if versionfinder.IsValid("1.2.3.4") {
+		t.Error("Unexpected result : should not be valid")
+	}
+}
+
+func TestIsValidVersionTerragruntAlpha(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("alpha2025022701") {
+		t.Error("Unexpected result : should be valid")
+	}
+}
+
+func TestIsValidTerragruntAlphaDash(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("alpha-2025040801") {
+		t.Error("Unexpected result : should be valid")
+	}
+}
+
+func TestCleanVersion(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("1.11.0"); version != "1.11.0" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestCleanVersionV(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("v2.13.0"); version != "2.13.0" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestCleanVersionNoFixes(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("3.12"); version != "3.12.0" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestCleanVersionVNoMinor(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("v4"); version != "4.0.0" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestCleanVersionTerragruntAlpha(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("alpha2025022701"); version != "alpha2025022701" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestCleanTerragruntAlphaDash(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("alpha-2025040801"); version != "alpha-2025040801" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
