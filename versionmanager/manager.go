@@ -146,7 +146,8 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 func (m VersionManager) Install(ctx context.Context, requestedVersion string) error {
 	if versionfinder.IsValid(requestedVersion) {
 		cleanedVersion := versionfinder.Clean(requestedVersion)
-		return m.installSpecificVersion(ctx, cleanedVersion, false) // use a known version format
+
+		return m.installSpecificVersion(ctx, cleanedVersion, false)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.Conf)

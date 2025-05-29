@@ -60,6 +60,7 @@ func Clean(versionStr string) string {
 	switch len(parts) {
 	case 3:
 		fixes = parts[2]
+
 		fallthrough
 	case 2:
 		minor = parts[1]
@@ -75,5 +76,6 @@ func Clean(versionStr string) string {
 		builder.WriteByte('-')
 		builder.WriteString(after)
 	}
+
 	return builder.String()
 }
