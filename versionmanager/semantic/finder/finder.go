@@ -20,18 +20,62 @@ package versionfinder
 
 import (
 	"regexp"
+	"strings"
 )
 
-const versionRegexpRaw string = `(v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z\-.]+)?|alpha\-?[0-9]+)`
+const versionRegexpRaw string = `(v?[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z\-.]+)?|alpha\-?[0-9]+)`
 
-var versionRegexp = regexp.MustCompilePOSIX(versionRegexpRaw) //nolint
+var (
+	versionRegexp      = regexp.MustCompilePOSIX(versionRegexpRaw)             //nolint
+	exactVersionRegexp = regexp.MustCompilePOSIX("^" + versionRegexpRaw + "$") //nolint
+)
 
 // return a version without starting 'v'.
 func Find(versionStr string) string {
 	versionStr = versionRegexp.FindString(versionStr)
 	if versionStr != "" && versionStr[0] == 'v' {
-		versionStr = versionStr[1:]
+		return versionStr[1:]
 	}
 
 	return versionStr
+}
+
+func IsValid(versionStr string) bool {
+	return exactVersionRegexp.MatchString(versionStr)
+}
+
+// IsValid(versionStr) must be true.
+func Clean(versionStr string) string {
+	if strings.HasPrefix(versionStr, "alpha") {
+		return versionStr
+	}
+
+	before, after, found := strings.Cut(versionStr, "-")
+	parts := strings.SplitN(before, ".", 3)
+	major, minor, fixes := parts[0], "0", "0"
+	if major[0] == 'v' {
+		major = major[1:]
+	}
+
+	switch len(parts) {
+	case 3:
+		fixes = parts[2]
+
+		fallthrough
+	case 2:
+		minor = parts[1]
+	}
+
+	var builder strings.Builder
+	builder.WriteString(major)
+	builder.WriteByte('.')
+	builder.WriteString(minor)
+	builder.WriteByte('.')
+	builder.WriteString(fixes)
+	if found {
+		builder.WriteByte('-')
+		builder.WriteString(after)
+	}
+
+	return builder.String()
 }

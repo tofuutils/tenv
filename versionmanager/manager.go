@@ -87,8 +87,8 @@ func (m VersionManager) Detect(ctx context.Context, proxyCall bool) (string, err
 
 // Evaluate version resolution strategy or version constraint (can install depending on auto install env var).
 func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, proxyCall bool) (string, error) {
-	cleanedVersion := versionfinder.Find(requestedVersion) // use a known version format
-	if cleanedVersion != "" {
+	if versionfinder.IsValid(requestedVersion) {
+		cleanedVersion := versionfinder.Clean(requestedVersion)
 		if m.Conf.SkipInstall {
 			_, installed, err := m.checkVersionInstallation("", cleanedVersion)
 			if err != nil {
@@ -144,9 +144,10 @@ func (m VersionManager) Evaluate(ctx context.Context, requestedVersion string, p
 }
 
 func (m VersionManager) Install(ctx context.Context, requestedVersion string) error {
-	cleanedVersion := versionfinder.Find(requestedVersion)
-	if cleanedVersion != "" {
-		return m.installSpecificVersion(ctx, cleanedVersion, false) // use a known version format
+	if versionfinder.IsValid(requestedVersion) {
+		cleanedVersion := versionfinder.Clean(requestedVersion)
+
+		return m.installSpecificVersion(ctx, cleanedVersion, false)
 	}
 
 	predicateInfo, err := semantic.ParsePredicate(requestedVersion, m.FolderName, m, m.iacExts, m.Conf)
@@ -326,8 +327,8 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	defer disableExit()
 	defer deleteLock()
 
-	cleanedVersion := versionfinder.Find(requestedVersion) // check the use of a known version format
-	if cleanedVersion != "" {
+	if versionfinder.IsValid(requestedVersion) {
+		cleanedVersion := versionfinder.Clean(requestedVersion)
 		m.uninstallSpecificVersion(installPath, cleanedVersion)
 
 		return nil
