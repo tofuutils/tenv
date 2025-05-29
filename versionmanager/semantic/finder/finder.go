@@ -51,18 +51,18 @@ func Clean(versionStr string) string {
 	}
 
 	before, after, found := strings.Cut(versionStr, "-")
-	splitted := strings.SplitN(before, ".", 3)
-	major, minor, fixes := splitted[0], "0", "0"
+	parts := strings.SplitN(before, ".", 3)
+	major, minor, fixes := parts[0], "0", "0"
 	if major[0] == 'v' {
 		major = major[1:]
 	}
 
-	switch len(splitted) {
+	switch len(parts) {
 	case 3:
-		fixes = splitted[2]
+		fixes = parts[2]
 		fallthrough
 	case 2:
-		minor = splitted[1]
+		minor = parts[1]
 	}
 
 	var builder strings.Builder
