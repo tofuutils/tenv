@@ -51,3 +51,11 @@ func (getenv GetenvFunc) Fallback(keys ...string) string {
 func (getenv GetenvFunc) Present(key string) bool {
 	return getenv(key) != ""
 }
+
+func (getenv GetenvFunc) WithDefault(defaultValue string, key string) string {
+	if value := getenv(key); value != "" {
+		return value
+	}
+
+	return defaultValue
+}

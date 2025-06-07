@@ -103,7 +103,7 @@ func initRootCmd(conf *config.Config, hclParser *hclparse.Parser) *cobra.Command
 
 	tofuParams := subCmdParams{
 		needToken: true, remoteEnvName: envname.TofuRemoteURL,
-		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPath,
+		pRemote: &conf.Tofu.RemoteURL, pPublicKeyPath: &conf.TofuKeyPathOrURL,
 	}
 	initSubCmds(tofuCmd, builder.BuildTofuManager(conf, hclParser), tofuParams)
 

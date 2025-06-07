@@ -26,31 +26,14 @@ import (
 	"strings"
 )
 
-const (
-	DefaultHashicorpPGPKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
-)
-
 // GetPGPKey retrieves the PGP key from either a local file or URL.
 // If keyPath starts with "http://" or "https://", it will be treated as a URL.
 // Otherwise, it will be treated as a local file path.
 // If keyPath is empty, it will use the default HashiCorp PGP key URL.
 func GetPGPKey(ctx context.Context, keyPath string, display func(string)) ([]byte, error) {
-	if keyPath == "" {
-		return Bytes(ctx, DefaultHashicorpPGPKeyURL, display, func(resp *http.Response) error {
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("failed to download PGP key: HTTP %d", resp.StatusCode)
-			}
-			return nil
-		})
-	}
-
-	if strings.HasPrefix(keyPath, "http://") || strings.HasPrefix(keyPath, "https://") {
-		return Bytes(ctx, keyPath, display, func(resp *http.Response) error {
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("failed to download PGP key: HTTP %d", resp.StatusCode)
-			}
-			return nil
-		})
+	scheme, _, ok := strings.Cut(keyPath, "://")
+	if ok && (scheme == "http" || scheme == "https") {
+		return Bytes(ctx, keyPath, display, httpStatusChecker)
 	}
 
 	// Try to read from local file
@@ -59,4 +42,12 @@ func GetPGPKey(ctx context.Context, keyPath string, display func(string)) ([]byt
 		return nil, fmt.Errorf("failed to read PGP key from %s: %w", keyPath, err)
 	}
 	return data, nil
+}
+
+func httpStatusChecker(resp *http.Response) error {
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download PGP key: HTTP %d", resp.StatusCode)
+	}
+
+	return nil
 }

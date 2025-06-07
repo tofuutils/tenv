@@ -41,8 +41,6 @@ import (
 )
 
 const (
-	publicKeyURL = "https://www.hashicorp.com/.well-known/pgp-key.txt"
-
 	baseFileName = "terraform_"
 	indexJSON    = "index.json"
 )

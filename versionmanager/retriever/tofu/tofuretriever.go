@@ -22,7 +22,6 @@ import (
 	"context"
 	"errors"
 	"net/url"
-	"os"
 	"runtime"
 	"strings"
 
@@ -43,14 +42,13 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/winbin"
 	htmlretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/html"
 	tofudlmirroring "github.com/tofuutils/tenv/v4/versionmanager/retriever/tofu/dl"
+	tofuurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/tofu/url"
 )
 
 const (
 	modeMirroring = "mirror"
 
-	getTofuURL              = "https://get.opentofu.org/"
-	defaultTofuMirroringURL = getTofuURL + "tofu/api.json"
-	publicKeyURL            = getTofuURL + "opentofu.asc"
+	defaultTofuMirroringURL = tofuurl.Get + "tofu/api.json"
 
 	defaultTofuURLTemplate = "https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}"
 
@@ -228,13 +226,7 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 		return err
 	}
 
-	var dataPublicKey []byte
-	if r.conf.TofuKeyPath == "" {
-		dataPublicKey, err = download.Bytes(ctx, publicKeyURL, r.conf.Displayer.Display, download.NoCheck)
-	} else {
-		dataPublicKey, err = os.ReadFile(r.conf.TofuKeyPath)
-	}
-
+	dataPublicKey, err := download.GetPGPKey(ctx, r.conf.TofuKeyPathOrURL, r.conf.Displayer.Display)
 	if err != nil {
 		return err
 	}
