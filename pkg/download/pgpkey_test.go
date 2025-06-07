@@ -20,75 +20,71 @@ package download
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 )
 
 func TestGetPGPKey(t *testing.T) {
 	t.Parallel()
 
-	// Create a temporary test file
-	tmpDir := t.TempDir()
-	testKeyPath := filepath.Join(tmpDir, "test-key.txt")
 	testKeyContent := []byte("test pgp key content")
-	if err := os.WriteFile(testKeyPath, testKeyContent, 0644); err != nil {
+
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.URL.Path)
+		if r.URL.Path == "/key.txt" {
+			_, _ = w.Write(testKeyContent)
+		} else {
+			http.NotFound(w, r)
+		}
+	}))
+	defer testServer.Close()
+
+	correctURL, err := url.JoinPath(testServer.URL, "key.txt")
+	if err != nil {
+		t.Fatal("Failed to initialize test URL : ", err)
+	}
+
+	notCorrectURL, err := url.JoinPath(testServer.URL, "key2.txt")
+	if err != nil {
+		t.Fatal("Failed to initialize test URL : ", err)
+	}
+
+	tmpDir := t.TempDir()
+	correctPath := filepath.Join(tmpDir, "test-key.txt")
+	notCorrectPath := filepath.Join(tmpDir, "non-existent-key.txt")
+
+	if err := os.WriteFile(correctPath, testKeyContent, 0o644); err != nil {
 		t.Fatalf("Failed to create test key file: %v", err)
 	}
 
-	tests := []struct {
-		name        string
-		keyPath     string
-		wantErr     bool
-		checkResult func([]byte) bool
-	}{
-		{
-			name:    "empty path uses default URL",
-			keyPath: "",
-			wantErr: false,
-			checkResult: func(data []byte) bool {
-				return len(data) > 0 // Default URL should return some content
-			},
-		},
-		{
-			name:    "local file path",
-			keyPath: testKeyPath,
-			wantErr: false,
-			checkResult: func(data []byte) bool {
-				return string(data) == string(testKeyContent)
-			},
-		},
-		{
-			name:    "http URL",
-			keyPath: "http://example.com/key.txt",
-			wantErr: true, // Should fail as URL doesn't exist
-		},
-		{
-			name:    "https URL",
-			keyPath: "https://example.com/key.txt",
-			wantErr: true, // Should fail as URL doesn't exist
-		},
-		{
-			name:    "non-existent local file",
-			keyPath: filepath.Join(tmpDir, "non-existent.txt"),
-			wantErr: true,
-		},
-	}
+	testGet := func(name string, pathOrUrl string, wantErr bool) {
+		t.Helper()
 
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
 
-			got, err := GetPGPKey(context.Background(), tt.keyPath, func(string) {})
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetPGPKey() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if !tt.wantErr && tt.checkResult != nil && !tt.checkResult(got) {
-				t.Error("GetPGPKey() returned unexpected content")
+			got, err := GetPGPKey(context.Background(), pathOrUrl, NoDisplay)
+			if wantErr {
+				if err == nil {
+					t.Error("GetPGPKey() should fail on ", pathOrUrl)
+				}
+			} else if err != nil {
+				t.Error("GetPGPKey() returned an unexpected error : ", err)
+			} else if !slices.Equal(testKeyContent, got) {
+				t.Error("GetPGPKey() returned unexpected content : ", string(got))
 			}
 		})
 	}
+
+	testGet("empty path or URL", "", true) // not handled by GetPGPKey, config has default URL
+	testGet("http URL", correctURL, false)
+	testGet("non-existent http URL", notCorrectURL, true)
+	testGet("local file path", correctPath, false)
+	testGet("non-existent local file path", notCorrectPath, true)
 }
