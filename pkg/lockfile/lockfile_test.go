@@ -43,21 +43,8 @@ var data3 []byte
 func TestParallelWriteRead(t *testing.T) {
 	t.Parallel()
 
-	parallelDirPath := filepath.Join(os.TempDir(), "parallel")
+	parallelDirPath := t.TempDir()
 	parallelFilePath := filepath.Join(parallelDirPath, "rw_test")
-
-	err := os.RemoveAll(parallelDirPath)
-	if err != nil {
-		t.Fatal("Unexpected error during test init :", err)
-	}
-
-	defer func() {
-		os.RemoveAll(parallelDirPath)
-	}()
-
-	if err = os.MkdirAll(parallelDirPath, 0o755); err != nil {
-		t.Fatal("Unexpected error during test init (2) :", err)
-	}
 
 	var err1, err2, err3 error
 	var res1, res2, res3 []byte
