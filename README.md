@@ -911,7 +911,7 @@ See [advanced remote configuration](#advanced-remote-configuration) for more det
 
 String (Default: "")
 
-Allow to specify a local file path to OpenTofu PGP public key, if not present download https://get.opentofu.org/opentofu.asc.
+Allow to specify a local file path or URL to OpenTofu PGP public key. If a URL is provided (starting with "http://" or "https://"), the key will be downloaded from that URL. If a local file path is provided, the key will be read from that location. If not set, the key will be downloaded from the default URL (https://get.opentofu.org/opentofu.asc).
 
 `tenv tofu` subcommands `detect`, `ìnstall` and `use` support a `--key-file`, `-k` flag version.
 
