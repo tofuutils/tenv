@@ -41,6 +41,7 @@ func GetPGPKey(ctx context.Context, keyPath string, display func(string)) ([]byt
 	if err != nil {
 		return nil, fmt.Errorf("failed to read PGP key from %s: %w", keyPath, err)
 	}
+
 	return data, nil
 }
 

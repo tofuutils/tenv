@@ -20,7 +20,6 @@ package download
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -36,7 +35,6 @@ func TestGetPGPKey(t *testing.T) {
 	testKeyContent := []byte("test pgp key content")
 
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL.Path)
 		if r.URL.Path == "/key.txt" {
 			_, _ = w.Write(testKeyContent)
 		} else {
@@ -59,7 +57,7 @@ func TestGetPGPKey(t *testing.T) {
 	correctPath := filepath.Join(tmpDir, "test-key.txt")
 	notCorrectPath := filepath.Join(tmpDir, "non-existent-key.txt")
 
-	if err := os.WriteFile(correctPath, testKeyContent, 0o644); err != nil {
+	if err := os.WriteFile(correctPath, testKeyContent, 0o600); err != nil {
 		t.Fatalf("Failed to create test key file: %v", err)
 	}
 
@@ -70,13 +68,14 @@ func TestGetPGPKey(t *testing.T) {
 			t.Helper()
 
 			got, err := GetPGPKey(context.Background(), pathOrUrl, NoDisplay)
-			if wantErr {
+			switch {
+			case wantErr:
 				if err == nil {
 					t.Error("GetPGPKey() should fail on ", pathOrUrl)
 				}
-			} else if err != nil {
+			case err != nil:
 				t.Error("GetPGPKey() returned an unexpected error : ", err)
-			} else if !slices.Equal(testKeyContent, got) {
+			case !slices.Equal(testKeyContent, got):
 				t.Error("GetPGPKey() returned unexpected content : ", string(got))
 			}
 		})
