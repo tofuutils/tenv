@@ -137,6 +137,7 @@ func InitConfigFromEnv() (Config, error) {
 		Tf:               makeRemoteConfig(getenv, envname.TfRemoteURL, envname.TfListURL, envname.TfInstallMode, envname.TfListMode, defaultHashicorpURL, defaultHashicorpURL),
 		TfKeyPathOrURL:   getenv.WithDefault(tfurl.PublicKey, envname.TfHashicorpPGPKey),
 		Tg:               makeRemoteConfig(getenv, envname.TgRemoteURL, envname.TgListURL, envname.TgInstallMode, envname.TgListMode, defaultTerragruntGithubURL, baseGithubURL),
+		Tm:               makeRemoteConfig(getenv, envname.TmRemoteURL, envname.TmListURL, envname.TmInstallMode, envname.TmListMode, defaultTerramateGithubURL, baseGithubURL),
 		Tofu:             makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, DefaultTofuGithubURL, baseGithubURL),
 		TofuKeyPathOrURL: getenv.WithDefault(tofuurl.PublicKey, envname.TofuOpenTofuPGPKey),
 		UserPath:         userPath,
