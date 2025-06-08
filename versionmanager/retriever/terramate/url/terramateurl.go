@@ -16,9 +16,10 @@
  *
  */
 
-package terraformurl
+package terramateurl
+
+import githuburl "github.com/tofuutils/tenv/v4/pkg/github/url"
 
 const (
-	Hashicorp = "https://releases.hashicorp.com"
-	PublicKey = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+	Github = githuburl.Default + "terramate-io/terramate" + githuburl.SlashReleasesSuffix
 )

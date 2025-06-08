@@ -16,9 +16,10 @@
  *
  */
 
-package terraformurl
+package atmosurl
+
+import githuburl "github.com/tofuutils/tenv/v4/pkg/github/url"
 
 const (
-	Hashicorp = "https://releases.hashicorp.com"
-	PublicKey = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+	Github = githuburl.Default + "cloudposse/atmos" + githuburl.SlashReleasesSuffix
 )

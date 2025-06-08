@@ -32,8 +32,12 @@ import (
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
+	githuburl "github.com/tofuutils/tenv/v4/pkg/github/url"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
-	tfurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/url"
+	atmosurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/atmos/url"
+	terraformurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/url"
+	terragrunturl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terragrunt/url"
+	terramateurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terramate/url"
 	tofuurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/tofu/url"
 )
 
@@ -74,18 +78,18 @@ func DefaultConfig() (Config, error) {
 
 	return Config{
 		Arch:             runtime.GOARCH,
-		Atmos:            makeDefaultRemoteConfig(defaultAtmosGithubURL, baseGithubURL),
+		Atmos:            makeDefaultRemoteConfig(atmosurl.Github, githuburl.Base),
 		Getenv:           EmptyGetenv,
 		remoteConfLoaded: true,
 		RootPath:         filepath.Join(userPath, defaultDirName),
 		SkipInstall:      true,
-		Tf:               makeDefaultRemoteConfig(defaultHashicorpURL, defaultHashicorpURL),
-		Tg:               makeDefaultRemoteConfig(defaultTerragruntGithubURL, baseGithubURL),
-		Tm:               makeDefaultRemoteConfig(defaultTerramateGithubURL, baseGithubURL),
-		Tofu:             makeDefaultRemoteConfig(DefaultTofuGithubURL, baseGithubURL),
+		Tf:               makeDefaultRemoteConfig(terraformurl.Hashicorp, terraformurl.Hashicorp),
+		Tg:               makeDefaultRemoteConfig(terragrunturl.Github, githuburl.Base),
+		Tm:               makeDefaultRemoteConfig(terramateurl.Github, githuburl.Base),
+		Tofu:             makeDefaultRemoteConfig(tofuurl.Github, githuburl.Base),
 		UserPath:         userPath,
 		WorkPath:         ".",
-		TfKeyPathOrURL:   tfurl.PublicKey,
+		TfKeyPathOrURL:   terraformurl.PublicKey,
 		TofuKeyPathOrURL: tofuurl.PublicKey,
 	}, nil
 }
@@ -125,7 +129,7 @@ func InitConfigFromEnv() (Config, error) {
 
 	return Config{
 		Arch:             arch,
-		Atmos:            makeRemoteConfig(getenv, envname.AtmosRemoteURL, envname.AtmosListURL, envname.AtmosInstallMode, envname.AtmosListMode, defaultAtmosGithubURL, baseGithubURL),
+		Atmos:            makeRemoteConfig(getenv, envname.AtmosRemoteURL, envname.AtmosListURL, envname.AtmosInstallMode, envname.AtmosListMode, atmosurl.Github, githuburl.Base),
 		ForceQuiet:       quiet,
 		ForceRemote:      forceRemote,
 		Getenv:           getenv,
@@ -134,11 +138,11 @@ func InitConfigFromEnv() (Config, error) {
 		RemoteConfPath:   getenv(envname.TenvRemoteConf),
 		RootPath:         rootPath,
 		SkipInstall:      !autoInstall,
-		Tf:               makeRemoteConfig(getenv, envname.TfRemoteURL, envname.TfListURL, envname.TfInstallMode, envname.TfListMode, defaultHashicorpURL, defaultHashicorpURL),
-		TfKeyPathOrURL:   getenv.WithDefault(tfurl.PublicKey, envname.TfHashicorpPGPKey),
-		Tg:               makeRemoteConfig(getenv, envname.TgRemoteURL, envname.TgListURL, envname.TgInstallMode, envname.TgListMode, defaultTerragruntGithubURL, baseGithubURL),
-		Tm:               makeRemoteConfig(getenv, envname.TmRemoteURL, envname.TmListURL, envname.TmInstallMode, envname.TmListMode, defaultTerramateGithubURL, baseGithubURL),
-		Tofu:             makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, DefaultTofuGithubURL, baseGithubURL),
+		Tf:               makeRemoteConfig(getenv, envname.TfRemoteURL, envname.TfListURL, envname.TfInstallMode, envname.TfListMode, terraformurl.Hashicorp, terraformurl.Hashicorp),
+		TfKeyPathOrURL:   getenv.WithDefault(terraformurl.PublicKey, envname.TfHashicorpPGPKey),
+		Tg:               makeRemoteConfig(getenv, envname.TgRemoteURL, envname.TgListURL, envname.TgInstallMode, envname.TgListMode, terragrunturl.Github, githuburl.Base),
+		Tm:               makeRemoteConfig(getenv, envname.TmRemoteURL, envname.TmListURL, envname.TmInstallMode, envname.TmListMode, terramateurl.Github, githuburl.Base),
+		Tofu:             makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, tofuurl.Github, githuburl.Base),
 		TofuKeyPathOrURL: getenv.WithDefault(tofuurl.PublicKey, envname.TofuOpenTofuPGPKey),
 		UserPath:         userPath,
 		WorkPath:         ".",

@@ -166,7 +166,7 @@ func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 
 		return github.ListReleases(ctx, listURL, r.conf.GithubToken)
 	case modeMirroring:
-		if listURL == config.DefaultTofuGithubURL {
+		if listURL == tofuurl.Github {
 			listURL = defaultTofuMirroringURL
 		}
 

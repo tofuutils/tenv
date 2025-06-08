@@ -16,9 +16,11 @@
  *
  */
 
-package terraformurl
+package githuburl
 
 const (
-	Hashicorp = "https://releases.hashicorp.com"
-	PublicKey = "https://www.hashicorp.com/.well-known/pgp-key.txt"
+	Base    = "https://github.com"
+	Default = "https://api.github.com/repos/"
+
+	SlashReleasesSuffix = "/releases"
 )
