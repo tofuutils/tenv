@@ -18,7 +18,10 @@
 
 package tofuurl
 
+import githuburl "github.com/tofuutils/tenv/v4/pkg/github/url"
+
 const (
 	Get       = "https://get.opentofu.org/"
+	Github    = githuburl.Default + "opentofu/opentofu" + githuburl.SlashReleasesSuffix
 	PublicKey = Get + "opentofu.asc"
 )

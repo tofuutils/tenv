@@ -24,21 +24,13 @@ import (
 
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/download"
+	githuburl "github.com/tofuutils/tenv/v4/pkg/github/url"
 )
 
 const (
 	InstallModeDirect = "direct"
 	ListModeHTML      = "html"
 	ModeAPI           = "api"
-
-	baseGithubURL              = "https://github.com"
-	defaultGithubURL           = "https://api.github.com/repos/"
-	defaultHashicorpURL        = "https://releases.hashicorp.com"
-	defaultTerragruntGithubURL = defaultGithubURL + "gruntwork-io/terragrunt" + slashReleases
-	defaultTerramateGithubURL  = defaultGithubURL + "terramate-io/terramate" + slashReleases
-	DefaultTofuGithubURL       = defaultGithubURL + "opentofu/opentofu" + slashReleases
-	defaultAtmosGithubURL      = defaultGithubURL + "cloudposse/atmos" + slashReleases
-	slashReleases              = "/releases"
 )
 
 var (
@@ -72,7 +64,7 @@ func makeRemoteConfig(getenv configutils.GetenvFunc, remoteURLEnvName string, li
 
 func (r RemoteConfig) GetInstallMode() string {
 	defaultInstallMode := ModeAPI
-	if r.defaultBaseURL == baseGithubURL && r.GetRemoteURL() != r.defaultURL {
+	if r.defaultBaseURL == githuburl.Base && r.GetRemoteURL() != r.defaultURL {
 		defaultInstallMode = InstallModeDirect
 	}
 
