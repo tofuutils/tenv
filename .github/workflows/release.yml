@@ -175,7 +175,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: tofuutils/chocolatey-packages
-          path: "/tmp/tofuutils/chocolatey-packages"
           ssh-key: ${{ secrets.CHOCOLATEY_SSH_KEY }}
 
       - name: Update chocolatey checksums
@@ -195,8 +194,6 @@ jobs:
           choco_sum="$(grep "tenv_${release_tag}_Windows_i386.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"
           choco_sum64="$(grep "tenv_${release_tag}_Windows_x86_64.zip" /tmp/checksums.txt | cut -d ' ' -f 1 | tr -d '\n')"
           rm /tmp/checksums.txt
-
-          cd /tmp/tofuutils/chocolatey-packages
 
           sed -i "s~\$url = '.*'~\$url = '${choco_url}'~g" tenv/tools/chocolateyinstall.ps1
           sed -i "s~\$url64 = '.*'~\$url64 = '${choco_url64}'~g" tenv/tools/chocolateyinstall.ps1
