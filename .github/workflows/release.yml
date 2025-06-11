@@ -168,6 +168,8 @@ jobs:
   publish-chocolatey:
     name: "Publish Chocolatey package"
     runs-on: ubuntu-24.04
+    needs:
+      - goreleaser
     steps:
       - name: "Checkout tofuutils/chocolatey-packages"
         uses: actions/checkout@v4
@@ -212,6 +214,8 @@ jobs:
   publish-ppa:
     name: "Publish PPA package"
     runs-on: ubuntu-24.04
+    needs:
+      - goreleaser
     steps:
       - name: Download tenv tarballs
         run: |
