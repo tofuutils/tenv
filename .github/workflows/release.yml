@@ -8,7 +8,7 @@ on:
 
 jobs:
   goreleaser:
-    name: "Build and release packages"
+    name: "Build and release packages via GoReleaser"
     runs-on: ubuntu-24.04
     permissions:
       id-token: write # For cosign
@@ -165,6 +165,10 @@ jobs:
 
           echo "All images and manifests pushed successfully to ${docker_registry}!"
 
+  publish-chocolatey:
+    name: "Publish Chocolatey package"
+    runs-on: ubuntu-24.04
+    steps:
       - name: "Checkout tofuutils/chocolatey-packages"
         uses: actions/checkout@v4
         with:
@@ -174,8 +178,6 @@ jobs:
 
       - name: Update chocolatey checksums
         run: |
-          echo "[INFO] Wait until all artefacts will be uploaded"
-
           release_tag=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
           release_version="${release_tag#v}"
 
@@ -206,3 +208,30 @@ jobs:
           git commit -m "Chocolatey scripts update for tenv version ${release_tag}"
           git tag -a ${release_version} -m "${release_version}"
           git push origin --tags main
+
+  publish-ppa:
+    name: "Publish PPA package"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download tenv tarballs
+        run: |
+          release_tag=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          release_version="${release_tag#v}"
+
+          mkdir -p /tmp/tenv
+
+          echo "[INFO] Download release's tarballs"
+          curl \
+            -SsL \
+            -o /tmp/tenv/tenv_${release_tag}_Linux_x86_64.tar.gz \
+            https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz
+
+      - name: Publish PPA
+        uses: yuezk/publish-ppa-package@aef2cd26952551ca7d7f7ed15d75d067364cfa45 # ratchet:yuezk/publish-ppa-package@v2
+        with:
+          repository: "kvendingoldo/tenv"
+          gpg_private_key: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.PPA_GPG_PASSPHRASE }}
+          tarball: /tmp/tenv*.tar.gz
+          deb_email: "kvendingoldo@gmail.com"
+          deb_fullname: "tenv"
