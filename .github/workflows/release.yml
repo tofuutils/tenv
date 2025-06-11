@@ -233,6 +233,6 @@ jobs:
           repository: "kvendingoldo/tenv"
           gpg_private_key: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.PPA_GPG_PASSPHRASE }}
-          tarball: /tmp/tenv*.tar.gz
+          tarball: /tmp/tenv/tenv*.tar.gz
           deb_email: "kvendingoldo@gmail.com"
           deb_fullname: "tenv"
