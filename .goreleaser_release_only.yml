@@ -19,21 +19,14 @@ cloudsmiths:
   - organization: tofuutils
     repository: tenv
     distributions:
-      deb: "ubuntu/focal"
-      alpine: "alpine/v3.7"
-      rpm: "el/7"
+      deb: "ubuntu/any-version"
+      alpine: "alpine/any-version"
+      rpm: "amzn/any-version"
   - organization: tofuutils
     repository: tenv
     distributions:
-      deb: "ubuntu/jammy"
-      alpine: "alpine/v3.8"
-      rpm: "el/8"
-  - organization: tofuutils
-    repository: tenv
-    distributions:
-      deb: "ubuntu/noble"
-      alpine: "alpine/v3.9"
-      rpm: "el/9"
+      deb: "debian/any-version"
+      rpm: "el/any-version"
 
 aurs:
   - name: tenv-bin
