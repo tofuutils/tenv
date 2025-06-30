@@ -27,6 +27,10 @@ cloudsmiths:
     distributions:
       deb: "debian/any-version"
       rpm: "el/any-version"
+  - organization: tofuutils
+    repository: tenv
+    distributions:
+      rpm: "fedora/any-version"
 
 aurs:
   - name: tenv-bin
