@@ -88,7 +88,7 @@ jobs:
           CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # ratchet:docker/login-action@v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # ratchet:docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -127,7 +127,7 @@ jobs:
           echo "All images and manifests pushed successfully to ${docker_registry}!"
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # ratchet:docker/login-action@v3
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # ratchet:docker/login-action@v3
         with:
           registry: registry.hub.docker.com
           username: ${{ secrets.REGISTRY_USER }}
