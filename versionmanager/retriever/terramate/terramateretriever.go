@@ -107,8 +107,10 @@ func (r TerramateRetriever) Install(ctx context.Context, versionStr string, targ
 		return err
 	}
 
-	if err = sha256check.Check(data, dataSums, fileName); err != nil {
-		return err
+	if r.conf.Validation != config.NoValidation {
+		if err = sha256check.Check(data, dataSums, fileName); err != nil {
+			return err
+		}
 	}
 
 	return uncompress.ToDir(data, fileName, targetPath, pathfilter.NameEqual(winbin.GetBinaryName(cmdconst.TerramateName)))
