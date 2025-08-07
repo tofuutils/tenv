@@ -105,8 +105,10 @@ func (r TerragruntRetriever) Install(ctx context.Context, versionStr string, tar
 		return err
 	}
 
-	if err = sha256check.Check(data, dataSums, fileName); err != nil {
-		return err
+	if r.conf.Validation != config.NoValidation {
+		if err = sha256check.Check(data, dataSums, fileName); err != nil {
+			return err
+		}
 	}
 
 	err = os.MkdirAll(targetPath, rwePerm)

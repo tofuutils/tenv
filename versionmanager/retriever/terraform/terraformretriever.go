@@ -172,6 +172,10 @@ func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) 
 }
 
 func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string, data []byte, downloadSumsURL string, downloadSumsSigURL string, options []download.RequestOption) error {
+	if r.conf.Validation == config.NoValidation {
+		return nil
+	}
+
 	dataSums, err := download.Bytes(ctx, downloadSumsURL, r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
@@ -181,7 +185,7 @@ func (r TerraformRetriever) checkSumAndSig(ctx context.Context, fileName string,
 		return err
 	}
 
-	if r.conf.SkipSignature {
+	if r.conf.Validation == config.ShaValidation {
 		return nil
 	}
 

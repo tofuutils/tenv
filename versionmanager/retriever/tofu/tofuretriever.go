@@ -184,6 +184,10 @@ func (r TofuRetriever) ListVersions(ctx context.Context) ([]string, error) {
 }
 
 func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Version, stable bool, data []byte, fileName string, assetURLs []string, options []download.RequestOption) error {
+	if r.conf.Validation == config.NoValidation {
+		return nil
+	}
+
 	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, download.NoCheck, options...)
 	if err != nil {
 		return err
@@ -193,7 +197,7 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 		return err
 	}
 
-	if r.conf.SkipSignature {
+	if r.conf.Validation == config.ShaValidation {
 		return nil
 	}
 

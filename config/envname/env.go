@@ -59,6 +59,7 @@ const (
 	TenvRootPath    = tenvPrefix + rootPath
 	TenvSkipLastUse = tenvPrefix + "SKIP_LAST_USE"
 	TenvToken       = tenvPrefix + token
+	TenvValidation  = tenvPrefix + "VALIDATION"
 
 	TfenvPrefix          = "TFENV_"
 	TfenvTerraformPrefix = TfenvPrefix + "TERRAFORM_"
