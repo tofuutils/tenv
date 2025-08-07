@@ -45,6 +45,25 @@ const (
 	defaultDirName = ".tenv"
 )
 
+const (
+	SignValidation ValidationMode = iota
+	ShaValidation
+	NoValidation
+)
+
+type ValidationMode uint8
+
+func ParseValidationMode(mode string) ValidationMode {
+	switch mode {
+	case "none":
+		return NoValidation
+	case "sha":
+		return ShaValidation
+	default:
+		return SignValidation
+	}
+}
+
 type Config struct {
 	Arch             string
 	Atmos            RemoteConfig
@@ -59,7 +78,6 @@ type Config struct {
 	RemoteConfPath   string
 	RootPath         string
 	SkipInstall      bool
-	SkipSignature    bool
 	Tf               RemoteConfig
 	TfKeyPathOrURL   string
 	Tg               RemoteConfig
@@ -67,6 +85,7 @@ type Config struct {
 	Tofu             RemoteConfig
 	TofuKeyPathOrURL string
 	UserPath         string
+	Validation       ValidationMode
 	WorkPath         string
 }
 
@@ -89,6 +108,7 @@ func DefaultConfig() (Config, error) {
 		Tofu:             makeDefaultRemoteConfig(tofuurl.Github, githuburl.Base),
 		UserPath:         userPath,
 		WorkPath:         ".",
+		Validation:       SignValidation,
 		TfKeyPathOrURL:   terraformurl.PublicKey,
 		TofuKeyPathOrURL: tofuurl.PublicKey,
 	}, nil
@@ -145,6 +165,7 @@ func InitConfigFromEnv() (Config, error) {
 		Tofu:             makeRemoteConfig(getenv, envname.TofuRemoteURL, envname.TofuListURL, envname.TofuInstallMode, envname.TofuListMode, tofuurl.Github, githuburl.Base),
 		TofuKeyPathOrURL: getenv.WithDefault(tofuurl.PublicKey, envname.TofuOpenTofuPGPKey),
 		UserPath:         userPath,
+		Validation:       ParseValidationMode(getenv(envname.TenvValidation)),
 		WorkPath:         ".",
 	}, nil
 }
@@ -171,6 +192,15 @@ func (conf *Config) InitDisplayer(proxyCall bool) {
 		} else {
 			conf.Displayer = loghelper.MakeBasicDisplayer(appLogger, loghelper.StdDisplay)
 		}
+	}
+}
+
+func (conf *Config) InitValidation(skipSum bool, skipSign bool) {
+	switch {
+	case skipSum: // higher priority to --skip-sha
+		conf.Validation = NoValidation
+	case skipSign && conf.Validation != NoValidation:
+		conf.Validation = ShaValidation
 	}
 }
 
