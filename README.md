@@ -791,7 +791,7 @@ If set to true **tenv** disable tracking of last use date for installed versions
 
 String (Default: signature)
 
-Set **tenv** validation, know values are "signature" (check SHA256 and its signature, see [signature support](#signature-support)), "sha" (only check SHA256), "none" (no validation).
+Set **tenv** validation, known values are "signature" (check SHA256 and its signature, see [signature support](#signature-support)), "sha" (only check SHA256), "none" (no validation).
 
 </details>
 
