@@ -102,12 +102,12 @@ func (r TerramateRetriever) Install(ctx context.Context, versionStr string, targ
 		return err
 	}
 
-	dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
-	if err != nil {
-		return err
-	}
-
 	if r.conf.Validation != config.NoValidation {
+		dataSums, err := download.Bytes(ctx, assetURLs[1], r.conf.Displayer.Display, download.NoCheck, requestOptions...)
+		if err != nil {
+			return err
+		}
+
 		if err = sha256check.Check(data, dataSums, fileName); err != nil {
 			return err
 		}
