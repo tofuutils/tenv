@@ -16,7 +16,7 @@ jobs:
       contents: read # Not required for public repositories, but for clarity
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -172,7 +172,7 @@ jobs:
       - goreleaser
     steps:
       - name: "Checkout tofuutils/chocolatey-packages"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: tofuutils/chocolatey-packages
           ssh-key: ${{ secrets.CHOCOLATEY_SSH_KEY }}
