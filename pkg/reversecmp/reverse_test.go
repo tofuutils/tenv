@@ -54,3 +54,392 @@ func TestReverserTrue(t *testing.T) {
 		t.Error("Not inversed again")
 	}
 }
+
+func TestReverserString(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		a            string
+		b            string
+		reverseOrder bool
+		want         int
+	}{
+		{
+			name:         "forward empty strings",
+			a:            "",
+			b:            "",
+			reverseOrder: false,
+			want:         0,
+		},
+		{
+			name:         "forward lexicographic order",
+			a:            "abc",
+			b:            "def",
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse lexicographic order",
+			a:            "abc",
+			b:            "def",
+			reverseOrder: true,
+			want:         1,
+		},
+		{
+			name:         "forward with unicode",
+			a:            "世界",
+			b:            "你好",
+			reverseOrder: false,
+			want:         1,
+		},
+		{
+			name:         "reverse with unicode",
+			a:            "世界",
+			b:            "你好",
+			reverseOrder: true,
+			want:         -1,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reversed := reversecmp.Reverser[string](cmp.Compare[string], tt.reverseOrder)
+			got := reversed(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("Reverser(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReverserFloat(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		a            float64
+		b            float64
+		reverseOrder bool
+		want         int
+	}{
+		{
+			name:         "forward equal floats",
+			a:            0.0,
+			b:            0.0,
+			reverseOrder: false,
+			want:         0,
+		},
+		{
+			name:         "forward positive floats",
+			a:            1.5,
+			b:            2.5,
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse positive floats",
+			a:            1.5,
+			b:            2.5,
+			reverseOrder: true,
+			want:         1,
+		},
+		{
+			name:         "forward negative floats",
+			a:            -2.5,
+			b:            -1.5,
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse negative floats",
+			a:            -2.5,
+			b:            -1.5,
+			reverseOrder: true,
+			want:         1,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reversed := reversecmp.Reverser[float64](cmp.Compare[float64], tt.reverseOrder)
+			got := reversed(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("Reverser(%v, %v) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}
+
+// Custom type to test with custom comparison function
+type Version struct {
+	Major, Minor, Patch int
+}
+
+func compareVersion(a, b Version) int {
+	if a.Major != b.Major {
+		return cmp.Compare(a.Major, b.Major)
+	}
+	if a.Minor != b.Minor {
+		return cmp.Compare(a.Minor, b.Minor)
+	}
+	return cmp.Compare(a.Patch, b.Patch)
+}
+
+func TestReverserCustomType(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		a            Version
+		b            Version
+		reverseOrder bool
+		want         int
+	}{
+		{
+			name:         "forward equal versions",
+			a:            Version{1, 0, 0},
+			b:            Version{1, 0, 0},
+			reverseOrder: false,
+			want:         0,
+		},
+		{
+			name:         "forward major version diff",
+			a:            Version{1, 0, 0},
+			b:            Version{2, 0, 0},
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse major version diff",
+			a:            Version{1, 0, 0},
+			b:            Version{2, 0, 0},
+			reverseOrder: true,
+			want:         1,
+		},
+		{
+			name:         "forward minor version diff",
+			a:            Version{1, 1, 0},
+			b:            Version{1, 2, 0},
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "forward patch version diff",
+			a:            Version{1, 0, 1},
+			b:            Version{1, 0, 2},
+			reverseOrder: false,
+			want:         -1,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reversed := reversecmp.Reverser[Version](compareVersion, tt.reverseOrder)
+			got := reversed(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("Reverser(%v, %v) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReverserInt8(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		a            int8
+		b            int8
+		reverseOrder bool
+		want         int
+	}{
+		{
+			name:         "forward equal values",
+			a:            0,
+			b:            0,
+			reverseOrder: false,
+			want:         0,
+		},
+		{
+			name:         "forward a < b",
+			a:            1,
+			b:            2,
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse a < b",
+			a:            1,
+			b:            2,
+			reverseOrder: true,
+			want:         1,
+		},
+		{
+			name:         "forward a > b",
+			a:            2,
+			b:            1,
+			reverseOrder: false,
+			want:         1,
+		},
+		{
+			name:         "reverse a > b",
+			a:            2,
+			b:            1,
+			reverseOrder: true,
+			want:         -1,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reversed := reversecmp.Reverser[int8](cmp.Compare[int8], tt.reverseOrder)
+			got := reversed(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("Reverser(%v, %v) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReverserUint16(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		a            uint16
+		b            uint16
+		reverseOrder bool
+		want         int
+	}{
+		{
+			name:         "forward equal values",
+			a:            0,
+			b:            0,
+			reverseOrder: false,
+			want:         0,
+		},
+		{
+			name:         "forward a < b",
+			a:            1,
+			b:            2,
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse a < b",
+			a:            1,
+			b:            2,
+			reverseOrder: true,
+			want:         1,
+		},
+		{
+			name:         "forward a > b",
+			a:            2,
+			b:            1,
+			reverseOrder: false,
+			want:         1,
+		},
+		{
+			name:         "reverse a > b",
+			a:            2,
+			b:            1,
+			reverseOrder: true,
+			want:         -1,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reversed := reversecmp.Reverser[uint16](cmp.Compare[uint16], tt.reverseOrder)
+			got := reversed(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("Reverser(%v, %v) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReverserFloat32(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		a            float32
+		b            float32
+		reverseOrder bool
+		want         int
+	}{
+		{
+			name:         "forward equal values",
+			a:            0.0,
+			b:            0.0,
+			reverseOrder: false,
+			want:         0,
+		},
+		{
+			name:         "forward a < b",
+			a:            1.5,
+			b:            2.5,
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse a < b",
+			a:            1.5,
+			b:            2.5,
+			reverseOrder: true,
+			want:         1,
+		},
+		{
+			name:         "forward a > b",
+			a:            2.5,
+			b:            1.5,
+			reverseOrder: false,
+			want:         1,
+		},
+		{
+			name:         "reverse a > b",
+			a:            2.5,
+			b:            1.5,
+			reverseOrder: true,
+			want:         -1,
+		},
+		{
+			name:         "forward negative values",
+			a:            -2.5,
+			b:            -1.5,
+			reverseOrder: false,
+			want:         -1,
+		},
+		{
+			name:         "reverse negative values",
+			a:            -2.5,
+			b:            -1.5,
+			reverseOrder: true,
+			want:         1,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt // capture range variable
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			reversed := reversecmp.Reverser[float32](cmp.Compare[float32], tt.reverseOrder)
+			got := reversed(tt.a, tt.b)
+			if got != tt.want {
+				t.Errorf("Reverser(%v, %v) = %v, want %v", tt.a, tt.b, got, tt.want)
+			}
+		})
+	}
+}

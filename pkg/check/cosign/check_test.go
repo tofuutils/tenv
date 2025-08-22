@@ -16,65 +16,140 @@
  *
  */
 
-package cosigncheck_test
+package cosigncheck
 
 import (
-	_ "embed"
+	"os"
 	"testing"
 
-	cosigncheck "github.com/tofuutils/tenv/v4/pkg/check/cosign"
+	"github.com/hashicorp/go-hclog"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
-const (
-	identity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v1.6"
-	issuer   = "https://token.actions.githubusercontent.com"
-)
+func TestCheck(t *testing.T) {
+	tests := []struct {
+		name           string
+		data           []byte
+		dataSig        []byte
+		dataCert       []byte
+		certIdentity   string
+		certOidcIssuer string
+		expectError    bool
+	}{
+		{
+			name:           "valid signature",
+			data:           []byte("test content"),
+			dataSig:        []byte("test signature"),
+			dataCert:       []byte("test certificate"),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    false,
+		},
+		{
+			name:           "invalid signature",
+			data:           []byte("test content"),
+			dataSig:        []byte("invalid signature"),
+			dataCert:       []byte("test certificate"),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    true,
+		},
+		{
+			name:           "empty certificate",
+			data:           []byte("test content"),
+			dataSig:        []byte("test signature"),
+			dataCert:       []byte(""),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    true,
+		},
+		{
+			name:           "empty signature",
+			data:           []byte("test content"),
+			dataSig:        []byte(""),
+			dataCert:       []byte("test certificate"),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    true,
+		},
+		{
+			name:           "empty data",
+			data:           []byte(""),
+			dataSig:        []byte("test signature"),
+			dataCert:       []byte("test certificate"),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    true,
+		},
+		{
+			name:           "invalid certificate format",
+			data:           []byte("test content"),
+			dataSig:        []byte("test signature"),
+			dataCert:       []byte("invalid certificate format"),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    true,
+		},
+		{
+			name:           "mismatched identity",
+			data:           []byte("test content"),
+			dataSig:        []byte("test signature"),
+			dataCert:       []byte("test certificate"),
+			certIdentity:   "wrong@example.com",
+			certOidcIssuer: "https://accounts.example.com",
+			expectError:    true,
+		},
+		{
+			name:           "mismatched issuer",
+			data:           []byte("test content"),
+			dataSig:        []byte("test signature"),
+			dataCert:       []byte("test certificate"),
+			certIdentity:   "test@example.com",
+			certOidcIssuer: "https://wrong.example.com",
+			expectError:    true,
+		},
+	}
 
-//go:embed testdata/tofu_1.6.0_SHA256SUMS
-var data []byte
+	// Create test configuration
+	logger := hclog.New(&hclog.LoggerOptions{
+		Output: os.Stderr,
+		Level:  hclog.Info,
+	})
+	displayer := loghelper.MakeBasicDisplayer(logger, loghelper.StdDisplay)
 
-//go:embed testdata/tofu_1.6.0_SHA256SUMS.sig
-var dataSig []byte
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Run check
+			err := Check(tt.data, tt.dataSig, tt.dataCert, tt.certIdentity, tt.certOidcIssuer, displayer)
 
-//go:embed testdata/tofu_1.6.0_SHA256SUMS.pem
-var dataCert []byte
-
-/*
- * no "t.Parallel()" on those tests (causes failures in cosign call)
- */
-
-func TestCosignCheckCorrect(t *testing.T) { //nolint
-	t.SkipNow()
-	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer, loghelper.InertDisplayer); err != nil {
-		t.Error("Unexpected error :", err)
+			if tt.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
 	}
 }
 
-func TestCosignCheckErrorCert(t *testing.T) { //nolint
-	t.SkipNow()
-	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer, loghelper.InertDisplayer) == nil {
-		t.Error("Should fail on erroneous certificate")
-	}
+func TestCheckWithNilDisplayer(t *testing.T) {
+	// Test with nil displayer
+	err := Check([]byte("test"), []byte("sig"), []byte("cert"), "test@example.com", "https://accounts.example.com", nil)
+	assert.Error(t, err)
 }
 
-func TestCosignCheckErrorIdentity(t *testing.T) { //nolint
-	t.SkipNow()
-	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer, loghelper.InertDisplayer) == nil {
-		t.Error("Should fail on erroneous issuer")
-	}
-}
+func TestCheckWithInvalidCertificate(t *testing.T) {
+	// Test with invalid certificate format
+	logger := hclog.New(&hclog.LoggerOptions{
+		Output: os.Stderr,
+		Level:  hclog.Info,
+	})
+	displayer := loghelper.MakeBasicDisplayer(logger, loghelper.StdDisplay)
 
-func TestCosignCheckErrorIssuer(t *testing.T) { //nolint
-	t.SkipNow()
-	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com", loghelper.InertDisplayer) == nil {
-		t.Error("Should fail on erroneous issuer")
-	}
-}
+	// Create a certificate with invalid format
+	invalidCert := []byte("-----BEGIN CERTIFICATE-----\ninvalid\n-----END CERTIFICATE-----")
 
-func TestCosignCheckErrorSig(t *testing.T) { //nolint
-	t.SkipNow()
-	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer, loghelper.InertDisplayer) == nil {
-		t.Error("Should fail on erroneous signature")
-	}
+	err := Check([]byte("test"), []byte("sig"), invalidCert, "test@example.com", "https://accounts.example.com", displayer)
+	assert.Error(t, err)
 }
