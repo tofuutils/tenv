@@ -16,7 +16,7 @@
   </a>
   <h3 align="center">tenv</h3>
   <p align="center">
-    OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
+    OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go.
     <br />
     ·
     <a href="https://github.com/tofuutils/tenv/issues/new?assignees=&labels=issue%3A+bug&projects=&template=bug_report.md&title=">Report Bug</a>
@@ -783,6 +783,15 @@ The path to a directory where the local OpenTofu versions, Terraform versions, T
 String (Default: false)
 
 If set to true **tenv** disable tracking of last use date for installed versions. It allow to avoid warning message when **tenv** is installed as root user and run with a normal user by skipping the writing of `last-use.txt`. This will lead to misselection with `not-used-for` and `not-used-since` behavior of `tenv uninstall`.
+
+</details>
+
+
+<details markdown="1"><summary><b>TENV_VALIDATION</b></summary><br>
+
+String (Default: signature)
+
+Set **tenv** validation, known values are "signature" (check SHA256 and its signature, see [signature support](#signature-support)), "sha" (only check SHA256), "none" (no validation).
 
 </details>
 
