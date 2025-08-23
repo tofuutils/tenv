@@ -175,11 +175,26 @@ dmg:
     replace: true
     mod_timestamp: "{{ .CommitTimestamp }}"
 
+scoops:
+  - repository:
+      owner: tofuutils
+      name: scoop-bucket
+      token: "{{ .Env.TOFUUTILS_PR_TOKEN }}"
+      token_type: "github"
+    directory: bucket
+    homepage: "https://github.com/tofuutils/tenv"
+    description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
+    license: "Apache-2.0"
+
+    commit_author:
+      name: "tofuutils"
+      email: "tofuutils@gmail.com"
+
 winget:
   - name: tenv
     publisher: Tofuutils
     short_description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
-    license: "MIT"
+    license: "Apache-2.0"
     publisher_url: "https://tofuutils.github.io/tenv/"
     publisher_support_url: "https://github.com/tofuutils/tenv/issues/new/choose"
     package_identifier: Tofuutils.Tenv
@@ -213,7 +228,7 @@ winget:
       owner: "tofuutils"
       name: winget-pkgs
       branch: "tenv-{{ .Version }}"
-      token: "{{ .Env.WINGET_TOKEN }}"
+      token: "{{ .Env.TOFUUTILS_PR_TOKEN }}"
       token_type: "github"
       pull_request:
         enabled: true
@@ -225,5 +240,5 @@ winget:
           branch: master
 
     commit_author:
-      name: "tofuutils-tenv"
+      name: "tofuutils"
       email: "tofuutils@gmail.com"

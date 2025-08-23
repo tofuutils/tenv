@@ -86,6 +86,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
+          TOFUUTILS_PR_TOKEN: ${{ secrets.TOFUUTILS_PR_TOKEN }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # ratchet:docker/login-action@v3
