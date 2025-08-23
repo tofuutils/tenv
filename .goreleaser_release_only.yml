@@ -183,11 +183,10 @@ winget:
     publisher_url: "https://tofuutils.github.io/tenv/"
     publisher_support_url: "https://github.com/tofuutils/tenv/issues/new/choose"
     package_identifier: Tofuutils.Tenv
-    ids:
-      - tenv
-
+#    goamd64: v1
+#    ids:
+#      - tenv
     use: archive
-    goamd64: v1
     url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     commit_msg_template: "{{ .PackageIdentifier }}: {{ .Tag }}"
     path: "manifests/T/Tofuutils/Tenv/{{ .Version }}"
