@@ -243,134 +243,198 @@ jobs:
     needs:
       - goreleaser
     steps:
-      - name: "Guard: skip prereleases (e.g., v1.2.3-rc1)"
-        shell: pwsh
-        run: |
-          $tag = "${{ github.ref_name }}"
-          if (-not $tag) { $tag = $env:GITHUB_REF -replace '^refs/tags/', '' }
-          if ($tag -match '-') {
-            "Skipping WinGet submission for prerelease tag: $tag"
-            exit 78  # neutral
-          }
+    - name: "Guard: skip prereleases (e.g., v1.2.3-rc1)"
+      shell: pwsh
+      run: |
+        $tag = "${{ github.ref_name }}"
+        if (-not $tag) { $tag = $env:GITHUB_REF -replace '^refs/tags/', '' }
+        if ($tag -match '-') {
+          "Skipping WinGet submission for prerelease tag: $tag"
+          exit 78 # neutral
+        }
 
-      - name: Determine version and URLs
-        id: vars
-        shell: pwsh
-        run: |
-          $tag = "${{ github.ref_name }}"
-          if (-not $tag) { $tag = $env:GITHUB_REF -replace '^refs/tags/', '' }
-          $version = $tag -replace '^v',''
+    - name: Determine version and URLs
+      id: vars
+      shell: pwsh
+      run: |
+        $tag = "${{ github.ref_name }}"
+        if (-not $tag) { $tag = $env:GITHUB_REF -replace '^refs/tags/', '' }
+        $version = $tag -replace '^v',''
 
-          $base = "https://github.com/${{ github.repository }}/releases/download/$tag"
-          $url_x64   = "$base/tenv_v$version`_Windows_x86_64.zip"
-          $url_x86   = "$base/tenv_v$version`_Windows_i386.zip"
-          $url_arm64 = "$base/tenv_v$version`_Windows_arm64.zip"
-          $checksums = "$base/tenv_${tag}_checksums.txt"
+        $repo   = "${{ github.repository }}"
+        $base   = "https://github.com/$repo/releases/download/$tag"
+        $home   = "https://github.com/$repo"
+        $licUrl = "$home/blob/$tag/LICENSE"
+        $notes  = "$home/releases/tag/$tag"
 
-          "Version: $version"
-          "x64:   $url_x64"
-          "x86:   $url_x86"
-          "arm64: $url_arm64"
+        $url_x64   = "$base/tenv_v$version`_Windows_x86_64.zip"
+        $url_x86   = "$base/tenv_v$version`_Windows_i386.zip"
+        $url_arm64 = "$base/tenv_v$version`_Windows_arm64.zip"
+        $checksums = "$base/tenv_${tag}_checksums.txt"
 
-          "version=$version"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "url_x64=$url_x64"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "url_x86=$url_x86"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "url_arm64=$url_arm64" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "checksums=$checksums" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "version=$version"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "homepage=$home"       | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "license_url=$licUrl"  | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "release_notes_url=$notes" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "url_x64=$url_x64"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "url_x86=$url_x86"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "url_arm64=$url_arm64" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "checksums=$checksums" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
-      - name: Fetch SHA256 from release checksums
-        id: shas
-        shell: pwsh
-        run: |
-          $checksums = "${{ steps.vars.outputs.checksums }}"
-          $tmp = Join-Path $env:RUNNER_TEMP "checksums.txt"
-          Invoke-WebRequest -Uri $checksums -OutFile $tmp -UseBasicParsing
-          
-          function Get-Hash([string]$pattern) {
+    - name: Fetch SHA256 from release checksums
+      id: shas
+      shell: pwsh
+      run: |
+        $checksums = "${{ steps.vars.outputs.checksums }}"
+        $tmp = Join-Path $env:RUNNER_TEMP "checksums.txt"
+        Invoke-WebRequest -Uri $checksums -OutFile $tmp -UseBasicParsing
+
+        function Get-Hash([string]$pattern) {
           (Select-String -Path $tmp -Pattern $pattern | Select-Object -First 1).ToString().Split(' ')[0]
-          }
-          
-          $sha_x64   = Get-Hash "tenv_${{ github.ref_name }}_Windows_x86_64.zip"
-          $sha_x86   = Get-Hash "tenv_${{ github.ref_name }}_Windows_i386.zip"
-          $sha_arm64 = Get-Hash "tenv_${{ github.ref_name }}_Windows_arm64.zip"
-          
-          if (-not $sha_x64 -or -not $sha_x86 -or -not $sha_arm64) {
+        }
+
+        $sha_x64   = Get-Hash "tenv_${{ github.ref_name }}_Windows_x86_64.zip"
+        $sha_x86   = Get-Hash "tenv_${{ github.ref_name }}_Windows_i386.zip"
+        $sha_arm64 = Get-Hash "tenv_${{ github.ref_name }}_Windows_arm64.zip"
+
+        if (-not $sha_x64 -or -not $sha_x86 -or -not $sha_arm64) {
           Write-Error "Could not parse all hashes from $checksums"
           exit 1
-          }
-          
-          "sha_x64=$sha_x64"       | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "sha_x86=$sha_x86"       | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          "sha_arm64=$sha_arm64"   | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        }
 
-      - name: Generate singleton manifest YAML
-        id: manifest
-        shell: pwsh
-        run: |
-          $yaml = @"
-          ManifestType: singleton
-          ManifestVersion: 1.0.0
-          PackageIdentifier: Tofuutils.Tenv
-          PackageVersion: ${{ steps.vars.outputs.version }}
-          Publisher: Tofuutils
-          PackageName: Tenv
-          License: MIT
-          ShortDescription: Version manager for Terraform, Terragrunt, and Atmos
-          InstallationNotes: >
-            Tenv manages Terraform/OpenTofu versions. If you have Terraform/OpenTofu
-            installed separately and those binaries appear earlier on PATH, they may shadow
-            Tenv-managed shims. Consider uninstalling system-wide Terraform/OpenTofu or
-            adjust PATH so Tenv shims take precedence.
-          Installers:
-            - Architecture: x64
-              InstallerUrl: ${{ steps.vars.outputs.url_x64 }}
-              InstallerSha256: ${{ steps.shas.outputs.sha_x64 }}
-              InstallerType: zip
-              NestedInstallerType: portable
-              NestedInstallerFiles:
-                - RelativeFilePath: tenv.exe
-                  PortableCommandAlias: tenv
-            - Architecture: x86
-              InstallerUrl: ${{ steps.vars.outputs.url_x86 }}
-              InstallerSha256: ${{ steps.shas.outputs.sha_x86 }}
-              InstallerType: zip
-              NestedInstallerType: portable
-              NestedInstallerFiles:
-                - RelativeFilePath: tenv.exe
-                  PortableCommandAlias: tenv
-            - Architecture: arm64
-              InstallerUrl: ${{ steps.vars.outputs.url_arm64 }}
-              InstallerSha256: ${{ steps.shas.outputs.sha_arm64 }}
-              InstallerType: zip
-              NestedInstallerType: portable
-              NestedInstallerFiles:
-                - RelativeFilePath: tenv.exe
-                  PortableCommandAlias: tenv
-          "@
-          
-          Set-Content -LiteralPath manifest.yaml -Value $yaml -Encoding UTF8
-          "manifest=manifest.yaml" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "sha_x64=$sha_x64"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "sha_x86=$sha_x86"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "sha_arm64=$sha_arm64" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
-      - name: Check WinGet client (for validation)
-        shell: pwsh
-        run: |
-          winget --version
+    - name: Build WinGet multi-file manifest (v1.6)
+      id: manifest
+      shell: pwsh
+      run: |
+        $id      = "Tofuutils.Tenv"
+        $version = "${{ steps.vars.outputs.version }}"
+        $dir     = Join-Path $pwd "manifests\T\Tofuutils\Tenv\$version"
+        New-Item -ItemType Directory -Force -Path $dir | Out-Null
 
-      - name: Validate manifest
-        shell: pwsh
-        run: |
-          winget validate --manifest "${{ steps.manifest.outputs.manifest }}" --verbose-logs
+        $defaultLocale = @"
+        ManifestType: defaultLocale
+        ManifestVersion: 1.6.0
+        PackageIdentifier: $id
+        PackageVersion: $version
+        PackageLocale: en-US
+        Publisher: Tofuutils
+        PackageName: Tenv
+        Moniker: tenv
+        License: MIT
+        LicenseUrl: ${{ steps.vars.outputs.license_url }}
+        ShortDescription: Versatile version manager for OpenTofu/Terraform, Terragrunt, and Atmos.
+        PackageUrl: ${{ steps.vars.outputs.homepage }}
+        ReleaseNotesUrl: ${{ steps.vars.outputs.release_notes_url }}
+        "@
+        Set-Content -LiteralPath (Join-Path $dir "Tofuutils.Tenv.locale.en-US.yaml") -Value $defaultLocale -Encoding UTF8
 
-      - name: Push PR to winget-pkgs
-        uses: microsoft/winget-pkgs-tools/submit-manifest@v1
-        with:
-          repo: microsoft/winget-pkgs
-          token: ${{ secrets.WINGET_TOKEN }}
-          manifests: ${{ steps.manifest.outputs.manifest }}
-          message: "Add/Update Tofuutils.Tenv ${{ steps.vars.outputs.version }}"
-          prtitle: "Add/Update Tofuutils.Tenv ${{ steps.vars.outputs.version }}"
-          prdescription: "Automated submission for Tofuutils.Tenv v${{ steps.vars.outputs.version }} (portable ZIP: x64/x86/arm64)."
+        $installer = @"
+        ManifestType: installer
+        ManifestVersion: 1.6.0
+        PackageIdentifier: $id
+        PackageVersion: $version
+        InstallerType: zip
+        Installers:
+          - Architecture: x64
+            InstallerUrl: ${{ steps.vars.outputs.url_x64 }}
+            InstallerSha256: ${{ steps.shas.outputs.sha_x64 }}
+            NestedInstallerType: portable
+            NestedInstallerFiles:
+              - RelativeFilePath: tenv.exe
+                PortableCommandAlias: tenv
+          - Architecture: x86
+            InstallerUrl: ${{ steps.vars.outputs.url_x86 }}
+            InstallerSha256: ${{ steps.shas.outputs.sha_x86 }}
+            NestedInstallerType: portable
+            NestedInstallerFiles:
+              - RelativeFilePath: tenv.exe
+                PortableCommandAlias: tenv
+          - Architecture: arm64
+            InstallerUrl: ${{ steps.vars.outputs.url_arm64 }}
+            InstallerSha256: ${{ steps.shas.outputs.sha_arm64 }}
+            NestedInstallerType: portable
+            NestedInstallerFiles:
+              - RelativeFilePath: tenv.exe
+                PortableCommandAlias: tenv
+        "@
+        Set-Content -LiteralPath (Join-Path $dir "Tofuutils.Tenv.installer.yaml") -Value $installer -Encoding UTF8
 
-      - name: Done
-        shell: pwsh
-        run: echo "WinGet submission attempted for v${{ steps.vars.outputs.version }}."
+        $versionYaml = @"
+        ManifestType: version
+        ManifestVersion: 1.6.0
+        PackageIdentifier: $id
+        PackageVersion: $version
+        DefaultLocale: en-US
+        "@
+        Set-Content -LiteralPath (Join-Path $dir "Tofuutils.Tenv.yaml") -Value $versionYaml -Encoding UTF8
+
+        "manifest_dir=$dir" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+    - name: Validate local manifest
+      shell: pwsh
+      run: |
+        winget --version
+        winget validate --manifest "${{ steps.manifest.outputs.manifest_dir }}" --verbose-logs
+
+    - name: Prepare git + gh auth
+      env:
+        GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+      shell: pwsh
+      run: |
+        git config --global user.name  "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        gh auth status
+
+    - name: Fork and clone winget-pkgs
+      env:
+        GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+      shell: pwsh
+      run: |
+        # Fork if needed; --clone gets us a local working copy
+        gh repo fork microsoft/winget-pkgs --clone --remote
+        cd winget-pkgs
+        git remote add upstream https://github.com/microsoft/winget-pkgs.git 2>$null
+        git fetch upstream
+        git checkout -B "${{ github.repository_owner }}-Tofuutils.Tenv-${{ steps.vars.outputs.version }}" upstream/master
+
+        # Create manifest path in the fork and copy files in
+        $dest = Join-Path $pwd "manifests\T\Tofuutils\Tenv\${{ steps.vars.outputs.version }}"
+        New-Item -ItemType Directory -Force -Path $dest | Out-Null
+        Copy-Item -Recurse -Force "${{ steps.manifest.outputs.manifest_dir }}\*" $dest
+
+        git add -A
+        git commit -m "Add/Update Tofuutils.Tenv ${{ steps.vars.outputs.version }}"
+        git push --set-upstream origin "${{ github.repository_owner }}-Tofuutils.Tenv-${{ steps.vars.outputs.version }}"
+
+    - name: Open pull request to microsoft/winget-pkgs
+      env:
+        GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+      shell: pwsh
+      run: |
+        cd winget-pkgs
+        $title = "Add/Update Tofuutils.Tenv ${{ steps.vars.outputs.version }}"
+        $body  = @"
+        Automated submission for Tofuutils.Tenv v${{ steps.vars.outputs.version }}
+        - Portable ZIP installers: x64 / x86 / arm64
+        - Generated multi-file manifests (version/defaultLocale/installer)
+        - Source repo: ${{ steps.vars.outputs.homepage }}
+        "@
+
+        gh pr create `
+          --title "$title" `
+          --body "$body" `
+          --base "microsoft:master" `
+          --head "${{ github.repository_owner }}:$(git rev-parse --abbrev-ref HEAD)"
+
+    - name: Delete fork repository
+      if: always()
+      env:
+        GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+      shell: pwsh
+      run: |
+        # Delete fork on GitHub side
+        gh repo delete ${{ github.repository_owner }}/winget-pkgs --yes --confirm
