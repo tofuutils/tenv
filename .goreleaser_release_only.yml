@@ -38,7 +38,7 @@ aurs:
     # Empty means all IDs (no filter).
     ids: []
     homepage: "https://tofuutils.github.io/tenv/"
-    description: "OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go."
+    description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
     maintainers:
       - "Alexander Sharov <kvendingoldo@gmail.com>"
       - "chaseme <aur@chase.ninja>"
@@ -118,7 +118,7 @@ aurs:
 snapcrafts:
   - name: tenv
     publish: true
-    summary: OpenTofu, Terraform, Terragrunt, and Atmos version manager, written in Go.
+    summary: OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go
     description: |
       tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go.
       Our tool simplifies the complexity of handling different versions of these powerful tools,
@@ -174,3 +174,57 @@ dmg:
     templated_extra_files: []
     replace: true
     mod_timestamp: "{{ .CommitTimestamp }}"
+
+winget:
+  - name: tenv
+    publisher: Tofuutils
+    short_description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
+    license: "MIT"
+    publisher_url: "https://tofuutils.github.io/tenv/"
+    publisher_support_url: "https://github.com/tofuutils/tenv/issues/new/choose"
+    package_identifier: Tofuutils.Tenv
+    ids:
+      - tenv
+
+    use: archive
+    goamd64: v1
+    url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    commit_msg_template: "{{ .PackageIdentifier }}: {{ .Tag }}"
+    path: "manifests/T/Tofuutils/Tenv/{{ .Version }}"
+    homepage: "https://github.com/tofuutils/tenv"
+    description: "Tenv helps you install and switch versions of OpenTofu/Terraform, Terragrunt, and Atmos with simple commands."
+    license_url: "https://github.com/tofuutils/tenv/blob/{{ .Tag }}/LICENSE"
+    copyright: "Tofuutils"
+    skip_upload: auto
+    release_notes: "{{ .Changelog }}"
+    release_notes_url: "https://github.com/tofuutils/tenv/releases/tag/{{ .Tag }}"
+    installation_notes: >
+      If other Terraform/OpenTofu binaries appear earlier on PATH, they may shadow
+      Tenv-managed shims. Uninstall those or adjust PATH so Tenv shims take precedence.
+    tags:
+      - golang
+      - cli
+      - terraform
+      - opentofu
+      - terragrunt
+      - terramate
+      - atmos
+
+    repository:
+      owner: "{{ .Env.WINGET_FORK_OWNER }}"
+      name: winget-pkgs
+      branch: "tenv-{{ .Version }}"
+      token: "{{ .Env.WINGET_TOKEN }}"
+      token_type: "github"
+      pull_request:
+        enabled: true
+        draft: true
+        check_boxes: true
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
+
+    commit_author:
+      name: "tofuutils-tenv"
+      email: "tofuutils@gmail.com"
