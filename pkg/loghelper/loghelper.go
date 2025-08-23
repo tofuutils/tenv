@@ -93,6 +93,7 @@ type recordedMessage struct {
 
 type recordingWrapper struct {
 	Displayer
+
 	recordeds []recordedMessage
 }
 

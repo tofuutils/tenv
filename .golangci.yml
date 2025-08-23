@@ -16,6 +16,10 @@ linters:
     - testpackage
     - wrapcheck
     - wsl
+    - wsl_v5
+    - noinlineerr
+    - revive
+    - nolintlint
   settings:
     depguard:
       rules:
