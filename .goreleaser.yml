@@ -28,6 +28,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
@@ -57,6 +59,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
@@ -86,6 +90,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
@@ -115,6 +121,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
@@ -144,6 +152,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
@@ -173,6 +183,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
@@ -202,6 +214,8 @@ builds:
       - freebsd
       - openbsd
       - solaris
+    goamd64:
+      - v1
     goarch:
       - "386"
       - amd64
