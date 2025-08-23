@@ -236,3 +236,99 @@ jobs:
           tarball: /tmp/tenv/tenv*.tar.gz
           deb_email: "kvendingoldo@gmail.com"
           deb_fullname: "tenv"
+
+  publish-winget:
+    name: "Publish WinGet manifest"
+    runs-on: windows-latest
+    needs:
+      - goreleaser
+    steps:
+      - name: Determine version and URLs
+        id: vars
+        shell: pwsh
+        run: |
+          # Extract version from the tag. Expects tags like "v4.7.6"
+          $tag    = "${{ github.event.release.tag_name }}"
+          if (-not $tag) { throw "No release tag found." }
+          if ($tag.StartsWith('v')) { $version = $tag.Substring(1) } else { $version = $tag }
+          echo "Version: $version"
+
+          $base = "https://github.com/${{ github.repository }}/releases/download/$tag"
+
+          $url_x64  = "$base/tenv_v$version`_Windows_x86_64.zip"
+          $url_x86  = "$base/tenv_v$version`_Windows_i386.zip"
+          $url_arm64= "$base/tenv_v$version`_Windows_arm64.zip"
+
+          echo "x64:   $url_x64"
+          echo "x86:   $url_x86"
+          echo "arm64: $url_arm64"
+
+          # Set outputs
+          echo "version=$version"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          echo "url_x64=$url_x64"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          echo "url_x86=$url_x86"          | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          echo "url_arm64=$url_arm64"      | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Download WingetCreate
+        shell: pwsh
+        run: |
+          $wcUrl = "https://github.com/microsoft/winget-create/releases/latest/download/WingetCreate.exe"
+          $out   = "$env:RUNNER_TEMP\WingetCreate.exe"
+          Invoke-WebRequest -Uri $wcUrl -OutFile $out -UseBasicParsing
+          if (-not (Test-Path $out)) { throw "Failed to download WingetCreate.exe" }
+          echo "wingetcreate=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Generate manifest YAML
+        id: manifest
+        shell: pwsh
+        run: |
+          $yaml = @"
+          ManifestType: singleton
+          ManifestVersion: 1.0.0
+          PackageIdentifier: Tofuutils.Tenv
+          PackageVersion: ${{ steps.vars.outputs.version }}
+          Publisher: Tofuutils
+          PackageName: Tenv
+          License: MIT
+          ShortDescription: Version manager for Terraform, Terragrunt, and Atmos
+          Installers:
+            - Architecture: x64
+              InstallerUrl: ${{ steps.vars.outputs.url_x64 }}
+              InstallerSha256: c6637fbac9b9760fcba620a7d42a70aa1b99e79fc69fb743b4b9e0ea10c2aae0
+              InstallerType: zip
+              NestedInstallerType: portable
+              NestedInstallerFiles:
+                - RelativeFilePath: tenv.exe
+            - Architecture: x86
+              InstallerUrl: ${{ steps.vars.outputs.url_x86 }}
+              InstallerSha256: 6812e0dfe1fe2ae94717310b5a26ccf2bdbbf949fbab5b365e104a3bf1ea69fd
+              InstallerType: zip
+              NestedInstallerType: portable
+              NestedInstallerFiles:
+                - RelativeFilePath: tenv.exe
+            - Architecture: arm64
+              InstallerUrl: ${{ steps.vars.outputs.url_arm64 }}
+              InstallerSha256: 622fdfdaa80b5a4a9d233c3006b6d4f8544c3b58cef502e823f608f82afe117d
+              InstallerType: zip
+              NestedInstallerType: portable
+              NestedInstallerFiles:
+                - RelativeFilePath: tenv.exe
+          "@
+  
+          New-Item -Path . -Name "manifest.yaml" -ItemType File -Value $yaml -Force
+          echo "manifest=manifest.yaml" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+      
+
+      - name: Push to winget-pkgs
+        uses: microsoft/winget-pkgs-tools/submit-manifest@v1
+        with:
+          repo: microsoft/winget-pkgs
+          token: ${{ secrets.WINGET_TOKEN }}
+          manifests: ${{ steps.manifest.outputs.manifest }}
+          message: "Add Tofuutils.Tenv ${{ steps.vars.outputs.version }}"
+          prtitle: "Add Tofuutils.Tenv ${{ steps.vars.outputs.version }}"
+          prdescription: "Automated submission for Tofuutils.Tenv v${{ steps.vars.outputs.version }}"
+
+      # Optional: add a quick sanity check step to print the created PR URL from logs.
+      - name: Done
+        run: echo "WinGet submission attempted for v${{ steps.vars.outputs.version }}."
