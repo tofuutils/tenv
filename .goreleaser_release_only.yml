@@ -211,7 +211,7 @@ winget:
       - atmos
 
     repository:
-      owner: "{{ .Env.WINGET_FORK_OWNER }}"
+      owner: "tofuutils"
       name: winget-pkgs
       branch: "tenv-{{ .Version }}"
       token: "{{ .Env.WINGET_TOKEN }}"
