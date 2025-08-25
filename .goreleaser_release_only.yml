@@ -192,7 +192,7 @@ scoops:
 
 winget:
   - name: tenv
-    publisher: TofuUtils
+    publisher: Tofuutils
     short_description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
     license: "Apache-2.0"
     publisher_url: "https://tofuutils.github.io/tenv/"
@@ -204,7 +204,7 @@ winget:
     use: archive
     url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     commit_msg_template: "{{ .PackageIdentifier }}: {{ .Tag }}"
-    path: "manifests/t/TofuUtils/Tenv/{{ .Version }}"
+    path: "manifests/t/Tofuutils/Tenv/{{ .Version }}"
     homepage: "https://github.com/tofuutils/tenv"
     description: "Tenv helps you install and switch versions of OpenTofu/Terraform, Terragrunt, and Atmos with simple commands."
     license_url: "https://github.com/tofuutils/tenv/blob/{{ .Tag }}/LICENSE"
