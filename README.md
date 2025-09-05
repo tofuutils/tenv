@@ -787,6 +787,15 @@ If set to true **tenv** disable tracking of last use date for installed versions
 </details>
 
 
+<details markdown="1"><summary><b>TENV_VALIDATION</b></summary><br>
+
+String (Default: signature)
+
+Set **tenv** validation, known values are "signature" (check SHA256 and its signature, see [signature support](#signature-support)), "sha" (only check SHA256), "none" (no validation).
+
+</details>
+
+
 <details markdown="1"><summary><b>GITHUB_ACTIONS</b></summary><br>
 
 String (Default: false)
