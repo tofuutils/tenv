@@ -76,6 +76,7 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" current version.")
 
+	skipSum, skipSign := false, false
 	forceInstall, forceNoInstall := false, false
 
 	detectCmd := &cobra.Command{
@@ -102,7 +103,7 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 	}
 
 	flags := detectCmd.Flags()
-	addInstallationFlags(flags, conf, params)
+	addInstallationFlags(flags, conf, params, &skipSum, &skipSign)
 	addOptionalInstallationFlags(flags, conf, params, &forceInstall, &forceNoInstall)
 	addRemoteFlags(flags, conf, params)
 
@@ -133,6 +134,8 @@ If a parameter is passed, available options:
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required")
 
+	skipSum, skipSign := false, false
+
 	installCmd := &cobra.Command{
 		Use:          "install [version]",
 		Short:        loghelper.Concat("Install a specific version of ", versionManager.FolderName, "."),
@@ -157,7 +160,7 @@ If a parameter is passed, available options:
 	}
 
 	flags := installCmd.Flags()
-	addInstallationFlags(flags, conf, params)
+	addInstallationFlags(flags, conf, params, &skipSum, &skipSign)
 	addRemoteFlags(flags, conf, params)
 
 	return installCmd
@@ -364,6 +367,7 @@ Available parameter options:
 	descBuilder.WriteString(versionManager.FolderName)
 	descBuilder.WriteString(" files to detect which version is maximally allowed or minimally required")
 
+	skipSum, skipSign := false, false
 	forceInstall, forceNoInstall, workingDir := false, false, false
 
 	useCmd := &cobra.Command{
@@ -381,7 +385,7 @@ Available parameter options:
 	}
 
 	flags := useCmd.Flags()
-	addInstallationFlags(flags, conf, params)
+	addInstallationFlags(flags, conf, params, &skipSum, &skipSign)
 	addOptionalInstallationFlags(flags, conf, params, &forceInstall, &forceNoInstall)
 	addRemoteFlags(flags, conf, params)
 	flags.BoolVarP(&workingDir, "working-dir", "w", false, loghelper.Concat("create ", versionManager.VersionFiles[0].Name, " file in working directory"))
@@ -393,11 +397,12 @@ func addDescendingFlag(flags *pflag.FlagSet, pReverseOrder *bool) {
 	flags.BoolVarP(pReverseOrder, "descending", "d", false, "display list in descending version order")
 }
 
-func addInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams) {
+func addInstallationFlags(flags *pflag.FlagSet, conf *config.Config, params subCmdParams, pSkipSum *bool, pSkipSign *bool) {
 	flags.StringVarP(&conf.Arch, "arch", "a", conf.Arch, "specify arch for binaries downloading")
 	if params.pPublicKeyPath != nil {
 		flags.StringVarP(params.pPublicKeyPath, "key-file", "k", *params.pPublicKeyPath, "local path to PGP public key file (replace check against remote one)")
-		flags.BoolVarP(&conf.SkipSignature, "skip-signature", "s", false, "skip signature checking")
+		flags.BoolVar(pSkipSum, "skip-sha", false, "skip SHA256 checksum checking")
+		flags.BoolVarP(pSkipSign, "skip-signature", "s", false, "skip signature checking")
 	}
 }
 

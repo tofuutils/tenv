@@ -46,35 +46,35 @@ var dataCert []byte
 
 func TestCosignCheckCorrect(t *testing.T) { //nolint
 	t.SkipNow()
-	if err := cosigncheck.Check(data, dataSig, dataCert, identity, issuer, loghelper.InertDisplayer); err != nil {
+	if err := cosigncheck.Check(t.Context(), data, dataSig, dataCert, identity, issuer, loghelper.InertDisplayer); err != nil {
 		t.Error("Unexpected error :", err)
 	}
 }
 
 func TestCosignCheckErrorCert(t *testing.T) { //nolint
 	t.SkipNow()
-	if cosigncheck.Check(data, dataSig, dataCert[1:], identity, issuer, loghelper.InertDisplayer) == nil {
+	if cosigncheck.Check(t.Context(), data, dataSig, dataCert[1:], identity, issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous certificate")
 	}
 }
 
 func TestCosignCheckErrorIdentity(t *testing.T) { //nolint
 	t.SkipNow()
-	if cosigncheck.Check(data, dataSig, dataCert, "me", issuer, loghelper.InertDisplayer) == nil {
+	if cosigncheck.Check(t.Context(), data, dataSig, dataCert, "me", issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorIssuer(t *testing.T) { //nolint
 	t.SkipNow()
-	if cosigncheck.Check(data, dataSig, dataCert, identity, "http://myself.com", loghelper.InertDisplayer) == nil {
+	if cosigncheck.Check(t.Context(), data, dataSig, dataCert, identity, "http://myself.com", loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous issuer")
 	}
 }
 
 func TestCosignCheckErrorSig(t *testing.T) { //nolint
 	t.SkipNow()
-	if cosigncheck.Check(data, dataSig[1:], dataCert, identity, issuer, loghelper.InertDisplayer) == nil {
+	if cosigncheck.Check(t.Context(), data, dataSig[1:], dataCert, identity, issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous signature")
 	}
 }
