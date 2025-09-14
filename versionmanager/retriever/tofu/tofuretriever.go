@@ -212,7 +212,7 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 	}
 
 	identity := buildIdentity(version, stable)
-	err = cosigncheck.Check(dataSums, dataSumsSig, dataSumsCert, identity, issuer, r.conf.Displayer)
+	err = cosigncheck.Check(ctx, dataSums, dataSumsSig, dataSumsCert, identity, issuer, r.conf.Displayer)
 	if err == nil || !errors.Is(err, cosigncheck.ErrNotInstalled) {
 		return err
 	}

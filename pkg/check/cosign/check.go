@@ -19,6 +19,7 @@
 package cosigncheck
 
 import (
+	"context"
 	"errors"
 	"os"
 	"os/exec"
@@ -40,7 +41,7 @@ var (
 	ErrNotInstalled = errors.New("cosign executable not found")
 )
 
-func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, certOidcIssuer string, displayer loghelper.Displayer) error {
+func Check(ctx context.Context, data []byte, dataSig []byte, dataCert []byte, certIdentity string, certOidcIssuer string, displayer loghelper.Displayer) error {
 	_, err := exec.LookPath(cosignExecName)
 	if err != nil {
 		return ErrNotInstalled
@@ -70,7 +71,7 @@ func Check(data []byte, dataSig []byte, dataCert []byte, certIdentity string, ce
 	}
 
 	var outBuffer, errBuffer strings.Builder
-	cmd := exec.Command(cosignExecName, cmdArgs...)
+	cmd := exec.CommandContext(ctx, cosignExecName, cmdArgs...)
 	cmd.Stdout = &outBuffer
 	cmd.Stderr = &errBuffer
 
