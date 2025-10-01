@@ -1,0 +1,8 @@
+---
+- hosts: local
+  become: yes
+  roles:
+    - ansible-role-tenv
+  vars:
+    tenv_version: latest
+    tenv_auto_install: true

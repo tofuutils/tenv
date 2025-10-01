@@ -1,0 +1,7 @@
+---
+# Handlers for tenv role
+
+- name: reload shell profile
+  debug:
+    msg: "Shell profile updated. Users may need to log out and back in or source their profile."
+

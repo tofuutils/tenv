@@ -1,0 +1,31 @@
+---
+# Tasks for tenv installation
+
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install prerequisites
+  include_tasks: prerequisites.yml
+
+- name: Install cosign (optional but recommended)
+  include_tasks: cosign.yml
+  when: tenv_install_cosign | default(true)
+
+- name: Install tenv
+  include_tasks: install_tenv.yml
+
+- name: Configure tenv
+  include_tasks: configure.yml
+  when: tenv_configure_shell | default(true)
+
+- name: Setup shell completion
+  include_tasks: completion.yml
+  when: tenv_setup_completion | default(true)
+
+- name: Display installation summary
+  debug:
+    msg: |
+      tenv installation completed successfully!
+      Version: {{ tenv_version_output.stdout }}
+      Root path: {{ tenv_root_path }}
+      Configured for users: {{ tenv_users | join(', ') }}

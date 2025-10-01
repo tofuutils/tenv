@@ -1,0 +1,91 @@
+---
+# Install cosign for signature verification
+
+- name: Check if cosign is already installed
+  command: which cosign
+  register: cosign_check
+  failed_when: false
+  changed_when: false
+
+- name: Install cosign (Debian/Ubuntu)
+  block:
+    - name: Get latest cosign version
+      uri:
+        url: https://api.github.com/repos/sigstore/cosign/releases/latest
+        return_content: yes
+      register: cosign_latest
+
+    - name: Set cosign version
+      set_fact:
+        cosign_version: "{{ cosign_latest.json.tag_name | regex_replace('^v', '') }}"
+
+    - name: Download cosign deb package
+      get_url:
+        url: "{{ cosign_package_url }}"
+        dest: "/tmp/cosign_{{ cosign_version }}_amd64.deb"
+        mode: '0644'
+
+    - name: Install cosign package
+      apt:
+        deb: "/tmp/cosign_{{ cosign_version }}_amd64.deb"
+        state: present
+
+    - name: Cleanup cosign package
+      file:
+        path: "/tmp/cosign_{{ cosign_version }}_amd64.deb"
+        state: absent
+      when: tenv_cleanup_downloads | default(true)
+  when: 
+    - ansible_os_family == "Debian"
+    - cosign_check.rc != 0
+
+- name: Install cosign (RedHat/CentOS)
+  block:
+    - name: Get latest cosign version
+      uri:
+        url: https://api.github.com/repos/sigstore/cosign/releases/latest
+        return_content: yes
+      register: cosign_latest
+
+    - name: Set cosign version
+      set_fact:
+        cosign_version: "{{ cosign_latest.json.tag_name | regex_replace('^v', '') }}"
+
+    - name: Download cosign rpm package
+      get_url:
+        url: "{{ cosign_package_url }}"
+        dest: "/tmp/cosign-{{ cosign_version }}-1.x86_64.rpm"
+        mode: '0644'
+
+    - name: Install cosign package
+      yum:
+        name: "/tmp/cosign-{{ cosign_version }}-1.x86_64.rpm"
+        state: present
+
+    - name: Cleanup cosign package
+      file:
+        path: "/tmp/cosign-{{ cosign_version }}-1.x86_64.rpm"
+        state: absent
+      when: tenv_cleanup_downloads | default(true)
+  when: 
+    - ansible_os_family == "RedHat"
+    - cosign_check.rc != 0
+
+- name: Install cosign (Arch Linux)
+  pacman:
+    name: "{{ cosign_package_name }}"
+    state: present
+  when: 
+    - ansible_os_family == "Archlinux"
+    - cosign_check.rc != 0
+
+- name: Verify cosign installation
+  command: cosign version
+  register: cosign_version_check
+  changed_when: false
+  failed_when: false
+
+- name: Display cosign version
+  debug:
+    msg: "Cosign installed: {{ cosign_version_check.stdout }}"
+  when: cosign_version_check.rc == 0

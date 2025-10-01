@@ -1,0 +1,11 @@
+---
+tenv_package_manager: yum
+tenv_package_extension: rpm
+tenv_prerequisites:
+  - curl
+  - jq
+  - unzip
+  - ca-certificates
+
+cosign_package_url: "https://github.com/sigstore/cosign/releases/latest/download/cosign-{{ cosign_version }}-1.x86_64.rpm"
+tenv_package_url: "https://github.com/tofuutils/tenv/releases/download/{{ tenv_version }}/tenv_{{ tenv_version }}_amd64.rpm"
