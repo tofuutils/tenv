@@ -1,0 +1,40 @@
+---
+galaxy_info:
+  role_name: tenv
+  author: tenv contributors
+  description: Install and configure tenv - OpenTofu/Terraform/Terragrunt/Terramate/Atmos version manager
+  license: Apache-2.0
+  min_ansible_version: "2.10"
+  
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: ArchLinux
+      versions:
+        - all
+  
+  galaxy_tags:
+    - tenv
+    - terraform
+    - opentofu
+    - terragrunt
+    - terramate
+    - atmos
+    - infrastructure
+    - iac
+    - devops
+    - version-manager
+
+dependencies: []
+

@@ -1,0 +1,34 @@
+---
+# Version to install (use "latest" for the most recent version)
+tenv_version: latest
+
+# Install cosign for signature verification
+tenv_install_cosign: true
+
+# Configure shell environment
+tenv_configure_shell: true
+
+# Update PATH automatically
+tenv_update_path: true
+
+# Setup shell completion
+tenv_setup_completion: true
+
+# Shell type (bash, zsh, fish)
+tenv_shell: bash
+
+# Enable auto-install of tool versions
+tenv_auto_install: false
+
+# Root path for tenv installations
+tenv_root_path: "{{ ansible_env.HOME }}/.tenv"
+
+# Users to configure tenv for (defaults to current user)
+tenv_users:
+  - "{{ ansible_user_id }}"
+
+# Architecture (defaults to amd64)
+tenv_arch: amd64
+
+# Cleanup downloaded packages after installation
+tenv_cleanup_downloads: true
