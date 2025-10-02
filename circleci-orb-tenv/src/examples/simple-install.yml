@@ -1,0 +1,14 @@
+description: >
+  Simple example of installing tenv and using it to manage Terraform.
+
+usage:
+  version: 2.1
+
+  orbs:
+    tenv: tofuutils/tenv@1.0.0
+
+  workflows:
+    main:
+      jobs:
+        - tenv/install:
+            version: latest

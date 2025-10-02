@@ -1,0 +1,50 @@
+version: 2.1
+
+# This config tests the orb itself
+orbs:
+  orb-tools: circleci/orb-tools@11.1
+  tenv: tofuutils/tenv@dev:alpha
+
+workflows:
+  test-orb:
+    jobs:
+      # Test basic installation
+      - tenv/install:
+          name: test-install-latest
+          version: latest
+          install-cosign: true
+
+      # Test specific version
+      - tenv/install:
+          name: test-install-specific
+          version: v2.6.1
+          install-cosign: false
+
+      # Test tool installation
+      - tenv/test-version:
+          name: test-terraform
+          tool: terraform
+          tool-version: "1.6.0"
+          requires:
+            - test-install-latest
+
+      # Test OpenTofu
+      - tenv/test-version:
+          name: test-opentofu
+          tool: tofu
+          tool-version: "1.6.0"
+          requires:
+            - test-install-latest
+
+      # Publish orb (on main branch only)
+      - orb-tools/publish:
+          name: publish-orb
+          orb-name: tofuutils/tenv
+          vcs-type: github
+          requires:
+            - test-terraform
+            - test-opentofu
+          filters:
+            branches:
+              only: main
+

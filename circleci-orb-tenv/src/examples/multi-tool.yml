@@ -1,0 +1,48 @@
+description: >
+  Example using multiple IaC tools (Terraform, OpenTofu, Terragrunt) in
+  the same workflow.
+
+usage:
+  version: 2.1
+
+  orbs:
+    tenv: tofuutils/tenv@1.0.0
+
+  jobs:
+    multi-tool-test:
+      docker:
+        - image: cimg/base:stable
+      steps:
+        - checkout
+        - tenv/install:
+            version: latest
+            install-cosign: true
+        
+        # Install Terraform
+        - tenv/use-version:
+            tool: terraform
+            version: "1.6.0"
+        - run:
+            name: Test Terraform
+            command: terraform version
+        
+        # Install OpenTofu
+        - tenv/use-version:
+            tool: tofu
+            version: "1.6.0"
+        - run:
+            name: Test OpenTofu
+            command: tofu version
+        
+        # Install Terragrunt
+        - tenv/use-version:
+            tool: terragrunt
+            version: "0.55.0"
+        - run:
+            name: Test Terragrunt
+            command: terragrunt --version
+
+  workflows:
+    test-all:
+      jobs:
+        - multi-tool-test

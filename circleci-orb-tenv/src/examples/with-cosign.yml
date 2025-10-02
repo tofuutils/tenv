@@ -1,0 +1,32 @@
+description: >
+  Install tenv with cosign for signature verification, then use Terraform.
+
+usage:
+  version: 2.1
+
+  orbs:
+    tenv: tofuutils/tenv@1.0.0
+
+  jobs:
+    terraform-deploy:
+      docker:
+        - image: cimg/base:stable
+      steps:
+        - checkout
+        - tenv/install:
+            version: v2.6.1
+            install-cosign: true
+        - tenv/use-version:
+            tool: terraform
+            version: "1.6.0"
+        - run:
+            name: Terraform Init
+            command: terraform init
+        - run:
+            name: Terraform Plan
+            command: terraform plan
+
+  workflows:
+    deploy:
+      jobs:
+        - terraform-deploy

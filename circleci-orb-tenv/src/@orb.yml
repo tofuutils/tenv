@@ -1,0 +1,20 @@
+version: 2.1
+
+description: >
+  Install and manage tenv - a version manager for OpenTofu, Terraform,
+  Terragrunt, Terramate, and Atmos. Simplify your IaC tool version
+  management in CircleCI pipelines.
+
+display:
+  home_url: https://github.com/tofuutils/tenv
+  source_url: https://github.com/tofuutils/circleci-orb-tenv
+
+orbs:
+  # Import any additional orbs if needed
+
+executors:
+  default:
+    description: Default executor for tenv commands
+    docker:
+      - image: cimg/base:stable
+
