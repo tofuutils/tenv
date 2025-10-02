@@ -1,6 +1,7 @@
 package sanitize_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tofuutils/tenv/v4/pkg/uncompress/sanitize"
@@ -14,8 +15,9 @@ func TestArchivePathClean(t *testing.T) {
 		t.Fatal("Unexpected error :", err)
 	}
 
-	if path != "/home/test/index.json" {
-		t.Error("Unexpected result, get :", path)
+	expected := filepath.Join("/home/test", "index.json")
+	if path != expected {
+		t.Errorf("Unexpected result, get: %s, want: %s", path, expected)
 	}
 }
 

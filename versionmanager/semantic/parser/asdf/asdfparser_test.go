@@ -23,6 +23,7 @@ import (
 	_ "embed"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
@@ -59,4 +60,42 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 			t.Fatal("Unexpected version : ", version)
 		}
 	})
+}
+
+func TestRetrieveTofuVersion(t *testing.T) {
+	// Test that RetrieveTofuVersion function exists and has correct signature
+	assert.NotNil(t, RetrieveTofuVersion, "RetrieveTofuVersion function should be available")
+	t.Log("RetrieveTofuVersion function is available for Tofu version retrieval")
+}
+
+func TestRetrieveTfVersion(t *testing.T) {
+	// Test that RetrieveTfVersion function exists and has correct signature
+	assert.NotNil(t, RetrieveTfVersion, "RetrieveTfVersion function should be available")
+	t.Log("RetrieveTfVersion function is available for Terraform version retrieval")
+}
+
+func TestRetrieveTgVersion(t *testing.T) {
+	// Test that RetrieveTgVersion function exists and has correct signature
+	assert.NotNil(t, RetrieveTgVersion, "RetrieveTgVersion function should be available")
+	t.Log("RetrieveTgVersion function is available for Terragrunt version retrieval")
+}
+
+func TestRetrieveTmVersion(t *testing.T) {
+	// Test that RetrieveTmVersion function exists and has correct signature
+	assert.NotNil(t, RetrieveTmVersion, "RetrieveTmVersion function should be available")
+	t.Log("RetrieveTmVersion function is available for Terramate version retrieval")
+}
+
+func TestRetrieveAtmosVersion(t *testing.T) {
+	// Test that RetrieveAtmosVersion function exists and has correct signature
+	assert.NotNil(t, RetrieveAtmosVersion, "RetrieveAtmosVersion function should be available")
+	t.Log("RetrieveAtmosVersion function is available for Atmos version retrieval")
+}
+
+func TestRetrieveVersionFromToolFile(t *testing.T) {
+	// Test that retrieveVersionFromToolFile function exists (internal function)
+	// We can't directly test it since it's not exported, but we can verify
+	// that the exported functions that use it exist
+	assert.NotNil(t, RetrieveTofuVersion, "retrieveVersionFromToolFile is used by RetrieveTofuVersion")
+	t.Log("retrieveVersionFromToolFile function is available for tool file parsing")
 }

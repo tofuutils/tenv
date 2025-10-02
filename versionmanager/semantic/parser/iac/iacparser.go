@@ -88,7 +88,7 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		}
 	}
 
-	var requiredVersions []string
+	requiredVersions := make([]string, 0)
 	var parsedFile *hcl.File
 	var diags hcl.Diagnostics
 	foundFiles = make([]string, 0, len(similar))
@@ -113,6 +113,10 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 }
 
 func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
+	if body == nil {
+		return nil
+	}
+
 	rootContent, _, diags := body.PartialContent(terraformPartialSchema)
 	if diags.HasErrors() {
 		conf.Displayer.Log(hclog.Warn, "Failed to parse hcl file", loghelper.Error, diags)
@@ -139,6 +143,12 @@ func extractRequiredVersion(body hcl.Body, conf *config.Config) []string {
 			conf.Displayer.Log(hclog.Warn, "Failed to parse hcl attribute", loghelper.Error, diags)
 
 			return nil
+		}
+
+		if val.Type() != cty.String {
+			conf.Displayer.Log(hclog.Warn, "required_version must be a string value")
+
+			continue
 		}
 
 		val, err := convert.Convert(val, cty.String)

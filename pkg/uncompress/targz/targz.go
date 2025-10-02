@@ -24,6 +24,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/uncompress/limitedcopy"
@@ -60,6 +61,10 @@ func UntarToDir(dataTarGz []byte, dirPath string, filter func(string) bool) erro
 				return err
 			}
 		case tar.TypeReg:
+			// Ensure parent directory exists
+			if err := os.MkdirAll(filepath.Dir(destPath), fileperm.RWE); err != nil {
+				return err
+			}
 			if err = limitedcopy.Copy(destPath, tarReader, fileperm.RWE); err != nil {
 				return err
 			}
