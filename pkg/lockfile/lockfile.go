@@ -40,9 +40,15 @@ const (
 // ! dirPath must already exist (no mkdir here).
 // the returned function must be used to delete the lock.
 func Write(dirPath string, displayer loghelper.Displayer) func() {
-	lockPath := filepath.Join(dirPath, ".lock")
+	return WriteWithCustomLockPath(dirPath, filepath.Join(dirPath, ".lock"), displayer)
+}
+
+// WriteWithCustomLockPath allows specifying a custom lock file path.
+// ! dirPath must already exist (no mkdir here).
+// the returned function must be used to delete the lock.
+func WriteWithCustomLockPath(dirPath string, lockPath string, displayer loghelper.Displayer) func() {
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
-		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL, fileperm.RW)
+		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, fileperm.RW)
 		if err == nil {
 			f.Close()
 

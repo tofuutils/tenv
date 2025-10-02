@@ -74,6 +74,7 @@ type Config struct {
 	Getenv           configutils.GetenvFunc
 	GithubActions    bool
 	GithubToken      string
+	LockPath         string
 	remoteConfLoaded bool
 	RemoteConfPath   string
 	RootPath         string
@@ -99,6 +100,7 @@ func DefaultConfig() (Config, error) {
 		Arch:             runtime.GOARCH,
 		Atmos:            makeDefaultRemoteConfig(atmosurl.Github, githuburl.Base),
 		Getenv:           EmptyGetenv,
+		LockPath:         filepath.Join(userPath, defaultDirName),
 		remoteConfLoaded: true,
 		RootPath:         filepath.Join(userPath, defaultDirName),
 		SkipInstall:      true,
@@ -142,6 +144,11 @@ func InitConfigFromEnv() (Config, error) {
 		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
+	lockPath := getenv.Fallback(envname.TenvLockPath, envname.TofuRootPath, envname.TfRootPath)
+	if lockPath == "" {
+		lockPath = rootPath // Default to root path for backward compatibility
+	}
+
 	quiet, err := getenv.Bool(false, envname.TenvQuiet)
 	if err != nil {
 		return Config{}, err
@@ -155,6 +162,7 @@ func InitConfigFromEnv() (Config, error) {
 		Getenv:           getenv,
 		GithubActions:    getenv.Present(envname.GithubActions),
 		GithubToken:      getenv.Fallback(envname.TenvToken, envname.TofuToken),
+		LockPath:         lockPath,
 		RemoteConfPath:   getenv(envname.TenvRemoteConf),
 		RootPath:         rootPath,
 		SkipInstall:      !autoInstall,
