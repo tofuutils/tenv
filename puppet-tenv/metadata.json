@@ -1,0 +1,81 @@
+{
+  "name": "tofuutils-tenv",
+  "version": "1.0.0",
+  "author": "tenv contributors",
+  "summary": "Manages tenv - version manager for OpenTofu, Terraform, Terragrunt, Terramate, and Atmos",
+  "license": "Apache-2.0",
+  "source": "https://github.com/tofuutils/tenv",
+  "project_page": "https://github.com/tofuutils/tenv",
+  "issues_url": "https://github.com/tofuutils/tenv/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 6.0.0 < 10.0.0"
+    },
+    {
+      "name": "puppetlabs/apt",
+      "version_requirement": ">= 7.0.0 < 10.0.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "20.04",
+        "22.04",
+        "24.04"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "11",
+        "12"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "8",
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "8",
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "Rocky",
+      "operatingsystemrelease": [
+        "8",
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "Archlinux"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 6.0.0 < 9.0.0"
+    }
+  ],
+  "tags": [
+    "tenv",
+    "terraform",
+    "opentofu",
+    "terragrunt",
+    "terramate",
+    "atmos",
+    "iac",
+    "infrastructure",
+    "version-manager"
+  ],
+  "pdk-version": "3.0.0",
+  "template-url": "pdk-default#3.0.0",
+  "template-ref": "tags/3.0.0-0-g5d17ec1"
+}

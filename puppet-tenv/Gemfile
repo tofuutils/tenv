@@ -1,0 +1,23 @@
+source 'https://rubygems.org'
+
+gem 'puppet', ENV.key?('PUPPET_VERSION') ? "~> #{ENV['PUPPET_VERSION']}" : '>= 6.0'
+gem 'facter', '>= 3.0'
+gem 'puppetlabs_spec_helper', '>= 2.0.0'
+gem 'rspec-puppet', '>= 2.0'
+gem 'rspec-puppet-facts'
+gem 'puppet-lint', '>= 2.0'
+gem 'puppet-syntax'
+gem 'metadata-json-lint'
+
+group :development do
+  gem 'puppet-blacksmith'
+  gem 'pdk'
+end
+
+group :acceptance do
+  gem 'beaker'
+  gem 'beaker-rspec'
+  gem 'beaker-puppet'
+  gem 'beaker-puppet_install_helper'
+  gem 'beaker-module_install_helper'
+end

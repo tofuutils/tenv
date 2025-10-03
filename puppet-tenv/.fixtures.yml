@@ -1,0 +1,6 @@
+fixtures:
+  repositories:
+    stdlib: 'https://github.com/puppetlabs/puppetlabs-stdlib.git'
+    apt: 'https://github.com/puppetlabs/puppetlabs-apt.git'
+  symlinks:
+    tenv: "#{source_dir}"

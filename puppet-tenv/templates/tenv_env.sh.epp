@@ -1,0 +1,14 @@
+# tenv configuration
+export TENV_ROOT="<%= $tenv::root_path %>"
+
+<% if $tenv::auto_install { -%>
+export TENV_AUTO_INSTALL=true
+<% } -%>
+
+<% if $tenv::github_token { -%>
+export TENV_GITHUB_TOKEN="<%= $tenv::github_token %>"
+<% } -%>
+
+<% if $tenv::update_path { -%>
+export PATH=$(tenv update-path)
+<% } -%>
