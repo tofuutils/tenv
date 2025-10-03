@@ -1,0 +1,74 @@
+description: >
+  Install and set a specific version of a tool managed by tenv
+  (Terraform, OpenTofu, Terragrunt, Terramate, or Atmos).
+
+parameters:
+  tool:
+    type: enum
+    enum: ["terraform", "tofu", "terragrunt", "terramate", "atmos"]
+    description: >
+      Tool to install and configure. Options: terraform, tofu, terragrunt,
+      terramate, atmos.
+
+  version:
+    type: string
+    description: >
+      Version to install and use. Can be an exact version like '1.6.0',
+      'latest', 'latest-stable', or a constraint like '~> 1.6.0'.
+
+  auto-install:
+    type: boolean
+    default: true
+    description: >
+      Automatically install the specified version if not already present.
+
+steps:
+  - run:
+      name: Install << parameters.tool >> version << parameters.version >>
+      command: |
+        echo "Installing << parameters.tool >> version << parameters.version >>..."
+        
+        # Map tool names to tenv commands
+        case "<< parameters.tool >>" in
+          terraform)
+            TOOL_CMD="tf"
+            ;;
+          tofu)
+            TOOL_CMD="tofu"
+            ;;
+          terragrunt)
+            TOOL_CMD="tg"
+            ;;
+          terramate)
+            TOOL_CMD="tm"
+            ;;
+          atmos)
+            TOOL_CMD="at"
+            ;;
+        esac
+        
+        # Install the version
+        tenv ${TOOL_CMD} install << parameters.version >>
+        
+        # Set as default
+        tenv ${TOOL_CMD} use << parameters.version >>
+        
+        # Verify installation
+        case "<< parameters.tool >>" in
+          terraform)
+            terraform version
+            ;;
+          tofu)
+            tofu version
+            ;;
+          terragrunt)
+            terragrunt --version
+            ;;
+          terramate)
+            terramate version
+            ;;
+          atmos)
+            atmos version
+            ;;
+        esac
+

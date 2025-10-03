@@ -1,0 +1,27 @@
+description: >
+  Install cosign for signature verification of binaries.
+
+parameters:
+  version:
+    type: string
+    default: "latest"
+    description: >
+      Version of cosign to install. Use 'latest' for the most recent version.
+
+steps:
+  - run:
+      name: Install Cosign
+      command: |
+        echo "Installing cosign..."
+        if [ "<< parameters.version >>" = "latest" ]; then
+          COSIGN_VERSION=$(curl -s https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
+        else
+          COSIGN_VERSION="<< parameters.version >>"
+        fi
+        
+        curl -sL "https://github.com/sigstore/cosign/releases/latest/download/cosign_${COSIGN_VERSION}_amd64.deb" -o /tmp/cosign.deb
+        sudo dpkg -i /tmp/cosign.deb
+        rm /tmp/cosign.deb
+        
+        cosign version
+        echo "Cosign installation complete"

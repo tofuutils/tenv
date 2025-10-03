@@ -1,0 +1,38 @@
+description: >
+  Install tenv and verify a specific tool version works correctly.
+
+executor: default
+
+parameters:
+  tenv-version:
+    type: string
+    default: "latest"
+    description: Version of tenv to install
+
+  tool:
+    type: enum
+    enum: ["terraform", "tofu", "terragrunt", "terramate", "atmos"]
+    description: Tool to test
+
+  tool-version:
+    type: string
+    description: Version of the tool to test
+
+  install-cosign:
+    type: boolean
+    default: true
+    description: Install cosign
+
+steps:
+  - checkout
+  - install:
+      version: << parameters.tenv-version >>
+      install-cosign: << parameters.install-cosign >>
+  - use-version:
+      tool: << parameters.tool >>
+      version: << parameters.tool-version >>
+  - run:
+      name: Verify Tool Installation
+      command: |
+        echo "Verification complete: << parameters.tool >> << parameters.tool-version >> is working"
+

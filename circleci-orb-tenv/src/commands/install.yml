@@ -1,0 +1,81 @@
+description: >
+  Install tenv on the executor. Optionally install cosign for signature
+  verification.
+
+parameters:
+  version:
+    type: string
+    default: "latest"
+    description: >
+      Version of tenv to install. Use 'latest' for the most recent version
+      or specify a version like 'v2.6.1'.
+
+  install-cosign:
+    type: boolean
+    default: true
+    description: >
+      Install cosign for signature verification of downloaded binaries.
+
+  github-token:
+    type: env_var_name
+    default: GITHUB_TOKEN
+    description: >
+      Environment variable name containing GitHub token for API rate limits.
+      Leave empty if not needed.
+
+steps:
+  - run:
+      name: Install Prerequisites
+      command: |
+        sudo apt-get update
+        sudo apt-get install -y curl jq unzip ca-certificates
+
+  - when:
+      condition: << parameters.install-cosign >>
+      steps:
+        - run:
+            name: Install Cosign
+            command: |
+              echo "Installing cosign for signature verification..."
+              COSIGN_VERSION=$(curl -s https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
+              curl -sL "https://github.com/sigstore/cosign/releases/latest/download/cosign_${COSIGN_VERSION}_amd64.deb" -o /tmp/cosign.deb
+              sudo dpkg -i /tmp/cosign.deb
+              rm /tmp/cosign.deb
+              cosign version
+
+  - run:
+      name: Determine tenv Version
+      command: |
+        if [ "<< parameters.version >>" = "latest" ]; then
+          TENV_VERSION=$(curl -s https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
+        else
+          TENV_VERSION="<< parameters.version >>"
+        fi
+        echo "export TENV_VERSION=${TENV_VERSION}" >> $BASH_ENV
+        echo "Will install tenv ${TENV_VERSION}"
+
+  - run:
+      name: Download tenv
+      command: |
+        source $BASH_ENV
+        echo "Downloading tenv ${TENV_VERSION}..."
+        curl -sL "https://github.com/tofuutils/tenv/releases/download/${TENV_VERSION}/tenv_${TENV_VERSION}_amd64.deb" -o /tmp/tenv.deb
+
+  - run:
+      name: Install tenv
+      command: |
+        sudo dpkg -i /tmp/tenv.deb
+        rm /tmp/tenv.deb
+
+  - run:
+      name: Verify tenv Installation
+      command: |
+        tenv version
+        echo "export PATH=$(tenv update-path)" >> $BASH_ENV
+
+  - run:
+      name: Setup tenv Environment
+      command: |
+        mkdir -p ~/.tenv
+        echo "tenv installation complete"
+        tenv version

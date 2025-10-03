@@ -1,0 +1,33 @@
+description: >
+  A simple job that installs tenv with optional cosign support.
+
+executor: default
+
+parameters:
+  version:
+    type: string
+    default: "latest"
+    description: Version of tenv to install
+
+  install-cosign:
+    type: boolean
+    default: true
+    description: Install cosign for signature verification
+
+  github-token:
+    type: env_var_name
+    default: GITHUB_TOKEN
+    description: GitHub token environment variable name
+
+steps:
+  - checkout
+  - install:
+      version: << parameters.version >>
+      install-cosign: << parameters.install-cosign >>
+      github-token: << parameters.github-token >>
+  - run:
+      name: Display tenv Information
+      command: |
+        tenv version
+        echo "tenv is ready to use!"
+
