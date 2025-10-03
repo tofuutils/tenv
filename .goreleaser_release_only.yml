@@ -80,7 +80,7 @@ aurs:
       install -Dm 0755 "tenv" "${pkgdir}/usr/bin/tenv"
       install -Dm 0755 "terraform" "${pkgdir}/usr/bin/terraform"
       install -Dm 0755 "terragrunt" "${pkgdir}/usr/bin/terragrunt"
-      install -Dm 0755 "terragrunt" "${pkgdir}/usr/bin/terramate"
+      install -Dm 0755 "terramate" "${pkgdir}/usr/bin/terramate"
       install -Dm 0755 "tf" "${pkgdir}/usr/bin/tf"
       install -Dm 0755 "tofu" "${pkgdir}/usr/bin/tofu"
 
