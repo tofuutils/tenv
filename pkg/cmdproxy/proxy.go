@@ -88,7 +88,7 @@ func initIO(cmd *exec.Cmd, pExitCode *int, gha bool, getenv configutils.GetenvFu
 	outputPath := getenv(envname.GithubOutput)
 	outputFile, err := os.OpenFile(outputPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, fileperm.RW)
 	if err != nil {
-		fmt.Println("Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT :", err) //nolint
+		fmt.Fprintf(os.Stderr, "Ignore GITHUB_ACTIONS, fail to open GITHUB_OUTPUT: %v\n", err) //nolint
 
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
