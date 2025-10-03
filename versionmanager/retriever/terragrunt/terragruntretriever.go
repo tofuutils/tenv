@@ -27,7 +27,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"

@@ -30,6 +30,7 @@ import (
 )
 
 func TestUnzipToDir(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		setupZip    func() []byte
@@ -75,22 +76,21 @@ func TestUnzipToDir(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for testing
-			tempDir, err := os.MkdirTemp("", "zip_test")
-			require.NoError(t, err)
-			defer os.RemoveAll(tempDir)
+			tempDir := t.TempDir()
 
 			// Create test zip data
-			data := tt.setupZip()
+			data := testCase.setupZip()
 
 			// Test the function
-			err = UnzipToDir(data, tempDir, tt.filter)
+			err := UnzipToDir(data, tempDir, testCase.filter)
 
-			if tt.expectedErr != nil {
-				assert.Error(t, err)
-				assert.Equal(t, tt.expectedErr, err)
+			if testCase.expectedErr != nil {
+				require.Error(t, err)
+				assert.Equal(t, testCase.expectedErr, err)
 			} else {
 				// For cases where we expect no specific error
 				// The actual error will depend on the implementation details
@@ -101,10 +101,9 @@ func TestUnzipToDir(t *testing.T) {
 }
 
 func TestUnzipToDirCreatesFiles(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "zip_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create test zip data
 	testFiles := []testZipFile{
@@ -116,22 +115,21 @@ func TestUnzipToDirCreatesFiles(t *testing.T) {
 	data := createTestZip(testFiles)
 
 	// Test the function
-	err = UnzipToDir(data, tempDir, func(string) bool { return true })
-	assert.NoError(t, err)
+	err := UnzipToDir(data, tempDir, func(string) bool { return true })
+	require.NoError(t, err)
 
 	// Verify files were created
 	for _, file := range testFiles {
 		expectedPath := filepath.Join(tempDir, file.name)
 		_, err := os.Stat(expectedPath)
-		assert.NoError(t, err, "File %s should be created", file.name)
+		require.NoError(t, err, "File %s should be created", file.name)
 	}
 }
 
 func TestUnzipToDirWithFilter(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "zip_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create test zip data
 	testFiles := []testZipFile{
@@ -144,26 +142,26 @@ func TestUnzipToDirWithFilter(t *testing.T) {
 	// Filter that only includes files with "include" in the name
 	filter := func(name string) bool {
 		base := filepath.Base(name)
+
 		return len(base) > 0 && base[0] == 'i'
 	}
 
 	// Test the function
-	err = UnzipToDir(data, tempDir, filter)
-	assert.NoError(t, err)
+	err := UnzipToDir(data, tempDir, filter)
+	require.NoError(t, err)
 
 	// Verify only included file was created
 	_, err = os.Stat(filepath.Join(tempDir, "include.txt"))
-	assert.NoError(t, err, "Included file should be created")
+	require.NoError(t, err, "Included file should be created")
 
 	_, err = os.Stat(filepath.Join(tempDir, "exclude.txt"))
 	assert.True(t, os.IsNotExist(err), "Excluded file should not be created")
 }
 
 func TestUnzipToDirCreatesDirectories(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "zip_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create test zip data with directories
 	testFiles := []testZipFile{
@@ -174,18 +172,18 @@ func TestUnzipToDirCreatesDirectories(t *testing.T) {
 	data := createTestZip(testFiles)
 
 	// Test the function
-	err = UnzipToDir(data, tempDir, func(string) bool { return true })
-	assert.NoError(t, err)
+	err := UnzipToDir(data, tempDir, func(string) bool { return true })
+	require.NoError(t, err)
 
 	// Verify directories were created
 	_, err = os.Stat(filepath.Join(tempDir, "dir1"))
-	assert.NoError(t, err, "Directory dir1 should be created")
+	require.NoError(t, err, "Directory dir1 should be created")
 
 	_, err = os.Stat(filepath.Join(tempDir, "dir2", "subdir"))
-	assert.NoError(t, err, "Nested directory should be created")
+	require.NoError(t, err, "Nested directory should be created")
 }
 
-// Helper function to create test zip data
+// Helper function to create test zip data.
 func createTestZip(files []testZipFile) []byte {
 	var buf bytes.Buffer
 	zipWriter := zip.NewWriter(&buf)
@@ -203,20 +201,20 @@ func createTestZip(files []testZipFile) []byte {
 	}
 
 	zipWriter.Close()
+
 	return buf.Bytes()
 }
 
-// Helper struct for test zip files
+// Helper struct for test zip files.
 type testZipFile struct {
 	name    string
 	content string
 }
 
 func TestUnzipToDirWithPathTraversal(t *testing.T) {
+	t.Parallel()
 	// Test path traversal protection
-	tempDir, err := os.MkdirTemp("", "zip_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create zip with path traversal attempt
 	var buf bytes.Buffer
@@ -232,25 +230,23 @@ func TestUnzipToDirWithPathTraversal(t *testing.T) {
 
 	// Test the function - should fail due to path traversal protection
 	err = UnzipToDir(buf.Bytes(), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail due to path traversal protection")
+	require.Error(t, err, "Should fail due to path traversal protection")
 }
 
 func TestUnzipToDirWithCorruptZip(t *testing.T) {
+	t.Parallel()
 	// Test corrupt zip data
-	tempDir, err := os.MkdirTemp("", "zip_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Test with invalid zip data
-	err = UnzipToDir([]byte("not zip data"), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail with invalid zip data")
+	err := UnzipToDir([]byte("not zip data"), tempDir, func(string) bool { return true })
+	require.Error(t, err, "Should fail with invalid zip data")
 }
 
 func TestUnzipToDirWithLargeFile(t *testing.T) {
+	t.Parallel()
 	// Test with a file that's too large (would exceed limitedcopy limits)
-	tempDir, err := os.MkdirTemp("", "zip_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	var buf bytes.Buffer
 	zipWriter := zip.NewWriter(&buf)
@@ -270,6 +266,6 @@ func TestUnzipToDirWithLargeFile(t *testing.T) {
 
 	// Test the function - should fail due to file size limit
 	err = UnzipToDir(buf.Bytes(), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail due to file size limit")
+	require.Error(t, err, "Should fail due to file size limit")
 	assert.Contains(t, err.Error(), "file too big")
 }

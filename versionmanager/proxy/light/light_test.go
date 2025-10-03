@@ -26,7 +26,12 @@ import (
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 )
 
+const (
+	testExecName = "terraform"
+)
+
 func TestExitWithErrorMsg(t *testing.T) {
+	t.Parallel()
 	// This test is tricky because exitWithErrorMsg calls os.Exit
 	// We can test it by checking the output, but we need to be careful
 	// about the os.Exit call
@@ -36,18 +41,20 @@ func TestExitWithErrorMsg(t *testing.T) {
 	// instead of calling os.Exit directly
 
 	t.Run("function signature", func(t *testing.T) {
+		t.Parallel()
 		// Test that the function accepts the expected parameters
-		execName := "terraform"
+		execName := testExecName
 		err := assert.AnError
 
 		// We can't actually call this function in tests because it calls os.Exit
 		// This test just verifies the function signature is correct
-		assert.Equal(t, "terraform", execName)
-		assert.NotNil(t, err)
+		assert.Equal(t, testExecName, execName)
+		assert.Error(t, err)
 	})
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	// Test that the constants used in the package are accessible
 	assert.Equal(t, "call", cmdconst.CallSubCmd)
 	assert.Equal(t, "tenv", cmdconst.TenvName)
@@ -55,10 +62,12 @@ func TestConstants(t *testing.T) {
 }
 
 func TestExecFunctionStructure(t *testing.T) {
+	t.Parallel()
 	// Test that the Exec function exists and has the correct signature
 	// We can't actually call it because it would try to execute commands
 
 	t.Run("function exists", func(t *testing.T) {
+		t.Parallel()
 		// This test verifies that the Exec function is available
 		// and can be referenced (but not called in tests)
 		execFunc := Exec
@@ -66,19 +75,22 @@ func TestExecFunctionStructure(t *testing.T) {
 	})
 
 	t.Run("parameter validation", func(t *testing.T) {
+		t.Parallel()
 		// Test that we can pass the expected parameter type
-		execName := "terraform"
-		assert.Equal(t, "terraform", execName)
+		execName := testExecName
+		assert.Equal(t, testExecName, execName)
 	})
 }
 
 func TestCommandArgsConstruction(t *testing.T) {
+	t.Parallel()
 	// Test the logic for constructing command arguments
 	// This tests the internal logic without calling the actual Exec function
 
 	t.Run("command args structure", func(t *testing.T) {
+		t.Parallel()
 		// Simulate the argument construction logic from Exec function
-		execName := "terraform"
+		execName := testExecName
 		originalArgs := []string{"arg1", "arg2", "arg3"}
 
 		// Simulate the logic from Exec function
@@ -87,11 +99,12 @@ func TestCommandArgsConstruction(t *testing.T) {
 		cmdArgs[1] = execName
 		copy(cmdArgs[2:], originalArgs)
 
-		expected := []string{"call", "terraform", "arg1", "arg2", "arg3"}
+		expected := []string{"call", testExecName, "arg1", "arg2", "arg3"}
 		assert.Equal(t, expected, cmdArgs)
 	})
 
 	t.Run("empty args", func(t *testing.T) {
+		t.Parallel()
 		execName := "tofu"
 		originalArgs := []string{}
 
@@ -106,21 +119,25 @@ func TestCommandArgsConstruction(t *testing.T) {
 }
 
 func TestEnvironmentSetup(t *testing.T) {
+	t.Parallel()
 	// Test that the standard I/O streams are available
 	// This tests the setup that would be used in the Exec function
 
 	t.Run("stdio streams", func(t *testing.T) {
+		t.Parallel()
 		assert.NotNil(t, os.Stderr)
 		assert.NotNil(t, os.Stdin)
 		assert.NotNil(t, os.Stdout)
 	})
 
 	t.Run("command name constant", func(t *testing.T) {
+		t.Parallel()
 		assert.Equal(t, "tenv", cmdconst.TenvName)
 	})
 }
 
 func TestTransmitSignalFunction(t *testing.T) {
+	t.Parallel()
 	// Test that transmitSignal function exists and has correct signature
 	// This function is platform-specific and handles signal transmission
 	assert.NotNil(t, transmitSignal, "transmitSignal function should be available")

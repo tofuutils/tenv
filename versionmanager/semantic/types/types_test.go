@@ -23,12 +23,12 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/assert"
-
+	"github.com/stretchr/testify/require"
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
-// Mock implementation of ConstraintInfo interface for testing
+// Mock implementation of ConstraintInfo interface for testing.
 type mockConstraintInfo struct {
 	constraint string
 }
@@ -38,6 +38,8 @@ func (m *mockConstraintInfo) ReadDefaultConstraint() string {
 }
 
 func TestConstraintInfoInterface(t *testing.T) {
+	t.Parallel()
+
 	// Test that the interface is properly defined
 	var _ ConstraintInfo = (*mockConstraintInfo)(nil)
 
@@ -64,19 +66,19 @@ func TestConstraintInfoInterface(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mock := &mockConstraintInfo{constraint: tt.constraint}
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			mock := &mockConstraintInfo{constraint: testCase.constraint}
 			result := mock.ReadDefaultConstraint()
-			assert.Equal(t, tt.expected, result)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 }
 
 func TestDisplayDetectionInfo(t *testing.T) {
-	// Create a mock displayer that captures the output
-	var capturedMessage string
-	mockDisplayer := &mockDisplayer{capture: &capturedMessage}
+	t.Parallel()
 
 	tests := []struct {
 		name     string
@@ -110,27 +112,32 @@ func TestDisplayDetectionInfo(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Reset captured message
-			capturedMessage = ""
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			// Create a mock displayer that captures the output
+			var capturedMessage string
+			mockDisplayer := &mockDisplayer{capture: &capturedMessage}
 
 			// Test DisplayDetectionInfo
-			result := DisplayDetectionInfo(mockDisplayer, tt.version, tt.source)
+			result := DisplayDetectionInfo(mockDisplayer, testCase.version, testCase.source)
 
 			// Verify the returned version
-			assert.Equal(t, tt.expected, result)
+			assert.Equal(t, testCase.expected, result)
 
 			// Verify the display message was called
 			assert.NotEmpty(t, capturedMessage)
 			assert.Contains(t, capturedMessage, "Resolved version from")
-			assert.Contains(t, capturedMessage, tt.source)
-			assert.Contains(t, capturedMessage, tt.version)
+			assert.Contains(t, capturedMessage, testCase.source)
+			assert.Contains(t, capturedMessage, testCase.version)
 		})
 	}
 }
 
 func TestPredicateInfo(t *testing.T) {
+	t.Parallel()
+
 	// Test PredicateInfo struct
 	tests := []struct {
 		name         string
@@ -177,24 +184,28 @@ func TestPredicateInfo(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			predicateInfo := PredicateInfo{
-				Predicate:    tt.predicate,
-				ReverseOrder: tt.reverseOrder,
+				Predicate:    testCase.predicate,
+				ReverseOrder: testCase.reverseOrder,
 			}
 
 			// Test that the predicate works
-			result := predicateInfo.Predicate(tt.testVersion)
-			assert.Equal(t, tt.expected, result)
+			result := predicateInfo.Predicate(testCase.testVersion)
+			assert.Equal(t, testCase.expected, result)
 
 			// Test that the reverse order flag is set correctly
-			assert.Equal(t, tt.reverseOrder, predicateInfo.ReverseOrder)
+			assert.Equal(t, testCase.reverseOrder, predicateInfo.ReverseOrder)
 		})
 	}
 }
 
 func TestVersionFile(t *testing.T) {
+	t.Parallel()
+
 	// Test VersionFile struct
 	tests := []struct {
 		name     string
@@ -224,15 +235,17 @@ func TestVersionFile(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			versionFile := VersionFile{
-				Name:   tt.fileName,
-				Parser: tt.parser,
+				Name:   testCase.fileName,
+				Parser: testCase.parser,
 			}
 
 			// Test that the name is set correctly
-			assert.Equal(t, tt.fileName, versionFile.Name)
+			assert.Equal(t, testCase.fileName, versionFile.Name)
 
 			// Test that the parser is set correctly
 			assert.NotNil(t, versionFile.Parser)
@@ -242,13 +255,15 @@ func TestVersionFile(t *testing.T) {
 				Displayer: loghelper.InertDisplayer,
 			}
 			version, err := versionFile.Parser("test-file", mockConfig)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotEmpty(t, version)
 		})
 	}
 }
 
 func TestVersionFileWithNilParser(t *testing.T) {
+	t.Parallel()
+
 	// Test VersionFile with nil parser
 	versionFile := VersionFile{
 		Name:   ".test-version",
@@ -260,7 +275,7 @@ func TestVersionFileWithNilParser(t *testing.T) {
 	assert.Nil(t, versionFile.Parser)
 }
 
-// mockDisplayer is a mock implementation of loghelper.Displayer for testing
+// mockDisplayer is a mock implementation of loghelper.Displayer for testing.
 type mockDisplayer struct {
 	capture *string
 }

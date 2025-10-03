@@ -37,6 +37,7 @@ func TestGetenvFunc_Bool(t *testing.T) {
 			"ZERO_VAR":  "0",
 			"EMPTY_VAR": "",
 		}
+
 		return envMap[key]
 	}
 
@@ -58,10 +59,12 @@ func TestGetenvFunc_Bool(t *testing.T) {
 		{"invalid bool uses default", "INVALID_VAR", false, false, false},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := getenvFunc.Bool(tt.defaultVal, tt.key)
-			if tt.expectError {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := getenvFunc.Bool(testCase.defaultVal, testCase.key)
+			if testCase.expectError {
 				if err == nil {
 					t.Errorf("Expected error but got none")
 				}
@@ -69,8 +72,8 @@ func TestGetenvFunc_Bool(t *testing.T) {
 				if err != nil {
 					t.Errorf("Unexpected error: %v", err)
 				}
-				if result != tt.expected {
-					t.Errorf("Bool() = %v, want %v", result, tt.expected)
+				if result != testCase.expected {
+					t.Errorf("Bool() = %v, want %v", result, testCase.expected)
 				}
 			}
 		})
@@ -86,6 +89,7 @@ func TestGetenvFunc_BoolFallback(t *testing.T) {
 			"SECOND_VAR": "false",
 			"THIRD_VAR":  "1",
 		}
+
 		return envMap[key]
 	}
 
@@ -105,10 +109,12 @@ func TestGetenvFunc_BoolFallback(t *testing.T) {
 		{"empty keys slice uses default", []string{}, false, false, false},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := getenvFunc.BoolFallback(tt.defaultVal, tt.keys...)
-			if tt.expectError {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := getenvFunc.BoolFallback(testCase.defaultVal, testCase.keys...)
+			if testCase.expectError {
 				if err == nil {
 					t.Errorf("Expected error but got none")
 				}
@@ -116,8 +122,8 @@ func TestGetenvFunc_BoolFallback(t *testing.T) {
 				if err != nil {
 					t.Errorf("Unexpected error: %v", err)
 				}
-				if result != tt.expected {
-					t.Errorf("BoolFallback() = %v, want %v", result, tt.expected)
+				if result != testCase.expected {
+					t.Errorf("BoolFallback() = %v, want %v", result, testCase.expected)
 				}
 			}
 		})
@@ -133,6 +139,7 @@ func TestGetenvFunc_Fallback(t *testing.T) {
 			"SECOND_VAR": "second_value",
 			"EMPTY_VAR":  "",
 		}
+
 		return envMap[key]
 	}
 
@@ -151,11 +158,13 @@ func TestGetenvFunc_Fallback(t *testing.T) {
 		{"empty value skipped", []string{"EMPTY_VAR", "FIRST_VAR"}, "first_value"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := getenvFunc.Fallback(tt.keys...)
-			if result != tt.expected {
-				t.Errorf("Fallback() = %q, want %q", result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := getenvFunc.Fallback(testCase.keys...)
+			if result != testCase.expected {
+				t.Errorf("Fallback() = %q, want %q", result, testCase.expected)
 			}
 		})
 	}
@@ -170,6 +179,7 @@ func TestGetenvFunc_Present(t *testing.T) {
 			"EMPTY_VAR":      "",
 			"WHITESPACE_VAR": "   ",
 		}
+
 		return envMap[key]
 	}
 
@@ -186,11 +196,13 @@ func TestGetenvFunc_Present(t *testing.T) {
 		{"non-existent not present", "NON_EXISTENT", false},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := getenvFunc.Present(tt.key)
-			if result != tt.expected {
-				t.Errorf("Present() = %v, want %v", result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := getenvFunc.Present(testCase.key)
+			if result != testCase.expected {
+				t.Errorf("Present() = %v, want %v", result, testCase.expected)
 			}
 		})
 	}
@@ -205,6 +217,7 @@ func TestGetenvFunc_WithDefault(t *testing.T) {
 			"EMPTY_VAR":      "",
 			"WHITESPACE_VAR": "   ",
 		}
+
 		return envMap[key]
 	}
 
@@ -223,17 +236,19 @@ func TestGetenvFunc_WithDefault(t *testing.T) {
 		{"empty default", "NON_EXISTENT", "", ""},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := getenvFunc.WithDefault(tt.defaultValue, tt.key)
-			if result != tt.expected {
-				t.Errorf("WithDefault() = %q, want %q", result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := getenvFunc.WithDefault(testCase.defaultValue, testCase.key)
+			if result != testCase.expected {
+				t.Errorf("WithDefault() = %q, want %q", result, testCase.expected)
 			}
 		})
 	}
 }
 
-// Test error cases for strconv.ParseBool
+// Test error cases for strconv.ParseBool.
 func TestGetenvFunc_Bool_ErrorHandling(t *testing.T) {
 	t.Parallel()
 

@@ -134,11 +134,13 @@ func TestConcat(t *testing.T) {
 		{"mixed empty and non-empty", []string{"", "hello", ""}, "hello"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := loghelper.Concat(tt.parts...)
-			if result != tt.expected {
-				t.Errorf("Concat() = %q, want %q", result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := loghelper.Concat(testCase.parts...)
+			if result != testCase.expected {
+				t.Errorf("Concat() = %q, want %q", result, testCase.expected)
 			}
 		})
 	}
@@ -156,11 +158,13 @@ func TestLevelWarnOrDebug(t *testing.T) {
 		{"debug false", false, hclog.Warn},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := loghelper.LevelWarnOrDebug(tt.debug)
-			if result != tt.expected {
-				t.Errorf("LevelWarnOrDebug() = %v, want %v", result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := loghelper.LevelWarnOrDebug(testCase.debug)
+			if result != testCase.expected {
+				t.Errorf("LevelWarnOrDebug() = %v, want %v", result, testCase.expected)
 			}
 		})
 	}
@@ -206,7 +210,7 @@ func TestStateWrapper_Flush(t *testing.T) {
 	wrapper.Flush(false)
 }
 
-// Mock Displayer implementation for testing
+// Mock Displayer implementation for testing.
 type mockDisplayer struct {
 	displayFunc func(string)
 	logFunc     func(hclog.Level, string, ...any)
@@ -236,6 +240,8 @@ func (m *mockDisplayer) Flush(logMode bool) {
 }
 
 func TestDisplayerInterfaceMethods(t *testing.T) {
+	t.Parallel()
+
 	// Test that the Displayer interface methods are properly defined
 	var displayer loghelper.Displayer = loghelper.InertDisplayer
 
@@ -253,6 +259,8 @@ func TestDisplayerInterfaceMethods(t *testing.T) {
 }
 
 func TestBasicDisplayerMethods(t *testing.T) {
+	t.Parallel()
+
 	// Test BasicDisplayer methods specifically
 	logger := hclog.NewNullLogger()
 	var output strings.Builder
@@ -276,6 +284,8 @@ func TestBasicDisplayerMethods(t *testing.T) {
 }
 
 func TestInertDisplayerMethods(t *testing.T) {
+	t.Parallel()
+
 	// Test inertDisplayer methods specifically
 	displayer := loghelper.InertDisplayer
 

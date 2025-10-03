@@ -31,6 +31,7 @@ import (
 )
 
 func TestUntarToDir(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		setupTarGz  func() []byte
@@ -41,8 +42,8 @@ func TestUntarToDir(t *testing.T) {
 			name: "valid tar.gz with files",
 			setupTarGz: func() []byte {
 				return createTestTarGz([]testFile{
-					{"test.txt", "test content", 0644},
-					{"subdir/file.txt", "nested content", 0644},
+					{"test.txt", "test content", 0o644},
+					{"subdir/file.txt", "nested content", 0o644},
 				})
 			},
 			filter:      func(string) bool { return true },
@@ -60,7 +61,7 @@ func TestUntarToDir(t *testing.T) {
 			name: "filter excludes all files",
 			setupTarGz: func() []byte {
 				return createTestTarGz([]testFile{
-					{"test.txt", "test content", 0644},
+					{"test.txt", "test content", 0o644},
 				})
 			},
 			filter:      func(string) bool { return false },
@@ -76,22 +77,21 @@ func TestUntarToDir(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for testing
-			tempDir, err := os.MkdirTemp("", "targz_test")
-			require.NoError(t, err)
-			defer os.RemoveAll(tempDir)
+			tempDir := t.TempDir()
 
 			// Create test tar.gz data
-			data := tt.setupTarGz()
+			data := testCase.setupTarGz()
 
 			// Test the function
-			err = UntarToDir(data, tempDir, tt.filter)
+			err := UntarToDir(data, tempDir, testCase.filter)
 
-			if tt.expectedErr != nil {
-				assert.Error(t, err)
-				assert.Equal(t, tt.expectedErr, err)
+			if testCase.expectedErr != nil {
+				require.Error(t, err)
+				assert.Equal(t, testCase.expectedErr, err)
 			} else {
 				// For cases where we expect no specific error
 				// The actual error will depend on the implementation details
@@ -102,42 +102,40 @@ func TestUntarToDir(t *testing.T) {
 }
 
 func TestUntarToDirCreatesFiles(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create test tar.gz data
 	testFiles := []testFile{
-		{"file1.txt", "content1", 0644},
-		{"file2.txt", "content2", 0644},
-		{"subdir/file3.txt", "content3", 0644},
+		{"file1.txt", "content1", 0o644},
+		{"file2.txt", "content2", 0o644},
+		{"subdir/file3.txt", "content3", 0o644},
 	}
 
 	data := createTestTarGz(testFiles)
 
 	// Test the function
-	err = UntarToDir(data, tempDir, func(string) bool { return true })
-	assert.NoError(t, err)
+	err := UntarToDir(data, tempDir, func(string) bool { return true })
+	require.NoError(t, err)
 
 	// Verify files were created
 	for _, file := range testFiles {
 		expectedPath := filepath.Join(tempDir, file.name)
 		_, err := os.Stat(expectedPath)
-		assert.NoError(t, err, "File %s should be created", file.name)
+		require.NoError(t, err, "File %s should be created", file.name)
 	}
 }
 
 func TestUntarToDirWithFilter(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create test tar.gz data
 	testFiles := []testFile{
-		{"include.txt", "included", 0644},
-		{"exclude.txt", "excluded", 0644},
+		{"include.txt", "included", 0o644},
+		{"exclude.txt", "excluded", 0o644},
 	}
 
 	data := createTestTarGz(testFiles)
@@ -148,78 +146,77 @@ func TestUntarToDirWithFilter(t *testing.T) {
 	}
 
 	// Test the function
-	err = UntarToDir(data, tempDir, filter)
-	assert.NoError(t, err)
+	err := UntarToDir(data, tempDir, filter)
+	require.NoError(t, err)
 
 	// Verify only included file was created
 	_, err = os.Stat(filepath.Join(tempDir, "include.txt"))
-	assert.NoError(t, err, "Included file should be created")
+	require.NoError(t, err, "Included file should be created")
 
 	_, err = os.Stat(filepath.Join(tempDir, "exclude.txt"))
 	assert.True(t, os.IsNotExist(err), "Excluded file should not be created")
 }
 
 func TestUntarToDirCreatesDirectories(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create test tar.gz data with directories
 	testFiles := []testFile{
-		{"dir1/file.txt", "content", 0644},
-		{"dir2/subdir/file.txt", "nested content", 0644},
+		{"dir1/file.txt", "content", 0o644},
+		{"dir2/subdir/file.txt", "nested content", 0o644},
 	}
 
 	data := createTestTarGz(testFiles)
 
 	// Test the function
-	err = UntarToDir(data, tempDir, func(string) bool { return true })
-	assert.NoError(t, err)
+	err := UntarToDir(data, tempDir, func(string) bool { return true })
+	require.NoError(t, err)
 
 	// Verify directories were created
 	_, err = os.Stat(filepath.Join(tempDir, "dir1"))
-	assert.NoError(t, err, "Directory dir1 should be created")
+	require.NoError(t, err, "Directory dir1 should be created")
 
 	_, err = os.Stat(filepath.Join(tempDir, "dir2", "subdir"))
-	assert.NoError(t, err, "Nested directory should be created")
+	require.NoError(t, err, "Nested directory should be created")
 }
 
-// Helper function to create test tar.gz data
+// Helper function to create test tar.gz data.
 func createTestTarGz(files []testFile) []byte {
 	var buf bytes.Buffer
-	gw := gzip.NewWriter(&buf)
-	tw := tar.NewWriter(gw)
+	gzipWriter := gzip.NewWriter(&buf)
+	tarWriter := tar.NewWriter(gzipWriter)
 
 	for _, file := range files {
 		// Create tar header
 		header := &tar.Header{
 			Name: file.name,
 			Size: int64(len(file.content)),
-			Mode: int64(file.mode),
+			Mode: file.mode,
 		}
 
 		// Write header
-		err := tw.WriteHeader(header)
+		err := tarWriter.WriteHeader(header)
 		if err != nil {
 			panic(err)
 		}
 
 		// Write file content
-		_, err = tw.Write([]byte(file.content))
+		_, err = tarWriter.Write([]byte(file.content))
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	// Close writers
-	tw.Close()
-	gw.Close()
+	tarWriter.Close()
+	gzipWriter.Close()
 
 	return buf.Bytes()
 }
 
-// Helper struct for test files
+// Helper struct for test files.
 type testFile struct {
 	name    string
 	content string
@@ -227,119 +224,114 @@ type testFile struct {
 }
 
 func TestUntarToDirWithPathTraversal(t *testing.T) {
+	t.Parallel()
 	// Test path traversal protection
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create tar.gz with path traversal attempt
 	var buf bytes.Buffer
-	gw := gzip.NewWriter(&buf)
-	tw := tar.NewWriter(gw)
+	gzipWriter := gzip.NewWriter(&buf)
+	tarWriter := tar.NewWriter(gzipWriter)
 
 	// Add a file with path traversal
 	header := &tar.Header{
 		Name: "../../../outside.txt",
 		Size: 4,
-		Mode: 0644,
+		Mode: 0o644,
 	}
 
-	err = tw.WriteHeader(header)
+	err := tarWriter.WriteHeader(header)
 	require.NoError(t, err)
-	_, err = tw.Write([]byte("test"))
+	_, err = tarWriter.Write([]byte("test"))
 	require.NoError(t, err)
 
-	tw.Close()
-	gw.Close()
+	tarWriter.Close()
+	gzipWriter.Close()
 
 	// Test the function - should fail due to path traversal protection
 	err = UntarToDir(buf.Bytes(), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail due to path traversal protection")
+	require.Error(t, err, "Should fail due to path traversal protection")
 }
 
 func TestUntarToDirWithUnknownType(t *testing.T) {
+	t.Parallel()
 	// Test unknown tar type
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create tar.gz with unknown type
 	var buf bytes.Buffer
-	gw := gzip.NewWriter(&buf)
-	tw := tar.NewWriter(gw)
+	gzipWriter := gzip.NewWriter(&buf)
+	tarWriter := tar.NewWriter(gzipWriter)
 
 	// Add a file with unknown type
 	header := &tar.Header{
 		Name:     "unknown.txt",
 		Size:     4,
-		Mode:     0644,
+		Mode:     0o644,
 		Typeflag: 99, // Unknown type
 	}
 
-	err = tw.WriteHeader(header)
+	err := tarWriter.WriteHeader(header)
 	require.NoError(t, err)
-	_, err = tw.Write([]byte("test"))
+	_, err = tarWriter.Write([]byte("test"))
 	require.NoError(t, err)
 
-	tw.Close()
-	gw.Close()
+	tarWriter.Close()
+	gzipWriter.Close()
 
 	// Test the function - should fail due to unknown type
 	err = UntarToDir(buf.Bytes(), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail due to unknown tar type")
+	require.Error(t, err, "Should fail due to unknown tar type")
 	assert.Contains(t, err.Error(), "unknown type during tar extraction")
 }
 
 func TestUntarToDirWithCorruptGzip(t *testing.T) {
+	t.Parallel()
 	// Test corrupt gzip data
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Test with invalid gzip data
-	err = UntarToDir([]byte("not gzip data"), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail with invalid gzip data")
+	err := UntarToDir([]byte("not gzip data"), tempDir, func(string) bool { return true })
+	require.Error(t, err, "Should fail with invalid gzip data")
 }
 
 func TestUntarToDirWithSymlink(t *testing.T) {
+	t.Parallel()
 	// Test symlink handling (should be treated as unknown type)
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	var buf bytes.Buffer
-	gw := gzip.NewWriter(&buf)
-	tw := tar.NewWriter(gw)
+	gzipWriter := gzip.NewWriter(&buf)
+	tarWriter := tar.NewWriter(gzipWriter)
 
 	// Add a symlink
 	header := &tar.Header{
 		Name:     "symlink.txt",
 		Linkname: "target.txt",
-		Mode:     0644,
+		Mode:     0o644,
 		Typeflag: tar.TypeSymlink,
 	}
 
-	err = tw.WriteHeader(header)
+	err := tarWriter.WriteHeader(header)
 	require.NoError(t, err)
 
-	tw.Close()
-	gw.Close()
+	tarWriter.Close()
+	gzipWriter.Close()
 
 	// Test the function - should fail due to symlink type
 	err = UntarToDir(buf.Bytes(), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail due to symlink type")
+	require.Error(t, err, "Should fail due to symlink type")
 	assert.Contains(t, err.Error(), "unknown type during tar extraction")
 }
 
 func TestUntarToDirWithLargeFile(t *testing.T) {
+	t.Parallel()
 	// Test with a file that's too large (would exceed limitedcopy limits)
-	tempDir, err := os.MkdirTemp("", "targz_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	var buf bytes.Buffer
-	gw := gzip.NewWriter(&buf)
-	tw := tar.NewWriter(gw)
+	gzipWriter := gzip.NewWriter(&buf)
+	tarWriter := tar.NewWriter(gzipWriter)
 
 	// Create a very large file (over 200MB limit)
 	largeContent := make([]byte, 201*1024*1024) // 201MB
@@ -350,19 +342,19 @@ func TestUntarToDirWithLargeFile(t *testing.T) {
 	header := &tar.Header{
 		Name: "large.txt",
 		Size: int64(len(largeContent)),
-		Mode: 0644,
+		Mode: 0o644,
 	}
 
-	err = tw.WriteHeader(header)
+	err := tarWriter.WriteHeader(header)
 	require.NoError(t, err)
-	_, err = tw.Write(largeContent)
+	_, err = tarWriter.Write(largeContent)
 	require.NoError(t, err)
 
-	tw.Close()
-	gw.Close()
+	tarWriter.Close()
+	gzipWriter.Close()
 
 	// Test the function - should fail due to file size limit
 	err = UntarToDir(buf.Bytes(), tempDir, func(string) bool { return true })
-	assert.Error(t, err, "Should fail due to file size limit")
+	require.Error(t, err, "Should fail due to file size limit")
 	assert.Contains(t, err.Error(), "file too big")
 }

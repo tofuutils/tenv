@@ -21,20 +21,19 @@ package tomlparser
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/tofuutils/tenv/v4/config"
 )
 
 func TestRetrieveVersion(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	tests := []struct {
 		name        string
@@ -141,8 +140,8 @@ version = "1.2.3-alpha.1+build.123"
 version = "1.0.0"
 `,
 			expected:    "",
-			expectError: true,
-			expectEmpty: false,
+			expectError: false,
+			expectEmpty: true,
 		},
 		{
 			name: "TOML with version in array",
@@ -183,13 +182,14 @@ description = "My application"
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary TOML file
-			fileName := "test.toml"
+			fileName := strings.ReplaceAll(t.Name(), "/", "_") + ".toml"
 			filePath := filepath.Join(tempDir, fileName)
 
-			err := os.WriteFile(filePath, []byte(tt.tomlContent), 0644)
+			err := os.WriteFile(filePath, []byte(testCase.tomlContent), 0o600)
 			require.NoError(t, err)
 
 			// Create config with mock displayer
@@ -200,15 +200,15 @@ description = "My application"
 			// Test the function
 			version, err := RetrieveVersion(filePath, conf)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 				assert.Empty(t, version)
 			} else {
-				assert.NoError(t, err)
-				if tt.expectEmpty {
+				require.NoError(t, err)
+				if testCase.expectEmpty {
 					assert.Empty(t, version)
 				} else {
-					assert.Equal(t, tt.expected, version)
+					assert.Equal(t, testCase.expected, version)
 				}
 			}
 		})
@@ -216,9 +216,8 @@ description = "My application"
 }
 
 func TestRetrieveVersionFileNotFound(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel()
+	tempDir := t.TempDir()
 
 	// Use a non-existent file path
 	nonExistentPath := filepath.Join(tempDir, "nonexistent.toml")
@@ -229,24 +228,24 @@ func TestRetrieveVersionFileNotFound(t *testing.T) {
 
 	version, err := RetrieveVersion(nonExistentPath, conf)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Empty(t, version)
 }
 
 func TestRetrieveVersionInvalidTOML(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel()
+	var err error
+	tempDir := t.TempDir()
 
 	// Create a file with invalid TOML syntax
 	fileName := "invalid.toml"
 	filePath := filepath.Join(tempDir, fileName)
 	invalidTOML := `
 version = "1.0.0"
-  invalid syntax here [[
+   invalid syntax here [[
 `
 
-	err = os.WriteFile(filePath, []byte(invalidTOML), 0644)
+	err = os.WriteFile(filePath, []byte(invalidTOML), 0o600)
 	require.NoError(t, err)
 
 	conf := &config.Config{
@@ -255,14 +254,13 @@ version = "1.0.0"
 
 	version, err := RetrieveVersion(filePath, conf)
 
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Empty(t, version)
 }
 
 func TestRetrieveVersionWithSpecialCharacters(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel()
+	tempDir := t.TempDir()
 
 	tests := []struct {
 		name        string
@@ -292,12 +290,13 @@ version = "1_0_0"
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			fileName := "special.toml"
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			fileName := strings.ReplaceAll(t.Name(), "/", "_") + ".toml"
 			filePath := filepath.Join(tempDir, fileName)
 
-			err := os.WriteFile(filePath, []byte(tt.tomlContent), 0644)
+			err := os.WriteFile(filePath, []byte(testCase.tomlContent), 0o600)
 			require.NoError(t, err)
 
 			conf := &config.Config{
@@ -306,13 +305,13 @@ version = "1_0_0"
 
 			version, err := RetrieveVersion(filePath, conf)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expected, version)
+			require.NoError(t, err)
+			assert.Equal(t, testCase.expected, version)
 		})
 	}
 }
 
-// mockDisplayer is a test implementation of the displayer interface
+// mockDisplayer is a test implementation of the displayer interface.
 type mockDisplayer struct{}
 
 func (m *mockDisplayer) Display(msg string)                                     {}

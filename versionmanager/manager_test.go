@@ -20,6 +20,7 @@ package versionmanager
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -27,31 +28,38 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-
+	"github.com/stretchr/testify/require"
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
-	"github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"
+	iacparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
 )
 
-// MockReleaseRetriever is a mock implementation of ReleaseRetriever
+// MockReleaseRetriever is a mock implementation of ReleaseRetriever.
 type MockReleaseRetriever struct {
 	mock.Mock
 }
 
 func (m *MockReleaseRetriever) Install(ctx context.Context, version string, targetPath string) error {
 	args := m.Called(ctx, version, targetPath)
+
 	return args.Error(0)
 }
 
 func (m *MockReleaseRetriever) ListVersions(ctx context.Context) ([]string, error) {
 	args := m.Called(ctx)
-	return args.Get(0).([]string), args.Error(1)
+	versions, ok := args.Get(0).([]string)
+	if !ok {
+		return nil, errors.New("unexpected type for versions")
+	}
+
+	return versions, args.Error(1)
 }
 
-// MockDisplayer is a mock implementation of the displayer interface
+// MockDisplayer is a mock implementation of the displayer interface.
 type MockDisplayer struct {
 	mock.Mock
+
 	messages []string
 }
 
@@ -70,6 +78,7 @@ func (m *MockDisplayer) Flush(proxyCall bool) {
 
 func (m *MockDisplayer) IsDebug() bool {
 	args := m.Called()
+
 	return args.Bool(0)
 }
 
@@ -78,6 +87,7 @@ func (m *MockDisplayer) GetMessages() []string {
 }
 
 func TestMake(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name         string
 		conf         *config.Config
@@ -100,22 +110,24 @@ func TestMake(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := Make(tt.conf, tt.envPrefix, tt.folderName, tt.iacExts, tt.retriever, tt.versionFiles)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result := Make(testCase.conf, testCase.envPrefix, testCase.folderName, testCase.iacExts, testCase.retriever, testCase.versionFiles)
 
 			assert.NotNil(t, result)
-			assert.Equal(t, tt.conf, result.Conf)
-			assert.Equal(t, EnvPrefix(tt.envPrefix), result.EnvNames)
-			assert.Equal(t, tt.folderName, result.FolderName)
-			assert.Equal(t, tt.iacExts, result.iacExts)
-			assert.Equal(t, tt.retriever, result.retriever)
-			assert.Equal(t, tt.versionFiles, result.VersionFiles)
+			assert.Equal(t, testCase.conf, result.Conf)
+			assert.Equal(t, EnvPrefix(testCase.envPrefix), result.EnvNames)
+			assert.Equal(t, testCase.folderName, result.FolderName)
+			assert.Equal(t, testCase.iacExts, result.iacExts)
+			assert.Equal(t, testCase.retriever, result.retriever)
+			assert.Equal(t, testCase.versionFiles, result.VersionFiles)
 		})
 	}
 }
 
 func TestVersionManager_InstallPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name       string
 		rootPath   string
@@ -136,15 +148,14 @@ func TestVersionManager_InstallPath(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for testing
-			tempDir, err := os.MkdirTemp("", "tenv_test")
-			assert.NoError(t, err)
-			defer os.RemoveAll(tempDir)
+			tempDir := t.TempDir()
 
 			// Override root path to use temp directory
-			originalRootPath := tt.rootPath
+			originalRootPath := testCase.rootPath
 			if originalRootPath == "/tmp" || originalRootPath == "/opt/tools" {
 				originalRootPath = tempDir
 			}
@@ -155,36 +166,34 @@ func TestVersionManager_InstallPath(t *testing.T) {
 				Displayer: displayer,
 			}
 
-			m := VersionManager{
+			manager := VersionManager{
 				Conf:       conf,
-				FolderName: tt.folderName,
+				FolderName: testCase.folderName,
 			}
 
-			result, err := m.InstallPath()
+			result, err := manager.InstallPath()
 
-			assert.NoError(t, err)
-			expectedPath := filepath.Join(originalRootPath, tt.folderName)
+			require.NoError(t, err)
+			expectedPath := filepath.Join(originalRootPath, testCase.folderName)
 			assert.Equal(t, expectedPath, result)
 
 			// Verify directory was created
 			_, err = os.Stat(result)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }
 
 func TestVersionManager_ListLocal(t *testing.T) {
-	// Create a temporary directory structure for testing
-	tempDir, err := os.MkdirTemp("", "tenv_test")
-	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel() // Create a temporary directory structure for testing
+	tempDir := t.TempDir()
 
 	// Create version directories
 	versions := []string{"1.0.0", "1.1.0", "1.2.0"}
 	for _, version := range versions {
 		versionDir := filepath.Join(tempDir, "terraform", version)
-		err := os.MkdirAll(versionDir, 0755)
-		assert.NoError(t, err)
+		err := os.MkdirAll(versionDir, 0o755)
+		require.NoError(t, err)
 	}
 
 	displayer := &MockDisplayer{}
@@ -195,14 +204,14 @@ func TestVersionManager_ListLocal(t *testing.T) {
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:       conf,
 		FolderName: "terraform",
 	}
 
-	result, err := m.ListLocal(false)
+	result, err := manager.ListLocal(false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, result, 3)
 
 	// Check that versions are sorted (should be in ascending order by default)
@@ -210,13 +219,14 @@ func TestVersionManager_ListLocal(t *testing.T) {
 	for i, expected := range expectedVersions {
 		assert.Equal(t, expected, result[i].Version)
 		// UseDate might be zero if the file doesn't exist, so we just check it's a valid time
-		assert.True(t, result[i].UseDate.Year() >= 1, "UseDate should be a valid time")
+		assert.GreaterOrEqual(t, result[i].UseDate.Year(), 1, "UseDate should be a valid time")
 	}
 
 	displayer.AssertExpectations(t)
 }
 
 func TestVersionManager_ListRemote(t *testing.T) {
+	t.Parallel()
 	mockRetriever := &MockReleaseRetriever{}
 	expectedVersions := []string{"1.5.0", "1.4.0", "1.3.0"}
 
@@ -227,31 +237,29 @@ func TestVersionManager_ListRemote(t *testing.T) {
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:      conf,
 		retriever: mockRetriever,
 	}
 
-	ctx := context.Background()
-	result, err := m.ListRemote(ctx, false)
+	ctx := t.Context()
+	result, err := manager.ListRemote(ctx, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expectedVersions, result)
 	mockRetriever.AssertExpectations(t)
 }
 
 func TestVersionManager_LocalSet(t *testing.T) {
-	// Create a temporary directory structure for testing
-	tempDir, err := os.MkdirTemp("", "tenv_test")
-	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel() // Create a temporary directory structure for testing
+	tempDir := t.TempDir()
 
 	// Create version directories
 	versions := []string{"1.0.0", "1.1.0", "1.2.0"}
 	for _, version := range versions {
 		versionDir := filepath.Join(tempDir, "terraform", version)
-		err := os.MkdirAll(versionDir, 0755)
-		assert.NoError(t, err)
+		err := os.MkdirAll(versionDir, 0o755)
+		require.NoError(t, err)
 	}
 
 	displayer := &MockDisplayer{}
@@ -260,12 +268,12 @@ func TestVersionManager_LocalSet(t *testing.T) {
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:       conf,
 		FolderName: "terraform",
 	}
 
-	result := m.LocalSet()
+	result := manager.LocalSet()
 
 	assert.NotNil(t, result)
 	assert.Len(t, result, 3)
@@ -277,6 +285,7 @@ func TestVersionManager_LocalSet(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // t.Setenv cannot be used with t.Parallel()
 func TestVersionManager_Resolve(t *testing.T) {
 	tests := []struct {
 		name             string
@@ -300,8 +309,8 @@ func TestVersionManager_Resolve(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
 			displayer := &MockDisplayer{}
 			displayer.On("Display", mock.Anything).Maybe()
 			displayer.On("Log", mock.Anything, mock.Anything, mock.Anything).Maybe()
@@ -309,33 +318,25 @@ func TestVersionManager_Resolve(t *testing.T) {
 			// Create a proper config with a mock Getenv function
 			conf := &config.Config{
 				Displayer: displayer,
-				Getenv:    func(key string) string { return os.Getenv(key) },
+				Getenv:    os.Getenv,
 			}
 
 			// Mock environment variable by setting it directly
-			if tt.envVersion != "" {
-				originalEnv := os.Getenv("TFVERSION")
-				os.Setenv("TFVERSION", tt.envVersion)
-				defer func() {
-					if originalEnv == "" {
-						os.Unsetenv("TFVERSION")
-					} else {
-						os.Setenv("TFVERSION", originalEnv)
-					}
-				}()
+			if testCase.envVersion != "" {
+				t.Setenv("TFVERSION", testCase.envVersion)
 			}
 
-			m := VersionManager{
+			manager := VersionManager{
 				Conf:         conf,
 				EnvNames:     "TF",
 				FolderName:   "terraform",
-				VersionFiles: tt.versionFiles,
+				VersionFiles: testCase.versionFiles,
 			}
 
-			result, err := m.Resolve(tt.expectedStrategy)
+			result, err := manager.Resolve(testCase.expectedStrategy)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedVersion, result)
+			require.NoError(t, err)
+			assert.Equal(t, testCase.expectedVersion, result)
 
 			displayer.AssertExpectations(t)
 		})
@@ -343,59 +344,63 @@ func TestVersionManager_Resolve(t *testing.T) {
 }
 
 func TestVersionManager_ResolveWithVersionFiles(t *testing.T) {
+	t.Parallel()
 	displayer := &MockDisplayer{}
 	conf := &config.Config{
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf: conf,
 	}
 
-	result, err := m.ResolveWithVersionFiles()
+	result, err := manager.ResolveWithVersionFiles()
 
 	// This should not error, but may return empty string if no version files
-	assert.NoError(t, err)
-	assert.Equal(t, "", result) // No version files configured
+	require.NoError(t, err)
+	assert.Empty(t, result) // No version files configured
 }
 
 func TestVersionManager_RootConstraintFilePath(t *testing.T) {
+	t.Parallel()
 	displayer := &MockDisplayer{}
 	conf := &config.Config{
 		RootPath:  "/opt/tenv",
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:       conf,
 		FolderName: "terraform",
 	}
 
-	result := m.RootConstraintFilePath()
+	result := manager.RootConstraintFilePath()
 
 	expected := filepath.Join("/opt/tenv", "terraform", "constraint")
 	assert.Equal(t, expected, result)
 }
 
 func TestVersionManager_RootVersionFilePath(t *testing.T) {
+	t.Parallel()
 	displayer := &MockDisplayer{}
 	conf := &config.Config{
 		RootPath:  "/opt/tenv",
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:       conf,
 		FolderName: "terraform",
 	}
 
-	result := m.RootVersionFilePath()
+	result := manager.RootVersionFilePath()
 
 	expected := filepath.Join("/opt/tenv", "terraform", "version")
 	assert.Equal(t, expected, result)
 }
 
 func TestVersionManager_SetConstraint(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		constraint  string
@@ -413,12 +418,11 @@ func TestVersionManager_SetConstraint(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for testing
-			tempDir, err := os.MkdirTemp("", "tenv_test")
-			assert.NoError(t, err)
-			defer os.RemoveAll(tempDir)
+			tempDir := t.TempDir()
 
 			displayer := &MockDisplayer{}
 			displayer.On("Display", mock.Anything).Maybe()
@@ -429,43 +433,42 @@ func TestVersionManager_SetConstraint(t *testing.T) {
 
 			// Create the terraform directory first
 			terraformDir := filepath.Join(tempDir, "terraform")
-			err = os.MkdirAll(terraformDir, 0755)
-			assert.NoError(t, err)
+			err := os.MkdirAll(terraformDir, 0o755)
+			require.NoError(t, err)
 
-			m := VersionManager{
+			manager := VersionManager{
 				Conf:       conf,
 				FolderName: "terraform",
 			}
 
-			err = m.SetConstraint(tt.constraint)
+			err = manager.SetConstraint(testCase.constraint)
 
-			if tt.expectError {
+			if testCase.expectError {
 				assert.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 
 				// Verify file was created with correct content
 				constraintFile := filepath.Join(tempDir, "terraform", "constraint")
 				content, err := os.ReadFile(constraintFile)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.constraint, string(content))
+				require.NoError(t, err)
+				assert.Equal(t, testCase.constraint, string(content))
 			}
 		})
 	}
 }
 
 func TestVersionManager_UninstallMultiple(t *testing.T) {
-	// Create a temporary directory structure for testing
-	tempDir, err := os.MkdirTemp("", "tenv_test")
-	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel() // Create a temporary directory structure for testing
+	tempDir := t.TempDir()
 
 	// Create version directories
 	versions := []string{"1.0.0", "1.1.0"}
+	var err error
 	for _, version := range versions {
 		versionDir := filepath.Join(tempDir, "terraform", version)
-		err := os.MkdirAll(versionDir, 0755)
-		assert.NoError(t, err)
+		err = os.MkdirAll(versionDir, 0o755)
+		require.NoError(t, err)
 	}
 
 	displayer := &MockDisplayer{}
@@ -475,14 +478,14 @@ func TestVersionManager_UninstallMultiple(t *testing.T) {
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:       conf,
 		FolderName: "terraform",
 	}
 
-	err = m.UninstallMultiple(versions)
+	err = manager.UninstallMultiple(versions)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Verify directories were removed
 	for _, version := range versions {
@@ -493,15 +496,13 @@ func TestVersionManager_UninstallMultiple(t *testing.T) {
 }
 
 func TestVersionManager_checkVersionInstallation(t *testing.T) {
-	// Create a temporary directory structure for testing
-	tempDir, err := os.MkdirTemp("", "tenv_test")
-	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel() // Create a temporary directory structure for testing
+	tempDir := t.TempDir()
 
 	// Create a version directory
 	versionDir := filepath.Join(tempDir, "terraform", "1.2.0")
-	err = os.MkdirAll(versionDir, 0755)
-	assert.NoError(t, err)
+	err := os.MkdirAll(versionDir, 0o755)
+	require.NoError(t, err)
 
 	displayer := &MockDisplayer{}
 	conf := &config.Config{
@@ -509,7 +510,7 @@ func TestVersionManager_checkVersionInstallation(t *testing.T) {
 		Displayer: displayer,
 	}
 
-	m := VersionManager{
+	manager := VersionManager{
 		Conf:       conf,
 		FolderName: "terraform",
 	}
@@ -537,36 +538,35 @@ func TestVersionManager_checkVersionInstallation(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			resultPath, resultBool, err := m.checkVersionInstallation(tt.installPath, tt.version)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			resultPath, resultBool, err := manager.checkVersionInstallation(testCase.installPath, testCase.version)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedPath, resultPath)
-			assert.Equal(t, tt.expectedBool, resultBool)
+			require.NoError(t, err)
+			assert.Equal(t, testCase.expectedPath, resultPath)
+			assert.Equal(t, testCase.expectedBool, resultBool)
 		})
 	}
 }
 
 func TestVersionManager_innerListLocal(t *testing.T) {
-	// Create a temporary directory structure for testing
-	tempDir, err := os.MkdirTemp("", "tenv_test")
-	assert.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel() // Create a temporary directory structure for testing
+	tempDir := t.TempDir()
 
 	// Create version directories
 	versions := []string{"1.0.0", "1.1.0", "1.2.0"}
 	for _, version := range versions {
 		versionDir := filepath.Join(tempDir, version)
-		err := os.MkdirAll(versionDir, 0755)
-		assert.NoError(t, err)
+		err := os.MkdirAll(versionDir, 0o755)
+		require.NoError(t, err)
 	}
 
-	m := VersionManager{}
+	manager := VersionManager{}
 
-	result, err := m.innerListLocal(tempDir, false)
+	result, err := manager.innerListLocal(tempDir, false)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Len(t, result, 3)
 
 	// Check that versions are sorted

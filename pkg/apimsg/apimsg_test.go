@@ -25,6 +25,8 @@ import (
 )
 
 func TestMessageConstants(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		constant string
@@ -54,12 +56,16 @@ func TestMessageConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert.Equal(t, tt.expected, tt.constant)
 		})
 	}
 }
 
 func TestErrorVariables(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		err      error
@@ -84,8 +90,10 @@ func TestErrorVariables(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert.Equal(t, tt.expected, tt.err.Error())
-			assert.NotNil(t, tt.err)
+			assert.Error(t, tt.err)
 		})
 	}
 }

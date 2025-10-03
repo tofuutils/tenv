@@ -27,12 +27,12 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 func TestFilterExts(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		fileExts int
@@ -92,12 +92,13 @@ func TestFilterExts(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := filterExts(tt.fileExts, tt.exts)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result := filterExts(testCase.fileExts, testCase.exts)
 			// Compare only the Value field since Parser functions have different memory addresses
-			assert.Equal(t, tt.expected.Value, result.Value, "Value should match")
-			if tt.expected.Parser != nil {
+			assert.Equal(t, testCase.expected.Value, result.Value, "Value should match")
+			if testCase.expected.Parser != nil {
 				assert.NotNil(t, result.Parser, "Parser should not be nil")
 			}
 		})
@@ -105,6 +106,7 @@ func TestFilterExts(t *testing.T) {
 }
 
 func TestExtractRequiredVersion(t *testing.T) {
+	t.Parallel()
 	// Create a mock config with inert displayer
 	conf := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -116,10 +118,10 @@ func TestExtractRequiredVersion(t *testing.T) {
 }
 
 func TestGatherRequiredVersion(t *testing.T) {
+	t.Parallel()
+	var err error
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	tests := []struct {
 		name             string
@@ -164,17 +166,18 @@ func TestGatherRequiredVersion(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a subdirectory to avoid scanning the entire tenv directory
 			testSubDir := filepath.Join(tempDir, "test")
-			err = os.MkdirAll(testSubDir, 0755)
+			err = os.MkdirAll(testSubDir, 0o755)
 			require.NoError(t, err)
 
 			// Create test files in the subdirectory
-			for filename, content := range tt.files {
+			for filename, content := range testCase.files {
 				filePath := filepath.Join(testSubDir, filename)
-				err := os.WriteFile(filePath, []byte(content), 0644)
+				err := os.WriteFile(filePath, []byte(content), 0o600)
 				require.NoError(t, err)
 			}
 
@@ -185,23 +188,22 @@ func TestGatherRequiredVersion(t *testing.T) {
 			}
 
 			// Test the function
-			versions, err := GatherRequiredVersion(conf, tt.exts)
+			versions, err := GatherRequiredVersion(conf, testCase.exts)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 				assert.Nil(t, versions)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedVersions, versions)
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expectedVersions, versions)
 			}
 		})
 	}
 }
 
 func TestGatherRequiredVersionWithNoExtensions(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel()
+	tempDir := t.TempDir()
 
 	conf := &config.Config{
 		WorkPath:  tempDir,
@@ -209,11 +211,12 @@ func TestGatherRequiredVersionWithNoExtensions(t *testing.T) {
 	}
 
 	versions, err := GatherRequiredVersion(conf, []ExtDescription{})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, versions)
 }
 
 func TestGatherRequiredVersionWithValidTerraformFiles(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name             string
 		files            map[string]string // filename -> content
@@ -299,15 +302,16 @@ func TestGatherRequiredVersionWithValidTerraformFiles(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for this test
 			tempDir := t.TempDir()
 
 			// Create test files
-			for filename, content := range tt.files {
+			for filename, content := range testCase.files {
 				filePath := filepath.Join(tempDir, filename)
-				err := os.WriteFile(filePath, []byte(content), 0644)
+				err := os.WriteFile(filePath, []byte(content), 0o600)
 				require.NoError(t, err)
 			}
 
@@ -325,6 +329,7 @@ func TestGatherRequiredVersionWithValidTerraformFiles(t *testing.T) {
 						// Parse the HCL content
 						parser := hclparse.NewParser()
 						content, _ := os.ReadFile(filename)
+
 						return parser.ParseHCL(content, filename)
 					},
 				},
@@ -333,27 +338,27 @@ func TestGatherRequiredVersionWithValidTerraformFiles(t *testing.T) {
 			// Test the function
 			versions, err := GatherRequiredVersion(conf, exts)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 				assert.Nil(t, versions)
 			} else {
-				assert.NoError(t, err)
-				assert.ElementsMatch(t, tt.expectedVersions, versions)
+				require.NoError(t, err)
+				assert.ElementsMatch(t, testCase.expectedVersions, versions)
 			}
 		})
 	}
 }
 
 func TestGatherRequiredVersionWithInvalidHCL(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	t.Parallel()
+	tempDir := t.TempDir()
+	var err error
 
 	// Create a file with invalid HCL syntax
 	filePath := filepath.Join(tempDir, "invalid.tf")
 	err = os.WriteFile(filePath, []byte(`terraform {
 		required_version = ">= 1.0.0"
-		invalid_syntax = `), 0644)
+		invalid_syntax = `), 0o600)
 	require.NoError(t, err)
 
 	conf := &config.Config{
@@ -367,6 +372,7 @@ func TestGatherRequiredVersionWithInvalidHCL(t *testing.T) {
 			Parser: func(filename string) (*hcl.File, hcl.Diagnostics) {
 				parser := hclparse.NewParser()
 				content, _ := os.ReadFile(filename)
+
 				return parser.ParseHCL(content, filename)
 			},
 		},
@@ -374,19 +380,19 @@ func TestGatherRequiredVersionWithInvalidHCL(t *testing.T) {
 
 	// Should return error due to invalid HCL
 	versions, err := GatherRequiredVersion(conf, exts)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, versions)
 }
 
 func TestGatherRequiredVersionWithMultipleExtensions(t *testing.T) {
+	t.Parallel()
 	// Create a subdirectory to avoid scanning the entire tenv directory
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
+	var err error
 
 	// Create a subdirectory for test files
 	testSubDir := filepath.Join(tempDir, "test")
-	err = os.MkdirAll(testSubDir, 0755)
+	err = os.MkdirAll(testSubDir, 0o755)
 	require.NoError(t, err)
 
 	// Create files with different extensions
@@ -404,7 +410,7 @@ func TestGatherRequiredVersionWithMultipleExtensions(t *testing.T) {
 
 	for filename, content := range files {
 		filePath := filepath.Join(testSubDir, filename)
-		err := os.WriteFile(filePath, []byte(content), 0644)
+		err := os.WriteFile(filePath, []byte(content), 0o600)
 		require.NoError(t, err)
 	}
 
@@ -420,6 +426,7 @@ func TestGatherRequiredVersionWithMultipleExtensions(t *testing.T) {
 			Parser: func(filename string) (*hcl.File, hcl.Diagnostics) {
 				parser := hclparse.NewParser()
 				content, _ := os.ReadFile(filename)
+
 				return parser.ParseHCL(content, filename)
 			},
 		},
@@ -428,17 +435,19 @@ func TestGatherRequiredVersionWithMultipleExtensions(t *testing.T) {
 			Parser: func(filename string) (*hcl.File, hcl.Diagnostics) {
 				parser := hclparse.NewParser()
 				content, _ := os.ReadFile(filename)
+
 				return parser.ParseHCL(content, filename)
 			},
 		},
 	}
 
 	versions, err := GatherRequiredVersion(conf, exts)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.ElementsMatch(t, []string{">= 1.0.0", "~> 1.5.0"}, versions)
 }
 
 func TestGatherRequiredVersionWithReadDirError(t *testing.T) {
+	t.Parallel()
 	// Test with non-existent directory
 	conf := &config.Config{
 		WorkPath:  "/non/existent/directory",
@@ -455,11 +464,12 @@ func TestGatherRequiredVersionWithReadDirError(t *testing.T) {
 	}
 
 	versions, err := GatherRequiredVersion(conf, exts)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Nil(t, versions)
 }
 
 func TestExtractRequiredVersionWithNullValue(t *testing.T) {
+	t.Parallel()
 	conf := &config.Config{
 		Displayer: loghelper.InertDisplayer,
 	}
@@ -481,6 +491,7 @@ terraform {
 }
 
 func TestExtractRequiredVersionWithComplexExpressions(t *testing.T) {
+	t.Parallel()
 	conf := &config.Config{
 		Displayer: loghelper.InertDisplayer,
 	}
@@ -502,6 +513,7 @@ terraform {
 }
 
 func TestExtractRequiredVersionWithInvalidTypeConversion(t *testing.T) {
+	t.Parallel()
 	conf := &config.Config{
 		Displayer: loghelper.InertDisplayer,
 	}
@@ -523,6 +535,7 @@ terraform {
 }
 
 func TestExtractRequiredVersionWithMultipleBlocks(t *testing.T) {
+	t.Parallel()
 	conf := &config.Config{
 		Displayer: loghelper.InertDisplayer,
 	}

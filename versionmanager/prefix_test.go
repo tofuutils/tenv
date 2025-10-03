@@ -25,6 +25,7 @@ import (
 )
 
 func TestEnvPrefixVersion(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		prefix   EnvPrefix
@@ -59,6 +60,7 @@ func TestEnvPrefixVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.prefix.Version()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -66,6 +68,7 @@ func TestEnvPrefixVersion(t *testing.T) {
 }
 
 func TestEnvPrefixConstraint(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		prefix   EnvPrefix
@@ -100,6 +103,7 @@ func TestEnvPrefixConstraint(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.prefix.constraint()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -107,6 +111,7 @@ func TestEnvPrefixConstraint(t *testing.T) {
 }
 
 func TestEnvPrefixDefaultVersion(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		prefix   EnvPrefix
@@ -141,6 +146,7 @@ func TestEnvPrefixDefaultVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := tt.prefix.defaultVersion()
 			assert.Equal(t, tt.expected, result)
 		})
@@ -148,6 +154,7 @@ func TestEnvPrefixDefaultVersion(t *testing.T) {
 }
 
 func TestEnvPrefixStringConversion(t *testing.T) {
+	t.Parallel()
 	// Test that EnvPrefix can be converted to string
 	prefix := EnvPrefix("TEST")
 	assert.Equal(t, "TEST", string(prefix))
@@ -158,6 +165,7 @@ func TestEnvPrefixStringConversion(t *testing.T) {
 }
 
 func TestEnvPrefixMethodChaining(t *testing.T) {
+	t.Parallel()
 	// Test that methods can be chained and work correctly
 	prefix := EnvPrefix("CHAIN")
 

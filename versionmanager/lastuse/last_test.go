@@ -26,18 +26,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/tofuutils/tenv/v4/config"
-	"github.com/tofuutils/tenv/v4/config/envname"
-	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 func TestRead(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create a mock config with inert displayer
 	conf := &config.Config{
@@ -71,21 +67,25 @@ func TestRead(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Create test file
-			testFile := filepath.Join(tempDir, fileName)
-			err := os.WriteFile(testFile, []byte(tt.fileContent), 0644)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			// Create unique test file for this subtest
+			testFile := filepath.Join(tempDir, testCase.name, fileName)
+			err := os.MkdirAll(filepath.Dir(testFile), 0o755)
+			require.NoError(t, err)
+			err = os.WriteFile(testFile, []byte(testCase.fileContent), 0o600)
 			require.NoError(t, err)
 
 			// Test Read function
-			result := Read(tempDir, conf)
-			assert.Equal(t, tt.expected, result)
+			result := Read(filepath.Dir(testFile), conf)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 
 	// Test with non-existent file
 	t.Run("non-existent file", func(t *testing.T) {
+		t.Parallel()
 		nonExistentDir := filepath.Join(tempDir, "non-existent")
 		result := Read(nonExistentDir, conf)
 		assert.Equal(t, time.Time{}, result)
@@ -93,10 +93,9 @@ func TestRead(t *testing.T) {
 }
 
 func TestWriteNow(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for testing
-	tempDir, err := os.MkdirTemp("", "tenv-test-*")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create a mock config with inert displayer and empty getenv function
 	mockConfig := &config.Config{
@@ -109,32 +108,25 @@ func TestWriteNow(t *testing.T) {
 
 	// Check if file was written
 	testFile := filepath.Join(tempDir, fileName)
-	_, err = os.Stat(testFile)
-	assert.NoError(t, err, "File should be written")
+	_, err := os.Stat(testFile)
+	require.NoError(t, err, "File should be written")
 
 	// Verify the file contains a valid date
 	content, readErr := os.ReadFile(testFile)
-	assert.NoError(t, readErr)
+	require.NoError(t, readErr)
 	_, parseErr := time.Parse(time.DateOnly, string(content))
-	assert.NoError(t, parseErr, "File should contain valid date")
+	require.NoError(t, parseErr, "File should contain valid date")
 
 	// Test that function can be called multiple times without error
 	WriteNow(tempDir, mockConfig)
-	assert.NoError(t, err, "Second call to WriteNow should not error")
+
+	// Verify the file still exists after second call
+	_, err = os.Stat(testFile)
+	assert.NoError(t, err, "File should still exist after second call")
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "last-use.txt", fileName)
 	assert.Equal(t, "Unable to retrieve TENV_SKIP_LAST_USE environment variable", skipLastUseErrMsg)
-}
-
-// createMockGetenvFunc creates a mock GetenvFunc for testing
-func createMockGetenvFunc(envValue string) configutils.GetenvFunc {
-	return func(key string) string {
-		if key != envname.TenvSkipLastUse {
-			return ""
-		}
-
-		return envValue
-	}
 }

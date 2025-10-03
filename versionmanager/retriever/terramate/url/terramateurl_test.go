@@ -26,6 +26,7 @@ import (
 )
 
 func TestGithubURLConstant(t *testing.T) {
+	t.Parallel()
 	// Test that the Github constant is properly constructed
 	expected := "https://api.github.com/repos/terramate-io/terramate/releases"
 	actual := Github
@@ -39,6 +40,7 @@ func TestGithubURLConstant(t *testing.T) {
 }
 
 func TestGithubURLStructure(t *testing.T) {
+	t.Parallel()
 	// Test that the URL follows the expected GitHub API pattern
 	url := Github
 
@@ -51,6 +53,6 @@ func TestGithubURLStructure(t *testing.T) {
 	assert.Contains(t, url, "terramate-io/terramate")
 
 	// Should be a complete URL
-	assert.True(t, len(url) > 20, "URL should be reasonably long")
-	assert.True(t, url[:8] == "https://", "URL should start with https://")
+	assert.Greater(t, len(url), 20, "URL should be reasonably long")
+	assert.Equal(t, "https://", url[:8], "URL should start with https://")
 }

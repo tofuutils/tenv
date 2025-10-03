@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Sanitize archive file pathing from "G305" (file traversal).
+// ArchivePath sanitizes archive file pathing from "G305" (file traversal).
 func ArchivePath(dirPath string, fileName string) (string, error) {
 	destPath := filepath.Join(dirPath, fileName)
 	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {

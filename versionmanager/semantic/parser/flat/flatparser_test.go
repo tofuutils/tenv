@@ -25,13 +25,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
 )
 
 func TestNoMsg(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		value    string
@@ -61,6 +61,7 @@ func TestNoMsg(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := NoMsg(nil, tt.value, "")
 			assert.Equal(t, tt.expected, result)
 		})
@@ -68,10 +69,9 @@ func TestNoMsg(t *testing.T) {
 }
 
 func TestRetrieve(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for test files
-	tempDir, err := os.MkdirTemp("", "flatparser_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	tests := []struct {
 		name        string
@@ -139,12 +139,13 @@ func TestRetrieve(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create the test file if it has content
-			if tt.fileContent != "" || tt.name == "empty file" || tt.name == "file with only whitespace" {
-				filePath := filepath.Join(tempDir, tt.fileName)
-				err := os.WriteFile(filePath, []byte(tt.fileContent), 0644)
+			if testCase.fileContent != "" || testCase.name == "empty file" || testCase.name == "file with only whitespace" {
+				filePath := filepath.Join(tempDir, testCase.fileName)
+				err := os.WriteFile(filePath, []byte(testCase.fileContent), 0o600)
 				require.NoError(t, err)
 			}
 
@@ -154,24 +155,23 @@ func TestRetrieve(t *testing.T) {
 			conf.InitDisplayer(false)
 
 			// Test the Retrieve function
-			filePath := filepath.Join(tempDir, tt.fileName)
-			result, err := Retrieve(filePath, &conf, tt.displayMsg)
+			filePath := filepath.Join(tempDir, testCase.fileName)
+			result, err := Retrieve(filePath, &conf, testCase.displayMsg)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expected, result)
 			}
 		})
 	}
 }
 
 func TestRetrieveVersion(t *testing.T) {
+	t.Parallel()
 	// Create a temporary directory for test files
-	tempDir, err := os.MkdirTemp("", "flatparser_version_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	tests := []struct {
 		name        string
@@ -217,12 +217,13 @@ func TestRetrieveVersion(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create the test file if it has content
-			if tt.fileContent != "" || tt.name == "empty file" {
-				filePath := filepath.Join(tempDir, tt.fileName)
-				err := os.WriteFile(filePath, []byte(tt.fileContent), 0644)
+			if testCase.fileContent != "" || testCase.name == "empty file" {
+				filePath := filepath.Join(tempDir, testCase.fileName)
+				err := os.WriteFile(filePath, []byte(testCase.fileContent), 0o600)
 				require.NoError(t, err)
 			}
 
@@ -232,20 +233,21 @@ func TestRetrieveVersion(t *testing.T) {
 			conf.InitDisplayer(false)
 
 			// Test the RetrieveVersion function
-			filePath := filepath.Join(tempDir, tt.fileName)
+			filePath := filepath.Join(tempDir, testCase.fileName)
 			result, err := RetrieveVersion(filePath, &conf)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expected, result)
 			}
 		})
 	}
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	// Test that the functions exist and are callable
 	assert.NotNil(t, NoMsg)
 	assert.NotNil(t, Retrieve)
@@ -253,16 +255,16 @@ func TestConstants(t *testing.T) {
 }
 
 func TestFileOperations(t *testing.T) {
+	t.Parallel()
+	var err error
 	// Create a temporary directory for test files
-	tempDir, err := os.MkdirTemp("", "flatparser_fileops_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Test with a file that has various edge cases
 	testFile := filepath.Join(tempDir, "test_version.txt")
 	testContent := "  v1.3.0-alpha  \n"
 
-	err = os.WriteFile(testFile, []byte(testContent), 0644)
+	err = os.WriteFile(testFile, []byte(testContent), 0o600)
 	require.NoError(t, err)
 
 	// Create a config for testing
@@ -272,16 +274,17 @@ func TestFileOperations(t *testing.T) {
 
 	// Test Retrieve with NoMsg
 	result, err := Retrieve(testFile, &conf, NoMsg)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "v1.3.0-alpha", result)
 
 	// Test RetrieveVersion (uses types.DisplayDetectionInfo internally)
 	result, err = RetrieveVersion(testFile, &conf)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "v1.3.0-alpha", result)
 }
 
 func TestErrorHandling(t *testing.T) {
+	t.Parallel()
 	// Create a config for testing
 	conf, err := config.DefaultConfig()
 	require.NoError(t, err)
@@ -289,11 +292,11 @@ func TestErrorHandling(t *testing.T) {
 
 	// Test with non-existent file
 	result, err := Retrieve("/non/existent/file", &conf, NoMsg)
-	assert.NoError(t, err)
-	assert.Equal(t, "", result)
+	require.NoError(t, err)
+	assert.Empty(t, result)
 
 	// Test RetrieveVersion with non-existent file
 	result, err = RetrieveVersion("/non/existent/file", &conf)
-	assert.NoError(t, err)
-	assert.Equal(t, "", result)
+	require.NoError(t, err)
+	assert.Empty(t, result)
 }

@@ -20,15 +20,16 @@ package github
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
 )
 
 func TestBuildAuthorizationHeader(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		token    string
@@ -53,6 +54,7 @@ func TestBuildAuthorizationHeader(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := buildAuthorizationHeader(tt.token)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -60,6 +62,7 @@ func TestBuildAuthorizationHeader(t *testing.T) {
 }
 
 func TestCheckRateLimit(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name           string
 		rateLimitValue string
@@ -87,20 +90,22 @@ func TestCheckRateLimit(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			resp := &http.Response{
 				Header: make(http.Header),
 			}
-			resp.Header.Set("X-Ratelimit-Remaining", tt.rateLimitValue)
+			resp.Header.Set("X-Ratelimit-Remaining", testCase.rateLimitValue)
 
 			err := checkRateLimit(resp)
-			assert.Equal(t, tt.expectedError, err)
+			assert.Equal(t, testCase.expectedError, err)
 		})
 	}
 }
 
 func TestExtractVersion(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		value    any
@@ -148,6 +153,7 @@ func TestExtractVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result := extractVersion(tt.value)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -155,6 +161,7 @@ func TestExtractVersion(t *testing.T) {
 }
 
 func TestExtractAssets(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name                 string
 		assets               map[string]string
@@ -264,17 +271,19 @@ func TestExtractAssets(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := extractAssets(tt.assets, tt.searchedAssetNameSet, tt.waited, tt.value)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			err := extractAssets(testCase.assets, testCase.searchedAssetNameSet, testCase.waited, testCase.value)
 
-			assert.Equal(t, tt.expectedError, err)
-			assert.Equal(t, tt.expectedAssets, tt.assets)
+			assert.Equal(t, testCase.expectedError, err)
+			assert.Equal(t, testCase.expectedAssets, testCase.assets)
 		})
 	}
 }
 
 func TestExtractReleases(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name          string
 		releases      []string
@@ -317,31 +326,35 @@ func TestExtractReleases(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := extractReleases(tt.releases, tt.value)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result, err := extractReleases(testCase.releases, testCase.value)
 
-			assert.Equal(t, tt.expectedError, err)
-			assert.Equal(t, tt.expected, result)
+			assert.Equal(t, testCase.expectedError, err)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "download", Download)
 	assert.Equal(t, "releases", Releases)
 	assert.Equal(t, "?page=", pageQuery)
 }
 
 func TestErrContinue(t *testing.T) {
+	t.Parallel()
 	// Test that errContinue is a proper error
-	assert.Error(t, errContinue)
-	assert.True(t, errors.Is(errContinue, errContinue))
+	require.Error(t, errContinue)
 }
 
 func TestAPIGetRequest(t *testing.T) {
+	t.Parallel()
 	t.Run("cancelled context", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		t.Parallel()
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel() // Cancel immediately
 
 		callURL := "https://api.github.com/repos/test/releases"
@@ -353,8 +366,10 @@ func TestAPIGetRequest(t *testing.T) {
 }
 
 func TestAssetDownloadURL(t *testing.T) {
+	t.Parallel()
 	t.Run("invalid URL", func(t *testing.T) {
-		ctx := context.Background()
+		t.Parallel()
+		ctx := t.Context()
 		tag := "v1.0.0"
 		searchedAssetNames := []string{"test.zip"}
 		githubReleaseURL := "invalid://url"
@@ -366,7 +381,8 @@ func TestAssetDownloadURL(t *testing.T) {
 	})
 
 	t.Run("cancelled context", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		t.Parallel()
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel() // Cancel immediately
 
 		tag := "v1.0.0"
@@ -381,8 +397,10 @@ func TestAssetDownloadURL(t *testing.T) {
 }
 
 func TestListReleases(t *testing.T) {
+	t.Parallel()
 	t.Run("cancelled context", func(t *testing.T) {
-		ctx, cancel := context.WithCancel(context.Background())
+		t.Parallel()
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel() // Cancel immediately
 
 		githubReleaseURL := "https://api.github.com/repos/test/repo/releases"
@@ -393,16 +411,8 @@ func TestListReleases(t *testing.T) {
 	})
 }
 
-// Mock for testing GitHub API functions
-type mockAPIGetRequest func(ctx context.Context, callURL string, authorizationHeader string) (any, error)
-
-// Test helper functions
-func createMockAPI(mockFunc mockAPIGetRequest) {
-	// This would require modifying the package to allow dependency injection
-	// For now, we'll test the individual components
-}
-
 func TestAssetDownloadURLWithMock(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name               string
 		tag                string
@@ -493,6 +503,7 @@ func TestAssetDownloadURLWithMock(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Note: This test structure shows how we would test with mocking
 			// In practice, we would need to refactor the code to allow dependency injection
 			// For now, this demonstrates the test scenarios we want to cover
@@ -509,6 +520,7 @@ func TestAssetDownloadURLWithMock(t *testing.T) {
 }
 
 func TestListReleasesWithMock(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name             string
 		githubReleaseURL string
@@ -554,6 +566,7 @@ func TestListReleasesWithMock(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Note: This test structure shows how we would test with mocking
 			// In practice, we would need to refactor the code to allow dependency injection
 			// For now, this demonstrates the test scenarios we want to cover
@@ -569,20 +582,24 @@ func TestListReleasesWithMock(t *testing.T) {
 }
 
 func TestAPIGetRequestHeaders(t *testing.T) {
+	t.Parallel()
 	// Test that apiGetRequest sets the correct headers
 	// This would require mocking the download.JSON function
 
 	t.Run("with authorization header", func(t *testing.T) {
+		t.Parallel()
 		// Test that when githubToken is provided, Authorization header is set
 		// This would require intercepting the HTTP request
 	})
 
 	t.Run("without authorization header", func(t *testing.T) {
+		t.Parallel()
 		// Test that when githubToken is empty, no Authorization header is set
 		// This would require intercepting the HTTP request
 	})
 
 	t.Run("rate limit check", func(t *testing.T) {
+		t.Parallel()
 		// Test that rate limit checking works correctly
 		// This would require mocking HTTP responses with different X-Ratelimit-Remaining values
 	})

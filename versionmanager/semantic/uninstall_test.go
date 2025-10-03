@@ -23,12 +23,14 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-
+	"github.com/stretchr/testify/require"
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 func TestSelectVersionsToUninstall(t *testing.T) {
+	t.Parallel()
+
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -116,22 +118,26 @@ func TestSelectVersionsToUninstall(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := SelectVersionsToUninstall(tt.constraint, tt.installPath, versions, mockConfig)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-			if tt.expectError {
-				assert.Error(t, err)
+			result, err := SelectVersionsToUninstall(testCase.constraint, testCase.installPath, versions, mockConfig)
+
+			if testCase.expectError {
+				require.Error(t, err)
 				assert.Nil(t, result)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expected, result)
 			}
 		})
 	}
 }
 
 func TestFilterStrings(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name      string
 		input     []string
@@ -146,6 +152,7 @@ func TestFilterStrings(t *testing.T) {
 				if len(s) == 1 && s[0] >= '2' && s[0] <= '4' && (s[0]-'0')%2 == 0 {
 					return true
 				}
+
 				return false
 			},
 			expected: []string{"2", "4"},
@@ -186,6 +193,8 @@ func TestFilterStrings(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			result := filterStrings(tt.input, tt.predicate)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -193,6 +202,8 @@ func TestFilterStrings(t *testing.T) {
 }
 
 func TestPredicateBeforeDate(t *testing.T) {
+	t.Parallel()
+
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -223,6 +234,8 @@ func TestPredicateBeforeDate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			result := pred(tt.version)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -230,42 +243,54 @@ func TestPredicateBeforeDate(t *testing.T) {
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
+
 	assert.Equal(t, "all", allKey)
 	assert.Equal(t, "but-last", butLast)
 	assert.Equal(t, "not-used-for:", notUsedForPrefix)
 	assert.Equal(t, "not-used-since:", notUsedSincePrefix)
-	assert.Equal(t, len(notUsedForPrefix), notUsedForPrefixLen)
-	assert.Equal(t, len(notUsedSincePrefix), notUsedSincePrefixLen)
+	assert.Len(t, notUsedForPrefix, notUsedForPrefixLen)
+	assert.Len(t, notUsedSincePrefix, notUsedSincePrefixLen)
 	assert.Equal(t, "unrecognized duration format", errDurationParsing.Error())
 }
 
-// Test helper functions that are not exported but can be tested through public APIs
+// Test helper functions that are not exported but can be tested through public APIs.
 func TestSelectVersionsToUninstallEdgeCases(t *testing.T) {
+	t.Parallel()
+
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
 	}
 
 	t.Run("nil versions slice", func(t *testing.T) {
+		t.Parallel()
+
 		result, err := SelectVersionsToUninstall("all", "/tmp", nil, mockConfig)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, result)
 	})
 
 	t.Run("empty versions slice", func(t *testing.T) {
+		t.Parallel()
+
 		result, err := SelectVersionsToUninstall("all", "/tmp", []string{}, mockConfig)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{}, result)
 	})
 
 	t.Run("single version with but-last", func(t *testing.T) {
+		t.Parallel()
+
 		result, err := SelectVersionsToUninstall("but-last", "/tmp", []string{"1.0.0"}, mockConfig)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{}, result)
 	})
 
 	t.Run("but-last with empty versions", func(t *testing.T) {
+		t.Parallel()
+
 		result, err := SelectVersionsToUninstall("but-last", "/tmp", []string{}, mockConfig)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, result)
 	})
 }

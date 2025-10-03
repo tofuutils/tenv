@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-
 	"github.com/tofuutils/tenv/v4/pkg/download"
 )
 

@@ -26,6 +26,8 @@ import (
 )
 
 func TestTerramateMainPackage(t *testing.T) {
+	t.Parallel()
+
 	// Test that the required constants are accessible
 	assert.Equal(t, "terramate", cmdconst.TerramateName)
 
@@ -35,6 +37,8 @@ func TestTerramateMainPackage(t *testing.T) {
 }
 
 func TestTerramateConstants(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name     string
 		value    string
@@ -49,6 +53,8 @@ func TestTerramateConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			assert.Equal(t, tt.expected, tt.value)
 		})
 	}

@@ -19,16 +19,17 @@
 package download
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApplyURLTransformer(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name           string
 		urlTransformer URLTransformer
@@ -51,6 +52,7 @@ func TestApplyURLTransformer(t *testing.T) {
 				if s == "error_url" {
 					return "", assert.AnError
 				}
+
 				return "transformed_" + s, nil
 			},
 			baseURLs:    []string{"url1", "error_url", "url3"},
@@ -68,22 +70,24 @@ func TestApplyURLTransformer(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := ApplyURLTransformer(tt.urlTransformer, tt.baseURLs...)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result, err := ApplyURLTransformer(testCase.urlTransformer, testCase.baseURLs...)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 				assert.Nil(t, result)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expected, result)
 			}
 		})
 	}
 }
 
 func TestNewURLTransformer(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		prevBaseURL string
@@ -128,43 +132,47 @@ func TestNewURLTransformer(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			transformer := NewURLTransformer(tt.prevBaseURL, tt.baseURL)
-			result, err := transformer(tt.input)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			transformer := NewURLTransformer(testCase.prevBaseURL, testCase.baseURL)
+			result, err := transformer(testCase.input)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expected, result)
+			require.NoError(t, err)
+			assert.Equal(t, testCase.expected, result)
 		})
 	}
 }
 
 func TestNoTransform(t *testing.T) {
+	t.Parallel()
 	input := "any_url"
 	result, err := NoTransform(input)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, input, result)
 }
 
 func TestNoCheck(t *testing.T) {
+	t.Parallel()
 	resp := &http.Response{
-		StatusCode: 200,
+		StatusCode: http.StatusOK,
 		Header:     make(http.Header),
 	}
 
 	err := NoCheck(resp)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestWithBasicAuth(t *testing.T) {
+	t.Parallel()
 	username := "testuser"
 	password := "testpass"
 
 	option := WithBasicAuth(username, password)
 
-	req, err := http.NewRequest("GET", "https://example.com", nil)
-	assert.NoError(t, err)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", nil)
+	require.NoError(t, err)
 
 	option(req)
 
@@ -173,6 +181,7 @@ func TestWithBasicAuth(t *testing.T) {
 }
 
 func TestNoDisplay(t *testing.T) {
+	t.Parallel()
 	// Test that NoDisplay doesn't panic and can be called
 	assert.NotPanics(t, func() {
 		NoDisplay("test message")
@@ -180,62 +189,68 @@ func TestNoDisplay(t *testing.T) {
 }
 
 func TestURLTransformerType(t *testing.T) {
+	t.Parallel()
 	// Test that URLTransformer is a function type
-	var transformer URLTransformer = func(s string) (string, error) {
+	transformer := func(s string) (string, error) {
 		return s, nil
 	}
 
 	result, err := transformer("test")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "test", result)
 }
 
 func TestRequestOptionType(t *testing.T) {
+	t.Parallel()
 	// Test that RequestOption is a function type
-	var option RequestOption = func(req *http.Request) {
+	option := func(req *http.Request) {
 		req.Header.Set("Test", "value")
 	}
 
-	req, err := http.NewRequest("GET", "https://example.com", nil)
-	assert.NoError(t, err)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "https://example.com", nil)
+	require.NoError(t, err)
 
 	option(req)
 	assert.Equal(t, "value", req.Header.Get("Test"))
 }
 
 func TestResponseCheckerType(t *testing.T) {
+	t.Parallel()
 	// Test that ResponseChecker is a function type
-	var checker ResponseChecker = func(resp *http.Response) error {
-		if resp.StatusCode != 200 {
+	checker := func(resp *http.Response) error {
+		if resp.StatusCode != http.StatusOK {
 			return assert.AnError
 		}
+
 		return nil
 	}
 
-	resp := &http.Response{StatusCode: 200}
+	resp := &http.Response{StatusCode: http.StatusOK}
 	err := checker(resp)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	resp.StatusCode = 404
 	err = checker(resp)
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestURLJoinPath(t *testing.T) {
+	t.Parallel()
 	// Test URL path joining functionality used in NewURLTransformer
 	baseURL := "https://example.com/api"
 	path := "/v1/resource"
 
 	result, err := url.JoinPath(baseURL, path)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "https://example.com/api/v1/resource", result)
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	// Test that the types are properly defined
-	var _ URLTransformer = NoTransform
-	var _ RequestOption = WithBasicAuth("user", "pass")
-	var _ ResponseChecker = NoCheck
+	_ = NoTransform
+	_ = WithBasicAuth("user", "pass")
+	_ = NoCheck
 }
 
 func TestJSON(t *testing.T) {
@@ -254,13 +269,14 @@ func TestJSON(t *testing.T) {
 	}))
 	defer testServer.Close()
 
-	result, err := JSON(context.Background(), testServer.URL, NoDisplay, NoCheck)
+	result, err := JSON(t.Context(), testServer.URL, NoDisplay, NoCheck)
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expected, result)
 }
 
 func TestBytes(t *testing.T) {
+	t.Parallel()
 	// Test that Bytes function exists and has correct signature
 	assert.NotNil(t, Bytes, "Bytes function should be available")
 

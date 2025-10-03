@@ -24,13 +24,13 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/assert"
-
 	"github.com/tofuutils/tenv/v4/config"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 func TestExecPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		installPath string
@@ -61,8 +61,9 @@ func TestExecPath(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a minimal config for testing with required fields
 			conf := &config.Config{
 				Getenv: configutils.GetenvFunc(func(key string) string {
@@ -74,16 +75,17 @@ func TestExecPath(t *testing.T) {
 				),
 			}
 
-			result := ExecPath(tt.installPath, tt.version, tt.execName, conf)
+			result := ExecPath(testCase.installPath, testCase.version, testCase.execName, conf)
 
 			// Use filepath.Join to handle path separators correctly on different OS
-			expected := filepath.Join(tt.installPath, tt.version, tt.execName)
+			expected := filepath.Join(testCase.installPath, testCase.version, testCase.execName)
 			assert.Equal(t, expected, result)
 		})
 	}
 }
 
 func TestUpdateWorkPath(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		cmdArgs  []string
@@ -116,26 +118,29 @@ func TestUpdateWorkPath(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			conf := &config.Config{
 				WorkPath: "", // Start with empty work path
 			}
 
-			updateWorkPath(conf, tt.cmdArgs)
+			updateWorkPath(conf, testCase.cmdArgs)
 
-			assert.Equal(t, tt.expected, conf.WorkPath)
+			assert.Equal(t, testCase.expected, conf.WorkPath)
 		})
 	}
 }
 
 func TestChdirFlagPrefix(t *testing.T) {
+	t.Parallel()
 	// Test that the chdirFlagPrefix constant is correctly defined
 	expected := "-chdir="
 	assert.Equal(t, expected, chdirFlagPrefix)
 }
 
 func TestExecFunction(t *testing.T) {
+	t.Parallel()
 	// Test that Exec function exists and has correct signature
 	// We can't actually call it because it would try to execute commands
 	assert.NotNil(t, Exec, "Exec function should be available")

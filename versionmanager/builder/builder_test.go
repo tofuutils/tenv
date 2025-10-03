@@ -23,7 +23,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/stretchr/testify/assert"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
@@ -31,6 +30,7 @@ import (
 )
 
 func TestBuildersMap(t *testing.T) {
+	t.Parallel()
 	// Test that Builders map contains all expected tools
 	expectedBuilders := map[string]bool{
 		cmdconst.TofuName:       true,
@@ -40,7 +40,7 @@ func TestBuildersMap(t *testing.T) {
 		cmdconst.AtmosName:      true,
 	}
 
-	assert.Equal(t, len(expectedBuilders), len(Builders))
+	assert.Len(t, Builders, len(expectedBuilders))
 
 	for toolName := range expectedBuilders {
 		assert.Contains(t, Builders, toolName, "Builders map should contain %s", toolName)
@@ -49,6 +49,7 @@ func TestBuildersMap(t *testing.T) {
 }
 
 func TestBuildAtmosManager(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -65,10 +66,11 @@ func TestBuildAtmosManager(t *testing.T) {
 
 	// Test that it implements the VersionManager interface
 	// by checking it has the expected methods (this is a compile-time check)
-	_ = versionmanager.VersionManager(manager)
+	_ = manager
 }
 
 func TestBuildTfManager(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -84,10 +86,12 @@ func TestBuildTfManager(t *testing.T) {
 	assert.NotNil(t, manager)
 
 	// Test that it implements the VersionManager interface
-	_ = versionmanager.VersionManager(manager)
+	// by checking it has the expected methods (this is a compile-time check)
+	_ = manager
 }
 
 func TestBuildTgManager(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -103,10 +107,12 @@ func TestBuildTgManager(t *testing.T) {
 	assert.NotNil(t, manager)
 
 	// Test that it implements the VersionManager interface
-	_ = versionmanager.VersionManager(manager)
+	// by checking it has the expected methods (this is a compile-time check)
+	_ = manager
 }
 
 func TestBuildTmManager(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -122,10 +128,12 @@ func TestBuildTmManager(t *testing.T) {
 	assert.NotNil(t, manager)
 
 	// Test that it implements the VersionManager interface
-	_ = versionmanager.VersionManager(manager)
+	// by checking it has the expected methods (this is a compile-time check)
+	_ = manager
 }
 
 func TestBuildTofuManager(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -141,10 +149,12 @@ func TestBuildTofuManager(t *testing.T) {
 	assert.NotNil(t, manager)
 
 	// Test that it implements the VersionManager interface
-	_ = versionmanager.VersionManager(manager)
+	// by checking it has the expected methods (this is a compile-time check)
+	_ = manager
 }
 
 func TestBuilderFunctionsReturnDifferentManagers(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -173,11 +183,12 @@ func TestBuilderFunctionsReturnDifferentManagers(t *testing.T) {
 	assert.NotPanics(t, func() {
 		// This would panic if any manager is nil or invalid
 		managers := []versionmanager.VersionManager{atmosManager, tfManager, tgManager, tmManager, tofuManager}
-		assert.Equal(t, 5, len(managers))
+		assert.Len(t, managers, 5)
 	})
 }
 
 func TestBuilderFunctionsWithNilHCLParser(t *testing.T) {
+	t.Parallel()
 	// Create a mock config
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
@@ -201,15 +212,16 @@ func TestBuilderFunctionsWithNilHCLParser(t *testing.T) {
 }
 
 func TestFuncTypeDefinition(t *testing.T) {
+	t.Parallel()
 	// Test that Func type is properly defined
-	var f Func = BuildTfManager
-	assert.NotNil(t, f)
+	buildFunction := BuildTfManager
+	assert.NotNil(t, buildFunction)
 
 	// Test that it can be called
 	mockConfig := &config.Config{
 		Displayer: loghelper.InertDisplayer,
 	}
 	hclParser := hclparse.NewParser()
-	manager := f(mockConfig, hclParser)
+	manager := buildFunction(mockConfig, hclParser)
 	assert.NotNil(t, manager)
 }

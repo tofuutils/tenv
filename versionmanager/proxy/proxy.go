@@ -27,7 +27,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/cmdproxy"
@@ -37,7 +36,7 @@ import (
 
 const chdirFlagPrefix = "-chdir="
 
-// Always call os.Exit.
+// Exec always calls os.Exit.
 func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Parser, execName string, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	versionManager := builderFunc(conf, hclParser)

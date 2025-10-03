@@ -19,7 +19,7 @@
 package cmdconst
 
 const (
-	// tools name.
+	// AgnosticName tools name.
 	AgnosticName   = "tf"
 	AtmosName      = "atmos"
 	TenvName       = "tenv"
@@ -28,13 +28,13 @@ const (
 	TerramateName  = "terramate"
 	TofuName       = "tofu"
 
-	// full project name.
+	// OpentofuName full project name.
 	OpentofuName = "opentofu"
 
-	// hidden proxy sub command.
+	// CallSubCmd hidden proxy sub command.
 	CallSubCmd = "call"
 
 	BasicErrorExitCode = 1
-	// exit code used by tenv proxy to signal a failure before the proxied command call.
+	// EarlyErrorExitCode exit code used by tenv proxy to signal a failure before the proxied command call.
 	EarlyErrorExitCode = 42
 )

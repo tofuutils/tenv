@@ -24,11 +24,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/tofuutils/tenv/v4/config"
 )
 
 func TestMake(t *testing.T) {
+	t.Parallel()
 	conf, err := config.DefaultConfig()
 	require.NoError(t, err)
 
@@ -39,6 +39,7 @@ func TestMake(t *testing.T) {
 }
 
 func TestBuildAssetNames(t *testing.T) {
+	t.Parallel()
 	// Test with current runtime values
 	fileName, shaFileName := buildAssetNames("1.0.0", runtime.GOARCH)
 
@@ -51,6 +52,7 @@ func TestBuildAssetNames(t *testing.T) {
 }
 
 func TestBuildAssetNamesCurrentPlatform(t *testing.T) {
+	t.Parallel()
 	// Test with current runtime values
 	fileName, shaFileName := buildAssetNames("1.0.0", runtime.GOARCH)
 
@@ -61,11 +63,13 @@ func TestBuildAssetNamesCurrentPlatform(t *testing.T) {
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	assert.Equal(t, "terramate_", baseFileName)
 	assert.Equal(t, "terramate-io", terramateIoName)
 }
 
 func TestTerramateRetrieverStructure(t *testing.T) {
+	t.Parallel()
 	// Test that the struct can be created and accessed
 	conf, err := config.DefaultConfig()
 	require.NoError(t, err)
@@ -78,8 +82,9 @@ func TestTerramateRetrieverStructure(t *testing.T) {
 	assert.Equal(t, &conf, retriever.conf)
 }
 
-// TestInstallMethodSignature tests that the Install method exists
+// TestInstallMethodSignature tests that the Install method exists.
 func TestInstallMethodSignature(t *testing.T) {
+	t.Parallel()
 	// Test that the method exists
 	// Note: We can't actually test the full install logic without proper mocking
 
@@ -92,8 +97,9 @@ func TestInstallMethodSignature(t *testing.T) {
 	assert.NotNil(t, retriever.Install)
 }
 
-// TestListVersionsMethodSignature tests that the ListVersions method exists
+// TestListVersionsMethodSignature tests that the ListVersions method exists.
 func TestListVersionsMethodSignature(t *testing.T) {
+	t.Parallel()
 	// Test that the method exists
 	// Note: We can't actually test the full list logic without proper mocking
 
@@ -107,6 +113,7 @@ func TestListVersionsMethodSignature(t *testing.T) {
 }
 
 func TestVersionTagHandling(t *testing.T) {
+	t.Parallel()
 	// Test the logic for handling version tags with and without 'v' prefix
 	testCases := []struct {
 		name            string
@@ -134,10 +141,11 @@ func TestVersionTagHandling(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			tag := tc.input
-			versionStr := tc.input
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			tag := testCase.input
+			versionStr := testCase.input
 
 			// Apply the same logic as in the Install method
 			if tag[0] == 'v' {
@@ -146,13 +154,14 @@ func TestVersionTagHandling(t *testing.T) {
 				tag = "v" + versionStr
 			}
 
-			assert.Equal(t, tc.expectedTag, tag)
-			assert.Equal(t, tc.expectedVersion, versionStr)
+			assert.Equal(t, testCase.expectedTag, tag)
+			assert.Equal(t, testCase.expectedVersion, versionStr)
 		})
 	}
 }
 
 func TestAssetNameBuildingLogic(t *testing.T) {
+	t.Parallel()
 	// Test the asset name building logic with current architecture
 	fileName, _ := buildAssetNames("1.0.0", runtime.GOARCH)
 

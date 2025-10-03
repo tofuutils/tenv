@@ -28,6 +28,8 @@ import (
 )
 
 func TestToDir(t *testing.T) {
+	t.Parallel()
+	var err error
 	tests := []struct {
 		name        string
 		filePath    string
@@ -70,34 +72,31 @@ func TestToDir(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for testing
-			tempDir, err := os.MkdirTemp("", "uncompress_test")
-			require.NoError(t, err)
-			defer os.RemoveAll(tempDir)
+			tempDir := t.TempDir()
 
 			// Setup mocks if provided
-			if tt.setupMocks != nil {
-				tt.setupMocks()
+			if testCase.setupMocks != nil {
+				testCase.setupMocks()
 			}
 
 			// Test the function
 			// Use empty data for unknown archive types to trigger errArchive
 			// Use non-empty data for known types to avoid calling actual uncompress functions
 			var testData []byte
-			if tt.filePath == "test.unknown" {
+			if testCase.filePath == "test.unknown" {
 				testData = []byte("")
 			} else {
 				testData = []byte("test data")
 			}
-			err = ToDir(testData, tt.filePath, tempDir, func(string) bool { return true })
+			err = ToDir(testData, testCase.filePath, tempDir, func(string) bool { return true })
 
-			if tt.expectedErr != nil {
-				assert.Error(t, err)
-				if tt.expectedErr == errArchive {
-					assert.Equal(t, errArchive, err)
-				}
+			if testCase.expectedErr != nil {
+				require.Error(t, err)
+				assert.ErrorIs(t, err, testCase.expectedErr)
 			} else {
 				// For cases where we expect no specific error
 				// The actual error will depend on the implementation details
@@ -108,12 +107,15 @@ func TestToDir(t *testing.T) {
 }
 
 func TestErrArchive(t *testing.T) {
+	t.Parallel()
 	// Test that our error variable is properly defined
-	assert.NotNil(t, errArchive)
+	require.Error(t, errArchive)
 	assert.Equal(t, "unknown archive kind", errArchive.Error())
 }
 
 func TestToDirWithValidExtensions(t *testing.T) {
+	t.Parallel()
+	var err error
 	// Test that the function correctly identifies different archive types
 	tests := []struct {
 		name     string
@@ -142,29 +144,28 @@ func TestToDirWithValidExtensions(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a temporary directory for testing
-			tempDir, err := os.MkdirTemp("", "uncompress_test")
-			require.NoError(t, err)
-			defer os.RemoveAll(tempDir)
+			tempDir := t.TempDir()
 
 			// Test with empty data to trigger the expected error
 			testData := []byte("test data") // Use non-empty data to avoid calling actual uncompress functions
-			err = ToDir(testData, tt.filePath, tempDir, func(string) bool { return true })
+			err = ToDir(testData, testCase.filePath, tempDir, func(string) bool { return true })
 
 			// We expect errArchive for unknown archive types
 			// or specific errors for known types with empty data
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 	}
 }
 
 func TestToDirCreatesDirectory(t *testing.T) {
+	t.Parallel()
+	var err error
 	// Test that the function creates the target directory
-	tempDir, err := os.MkdirTemp("", "uncompress_test")
-	require.NoError(t, err)
-	defer os.RemoveAll(tempDir)
+	tempDir := t.TempDir()
 
 	// Create a subdirectory path that doesn't exist
 	testSubDir := filepath.Join(tempDir, "subdir", "nested")
@@ -174,6 +175,7 @@ func TestToDirCreatesDirectory(t *testing.T) {
 	err = ToDir(testData, "test.unknown", testSubDir, func(string) bool { return true })
 
 	// The directory should be created even if the uncompress fails
+	require.Error(t, err)
 	_, err = os.Stat(testSubDir)
-	assert.NoError(t, err, "Directory should be created by ToDir")
+	require.NoError(t, err, "Directory should be created by ToDir")
 }

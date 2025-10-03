@@ -30,8 +30,9 @@ import (
 	"github.com/tofuutils/tenv/v4/versionmanager/tenvlib"
 )
 
-// TestConfigDefaultConfig tests the config.DefaultConfig function used in the example
+// TestConfigDefaultConfig tests the config.DefaultConfig function used in the example.
 func TestConfigDefaultConfig(t *testing.T) {
+	t.Parallel()
 	// Test that config.DefaultConfig function exists
 	assert.NotNil(t, config.DefaultConfig, "config.DefaultConfig should be available")
 
@@ -39,8 +40,9 @@ func TestConfigDefaultConfig(t *testing.T) {
 	t.Log("config.DefaultConfig function signature is correct")
 }
 
-// TestTenvlibWithConfig tests the tenvlib.Make with config pattern
+// TestTenvlibWithConfig tests the tenvlib.Make with config pattern.
 func TestTenvlibWithConfig(t *testing.T) {
+	t.Parallel()
 	// Test that tenvlib.Make function exists
 	assert.NotNil(t, tenvlib.Make, "tenvlib.Make should be available")
 
@@ -51,18 +53,20 @@ func TestTenvlibWithConfig(t *testing.T) {
 	t.Log("tenvlib.WithConfig pattern is supported")
 }
 
-// TestSemanticVersioningIntegration tests the semantic versioning components
+// TestSemanticVersioningIntegration tests the semantic versioning components.
 func TestSemanticVersioningIntegration(t *testing.T) {
+	t.Parallel()
 	// Test that semantic.LatestKey is available
 	assert.NotEmpty(t, semantic.LatestKey, "semantic.LatestKey should be available")
-	assert.True(t, semantic.LatestKey != "", "LatestKey should be a non-empty string")
+	assert.NotEqual(t, semantic.LatestKey, "", "LatestKey should be a non-empty string")
 
 	// Test that the semantic package provides expected functionality
 	t.Log("semantic package provides expected functionality for version evaluation")
 }
 
-// TestAdvancedExampleLogic tests the logic flow in the advanced example
+// TestAdvancedExampleLogic tests the logic flow in the advanced example.
 func TestAdvancedExampleLogic(t *testing.T) {
+	t.Parallel()
 	// Test config initialization
 	assert.NotNil(t, config.DefaultConfig, "Should be able to initialize config")
 
@@ -81,8 +85,9 @@ func TestAdvancedExampleLogic(t *testing.T) {
 	t.Log("Example demonstrates remote version checking with ForceRemote setting")
 }
 
-// TestUninstallLogic tests the uninstall logic pattern
+// TestUninstallLogic tests the uninstall logic pattern.
 func TestUninstallLogic(t *testing.T) {
+	t.Parallel()
 	// Test that the uninstall pattern is supported
 	assert.NotNil(t, tenvlib.Make, "Should be able to create tenv instance for uninstall")
 
@@ -97,8 +102,9 @@ func TestUninstallLogic(t *testing.T) {
 	assert.NotNil(t, ctx)
 }
 
-// TestAllImportsAndConstants tests all imports and constants used in the example
+// TestAllImportsAndConstants tests all imports and constants used in the example.
 func TestAllImportsAndConstants(t *testing.T) {
+	t.Parallel()
 	// Test config import
 	assert.NotNil(t, config.DefaultConfig)
 
@@ -120,8 +126,9 @@ func TestAllImportsAndConstants(t *testing.T) {
 	assert.NotNil(t, context.Background) // fmt is used for output
 }
 
-// TestExampleFeatures tests the specific features demonstrated in the example
+// TestExampleFeatures tests the specific features demonstrated in the example.
 func TestExampleFeatures(t *testing.T) {
+	t.Parallel()
 	// Test config manipulation (SkipInstall = false)
 	assert.NotNil(t, config.DefaultConfig, "Should be able to manipulate config")
 
@@ -146,6 +153,7 @@ func TestExampleFeatures(t *testing.T) {
 // Since this is a main package that demonstrates advanced tenvlib usage,
 // we test the conceptual structure rather than the actual execution.
 func TestMainFunction(t *testing.T) {
+	t.Parallel()
 	// This test verifies that the main function exists and would demonstrate
 	// advanced tenvlib usage including version evaluation and uninstallation.
 	// In a real scenario, this would be tested through integration tests
@@ -161,8 +169,9 @@ func TestMainFunction(t *testing.T) {
 	t.Log("Main function exists and demonstrates advanced tenvlib usage with TerraformName")
 }
 
-// TestImports tests that all required imports are available
+// TestImports tests that all required imports are available.
 func TestImports(t *testing.T) {
+	t.Parallel()
 	// Test that cmdconst package is importable and has expected structure
 	assert.NotEmpty(t, cmdconst.TerraformName)
 	assert.Equal(t, "terraform", cmdconst.TerraformName)
@@ -181,12 +190,13 @@ func TestImports(t *testing.T) {
 	assert.NotNil(t, ctx)
 
 	// Test that the constants follow naming conventions
-	assert.True(t, len(cmdconst.TerraformName) > 0)
-	assert.True(t, cmdconst.TerraformName == "terraform")
+	assert.NotEmpty(t, cmdconst.TerraformName)
+	assert.Equal(t, cmdconst.TerraformName, "terraform")
 }
 
-// TestConstants tests that all required constants are properly defined
+// TestConstants tests that all required constants are properly defined.
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	// Test that the TerraformName constant is properly defined
 	assert.Equal(t, "terraform", cmdconst.TerraformName)
 	assert.NotEmpty(t, cmdconst.TerraformName)
@@ -195,15 +205,16 @@ func TestConstants(t *testing.T) {
 	assert.Equal(t, "terraform", strings.ToLower(cmdconst.TerraformName))
 
 	// Test that the constant follows the expected naming pattern
-	assert.True(t, len(cmdconst.TerraformName) == 9, "Tool name should be 9 characters")
-	assert.True(t, cmdconst.TerraformName == "terraform", "Should match expected tool name")
+	assert.Len(t, cmdconst.TerraformName, 9, "Tool name should be 9 characters")
+	assert.Equal(t, cmdconst.TerraformName, "terraform", "Should match expected tool name")
 
 	// Test that semantic constants are available
 	assert.NotEmpty(t, semantic.LatestKey, "semantic.LatestKey should be available")
 }
 
-// TestPackageStructure tests the overall package structure
+// TestPackageStructure tests the overall package structure.
 func TestPackageStructure(t *testing.T) {
+	t.Parallel()
 	// Test that the package is properly structured as a main package
 	// We can't actually call main() due to external dependencies, but we can verify
 	// the structure is correct
@@ -224,11 +235,11 @@ func TestPackageStructure(t *testing.T) {
 	t.Log("Main package follows expected structure with advanced tenvlib usage")
 }
 
-// TestMainPackageCharacteristics tests specific characteristics of the main package
+// TestMainPackageCharacteristics tests specific characteristics of the main package.
 func TestMainPackageCharacteristics(t *testing.T) {
+	t.Parallel()
 	// Test that this is indeed a main package (has main function)
 	// We can't call main() directly, but we can verify the structure
-	assert.True(t, true, "This is a main package with proper structure")
 
 	// Test that the package has the minimal required components
 	assert.NotEmpty(t, cmdconst.TerraformName, "Should have access to tool name constant")
@@ -241,8 +252,9 @@ func TestMainPackageCharacteristics(t *testing.T) {
 	assert.Equal(t, "terraform", cmdconst.TerraformName, "Tool name should match package example focus")
 }
 
-// TestTenvlibIntegration tests the integration with tenvlib
+// TestTenvlibIntegration tests the integration with tenvlib.
 func TestTenvlibIntegration(t *testing.T) {
+	t.Parallel()
 	// Test that tenvlib functions are accessible
 	assert.NotNil(t, tenvlib.Make, "tenvlib.Make should be available")
 
@@ -255,8 +267,9 @@ func TestTenvlibIntegration(t *testing.T) {
 	assert.NotNil(t, tenvlib.Make, "Should be able to create tenv instance")
 }
 
-// TestExamplePurpose tests that this package serves as a proper example
+// TestExamplePurpose tests that this package serves as a proper example.
 func TestExamplePurpose(t *testing.T) {
+	t.Parallel()
 	// Test that the example demonstrates key tenvlib features
 	assert.NotNil(t, tenvlib.Make, "Example should demonstrate tenvlib.Make usage")
 	assert.NotEmpty(t, cmdconst.TerraformName, "Example should demonstrate tool name usage")
@@ -270,8 +283,9 @@ func TestExamplePurpose(t *testing.T) {
 	t.Log("Example demonstrates advanced tenvlib features including version evaluation and uninstallation")
 }
 
-// TestAdvancedFeatures tests that the example demonstrates advanced features
+// TestAdvancedFeatures tests that the example demonstrates advanced features.
 func TestAdvancedFeatures(t *testing.T) {
+	t.Parallel()
 	// Test that the example shows configuration usage
 	assert.NotNil(t, config.DefaultConfig, "Example should demonstrate config.DefaultConfig usage")
 
@@ -286,13 +300,14 @@ func TestAdvancedFeatures(t *testing.T) {
 	t.Log("Example demonstrates remote version checking with ForceRemote setting")
 }
 
-// TestSemanticIntegration tests the integration with semantic versioning
+// TestSemanticIntegration tests the integration with semantic versioning.
 func TestSemanticIntegration(t *testing.T) {
+	t.Parallel()
 	// Test that semantic package is properly integrated
 	assert.NotEmpty(t, semantic.LatestKey, "semantic.LatestKey should be available")
 
 	// Test that the example uses semantic versioning correctly
-	assert.True(t, semantic.LatestKey != "", "LatestKey should be a non-empty string")
+	assert.NotEqual(t, semantic.LatestKey, "", "LatestKey should be a non-empty string")
 
 	// Test that the semantic package provides the expected functionality
 	t.Log("Example properly integrates with semantic versioning package")

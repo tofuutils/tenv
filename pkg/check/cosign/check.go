@@ -26,7 +26,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
@@ -98,6 +97,7 @@ func TempFile(name string, data []byte) (string, func(), error) {
 	if err = os.WriteFile(tmpFileName, data, fileperm.RW); err != nil {
 		tmpFile.Close()
 		os.Remove(tmpFileName)
+
 		return "", nil, err
 	}
 

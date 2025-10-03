@@ -109,14 +109,16 @@ func TestNameEqual(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			filter := pathfilter.NameEqual(tt.targetName)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-			for _, tc := range tt.testCases {
-				result := filter(tc.path)
-				if result != tc.expected {
-					t.Errorf("NameEqual(%q)(%q) = %v, want %v", tt.targetName, tc.path, result, tc.expected)
+			filter := pathfilter.NameEqual(testCase.targetName)
+
+			for _, testCaseInner := range testCase.testCases {
+				result := filter(testCaseInner.path)
+				if result != testCaseInner.expected {
+					t.Errorf("NameEqual(%q)(%q) = %v, want %v", testCase.targetName, testCaseInner.path, result, testCaseInner.expected)
 				}
 			}
 		})

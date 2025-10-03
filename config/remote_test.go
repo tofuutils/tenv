@@ -42,12 +42,14 @@ func TestRemoteConfigGetInstallMode(t *testing.T) {
 		{"default API mode", "https://base.com", "https://remote.com", "https://default.com", "", config.ModeAPI},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			// Create a RemoteConfig with only exported fields
 			remoteCfg := config.RemoteConfig{
 				Data:      map[string]string{},
-				RemoteURL: tt.remoteURL,
+				RemoteURL: testCase.remoteURL,
 			}
 
 			// Use reflection or create a helper to set private fields
@@ -103,16 +105,18 @@ func TestRemoteConfigGetRemoteURL(t *testing.T) {
 		{"empty remote URL", "", ""},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			remoteCfg := config.RemoteConfig{
 				Data:      map[string]string{},
-				RemoteURL: tt.remoteURL,
+				RemoteURL: testCase.remoteURL,
 			}
 
 			result := remoteCfg.GetRemoteURL()
-			if result != tt.expected {
-				t.Errorf("GetRemoteURL() = %v, want %v", result, tt.expected)
+			if result != testCase.expected {
+				t.Errorf("GetRemoteURL() = %v, want %v", result, testCase.expected)
 			}
 		})
 	}
@@ -137,6 +141,8 @@ func TestRemoteConfigGetRewriteRule(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			remoteCfg := config.RemoteConfig{
 				Data: tt.data,
 			}

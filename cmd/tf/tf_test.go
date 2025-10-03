@@ -26,6 +26,7 @@ import (
 )
 
 func TestTfMainPackage(t *testing.T) {
+	t.Parallel()
 	// Test that the required constants are accessible
 	assert.Equal(t, "tf", cmdconst.AgnosticName)
 
@@ -35,6 +36,7 @@ func TestTfMainPackage(t *testing.T) {
 }
 
 func TestTfConstants(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		value    string
@@ -49,6 +51,7 @@ func TestTfConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tt.expected, tt.value)
 		})
 	}

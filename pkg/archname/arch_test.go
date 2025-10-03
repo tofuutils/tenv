@@ -45,11 +45,13 @@ func TestConvert(t *testing.T) {
 		{"loong64 unchanged", "loong64", "loong64"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := archname.Convert(tt.input)
-			if result != tt.expected {
-				t.Errorf("Convert(%q) = %q, want %q", tt.input, result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := archname.Convert(testCase.input)
+			if result != testCase.expected {
+				t.Errorf("Convert(%q) = %q, want %q", testCase.input, result, testCase.expected)
 			}
 		})
 	}

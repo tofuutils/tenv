@@ -63,36 +63,42 @@ func TestParseVersionFromToolFileReader(t *testing.T) {
 }
 
 func TestRetrieveTofuVersion(t *testing.T) {
+	t.Parallel()
 	// Test that RetrieveTofuVersion function exists and has correct signature
 	assert.NotNil(t, RetrieveTofuVersion, "RetrieveTofuVersion function should be available")
 	t.Log("RetrieveTofuVersion function is available for Tofu version retrieval")
 }
 
 func TestRetrieveTfVersion(t *testing.T) {
+	t.Parallel()
 	// Test that RetrieveTfVersion function exists and has correct signature
 	assert.NotNil(t, RetrieveTfVersion, "RetrieveTfVersion function should be available")
 	t.Log("RetrieveTfVersion function is available for Terraform version retrieval")
 }
 
 func TestRetrieveTgVersion(t *testing.T) {
+	t.Parallel()
 	// Test that RetrieveTgVersion function exists and has correct signature
 	assert.NotNil(t, RetrieveTgVersion, "RetrieveTgVersion function should be available")
 	t.Log("RetrieveTgVersion function is available for Terragrunt version retrieval")
 }
 
 func TestRetrieveTmVersion(t *testing.T) {
+	t.Parallel()
 	// Test that RetrieveTmVersion function exists and has correct signature
 	assert.NotNil(t, RetrieveTmVersion, "RetrieveTmVersion function should be available")
 	t.Log("RetrieveTmVersion function is available for Terramate version retrieval")
 }
 
 func TestRetrieveAtmosVersion(t *testing.T) {
+	t.Parallel()
 	// Test that RetrieveAtmosVersion function exists and has correct signature
 	assert.NotNil(t, RetrieveAtmosVersion, "RetrieveAtmosVersion function should be available")
 	t.Log("RetrieveAtmosVersion function is available for Atmos version retrieval")
 }
 
 func TestRetrieveVersionFromToolFile(t *testing.T) {
+	t.Parallel()
 	// Test that retrieveVersionFromToolFile function exists (internal function)
 	// We can't directly test it since it's not exported, but we can verify
 	// that the exported functions that use it exist

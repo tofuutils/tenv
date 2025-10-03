@@ -24,12 +24,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBaseEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+type environmentConstantTest struct {
+	name     string
+	constant string
+	expected string
+}
+
+func runEnvironmentConstantsTest(t *testing.T, tests []environmentConstantTest) {
+	t.Helper()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, tt.constant)
+		})
+	}
+}
+
+func baseEnvironmentTests() []environmentConstantTest {
+	// This is the base environment constants
+	consts := []environmentConstantTest{
 		{
 			name:     "agnosticProxy constant",
 			constant: agnosticProxy,
@@ -112,19 +125,16 @@ func TestBaseEnvironmentConstants(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
+	return consts
 }
 
-func TestGitHubEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+func TestBaseEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, baseEnvironmentTests())
+}
+
+func githubEnvironmentTests() []environmentConstantTest {
+	return []environmentConstantTest{
 		{
 			name:     "githubPrefix constant",
 			constant: githubPrefix,
@@ -146,20 +156,15 @@ func TestGitHubEnvironmentConstants(t *testing.T) {
 			expected: "GITHUB_TOKEN",
 		},
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
 }
 
-func TestAtmosEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+func TestGitHubEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, githubEnvironmentTests())
+}
+
+func atmosEnvironmentTests() []environmentConstantTest {
+	return []environmentConstantTest{
 		{
 			name:     "AtmosPrefix constant",
 			constant: AtmosPrefix,
@@ -196,20 +201,15 @@ func TestAtmosEnvironmentConstants(t *testing.T) {
 			expected: "ATMOS_REMOTE_USER",
 		},
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
 }
 
-func TestTenvEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+func TestAtmosEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, atmosEnvironmentTests())
+}
+
+func tenvEnvironmentTests() []environmentConstantTest {
+	return []environmentConstantTest{
 		{
 			name:     "tenvPrefix constant",
 			constant: tenvPrefix,
@@ -266,20 +266,15 @@ func TestTenvEnvironmentConstants(t *testing.T) {
 			expected: "TENV_VALIDATION",
 		},
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
 }
 
-func TestTerraformEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+func TestTenvEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, tenvEnvironmentTests())
+}
+
+func terraformEnvironmentTests() []environmentConstantTest {
+	return []environmentConstantTest{
 		{
 			name:     "TfenvPrefix constant",
 			constant: TfenvPrefix,
@@ -351,20 +346,15 @@ func TestTerraformEnvironmentConstants(t *testing.T) {
 			expected: "TFENV_ROOT",
 		},
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
 }
 
-func TestTerragruntEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+func TestTerraformEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, terraformEnvironmentTests())
+}
+
+func terragruntEnvironmentTests() []environmentConstantTest {
+	return []environmentConstantTest{
 		{
 			name:     "TgPrefix constant",
 			constant: TgPrefix,
@@ -401,20 +391,15 @@ func TestTerragruntEnvironmentConstants(t *testing.T) {
 			expected: "TG_REMOTE_USER",
 		},
 	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
 }
 
-func TestTerramateEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
+func TestTerragruntEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, terragruntEnvironmentTests())
+}
+
+func terramateEnvironmentTests() []environmentConstantTest {
+	return []environmentConstantTest{
 		{
 			name:     "TmPrefix constant",
 			constant: TmPrefix,
@@ -451,105 +436,100 @@ func TestTerramateEnvironmentConstants(t *testing.T) {
 			expected: "TM_REMOTE_USER",
 		},
 	}
+}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
+func TestTerramateEnvironmentConstants(t *testing.T) {
+	t.Parallel()
+	runEnvironmentConstantsTest(t, terramateEnvironmentTests())
+}
+
+func tofuEnvironmentTests() []environmentConstantTest {
+	var tests []environmentConstantTest
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuenvPrefix constant",
+		constant: TofuenvPrefix,
+		expected: "TOFUENV_",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuenvTofuPrefix constant",
+		constant: TofuenvTofuPrefix,
+		expected: "TOFUENV_TOFU_",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuAgnostic constant",
+		constant: TofuAgnostic,
+		expected: "TOFUENV_AGNOSTIC_PROXY",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuArch constant",
+		constant: TofuArch,
+		expected: "TOFUENV_ARCH",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuAutoInstall constant",
+		constant: TofuAutoInstall,
+		expected: "TOFUENV_AUTO_INSTALL",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuForceRemote constant",
+		constant: TofuForceRemote,
+		expected: "TOFUENV_FORCE_REMOTE",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuInstallMode constant",
+		constant: TofuInstallMode,
+		expected: "TOFUENV_INSTALL_MODE",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuListMode constant",
+		constant: TofuListMode,
+		expected: "TOFUENV_LIST_MODE",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuListURL constant",
+		constant: TofuListURL,
+		expected: "TOFUENV_LIST_URL",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuOpenTofuPGPKey constant",
+		constant: TofuOpenTofuPGPKey,
+		expected: "TOFUENV_OPENTOFU_PGP_KEY",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuRemotePass constant",
+		constant: TofuRemotePass,
+		expected: "TOFUENV_REMOTE_PASSWORD",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuRemoteURL constant",
+		constant: TofuRemoteURL,
+		expected: "TOFUENV_REMOTE",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuRemoteUser constant",
+		constant: TofuRemoteUser,
+		expected: "TOFUENV_REMOTE_USER",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuRootPath constant",
+		constant: TofuRootPath,
+		expected: "TOFUENV_ROOT",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuToken constant",
+		constant: TofuToken,
+		expected: "TOFUENV_GITHUB_TOKEN",
+	})
+	tests = append(tests, environmentConstantTest{
+		name:     "TofuURLTemplate constant",
+		constant: TofuURLTemplate,
+		expected: "TOFUENV_URL_TEMPLATE",
+	})
+
+	return tests
 }
 
 func TestTofuEnvironmentConstants(t *testing.T) {
-	tests := []struct {
-		name     string
-		constant string
-		expected string
-	}{
-		{
-			name:     "TofuenvPrefix constant",
-			constant: TofuenvPrefix,
-			expected: "TOFUENV_",
-		},
-		{
-			name:     "TofuenvTofuPrefix constant",
-			constant: TofuenvTofuPrefix,
-			expected: "TOFUENV_TOFU_",
-		},
-		{
-			name:     "TofuAgnostic constant",
-			constant: TofuAgnostic,
-			expected: "TOFUENV_AGNOSTIC_PROXY",
-		},
-		{
-			name:     "TofuArch constant",
-			constant: TofuArch,
-			expected: "TOFUENV_ARCH",
-		},
-		{
-			name:     "TofuAutoInstall constant",
-			constant: TofuAutoInstall,
-			expected: "TOFUENV_AUTO_INSTALL",
-		},
-		{
-			name:     "TofuForceRemote constant",
-			constant: TofuForceRemote,
-			expected: "TOFUENV_FORCE_REMOTE",
-		},
-		{
-			name:     "TofuInstallMode constant",
-			constant: TofuInstallMode,
-			expected: "TOFUENV_INSTALL_MODE",
-		},
-		{
-			name:     "TofuListMode constant",
-			constant: TofuListMode,
-			expected: "TOFUENV_LIST_MODE",
-		},
-		{
-			name:     "TofuListURL constant",
-			constant: TofuListURL,
-			expected: "TOFUENV_LIST_URL",
-		},
-		{
-			name:     "TofuOpenTofuPGPKey constant",
-			constant: TofuOpenTofuPGPKey,
-			expected: "TOFUENV_OPENTOFU_PGP_KEY",
-		},
-		{
-			name:     "TofuRemotePass constant",
-			constant: TofuRemotePass,
-			expected: "TOFUENV_REMOTE_PASSWORD",
-		},
-		{
-			name:     "TofuRemoteURL constant",
-			constant: TofuRemoteURL,
-			expected: "TOFUENV_REMOTE",
-		},
-		{
-			name:     "TofuRemoteUser constant",
-			constant: TofuRemoteUser,
-			expected: "TOFUENV_REMOTE_USER",
-		},
-		{
-			name:     "TofuRootPath constant",
-			constant: TofuRootPath,
-			expected: "TOFUENV_ROOT",
-		},
-		{
-			name:     "TofuToken constant",
-			constant: TofuToken,
-			expected: "TOFUENV_GITHUB_TOKEN",
-		},
-		{
-			name:     "TofuURLTemplate constant",
-			constant: TofuURLTemplate,
-			expected: "TOFUENV_URL_TEMPLATE",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.constant)
-		})
-	}
+	t.Parallel()
+	runEnvironmentConstantsTest(t, tofuEnvironmentTests())
 }

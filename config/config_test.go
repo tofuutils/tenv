@@ -31,7 +31,7 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
-// Helper functions for platform-specific paths
+// Helper functions for platform-specific paths.
 func getTestHomeDir() string {
 	// Use actual user home directory for testing
 	userHome, err := os.UserHomeDir()
@@ -40,8 +40,10 @@ func getTestHomeDir() string {
 		if runtime.GOOS == "windows" {
 			return "C:\\Users\\testuser"
 		}
+
 		return "/home/testuser"
 	}
+
 	return userHome
 }
 
@@ -52,8 +54,10 @@ func getExpectedRootPath() string {
 		if runtime.GOOS == "windows" {
 			return "C:\\Users\\testuser\\.tenv"
 		}
+
 		return "/home/testuser/.tenv"
 	}
+
 	return filepath.Join(userHome, ".tenv")
 }
 
@@ -72,11 +76,13 @@ func TestParseValidationMode(t *testing.T) {
 		{"empty mode", "", config.SignValidation},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := config.ParseValidationMode(tt.input)
-			if result != tt.expected {
-				t.Errorf("ParseValidationMode(%q) = %v, want %v", tt.input, result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := config.ParseValidationMode(testCase.input)
+			if result != testCase.expected {
+				t.Errorf("ParseValidationMode(%q) = %v, want %v", testCase.input, result, testCase.expected)
 			}
 		})
 	}
@@ -136,21 +142,23 @@ func TestConfigInitDisplayer(t *testing.T) {
 		{"proxy call", false, true, false},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			cfg := &config.Config{
-				ForceQuiet:     tt.forceQuiet,
+				ForceQuiet:     testCase.forceQuiet,
 				DisplayVerbose: true,
 				Getenv:         config.EmptyGetenv,
 			}
 
-			cfg.InitDisplayer(tt.proxyCall)
+			cfg.InitDisplayer(testCase.proxyCall)
 
-			if tt.expectQuiet && cfg.Displayer != loghelper.InertDisplayer {
+			if testCase.expectQuiet && cfg.Displayer != loghelper.InertDisplayer {
 				t.Errorf("Expected InertDisplayer when ForceQuiet is true")
 			}
 
-			if !tt.expectQuiet && cfg.Displayer == loghelper.InertDisplayer {
+			if !testCase.expectQuiet && cfg.Displayer == loghelper.InertDisplayer {
 				t.Errorf("Expected non-InertDisplayer when ForceQuiet is false")
 			}
 		})
@@ -173,13 +181,15 @@ func TestConfigInitValidation(t *testing.T) {
 		{"no validation skip", config.NoValidation, false, true, config.NoValidation},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			cfg := &config.Config{Validation: tt.initial}
-			cfg.InitValidation(tt.skipSum, tt.skipSign)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-			if cfg.Validation != tt.expected {
-				t.Errorf("InitValidation() = %v, want %v", cfg.Validation, tt.expected)
+			cfg := &config.Config{Validation: testCase.initial}
+			cfg.InitValidation(testCase.skipSum, testCase.skipSign)
+
+			if cfg.Validation != testCase.expected {
+				t.Errorf("InitValidation() = %v, want %v", cfg.Validation, testCase.expected)
 			}
 		})
 	}
@@ -200,13 +210,15 @@ func TestConfigInitInstall(t *testing.T) {
 		{"no force flags", true, false, false, true},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			cfg := &config.Config{SkipInstall: tt.initial}
-			cfg.InitInstall(tt.forceInstall, tt.forceNoInstall)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-			if cfg.SkipInstall != tt.expected {
-				t.Errorf("InitInstall() = %v, want %v", cfg.SkipInstall, tt.expected)
+			cfg := &config.Config{SkipInstall: testCase.initial}
+			cfg.InitInstall(testCase.forceInstall, testCase.forceNoInstall)
+
+			if cfg.SkipInstall != testCase.expected {
+				t.Errorf("InitInstall() = %v, want %v", cfg.SkipInstall, testCase.expected)
 			}
 		})
 	}
@@ -243,11 +255,13 @@ func TestMapGetDefault(t *testing.T) {
 		{"empty key value", map[string]string{"key": ""}, "key", "default", "default"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := config.MapGetDefault(tt.m, tt.key, tt.defaultValue)
-			if result != tt.expected {
-				t.Errorf("MapGetDefault() = %v, want %v", result, tt.expected)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := config.MapGetDefault(testCase.m, testCase.key, testCase.defaultValue)
+			if result != testCase.expected {
+				t.Errorf("MapGetDefault() = %v, want %v", result, testCase.expected)
 			}
 		})
 	}
@@ -261,6 +275,7 @@ func TestGetBasicAuthOption(t *testing.T) {
 			"USER": "testuser",
 			"PASS": "testpass",
 		}
+
 		return envMap[key]
 	}
 
@@ -276,46 +291,70 @@ func TestGetBasicAuthOption(t *testing.T) {
 		{"both missing", "MISSING_USER", "MISSING_PASS", false},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			options := config.GetBasicAuthOption(mockGetenv, tt.userEnvName, tt.passEnvName)
-			if tt.expected && options == nil {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			options := config.GetBasicAuthOption(mockGetenv, testCase.userEnvName, testCase.passEnvName)
+			if testCase.expected && options == nil {
 				t.Errorf("Expected non-nil options when both env vars are present")
 			}
-			if !tt.expected && options != nil {
+			if !testCase.expected && options != nil {
 				t.Errorf("Expected nil options when env vars are missing")
 			}
 		})
 	}
 }
 
+func getDefaultExpectedConfig() config.Config {
+	return config.Config{
+		Arch:             runtime.GOARCH,
+		ForceQuiet:       false,
+		ForceRemote:      false,
+		GithubActions:    false,
+		GithubToken:      "",
+		RemoteConfPath:   "",
+		RootPath:         getExpectedRootPath(),
+		SkipInstall:      true,
+		UserPath:         getTestHomeDir(),
+		Validation:       config.SignValidation,
+		WorkPath:         ".",
+		TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
+		TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+	}
+}
+
+func setupTestEnv(t *testing.T, envVars map[string]string) {
+	t.Helper()
+	envVarsToRestore := []string{
+		"HOME", "TENV_ARCH", "TENV_AUTO_INSTALL", "TENV_FORCE_REMOTE", "TENV_QUIET",
+		"TENV_ROOT", "TENV_GITHUB_TOKEN", "GITHUB_ACTIONS", "TENV_VALIDATION", "TENV_REMOTE_CONF",
+		"TFENV_HASHICORP_PGP_KEY", "TOFUENV_OPENTOFU_PGP_KEY",
+	}
+
+	for _, envVar := range envVarsToRestore {
+		if value, exists := envVars[envVar]; exists {
+			t.Setenv(envVar, value)
+		} else {
+			t.Setenv(envVar, "")
+		}
+	}
+}
+
+//nolint:paralleltest,tparallel // t.Setenv cannot be used with t.Parallel()
 func TestInitConfigFromEnv(t *testing.T) {
 	tests := []struct {
-		name           string
-		envVars        map[string]string
-		expectedConfig config.Config
-		expectError    bool
+		name        string
+		envVars     map[string]string
+		modifyFunc  func(config.Config) config.Config
+		expectError bool
 	}{
 		{
 			name: "default configuration",
 			envVars: map[string]string{
 				"HOME": getTestHomeDir(),
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
-			},
+			modifyFunc:  func(c config.Config) config.Config { return c },
 			expectError: false,
 		},
 		{
@@ -325,20 +364,11 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"TENV_ARCH":         "arm64",
 				"TENV_AUTO_INSTALL": "true",
 			},
-			expectedConfig: config.Config{
-				Arch:             "arm64",
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      false,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.Arch = "arm64"
+				c.SkipInstall = false
+
+				return c
 			},
 			expectError: false,
 		},
@@ -349,20 +379,11 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"TENV_FORCE_REMOTE": "true",
 				"TENV_QUIET":        "true",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       true,
-				ForceRemote:      true,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.ForceQuiet = true
+				c.ForceRemote = true
+
+				return c
 			},
 			expectError: false,
 		},
@@ -372,20 +393,10 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"HOME":      getTestHomeDir(),
 				"TENV_ROOT": "/custom/tenv/path",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         "/custom/tenv/path",
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.RootPath = "/custom/tenv/path"
+
+				return c
 			},
 			expectError: false,
 		},
@@ -396,20 +407,11 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"TENV_GITHUB_TOKEN": "ghp_1234567890abcdef",
 				"GITHUB_ACTIONS":    "true",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    true,
-				GithubToken:      "ghp_1234567890abcdef",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.GithubActions = true
+				c.GithubToken = "ghp_1234567890abcdef"
+
+				return c
 			},
 			expectError: false,
 		},
@@ -419,20 +421,10 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"HOME":            getTestHomeDir(),
 				"TENV_VALIDATION": "sha",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.ShaValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.Validation = config.ShaValidation
+
+				return c
 			},
 			expectError: false,
 		},
@@ -442,20 +434,10 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"HOME":             getTestHomeDir(),
 				"TENV_REMOTE_CONF": "/etc/tenv/remote.yaml",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "/etc/tenv/remote.yaml",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.RemoteConfPath = "/etc/tenv/remote.yaml"
+
+				return c
 			},
 			expectError: false,
 		},
@@ -465,20 +447,10 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"HOME":                    getTestHomeDir(),
 				"TFENV_HASHICORP_PGP_KEY": "/custom/terraform-key.asc",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "/custom/terraform-key.asc",
-				TofuKeyPathOrURL: "https://get.opentofu.org/opentofu.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.TfKeyPathOrURL = "/custom/terraform-key.asc"
+
+				return c
 			},
 			expectError: false,
 		},
@@ -488,105 +460,48 @@ func TestInitConfigFromEnv(t *testing.T) {
 				"HOME":                     getTestHomeDir(),
 				"TOFUENV_OPENTOFU_PGP_KEY": "/custom/tofu-key.asc",
 			},
-			expectedConfig: config.Config{
-				Arch:             runtime.GOARCH,
-				ForceQuiet:       false,
-				ForceRemote:      false,
-				GithubActions:    false,
-				GithubToken:      "",
-				RemoteConfPath:   "",
-				RootPath:         getExpectedRootPath(),
-				SkipInstall:      true,
-				UserPath:         getTestHomeDir(),
-				Validation:       config.SignValidation,
-				WorkPath:         ".",
-				TfKeyPathOrURL:   "https://www.hashicorp.com/.well-known/pgp-key.txt",
-				TofuKeyPathOrURL: "/custom/tofu-key.asc",
+			modifyFunc: func(c config.Config) config.Config {
+				c.TofuKeyPathOrURL = "/custom/tofu-key.asc"
+
+				return c
 			},
 			expectError: false,
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Save original environment
-			originalEnv := make(map[string]string)
-			envVarsToRestore := []string{
-				"HOME", "TENV_ARCH", "TENV_AUTO_INSTALL", "TENV_FORCE_REMOTE", "TENV_QUIET",
-				"TENV_ROOT", "TENV_GITHUB_TOKEN", "GITHUB_ACTIONS", "TENV_VALIDATION", "TENV_REMOTE_CONF",
-				"TFENV_HASHICORP_PGP_KEY", "TOFUENV_OPENTOFU_PGP_KEY",
-			}
-
-			for _, envVar := range envVarsToRestore {
-				originalEnv[envVar] = os.Getenv(envVar)
-			}
-
-			defer func() {
-				for envVar, value := range originalEnv {
-					if value == "" {
-						os.Unsetenv(envVar)
-					} else {
-						os.Setenv(envVar, value)
-					}
-				}
-			}()
-
-			// Set test environment variables
-			for envVar, value := range tt.envVars {
-				os.Setenv(envVar, value)
-			}
-
-			// Unset any environment variables not specified in test
-			for _, envVar := range envVarsToRestore {
-				if _, exists := tt.envVars[envVar]; !exists {
-					os.Unsetenv(envVar)
-				}
-			}
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			setupTestEnv(t, testCase.envVars)
 
 			result, err := config.InitConfigFromEnv()
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedConfig.Arch, result.Arch)
-				assert.Equal(t, tt.expectedConfig.ForceQuiet, result.ForceQuiet)
-				assert.Equal(t, tt.expectedConfig.ForceRemote, result.ForceRemote)
-				assert.Equal(t, tt.expectedConfig.GithubActions, result.GithubActions)
-				assert.Equal(t, tt.expectedConfig.GithubToken, result.GithubToken)
-				assert.Equal(t, tt.expectedConfig.RemoteConfPath, result.RemoteConfPath)
-				assert.Equal(t, tt.expectedConfig.RootPath, result.RootPath)
-				assert.Equal(t, tt.expectedConfig.SkipInstall, result.SkipInstall)
-				assert.Equal(t, tt.expectedConfig.UserPath, result.UserPath)
-				assert.Equal(t, tt.expectedConfig.Validation, result.Validation)
-				assert.Equal(t, tt.expectedConfig.WorkPath, result.WorkPath)
-				assert.Equal(t, tt.expectedConfig.TfKeyPathOrURL, result.TfKeyPathOrURL)
-				assert.Equal(t, tt.expectedConfig.TofuKeyPathOrURL, result.TofuKeyPathOrURL)
+				require.NoError(t, err)
+				expected := testCase.modifyFunc(getDefaultExpectedConfig())
+				assert.Equal(t, expected.Arch, result.Arch)
+				assert.Equal(t, expected.ForceQuiet, result.ForceQuiet)
+				assert.Equal(t, expected.ForceRemote, result.ForceRemote)
+				assert.Equal(t, expected.GithubActions, result.GithubActions)
+				assert.Equal(t, expected.GithubToken, result.GithubToken)
+				assert.Equal(t, expected.RemoteConfPath, result.RemoteConfPath)
+				assert.Equal(t, expected.RootPath, result.RootPath)
+				assert.Equal(t, expected.SkipInstall, result.SkipInstall)
+				assert.Equal(t, expected.UserPath, result.UserPath)
+				assert.Equal(t, expected.Validation, result.Validation)
+				assert.Equal(t, expected.WorkPath, result.WorkPath)
+				assert.Equal(t, expected.TfKeyPathOrURL, result.TfKeyPathOrURL)
+				assert.Equal(t, expected.TofuKeyPathOrURL, result.TofuKeyPathOrURL)
 			}
 		})
 	}
 }
 
 func TestInitConfigFromEnvErrorHandling(t *testing.T) {
-	// Save original environment
-	originalHome := os.Getenv("HOME")
-	originalUserProfile := os.Getenv("USERPROFILE")
-	defer func() {
-		if originalHome == "" {
-			os.Unsetenv("HOME")
-		} else {
-			os.Setenv("HOME", originalHome)
-		}
-		if originalUserProfile == "" {
-			os.Unsetenv("USERPROFILE")
-		} else {
-			os.Setenv("USERPROFILE", originalUserProfile)
-		}
-	}()
-
 	// Test with invalid HOME directory (unset both HOME and USERPROFILE on Windows)
-	os.Unsetenv("HOME")
-	os.Unsetenv("USERPROFILE")
+	t.Setenv("HOME", "")
+	t.Setenv("USERPROFILE", "")
 
 	_, err := config.InitConfigFromEnv()
 	// On Windows, this might not error if USERPROFILE is available
@@ -598,46 +513,20 @@ func TestInitConfigFromEnvErrorHandling(t *testing.T) {
 }
 
 func TestInitConfigFromEnvWithInvalidBoolValues(t *testing.T) {
-	// Save original environment
-	originalHome := os.Getenv("HOME")
-	originalTenvAutoInstall := os.Getenv("TENV_AUTO_INSTALL")
-	originalTenvForceRemote := os.Getenv("TENV_FORCE_REMOTE")
-	originalTenvQuiet := os.Getenv("TENV_QUIET")
-	defer func() {
-		if originalHome == "" {
-			os.Unsetenv("HOME")
-		} else {
-			os.Setenv("HOME", originalHome)
-		}
-		if originalTenvAutoInstall == "" {
-			os.Unsetenv("TENV_AUTO_INSTALL")
-		} else {
-			os.Setenv("TENV_AUTO_INSTALL", originalTenvAutoInstall)
-		}
-		if originalTenvForceRemote == "" {
-			os.Unsetenv("TENV_FORCE_REMOTE")
-		} else {
-			os.Setenv("TENV_FORCE_REMOTE", originalTenvForceRemote)
-		}
-		if originalTenvQuiet == "" {
-			os.Unsetenv("TENV_QUIET")
-		} else {
-			os.Setenv("TENV_QUIET", originalTenvQuiet)
-		}
-	}()
-
 	// Test with invalid boolean values
-	os.Setenv("HOME", "/home/testuser")
-	os.Setenv("TENV_AUTO_INSTALL", "invalid_bool")
-	os.Setenv("TENV_FORCE_REMOTE", "invalid_bool")
-	os.Setenv("TENV_QUIET", "invalid_bool")
+	t.Setenv("HOME", "/home/testuser")
+	t.Setenv("TENV_AUTO_INSTALL", "invalid_bool")
+	t.Setenv("TENV_FORCE_REMOTE", "invalid_bool")
+	t.Setenv("TENV_QUIET", "invalid_bool")
 
 	_, err := config.InitConfigFromEnv()
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid syntax")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "invalid syntax")
 }
 
 func TestInitRemoteConf(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name              string
 		remoteConfPath    string
@@ -657,35 +546,37 @@ func TestInitRemoteConf(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Create temporary directory and file if needed
-			if tt.remoteConfContent != "" {
-				tempDir := t.TempDir()
-				tt.remoteConfPath = filepath.Join(tempDir, "remote.yaml")
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 
-				err := os.WriteFile(tt.remoteConfPath, []byte(tt.remoteConfContent), 0644)
+			// Create temporary directory and file if needed
+			if testCase.remoteConfContent != "" {
+				tempDir := t.TempDir()
+				testCase.remoteConfPath = filepath.Join(tempDir, "remote.yaml")
+
+				err := os.WriteFile(testCase.remoteConfPath, []byte(testCase.remoteConfContent), 0o600)
 				require.NoError(t, err)
 			}
 
 			config := config.Config{
 				RootPath:       "/tmp/tenv",
-				RemoteConfPath: tt.remoteConfPath,
+				RemoteConfPath: testCase.remoteConfPath,
 				Displayer:      &mockDisplayer{},
 			}
 
 			err := config.InitRemoteConf()
 
-			if tt.expectedError {
-				assert.Error(t, err)
+			if testCase.expectedError {
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
 }
 
-// Mock displayer for testing
+// Mock displayer for testing.
 type mockDisplayer struct{}
 
 func (m *mockDisplayer) Display(msg string)                                       {}

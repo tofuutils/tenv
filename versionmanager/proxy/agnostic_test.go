@@ -26,10 +26,12 @@ import (
 )
 
 func TestExecAgnosticFunctionStructure(t *testing.T) {
+	t.Parallel()
 	// Test that the ExecAgnostic function exists and has the correct signature
 	// We can't actually call it because it calls os.Exit
 
 	t.Run("function exists", func(t *testing.T) {
+		t.Parallel()
 		// This test verifies that the ExecAgnostic function is available
 		// and can be referenced (but not called in tests)
 		execFunc := ExecAgnostic
@@ -37,6 +39,7 @@ func TestExecAgnosticFunctionStructure(t *testing.T) {
 	})
 
 	t.Run("parameter validation", func(t *testing.T) {
+		t.Parallel()
 		// Test that we can pass the expected parameter types
 		// We can't actually call the function, but we can verify the types
 		// In a real scenario, you might want to refactor this to return an error
@@ -59,6 +62,7 @@ func TestExecAgnosticFunctionStructure(t *testing.T) {
 }
 
 func TestExecAgnosticConstants(t *testing.T) {
+	t.Parallel()
 	// Test all the constants used in the ExecAgnostic function
 	tests := []struct {
 		name     string
@@ -77,9 +81,10 @@ func TestExecAgnosticConstants(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, tt.value)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, testCase.expected, testCase.value)
 		})
 	}
 
@@ -88,10 +93,12 @@ func TestExecAgnosticConstants(t *testing.T) {
 }
 
 func TestExecAgnosticLogicPaths(t *testing.T) {
+	t.Parallel()
 	// Test the logic paths that would be taken in ExecAgnostic
 	// This tests the decision logic without actually calling the function
 
 	t.Run("version resolution logic", func(t *testing.T) {
+		t.Parallel()
 		// Test the logic for determining which tool to use
 		// This simulates the decision tree in ExecAgnostic
 
@@ -112,6 +119,7 @@ func TestExecAgnosticLogicPaths(t *testing.T) {
 	})
 
 	t.Run("error handling logic", func(t *testing.T) {
+		t.Parallel()
 		// Test the error conditions that would lead to os.Exit
 		// We can't test the actual exit, but we can test the conditions
 
@@ -141,15 +149,16 @@ func TestExecAgnosticLogicPaths(t *testing.T) {
 			},
 		}
 
-		for _, tc := range testCases {
-			t.Run(tc.name, func(t *testing.T) {
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				t.Parallel()
 				// Test the logic conditions
-				if tc.detectedVersion == "" && tc.hasError {
-					assert.Equal(t, "", tc.detectedVersion)
-					assert.True(t, tc.hasError)
-				} else if tc.detectedVersion != "" {
-					assert.NotEqual(t, "", tc.detectedVersion)
-					assert.False(t, tc.hasError)
+				if testCase.detectedVersion == "" && testCase.hasError {
+					assert.Empty(t, testCase.detectedVersion)
+					assert.True(t, testCase.hasError)
+				} else if testCase.detectedVersion != "" {
+					assert.NotEmpty(t, testCase.detectedVersion)
+					assert.False(t, testCase.hasError)
 				}
 			})
 		}
@@ -157,17 +166,19 @@ func TestExecAgnosticLogicPaths(t *testing.T) {
 }
 
 func TestExecAgnosticIntegrationPoints(t *testing.T) {
+	t.Parallel()
 	// Test the integration points that ExecAgnostic depends on
 	// This ensures the function can properly call its dependencies
 
 	t.Run("builder functions", func(t *testing.T) {
+		t.Parallel()
 		// Test that the builder function names are correct
 		// These would be called in the actual ExecAgnostic function
-		assert.Equal(t, "BuildTofuManager", "BuildTofuManager")
-		assert.Equal(t, "BuildTfManager", "BuildTfManager")
+		// Note: Actual function calls cannot be tested due to os.Exit
 	})
 
 	t.Run("manager methods", func(t *testing.T) {
+		t.Parallel()
 		// Test that the manager method names are correct
 		// These would be called on the version manager
 		methods := []string{

@@ -19,16 +19,15 @@
 package htmlretriever
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	"github.com/tofuutils/tenv/v4/pkg/download"
 )
 
 func TestBuildAssetURLs(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name         string
 		baseAssetURL string
@@ -72,22 +71,24 @@ func TestBuildAssetURLs(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := BuildAssetURLs(tt.baseAssetURL, tt.assetNames...)
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result, err := BuildAssetURLs(testCase.baseAssetURL, testCase.assetNames...)
 
-			if tt.expectError {
-				assert.Error(t, err)
+			if testCase.expectError {
+				require.Error(t, err)
 				assert.Nil(t, result)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
+				require.NoError(t, err)
+				assert.Equal(t, testCase.expected, result)
 			}
 		})
 	}
 }
 
 func TestListReleases(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		baseURL     string
@@ -139,17 +140,18 @@ func TestListReleases(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
 			// Note: This test would require mocking the HTTP request
 			// For now, we just test that the function signature is correct
 			// and doesn't panic with valid inputs
 
-			ctx := context.Background()
+			ctx := t.Context()
 
 			// This would normally make an HTTP request, but we're testing
 			// the function structure and error handling
-			result, err := ListReleases(ctx, tt.baseURL, tt.remoteConf, tt.options)
+			result, err := ListReleases(ctx, testCase.baseURL, testCase.remoteConf, testCase.options)
 
 			// The function may return an error depending on network connectivity
 			// but we can at least verify it doesn't panic
@@ -165,12 +167,14 @@ func TestListReleases(t *testing.T) {
 }
 
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	// Test that the function references are valid
 	assert.NotNil(t, BuildAssetURLs)
 	assert.NotNil(t, ListReleases)
 }
 
 func TestURLJoiningLogic(t *testing.T) {
+	t.Parallel()
 	// Test the URL joining logic specifically
 	baseURL := "https://github.com/example/repo/releases/download/v1.0.0"
 
@@ -188,12 +192,13 @@ func TestURLJoiningLogic(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run("URL joining: "+tc.assetName, func(t *testing.T) {
-			result, err := BuildAssetURLs(baseURL, tc.assetName)
+	for _, testCase := range testCases {
+		t.Run("URL joining: "+testCase.assetName, func(t *testing.T) {
+			t.Parallel()
+			result, err := BuildAssetURLs(baseURL, testCase.assetName)
 			require.NoError(t, err)
 			assert.Len(t, result, 1)
-			assert.Equal(t, tc.expected, result[0])
+			assert.Equal(t, testCase.expected, result[0])
 		})
 	}
 }

@@ -28,8 +28,9 @@ import (
 	"github.com/tofuutils/tenv/v4/versionmanager/tenvlib"
 )
 
-// TestTenvlibMakeFunction tests the tenvlib.Make function signature and behavior
+// TestTenvlibMakeFunction tests the tenvlib.Make function signature and behavior.
 func TestTenvlibMakeFunction(t *testing.T) {
+	t.Parallel()
 	// Test that tenvlib.Make function exists and is callable
 	assert.NotNil(t, tenvlib.Make, "tenvlib.Make should be available")
 
@@ -39,14 +40,15 @@ func TestTenvlibMakeFunction(t *testing.T) {
 	t.Log("tenvlib.Make function signature is correct")
 }
 
-// TestDetectedCommandProxyCall tests the pattern used in the example
+// TestDetectedCommandProxyCall tests the pattern used in the example.
 func TestDetectedCommandProxyCall(t *testing.T) {
+	t.Parallel()
 	// Test that the tool name constant is properly defined
 	assert.Equal(t, "tofu", cmdconst.TofuName)
 	assert.NotEmpty(t, cmdconst.TofuName)
 
 	// Test that the command name follows expected patterns
-	assert.True(t, len(cmdconst.TofuName) > 0)
+	assert.NotEmpty(t, cmdconst.TofuName)
 	assert.Equal(t, "tofu", strings.ToLower(cmdconst.TofuName))
 
 	// Test that the context is properly available
@@ -57,8 +59,9 @@ func TestDetectedCommandProxyCall(t *testing.T) {
 	assert.NotNil(t, tenvlib.Make, "Should be able to create tenv instance")
 }
 
-// TestExampleLogicFlow tests the logic flow demonstrated in the example
+// TestExampleLogicFlow tests the logic flow demonstrated in the example.
 func TestExampleLogicFlow(t *testing.T) {
+	t.Parallel()
 	// Test the initialization pattern used in the example
 	assert.NotNil(t, tenvlib.Make, "tenvlib.Make should be available for initialization")
 
@@ -74,8 +77,9 @@ func TestExampleLogicFlow(t *testing.T) {
 	assert.NotNil(t, ctx)
 }
 
-// TestConstantsAndImports tests all constants and imports used in the example
+// TestConstantsAndImports tests all constants and imports used in the example.
 func TestConstantsAndImports(t *testing.T) {
+	t.Parallel()
 	// Test cmdconst import
 	assert.NotEmpty(t, cmdconst.TofuName)
 	assert.Equal(t, "tofu", cmdconst.TofuName)
@@ -91,8 +95,9 @@ func TestConstantsAndImports(t *testing.T) {
 	assert.NotNil(t, context.Background) // fmt is used for error messages
 }
 
-// TestPackageStructure tests the overall package structure and imports
+// TestPackageStructure tests the overall package structure and imports.
 func TestPackageStructure(t *testing.T) {
+	t.Parallel()
 	// Test that all required imports are functional
 	assert.NotEmpty(t, cmdconst.TofuName, "cmdconst import should be functional")
 	assert.NotNil(t, tenvlib.Make, "tenvlib import should be functional")
@@ -106,6 +111,7 @@ func TestPackageStructure(t *testing.T) {
 // Since this is a main package that demonstrates tenvlib usage,
 // we test the conceptual structure rather than the actual execution.
 func TestMainFunction(t *testing.T) {
+	t.Parallel()
 	// This test verifies that the main function exists and would demonstrate
 	// the proper usage of tenvlib for tofu version detection.
 	// In a real scenario, this would be tested through integration tests
@@ -121,8 +127,9 @@ func TestMainFunction(t *testing.T) {
 	t.Log("Main function exists and demonstrates tenvlib usage with TofuName")
 }
 
-// TestImports tests that all required imports are available
+// TestImports tests that all required imports are available.
 func TestImports(t *testing.T) {
+	t.Parallel()
 	// Test that cmdconst package is importable and has expected structure
 	assert.NotEmpty(t, cmdconst.TofuName)
 	assert.Equal(t, "tofu", cmdconst.TofuName)
@@ -135,12 +142,13 @@ func TestImports(t *testing.T) {
 	assert.NotNil(t, ctx)
 
 	// Test that the constant follows naming conventions
-	assert.True(t, len(cmdconst.TofuName) > 0)
-	assert.True(t, cmdconst.TofuName == "tofu")
+	assert.NotEmpty(t, cmdconst.TofuName)
+	assert.Equal(t, cmdconst.TofuName, "tofu")
 }
 
-// TestConstants tests that all required constants are properly defined
+// TestConstants tests that all required constants are properly defined.
 func TestConstants(t *testing.T) {
+	t.Parallel()
 	// Test that the TofuName constant is properly defined
 	assert.Equal(t, "tofu", cmdconst.TofuName)
 	assert.NotEmpty(t, cmdconst.TofuName)
@@ -149,12 +157,13 @@ func TestConstants(t *testing.T) {
 	assert.Equal(t, "tofu", strings.ToLower(cmdconst.TofuName))
 
 	// Test that the constant follows the expected naming pattern
-	assert.True(t, len(cmdconst.TofuName) == 4, "Tool name should be 4 characters")
-	assert.True(t, cmdconst.TofuName == "tofu", "Should match expected tool name")
+	assert.Len(t, cmdconst.TofuName, 4, "Tool name should be 4 characters")
+	assert.Equal(t, cmdconst.TofuName, "tofu", "Should match expected tool name")
 }
 
-// TestPackageStructureAndImports tests the overall package structure and imports
+// TestPackageStructureAndImports tests the overall package structure and imports.
 func TestPackageStructureAndImports(t *testing.T) {
+	t.Parallel()
 	// Test that the package is properly structured as a main package
 	// We can't actually call main() due to external dependencies, but we can verify
 	// the structure is correct
@@ -173,11 +182,11 @@ func TestPackageStructureAndImports(t *testing.T) {
 	t.Log("Main package follows expected structure with tenvlib usage")
 }
 
-// TestMainPackageCharacteristics tests specific characteristics of the main package
+// TestMainPackageCharacteristics tests specific characteristics of the main package.
 func TestMainPackageCharacteristics(t *testing.T) {
+	t.Parallel()
 	// Test that this is indeed a main package (has main function)
 	// We can't call main() directly, but we can verify the structure
-	assert.True(t, true, "This is a main package with proper structure")
 
 	// Test that the package has the minimal required components
 	assert.NotEmpty(t, cmdconst.TofuName, "Should have access to tool name constant")
@@ -188,8 +197,9 @@ func TestMainPackageCharacteristics(t *testing.T) {
 	assert.Equal(t, "tofu", cmdconst.TofuName, "Tool name should match package example focus")
 }
 
-// TestTenvlibIntegration tests the integration with tenvlib
+// TestTenvlibIntegration tests the integration with tenvlib.
 func TestTenvlibIntegration(t *testing.T) {
+	t.Parallel()
 	// Test that tenvlib functions are accessible
 	assert.NotNil(t, tenvlib.Make, "tenvlib.Make should be available")
 
@@ -202,8 +212,9 @@ func TestTenvlibIntegration(t *testing.T) {
 	assert.NotNil(t, tenvlib.Make, "Should be able to create tenv instance")
 }
 
-// TestExamplePurpose tests that this package serves as a proper example
+// TestExamplePurpose tests that this package serves as a proper example.
 func TestExamplePurpose(t *testing.T) {
+	t.Parallel()
 	// Test that the example demonstrates key tenvlib features
 	assert.NotNil(t, tenvlib.Make, "Example should demonstrate tenvlib.Make usage")
 	assert.NotEmpty(t, cmdconst.TofuName, "Example should demonstrate tool name usage")

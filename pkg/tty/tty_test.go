@@ -28,8 +28,9 @@ import (
 // TestDetect tests the TTY detection logic
 // Note: This is a conceptual test since we can't easily mock os.Stdout.Stat()
 // In real scenarios, this function would be tested through integration tests
-// or by testing the behavior when stdout is redirected vs when it's a terminal
+// or by testing the behavior when stdout is redirected vs when it's a terminal.
 func TestDetect(t *testing.T) {
+	t.Parallel()
 	// Test that Detect() doesn't panic and returns a boolean
 	result := Detect()
 	assert.IsType(t, false, result)
@@ -39,11 +40,11 @@ func TestDetect(t *testing.T) {
 	assert.Equal(t, result, result2)
 }
 
-// TestDetectWithRedirectedOutput tests behavior when output is redirected
-// This test simulates the scenario where stdout is not a TTY
+// This test simulates the scenario where stdout is not a TTY.
 func TestDetectWithRedirectedOutput(t *testing.T) {
+	t.Parallel()
 	// Create a temporary file to simulate redirected output
-	tmpFile, err := os.CreateTemp("", "tty-test-*")
+	tmpFile, err := os.CreateTemp(t.TempDir(), "tty-test-*")
 	if err != nil {
 		t.Fatalf("Failed to create temp file: %v", err)
 	}

@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/versionmanager/lastuse"
 )
@@ -44,7 +43,7 @@ const (
 
 var errDurationParsing = errors.New("unrecognized duration format")
 
-// versions must be sorted in descending order.
+// SelectVersionsToUninstall selects versions to uninstall. Versions must be sorted in descending order.
 func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string, versions []string, conf *config.Config) ([]string, error) {
 	switch {
 	case behaviourOrConstraint == allKey:

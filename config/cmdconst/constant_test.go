@@ -25,6 +25,7 @@ import (
 )
 
 func TestCommandConstants(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		constant string
@@ -79,12 +80,14 @@ func TestCommandConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tt.expected, tt.constant)
 		})
 	}
 }
 
 func TestExitCodeConstants(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		constant int
@@ -104,6 +107,7 @@ func TestExitCodeConstants(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			assert.Equal(t, tt.expected, tt.constant)
 		})
 	}

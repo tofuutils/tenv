@@ -27,8 +27,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/hashicorp/go-hclog"
-	"gopkg.in/yaml.v3"
-
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
@@ -39,6 +37,7 @@ import (
 	terragrunturl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terragrunt/url"
 	terramateurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terramate/url"
 	tofuurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/tofu/url"
+	"gopkg.in/yaml.v3"
 )
 
 const (

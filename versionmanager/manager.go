@@ -30,7 +30,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/lockfile"
@@ -181,7 +180,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 	return nil
 }
 
-// try to ensure the directory exists with a MkdirAll call.
+// InstallPath tries to ensure the directory exists with a MkdirAll call.
 // (made lazy method : not always useful and allows flag override for root path).
 func (m VersionManager) InstallPath() (string, error) {
 	dirPath := filepath.Join(m.Conf.RootPath, m.FolderName)
@@ -266,7 +265,7 @@ func (m VersionManager) ResetVersion() error {
 	return removeFile(m.RootVersionFilePath(), m.Conf)
 }
 
-// Search the requested version in version files (with fallbacks and env var overloading).
+// Resolve searches the requested version in version files (with fallbacks and env var overloading).
 func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	versionEnvName := m.EnvNames.Version()
 	version := m.Conf.Getenv(versionEnvName)
@@ -292,17 +291,17 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	return defaultStrategy, nil
 }
 
-// Search the requested version in version files.
+// ResolveWithVersionFiles searches the requested version in version files.
 func (m VersionManager) ResolveWithVersionFiles() (string, error) {
 	return semantic.RetrieveVersion(m.VersionFiles, m.Conf)
 }
 
-// (made lazy method : not always useful and allows flag override for root path).
+// RootConstraintFilePath is a lazy method: not always useful and allows flag override for root path.
 func (m VersionManager) RootConstraintFilePath() string {
 	return filepath.Join(m.Conf.RootPath, m.FolderName, "constraint")
 }
 
-// (made lazy method : not always useful and allows flag override for root path).
+// RootVersionFilePath is a lazy method: not always useful and allows flag override for root path.
 func (m VersionManager) RootVersionFilePath() string {
 	return filepath.Join(m.Conf.RootPath, m.FolderName, "version")
 }

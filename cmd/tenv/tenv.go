@@ -26,7 +26,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/spf13/cobra"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/config/envname"
