@@ -1,0 +1,80 @@
+---
+# Setup shell completion
+
+- name: Setup bash completion
+  block:
+    - name: Create tenv completion for bash
+      shell: tenv completion bash > ~/.tenv.completion.bash
+      args:
+        creates: ~/.tenv.completion.bash
+      become: yes
+      become_user: "{{ item }}"
+      loop: "{{ tenv_users }}"
+
+    - name: Source tenv completion in bashrc
+      lineinfile:
+        path: "~{{ item }}/.bashrc"
+        line: 'source $HOME/.tenv.completion.bash'
+        create: yes
+        mode: '0644'
+        owner: "{{ item }}"
+        group: "{{ item }}"
+      loop: "{{ tenv_users }}"
+  when: 
+    - tenv_shell == "bash" or tenv_shell is not defined
+    - tenv_setup_completion | default(true)
+
+- name: Setup zsh completion
+  block:
+    - name: Create tenv completion for zsh
+      shell: tenv completion zsh > ~/.tenv.completion.zsh
+      args:
+        creates: ~/.tenv.completion.zsh
+      become: yes
+      become_user: "{{ item }}"
+      loop: "{{ tenv_users }}"
+
+    - name: Source tenv completion in zshrc
+      lineinfile:
+        path: "~{{ item }}/.zshrc"
+        line: 'source $HOME/.tenv.completion.zsh'
+        create: yes
+        mode: '0644'
+        owner: "{{ item }}"
+        group: "{{ item }}"
+      loop: "{{ tenv_users }}"
+  when: 
+    - tenv_shell == "zsh"
+    - tenv_setup_completion | default(true)
+
+- name: Setup fish completion
+  block:
+    - name: Create fish config directory
+      file:
+        path: "~{{ item }}/.config/fish"
+        state: directory
+        mode: '0755'
+        owner: "{{ item }}"
+        group: "{{ item }}"
+      loop: "{{ tenv_users }}"
+
+    - name: Create tenv completion for fish
+      shell: tenv completion fish > ~/.tenv.completion.fish
+      args:
+        creates: ~/.tenv.completion.fish
+      become: yes
+      become_user: "{{ item }}"
+      loop: "{{ tenv_users }}"
+
+    - name: Source tenv completion in fish config
+      lineinfile:
+        path: "~{{ item }}/.config/fish/config.fish"
+        line: 'source $HOME/.tenv.completion.fish'
+        create: yes
+        mode: '0644'
+        owner: "{{ item }}"
+        group: "{{ item }}"
+      loop: "{{ tenv_users }}"
+  when: 
+    - tenv_shell == "fish"
+    - tenv_setup_completion | default(true)

@@ -1,0 +1,12 @@
+---
+tenv_package_manager: pacman
+tenv_package_extension: pkg.tar.zst
+tenv_prerequisites:
+  - curl
+  - jq
+  - unzip
+  - ca-certificates
+
+# Arch uses AUR for tenv and pacman for cosign
+cosign_package_name: cosign
+tenv_use_aur: true

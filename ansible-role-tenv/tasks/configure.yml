@@ -1,0 +1,71 @@
+---
+# Configure tenv environment
+
+- name: Create tenv root directory for each user
+  file:
+    path: "{{ tenv_root_path }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ tenv_users }}"
+  become: yes
+  become_user: "{{ item }}"
+
+- name: Get user home directory
+  getent:
+    database: passwd
+    key: "{{ item }}"
+  loop: "{{ tenv_users }}"
+  register: user_info
+
+- name: Set TENV_ROOT in bash profile
+  blockinfile:
+    path: "~{{ item }}/.bashrc"
+    block: |
+      # tenv configuration
+      export TENV_ROOT="{{ tenv_root_path }}"
+      {% if tenv_auto_install %}
+      export TENV_AUTO_INSTALL=true
+      {% endif %}
+      {% if tenv_github_token %}
+      export TENV_GITHUB_TOKEN="{{ tenv_github_token }}"
+      {% endif %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - tenv"
+    create: yes
+    mode: '0644'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ tenv_users }}"
+  when: tenv_shell == "bash" or tenv_shell is not defined
+
+- name: Set TENV_ROOT in zsh profile
+  blockinfile:
+    path: "~{{ item }}/.zshrc"
+    block: |
+      # tenv configuration
+      export TENV_ROOT="{{ tenv_root_path }}"
+      {% if tenv_auto_install %}
+      export TENV_AUTO_INSTALL=true
+      {% endif %}
+      {% if tenv_github_token %}
+      export TENV_GITHUB_TOKEN="{{ tenv_github_token }}"
+      {% endif %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - tenv"
+    create: yes
+    mode: '0644'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ tenv_users }}"
+  when: tenv_shell == "zsh"
+
+- name: Update PATH with tenv
+  lineinfile:
+    path: "~{{ item }}/.{{ tenv_shell }}rc"
+    line: 'export PATH=$(tenv update-path)'
+    create: yes
+    mode: '0644'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ tenv_users }}"
+  when: tenv_update_path | default(true)

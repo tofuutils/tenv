@@ -1,0 +1,83 @@
+---
+# Install tenv
+
+- name: Get latest tenv version
+  uri:
+    url: https://api.github.com/repos/tofuutils/tenv/releases/latest
+    return_content: yes
+  register: tenv_latest
+  when: tenv_version is not defined or tenv_version == "latest"
+
+- name: Set tenv version
+  set_fact:
+    tenv_version: "{{ tenv_latest.json.tag_name if (tenv_version is not defined or tenv_version == 'latest') else tenv_version }}"
+
+- name: Install tenv (Debian/Ubuntu)
+  block:
+    - name: Download tenv deb package
+      get_url:
+        url: "{{ tenv_package_url }}"
+        dest: "/tmp/tenv_{{ tenv_version }}_amd64.deb"
+        mode: '0644'
+
+    - name: Install tenv package
+      apt:
+        deb: "/tmp/tenv_{{ tenv_version }}_amd64.deb"
+        state: present
+
+    - name: Cleanup tenv package
+      file:
+        path: "/tmp/tenv_{{ tenv_version }}_amd64.deb"
+        state: absent
+      when: tenv_cleanup_downloads | default(true)
+  when: ansible_os_family == "Debian"
+
+- name: Install tenv (RedHat/CentOS)
+  block:
+    - name: Download tenv rpm package
+      get_url:
+        url: "{{ tenv_package_url }}"
+        dest: "/tmp/tenv_{{ tenv_version }}_amd64.rpm"
+        mode: '0644'
+
+    - name: Install tenv package
+      yum:
+        name: "/tmp/tenv_{{ tenv_version }}_amd64.rpm"
+        state: present
+
+    - name: Cleanup tenv package
+      file:
+        path: "/tmp/tenv_{{ tenv_version }}_amd64.rpm"
+        state: absent
+      when: tenv_cleanup_downloads | default(true)
+  when: ansible_os_family == "RedHat"
+
+- name: Install tenv (Arch Linux)
+  block:
+    - name: Check if yay is installed
+      command: which yay
+      register: yay_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install base-devel for AUR
+      pacman:
+        name: base-devel
+        state: present
+      when: yay_check.rc != 0
+
+    - name: Install tenv from AUR
+      command: yay -S --noconfirm tenv-bin
+      become: yes
+      become_user: "{{ ansible_user_id }}"
+      when: yay_check.rc == 0
+  when: ansible_os_family == "Archlinux"
+
+- name: Verify tenv installation
+  command: tenv version
+  register: tenv_version_output
+  changed_when: false
+
+- name: Display tenv version
+  debug:
+    msg: "Installed {{ tenv_version_output.stdout }}"

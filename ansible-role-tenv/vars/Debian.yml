@@ -1,0 +1,11 @@
+---
+tenv_package_manager: apt
+tenv_package_extension: deb
+tenv_prerequisites:
+  - curl
+  - jq
+  - unzip
+  - ca-certificates
+
+cosign_package_url: "https://github.com/sigstore/cosign/releases/latest/download/cosign_{{ cosign_version }}_amd64.deb"
+tenv_package_url: "https://github.com/tofuutils/tenv/releases/download/{{ tenv_version }}/tenv_{{ tenv_version }}_amd64.deb"
