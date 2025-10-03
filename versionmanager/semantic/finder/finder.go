@@ -30,7 +30,7 @@ var (
 	exactVersionRegexp = regexp.MustCompilePOSIX("^" + versionRegexpRaw + "$") //nolint
 )
 
-// return a version without starting 'v'.
+// Find returns a version without starting 'v'.
 func Find(versionStr string) string {
 	versionStr = versionRegexp.FindString(versionStr)
 	if versionStr != "" && versionStr[0] == 'v' {
@@ -44,7 +44,7 @@ func IsValid(versionStr string) bool {
 	return exactVersionRegexp.MatchString(versionStr)
 }
 
-// IsValid(versionStr) must be true.
+// Clean cleans the version string. IsValid(versionStr) must be true.
 func Clean(versionStr string) string {
 	if strings.HasPrefix(versionStr, "alpha") {
 		return versionStr

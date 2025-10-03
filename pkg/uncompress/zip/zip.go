@@ -22,6 +22,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"os"
+	"path/filepath"
 
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/uncompress/limitedcopy"
@@ -65,6 +66,11 @@ func copyZipFileToDir(zipFile *zip.File, dirPath string, filter func(string) boo
 		return err
 	}
 	defer reader.Close()
+
+	// Ensure parent directory exists
+	if err := os.MkdirAll(filepath.Dir(destPath), fileperm.RWE); err != nil {
+		return err
+	}
 
 	return limitedcopy.Copy(destPath, reader, zipFile.Mode())
 }

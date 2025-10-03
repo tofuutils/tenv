@@ -23,7 +23,6 @@ import (
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/download"
 	"github.com/tofuutils/tenv/v4/pkg/htmlquery"

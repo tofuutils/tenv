@@ -24,7 +24,6 @@ import (
 	"os/exec"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
@@ -47,7 +46,7 @@ type tenvConfig struct {
 
 type TenvOption func(*tenvConfig)
 
-// add builder or override default builder (see builder.Builders).
+// AddTool add builder or override default builder (see builder.Builders).
 func AddTool(toolName string, builderFunc builder.Func) TenvOption {
 	return func(tc *tenvConfig) {
 		tc.builders[toolName] = builderFunc
@@ -84,7 +83,7 @@ func WithHCLParser(hclParser *hclparse.Parser) TenvOption {
 	}
 }
 
-// Not concurrent safe.
+// Tenv Not concurrent safe.
 type Tenv struct {
 	builders  map[string]builder.Func
 	conf      *config.Config
@@ -92,7 +91,7 @@ type Tenv struct {
 	managers  map[string]versionmanager.VersionManager
 }
 
-// The returned wrapper is not concurrent safe.
+// Make The returned wrapper is not concurrent safe.
 func Make(options ...TenvOption) (Tenv, error) {
 	builders := map[string]builder.Func{}
 	for toolName, builderFunc := range builder.Builders {
@@ -143,7 +142,7 @@ func Make(options ...TenvOption) (Tenv, error) {
 	}, nil
 }
 
-// return an exec.Cmd in order to call the specified tool version (need to have it installed for the Cmd call to work).
+// Command return an exec.Cmd in order to call the specified tool version (need to have it installed for the Cmd call to work).
 func (t Tenv) Command(ctx context.Context, toolName string, requestedVersion string, cmdArgs ...string) (*exec.Cmd, error) {
 	err := t.init(toolName)
 	if err != nil {
@@ -160,7 +159,7 @@ func (t Tenv) Command(ctx context.Context, toolName string, requestedVersion str
 	return exec.CommandContext(ctx, execPath, cmdArgs...), nil
 }
 
-// Use the result of Tenv.Command to call cmdproxy.Run (Always call os.Exit).
+// CommandProxy Use the result of Tenv.Command to call cmdproxy.Run (Always call os.Exit).
 func (t Tenv) CommandProxy(ctx context.Context, toolName string, requestedVersion string, cmdArgs ...string) error {
 	cmd, err := t.Command(ctx, toolName, requestedVersion, cmdArgs...)
 	if err != nil {
@@ -182,7 +181,7 @@ func (t Tenv) Detect(ctx context.Context, toolName string) (string, error) {
 	return t.managers[toolName].Detect(ctx, false)
 }
 
-// Use the result of Tenv.Detect to call Tenv.Command.
+// DetectedCommand Use the result of Tenv.Detect to call Tenv.Command.
 func (t Tenv) DetectedCommand(ctx context.Context, toolName string, cmdArgs ...string) (*exec.Cmd, error) {
 	detectedVersion, err := t.Detect(ctx, toolName)
 	if err != nil {
@@ -200,7 +199,7 @@ func (t Tenv) DetectedCommand(ctx context.Context, toolName string, cmdArgs ...s
 	return exec.CommandContext(ctx, execPath, cmdArgs...), nil
 }
 
-// Use the result of Tenv.DetectedCommand to call cmdproxy.Run (Always call os.Exit).
+// DetectedCommandProxy Use the result of Tenv.DetectedCommand to call cmdproxy.Run (Always call os.Exit).
 func (t Tenv) DetectedCommandProxy(ctx context.Context, toolName string, cmdArgs ...string) error {
 	cmd, err := t.DetectedCommand(ctx, toolName, cmdArgs...)
 	if err != nil {
@@ -293,7 +292,7 @@ func (t Tenv) SetDefaultVersion(ctx context.Context, toolName string, requestedV
 	return t.managers[toolName].Use(ctx, requestedVersion, workingDir)
 }
 
-// Does not handle special behavior.
+// Uninstall Does not handle special behavior.
 func (t Tenv) Uninstall(_ context.Context, toolName string, requestedVersion string) error {
 	if err := t.init(toolName); err != nil {
 		return err
