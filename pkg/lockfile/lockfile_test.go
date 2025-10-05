@@ -82,7 +82,7 @@ func TestParallelWriteRead(t *testing.T) {
 }
 
 func writeReadFile(dirPath string, filePath string, data []byte, displayer loghelper.Displayer) ([]byte, error) {
-	deleteLock := lockfile.Write(dirPath, displayer)
+	deleteLock := lockfile.WriteWithCustomLockPath(dirPath, ".", displayer)
 	defer deleteLock()
 
 	if err := os.WriteFile(filePath, data, fileperm.RW); err != nil {

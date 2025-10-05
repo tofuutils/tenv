@@ -167,7 +167,7 @@ func (m VersionManager) InstallMultiple(ctx context.Context, versions []string) 
 		return err
 	}
 
-	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
+	deleteLock := lockfile.WriteWithCustomLockPath(m.Conf.LockPath, m.FolderName, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -322,7 +322,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return err
 	}
 
-	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
+	deleteLock := lockfile.WriteWithCustomLockPath(m.Conf.LockPath, m.FolderName, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -378,7 +378,7 @@ func (m VersionManager) UninstallMultiple(versions []string) error {
 		return err
 	}
 
-	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
+	deleteLock := lockfile.WriteWithCustomLockPath(m.Conf.LockPath, m.FolderName, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()
@@ -479,7 +479,7 @@ func (m VersionManager) installSpecificVersion(ctx context.Context, version stri
 		return nil
 	}
 
-	deleteLock := lockfile.Write(installPath, m.Conf.Displayer)
+	deleteLock := lockfile.WriteWithCustomLockPath(m.Conf.LockPath, m.FolderName, m.Conf.Displayer)
 	disableExit := lockfile.CleanAndExitOnInterrupt(deleteLock)
 	defer disableExit()
 	defer deleteLock()

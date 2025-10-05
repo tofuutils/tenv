@@ -74,6 +74,7 @@ type Config struct {
 	Getenv           configutils.GetenvFunc
 	GithubActions    bool
 	GithubToken      string
+	LockPath         string
 	remoteConfLoaded bool
 	RemoteConfPath   string
 	RootPath         string
@@ -95,12 +96,15 @@ func DefaultConfig() (Config, error) {
 		return Config{}, err
 	}
 
+	tenvPath := filepath.Join(userPath, defaultDirName)
+
 	return Config{
 		Arch:             runtime.GOARCH,
 		Atmos:            makeDefaultRemoteConfig(atmosurl.Github, githuburl.Base),
 		Getenv:           EmptyGetenv,
+		LockPath:         tenvPath,
 		remoteConfLoaded: true,
-		RootPath:         filepath.Join(userPath, defaultDirName),
+		RootPath:         tenvPath,
 		SkipInstall:      true,
 		Tf:               makeDefaultRemoteConfig(terraformurl.Hashicorp, terraformurl.Hashicorp),
 		Tg:               makeDefaultRemoteConfig(terragrunturl.Github, githuburl.Base),
@@ -142,6 +146,11 @@ func InitConfigFromEnv() (Config, error) {
 		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
+	lockPath := getenv(envname.TenvLockPath)
+	if lockPath == "" {
+		lockPath = rootPath // Default to root path for backward compatibility
+	}
+
 	quiet, err := getenv.Bool(false, envname.TenvQuiet)
 	if err != nil {
 		return Config{}, err
@@ -155,6 +164,7 @@ func InitConfigFromEnv() (Config, error) {
 		Getenv:           getenv,
 		GithubActions:    getenv.Present(envname.GithubActions),
 		GithubToken:      getenv.Fallback(envname.TenvToken, envname.TofuToken),
+		LockPath:         lockPath,
 		RemoteConfPath:   getenv(envname.TenvRemoteConf),
 		RootPath:         rootPath,
 		SkipInstall:      !autoInstall,
