@@ -96,13 +96,15 @@ func DefaultConfig() (Config, error) {
 		return Config{}, err
 	}
 
+	tenvPath := filepath.Join(userPath, defaultDirName)
+
 	return Config{
 		Arch:             runtime.GOARCH,
 		Atmos:            makeDefaultRemoteConfig(atmosurl.Github, githuburl.Base),
 		Getenv:           EmptyGetenv,
-		LockPath:         filepath.Join(userPath, defaultDirName),
+		LockPath:         tenvPath,
 		remoteConfLoaded: true,
-		RootPath:         filepath.Join(userPath, defaultDirName),
+		RootPath:         tenvPath,
 		SkipInstall:      true,
 		Tf:               makeDefaultRemoteConfig(terraformurl.Hashicorp, terraformurl.Hashicorp),
 		Tg:               makeDefaultRemoteConfig(terragrunturl.Github, githuburl.Base),
@@ -144,7 +146,7 @@ func InitConfigFromEnv() (Config, error) {
 		rootPath = filepath.Join(userPath, defaultDirName)
 	}
 
-	lockPath := getenv.Fallback(envname.TenvLockPath, envname.TofuRootPath, envname.TfRootPath)
+	lockPath := getenv(envname.TenvLockPath)
 	if lockPath == "" {
 		lockPath = rootPath // Default to root path for backward compatibility
 	}

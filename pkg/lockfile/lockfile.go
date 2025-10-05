@@ -37,16 +37,19 @@ const (
 	msgDelete = "can not remove .lock file"
 )
 
-// ! dirPath must already exist (no mkdir here).
-// the returned function must be used to delete the lock.
-func Write(dirPath string, displayer loghelper.Displayer) func() {
-	return WriteWithCustomLockPath(dirPath, filepath.Join(dirPath, ".lock"), displayer)
-}
-
 // WriteWithCustomLockPath allows specifying a custom lock file path.
-// ! dirPath must already exist (no mkdir here).
+// ! lockDir must already exist (no mkdir here).
 // the returned function must be used to delete the lock.
-func WriteWithCustomLockPath(dirPath string, lockPath string, displayer loghelper.Displayer) func() {
+func WriteWithCustomLockPath(lockDir string, folderName string, displayer loghelper.Displayer) func() {
+	// Ensure the lock directory exists before attempting to create the lock file
+	if _, err := os.Stat(lockDir); os.IsNotExist(err) {
+		displayer.Log(hclog.Error, "lock directory does not exist", "dir", lockDir)
+
+		return func() {} // Return a no-op cleanup function
+	}
+
+	lockPath := filepath.Join(lockDir, folderName+".lock")
+
 	for logLevel := hclog.Warn; true; logLevel = hclog.Info {
 		f, err := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, fileperm.RW)
 		if err == nil {
