@@ -168,6 +168,41 @@ sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
 
 </details>
 
+<details markdown="1"><summary><b>Linux: Manual Installation Prerequisites</b></summary><br>
+
+For manual installation on Linux, you'll need the following tools:
+
+```sh
+# Install required tools (choose based on your distribution)
+
+# For Debian/Ubuntu-based distributions:
+sudo apt update
+sudo apt install wget jq
+
+# For RHEL/CentOS/Fedora-based distributions:
+sudo yum install wget jq
+# or for newer versions:
+sudo dnf install wget jq
+
+# For Arch Linux:
+sudo pacman -S wget jq
+
+# For Alpine Linux:
+sudo apk add wget jq
+```
+
+If you want to install cosign for verification (optional):
+
+```sh
+BINDIR=${HOME}/bin
+mkdir -p ${BINDIR}
+wget -q -O - "https://api.github.com/repos/sigstore/cosign/releases/latest" | \
+  jq -r '.assets[] | select(.name | match("cosign-linux-amd64$") ) | .browser_download_url' | \
+  wget -q -i - -O ${BINDIR}/cosign && chmod 700 ${BINDIR}/cosign
+```
+
+</details>
+
 
 <a id="installation"></a>
 ### Installation
@@ -321,7 +356,103 @@ nix-shell -p tenv
 
 <a id="manual-installation"></a>
 #### Manual Installation
+
+<details markdown="1"><summary><b>Linux Manual Installation</b></summary><br>
+
+For Linux systems, you have two main installation options: system-wide installation (requires root privileges) or user-local installation.
+
+##### Option 1: System-wide Installation
+
+If you can escalate to `root` privileges (with `su` or `sudo` or by logging in as `root`), you can make a system-wide installation of the `tenv` tool.
+
+```sh
+# Download and install tenv system-wide
+wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
+  wget -q -i - -O - | sudo tar xfz - -C /usr/local/bin
+
+# Verify installation
+tenv --version
+```
+
+Alternatively, you can download to any directory in your `$PATH`:
+
+```sh
+# Download to /usr/bin (requires sudo)
+wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
+  wget -q -i - -O - | sudo tar xfz - -C /usr/bin
+```
+
+Or install to a custom directory and create symlinks:
+
+```sh
+# Install to /usr/local/tenv and create symlinks
+sudo mkdir -p /usr/local/tenv
+wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
+  wget -q -i - -O - | sudo tar xfz - -C /usr/local/tenv
+
+# Create symlinks to a directory in PATH
+sudo ln -sf /usr/local/tenv/tenv /usr/local/bin/tenv
+sudo ln -sf /usr/local/tenv/terraform /usr/local/bin/terraform
+sudo ln -sf /usr/local/tenv/tofu /usr/local/bin/tofu
+sudo ln -sf /usr/local/tenv/terragrunt /usr/local/bin/terragrunt
+sudo ln -sf /usr/local/tenv/atmos /usr/local/bin/atmos
+sudo ln -sf /usr/local/tenv/terramate /usr/local/bin/terramate
+sudo ln -sf /usr/local/tenv/tf /usr/local/bin/tf
+```
+
+##### Option 2: User-local Installation
+
+If you cannot escalate to `root` privileges, you can install tenv in your home directory. This method installs tenv only for the current user.
+
+```sh
+# Create a local bin directory
+BINDIR=${HOME}/bin
+mkdir -p ${BINDIR}
+
+# Download and install tenv locally
+wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
+  wget -q -i - -O - | tar xfz - -C ${BINDIR}
+
+# Add to PATH if not already done (add to ~/.profile, ~/.bashrc, or ~/.zshrc)
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.profile
+
+# Reload your shell configuration or run:
+source ~/.profile
+
+# Verify installation
+tenv --version
+```
+
+For other shell configurations:
+
+```sh
+# For bash users
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# For zsh users
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+##### Notes
+
+- Any subsequent call to `tenv` will refer to the calling user's `$HOME` directory, thus installing, running and listing whatever binaries are present in the local directory (`~/.tenv` by default).
+- All commands above use `wget` instead of `curl` as it's more commonly available in minimal Linux installations.
+- The installation uses a single pipeline which is more efficient than command concatenation.
+- These commands can be easily automated for CI/CD scenarios.
+
+</details>
+
+<details markdown="1"><summary><b>Other Platforms</b></summary><br>
+
 Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
+
+</details>
 
 <a id="docker-installation"></a>
 
