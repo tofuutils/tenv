@@ -149,7 +149,7 @@ sudo pacman -S cosign
 
 </details>
 
-<details markdown="1"><summary><b>Linux: RPM</b></summary><br>
+<details markdown="1"><summary><b>Linux: CentOS/Fedora</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
@@ -158,7 +158,7 @@ sudo rpm -ivh cosign-${LATEST_VERSION}-1.x86_64.rpm
 ```
 
 </details>
-<details markdown="1"><summary><b>Linux: dkpg</b></summary><br>
+<details markdown="1"><summary><b>Linux: Debian/Ubuntu</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
@@ -177,18 +177,18 @@ For manual installation on Linux, you'll need the following tools:
 
 # For Debian/Ubuntu-based distributions:
 sudo apt update
-sudo apt install wget jq
+sudo apt install curl jq
 
 # For RHEL/CentOS/Fedora-based distributions:
-sudo yum install wget jq
+sudo yum install curl jq
 # or for newer versions:
-sudo dnf install wget jq
+sudo dnf install curl jq
 
 # For Arch Linux:
-sudo pacman -S wget jq
+sudo pacman -S curl jq
 
 # For Alpine Linux:
-sudo apk add wget jq
+sudo apk add curl jq
 ```
 
 If you want to install cosign for verification (optional):
@@ -196,9 +196,9 @@ If you want to install cosign for verification (optional):
 ```sh
 BINDIR=${HOME}/bin
 mkdir -p ${BINDIR}
-wget -q -O - "https://api.github.com/repos/sigstore/cosign/releases/latest" | \
+curl -s "https://api.github.com/repos/sigstore/cosign/releases/latest" | \
   jq -r '.assets[] | select(.name | match("cosign-linux-amd64$") ) | .browser_download_url' | \
-  wget -q -i - -O ${BINDIR}/cosign && chmod 700 ${BINDIR}/cosign
+  xargs curl -L -o ${BINDIR}/cosign && chmod 700 ${BINDIR}/cosign
 ```
 
 </details>
@@ -367,9 +367,9 @@ If you can escalate to `root` privileges (with `su` or `sudo` or by logging in a
 
 ```sh
 # Download and install tenv system-wide
-wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
   jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  wget -q -i - -O - | sudo tar xfz - -C /usr/local/bin
+  xargs curl -L | sudo tar xfz - -C /usr/local/bin
 
 # Verify installation
 tenv --version
@@ -379,9 +379,9 @@ Alternatively, you can download to any directory in your `$PATH`:
 
 ```sh
 # Download to /usr/bin (requires sudo)
-wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
   jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  wget -q -i - -O - | sudo tar xfz - -C /usr/bin
+  xargs curl -L | sudo tar xfz - -C /usr/bin
 ```
 
 Or install to a custom directory and create symlinks:
@@ -389,9 +389,9 @@ Or install to a custom directory and create symlinks:
 ```sh
 # Install to /usr/local/tenv and create symlinks
 sudo mkdir -p /usr/local/tenv
-wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
   jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  wget -q -i - -O - | sudo tar xfz - -C /usr/local/tenv
+  xargs curl -L | sudo tar xfz - -C /usr/local/tenv
 
 # Create symlinks to a directory in PATH
 sudo ln -sf /usr/local/tenv/tenv /usr/local/bin/tenv
@@ -413,9 +413,9 @@ BINDIR=${HOME}/bin
 mkdir -p ${BINDIR}
 
 # Download and install tenv locally
-wget -q -O - "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
+curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
   jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  wget -q -i - -O - | tar xfz - -C ${BINDIR}
+  xargs curl -L | tar xfz - -C ${BINDIR}
 
 # Add to PATH if not already done (add to ~/.profile, ~/.bashrc, or ~/.zshrc)
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.profile
@@ -442,7 +442,7 @@ source ~/.zshrc
 ##### Notes
 
 - Any subsequent call to `tenv` will refer to the calling user's `$HOME` directory, thus installing, running and listing whatever binaries are present in the local directory (`~/.tenv` by default).
-- All commands above use `wget` instead of `curl` as it's more commonly available in minimal Linux installations.
+- All commands above use `curl` which is widely available across Linux distributions.
 - The installation uses a single pipeline which is more efficient than command concatenation.
 - These commands can be easily automated for CI/CD scenarios.
 
