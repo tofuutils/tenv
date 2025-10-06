@@ -177,18 +177,18 @@ For manual installation on Linux, you'll need the following tools:
 
 # For Debian/Ubuntu-based distributions:
 sudo apt update
-sudo apt install curl jq
+sudo apt install curl
 
 # For RHEL/CentOS/Fedora-based distributions:
-sudo yum install curl jq
+sudo yum install curl
 # or for newer versions:
-sudo dnf install curl jq
+sudo dnf install curl
 
 # For Arch Linux:
-sudo pacman -S curl jq
+sudo pacman -S curl
 
 # For Alpine Linux:
-sudo apk add curl jq
+sudo apk add curl
 ```
 
 If you want to install cosign for verification (optional):
@@ -196,9 +196,7 @@ If you want to install cosign for verification (optional):
 ```sh
 BINDIR=${HOME}/bin
 mkdir -p ${BINDIR}
-curl -s "https://api.github.com/repos/sigstore/cosign/releases/latest" | \
-  jq -r '.assets[] | select(.name | match("cosign-linux-amd64$") ) | .browser_download_url' | \
-  xargs curl -L -o ${BINDIR}/cosign && chmod 700 ${BINDIR}/cosign
+curl -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64" -o ${BINDIR}/cosign && chmod 700 ${BINDIR}/cosign
 ```
 
 </details>
@@ -367,9 +365,7 @@ If you can escalate to `root` privileges (with `su` or `sudo` or by logging in a
 
 ```sh
 # Download and install tenv system-wide
-curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
-  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  xargs curl -L | sudo tar xfz - -C /usr/local/bin
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | sudo tar xfz - -C /usr/local/bin
 
 # Verify installation
 tenv --version
@@ -379,9 +375,7 @@ Alternatively, you can download to any directory in your `$PATH`:
 
 ```sh
 # Download to /usr/bin (requires sudo)
-curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
-  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  xargs curl -L | sudo tar xfz - -C /usr/bin
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | sudo tar xfz - -C /usr/bin
 ```
 
 Or install to a custom directory and create symlinks:
@@ -389,9 +383,7 @@ Or install to a custom directory and create symlinks:
 ```sh
 # Install to /usr/local/tenv and create symlinks
 sudo mkdir -p /usr/local/tenv
-curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
-  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  xargs curl -L | sudo tar xfz - -C /usr/local/tenv
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | sudo tar xfz - -C /usr/local/tenv
 
 # Create symlinks to a directory in PATH
 sudo ln -sf /usr/local/tenv/tenv /usr/local/bin/tenv
@@ -413,9 +405,7 @@ BINDIR=${HOME}/bin
 mkdir -p ${BINDIR}
 
 # Download and install tenv locally
-curl -s "https://api.github.com/repos/tofuutils/tenv/releases/latest" | \
-  jq -r '.assets[] | select(.name | match("Linux_x86_64.tar.gz$") ) | .browser_download_url' | \
-  xargs curl -L | tar xfz - -C ${BINDIR}
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | tar xfz - -C ${BINDIR}
 
 # Add to PATH if not already done (add to ~/.profile, ~/.bashrc, or ~/.zshrc)
 echo 'export PATH="$HOME/bin:$PATH"' >> ~/.profile
