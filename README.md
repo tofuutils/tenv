@@ -1839,6 +1839,46 @@ terraform:
 </details>
 
 
+<a id="lockfile-support"></a>
+### Lockfile support
+
+<details markdown="1"><summary><b>Lockfile behavior</b></summary><br>
+
+**tenv** uses lockfiles to ensure safe concurrent operations when multiple instances are run in parallel. This prevents race conditions during installation, uninstallation, and other operations that modify the local version cache.
+
+**Lock file location and naming:**
+- Default location: `${TENV_ROOT}/{tool}.lock` (e.g., `~/.tenv/OpenTofu.lock`)
+- Can be customized using the `TENV_LOCK_PATH` environment variable
+- Each tool (OpenTofu, Terraform, Terragrunt, Terramate, Atmos) uses its own lock file
+
+**Parallel execution behavior:**
+When multiple **tenv** instances attempt to run simultaneously:
+
+1. The first instance creates its lock file successfully and proceeds with the operation
+2. Subsequent instances fail to create the lock file (due to exclusive creation) and enter a retry loop
+3. The retry mechanism waits 1 second between attempts and logs a warning message
+4. Once the first instance completes and releases its lock, the next waiting instance can acquire the lock and proceed
+
+**Example retry behavior:**
+```console
+$ tenv tofu install 1.6.0 & tenv tofu install 1.6.1
+[1] Installing OpenTofu 1.6.0
+[2] can not write .lock file, will retry: file already exists
+[2] can not write .lock file, will retry: file already exists
+[1] Installation of OpenTofu 1.6.0 successful
+[2] Installing OpenTofu 1.6.1
+[2] Installation of OpenTofu 1.6.1 successful
+```
+
+**Lock scope:**
+- **Operations that modify versions** (`install`, `uninstall`) use locks to prevent conflicts
+- **Read-only operations** (`list`, `list-remote`, `detect`) don't need locks
+- **Batch operations** (`InstallMultiple` API) use a single lock for the entire batch
+- Locks are automatically cleaned up when operations finish (success or failure)
+- Interrupt signals (Ctrl+C) properly release locks to prevent deadlocks
+
+</details>
+
 <a id="signature-support"></a>
 ### Signature support
 
