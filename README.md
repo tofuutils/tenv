@@ -64,8 +64,7 @@ including Linux, MacOS, Windows, BSD, and Solaris, whereas asdf-vm natively supp
 - **tenv** command compatibility: In nearly all places you can use the exact syntax that works in tfenv / tofuenv.
 If you're coming from tfenv/tofuenv and comfortable with that way of working you can almost always use the same syntax with tenv.
 - **tenv** performance: It sounds incredibly useful, though it might be tough to get a real apples to apples comparison since the
-tools work differently in a lot of ways. The author of asdf did a great writeup of performance problems. asdf-vm is written in bash
-which certainly makes it challenging to be performant, whereas **tenv** is written in Golang and works much faster.
+tools work differently in a lot of ways. The author of asdf did a great writeup of performance problems.
 
 <a id="table-of-contents"></a>
 ## Table of Contents
