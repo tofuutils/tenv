@@ -142,6 +142,33 @@ If a parameter is passed, available options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Initialize config for completion
+			conf.InitDisplayer(true) // quiet mode for completion
+
+			// Add common version strategies first (most useful)
+			strategies := []string{
+				"latest",
+				"latest-stable",
+				"latest-pre",
+				"latest-allowed",
+				"min-required",
+			}
+
+			// Try to get a few local versions as fallback examples
+			localSet := versionManager.LocalSet()
+			localVersions := make([]string, 0, len(localSet))
+			for version := range localSet {
+				localVersions = append(localVersions, version)
+			}
+
+			versions := append(strategies, localVersions...)
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
@@ -334,6 +361,30 @@ If a parameter is passed, available parameter options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Initialize config for completion
+			versionManager.Conf.InitDisplayer(true) // quiet mode for completion
+
+			// Get locally installed versions using LocalSet() which is simpler
+			localSet := versionManager.LocalSet()
+			versions := make([]string, 0, len(localSet))
+			for version := range localSet {
+				versions = append(versions, version)
+			}
+
+			// Add special uninstall options
+			specialOptions := []string{
+				"all",
+				"but-last",
+			}
+			versions = append(versions, specialOptions...)
+
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			versionManager.Conf.InitDisplayer(false)
 
@@ -376,6 +427,33 @@ Available parameter options:
 		Long:         descBuilder.String(),
 		Args:         cobra.ExactArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Initialize config for completion
+			conf.InitDisplayer(true) // quiet mode for completion
+
+			// Get locally installed versions using LocalSet() which is simpler
+			localSet := versionManager.LocalSet()
+			versions := make([]string, 0, len(localSet))
+			for version := range localSet {
+				versions = append(versions, version)
+			}
+
+			// Add common version strategies
+			strategies := []string{
+				"latest",
+				"latest-stable",
+				"latest-pre",
+				"latest-allowed",
+				"min-required",
+			}
+			versions = append(versions, strategies...)
+
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
