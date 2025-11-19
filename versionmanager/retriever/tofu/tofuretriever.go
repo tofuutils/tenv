@@ -21,6 +21,7 @@ package tofuretriever
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
 	"runtime"
 	"strings"
@@ -52,9 +53,9 @@ const (
 
 	defaultTofuURLTemplate = "https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}"
 
-	baseIdentity     = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
-	issuer           = "https://token.actions.githubusercontent.com"
-	unstableIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/main"
+	baseIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v"
+	issuer       = "https://token.actions.githubusercontent.com"
+	mainIdentity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/main"
 
 	baseFileName = "tofu_"
 )
@@ -211,7 +212,7 @@ func (r TofuRetriever) checkSumAndSig(ctx context.Context, version *version.Vers
 		return err
 	}
 
-	identity := buildIdentity(version, stable)
+	identity := buildIdentity(version)
 	err = cosigncheck.Check(ctx, dataSums, dataSumsSig, dataSumsCert, identity, issuer, r.conf.Displayer)
 	if err == nil || !errors.Is(err, cosigncheck.ErrNotInstalled) {
 		return err
@@ -257,15 +258,19 @@ func buildAssetNames(version string, arch string, stable bool) []string {
 	return []string{nameBuilder.String(), sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig"}
 }
 
-func buildIdentity(v *version.Version, stable bool) string {
-	if !stable {
-		return unstableIdentity
+func buildIdentity(v *version.Version) string {
+	segments := v.Segments()
+	if len(segments) < 3 {
+		return baseIdentity + v.String()
 	}
 
-	cleanedVersion := v.String()
-	indexDot := strings.LastIndexByte(cleanedVersion, '.')
-	// cleaned, so indexDot can not be -1
-	shortVersion := cleanedVersion[:indexDot]
+	// According to https://opentofu.org/docs/intro/install/standalone/,
+	// alpha and beta versions have a specific identity.
+	if strings.Contains(v.Prerelease(), "alpha") || strings.Contains(v.Prerelease(), "beta") {
+		return mainIdentity
+	}
+
+	shortVersion := fmt.Sprintf("%d.%d", segments[0], segments[1])
 
 	return baseIdentity + shortVersion
 }
