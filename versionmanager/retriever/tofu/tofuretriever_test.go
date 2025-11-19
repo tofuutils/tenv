@@ -25,6 +25,8 @@ import (
 )
 
 func TestBuildIdentity(t *testing.T) {
+	t.Parallel()
+
 	tests := map[string]struct {
 		name     string
 		version  *version.Version
@@ -54,6 +56,8 @@ func TestBuildIdentity(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			actual := buildIdentity(test.version)
 			if actual != test.expected {
 				t.Errorf("expected %s, got %s", test.expected, actual)

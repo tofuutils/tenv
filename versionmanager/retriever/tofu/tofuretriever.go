@@ -258,15 +258,15 @@ func buildAssetNames(version string, arch string, stable bool) []string {
 	return []string{nameBuilder.String(), sumsAssetName, sumsAssetName + ".pem", sumsAssetName + ".sig"}
 }
 
-func buildIdentity(v *version.Version) string {
-	segments := v.Segments()
+func buildIdentity(version *version.Version) string {
+	segments := version.Segments()
 	if len(segments) < 3 {
-		return baseIdentity + v.String()
+		return baseIdentity + version.String()
 	}
 
 	// According to https://opentofu.org/docs/intro/install/standalone/,
 	// alpha and beta versions have a specific identity.
-	if strings.Contains(v.Prerelease(), "alpha") || strings.Contains(v.Prerelease(), "beta") {
+	if strings.Contains(version.Prerelease(), "alpha") || strings.Contains(version.Prerelease(), "beta") {
 		return mainIdentity
 	}
 
