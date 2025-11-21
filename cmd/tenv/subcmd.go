@@ -29,12 +29,23 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"maps"
+	"slices"
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
 )
+
+// Common version strategies used across completion functions
+var commonVersionStrategies = []string{
+	"latest",
+	"latest-stable",
+	"latest-pre",
+	"latest-allowed",
+	"min-required",
+}
 
 func newConstraintCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
@@ -150,23 +161,11 @@ If a parameter is passed, available options:
 			// Initialize config for completion
 			conf.InitDisplayer(true) // quiet mode for completion
 
-			// Add common version strategies first (most useful)
-			strategies := []string{
-				"latest",
-				"latest-stable",
-				"latest-pre",
-				"latest-allowed",
-				"min-required",
-			}
+			// Get local versions using one-liner
+			localVersions := slices.Collect(maps.Keys(versionManager.LocalSet()))
 
-			// Try to get a few local versions as fallback examples
-			localSet := versionManager.LocalSet()
-			localVersions := make([]string, 0, len(localSet))
-			for version := range localSet {
-				localVersions = append(localVersions, version)
-			}
-
-			versions := append(strategies, localVersions...)
+			// Use global variable 
+			versions := append(commonVersionStrategies, localVersions...)
 			return versions, cobra.ShellCompDirectiveNoFileComp
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
@@ -339,7 +338,7 @@ func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	return resetCmd
 }
 
-func newUninstallCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+func newUninstallCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -367,22 +366,13 @@ If a parameter is passed, available parameter options:
 			}
 
 			// Initialize config for completion
-			versionManager.Conf.InitDisplayer(true) // quiet mode for completion
+			conf.InitDisplayer(true) // quiet mode for completion
 
-			// Get locally installed versions using LocalSet() which is simpler
-			localSet := versionManager.LocalSet()
-			versions := make([]string, 0, len(localSet))
-			for version := range localSet {
-				versions = append(versions, version)
-			}
+			// Get locally installed versions using one-liner
+			localVersions := slices.Collect(maps.Keys(versionManager.LocalSet()))
 
 			// Add special uninstall options
-			specialOptions := []string{
-				"all",
-				"but-last",
-			}
-			versions = append(versions, specialOptions...)
-
+			versions := append(localVersions, "all", "but-last")
 			return versions, cobra.ShellCompDirectiveNoFileComp
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
@@ -435,23 +425,13 @@ Available parameter options:
 			// Initialize config for completion
 			conf.InitDisplayer(true) // quiet mode for completion
 
-			// Get locally installed versions using LocalSet() which is simpler
-			localSet := versionManager.LocalSet()
-			versions := make([]string, 0, len(localSet))
-			for version := range localSet {
-				versions = append(versions, version)
-			}
+			// Get locally installed versions using one-liner
+			localVersions := slices.Collect(maps.Keys(versionManager.LocalSet()))
 
-			// Add common version strategies
-			strategies := []string{
-				"latest",
-				"latest-stable",
-				"latest-pre",
-				"latest-allowed",
-				"min-required",
-			}
-			versions = append(versions, strategies...)
-
+			// Combine local versions and strategies
+			versions := make([]string, 0, len(localVersions)+len(commonVersionStrategies))
+			versions = append(versions, localVersions...)
+			versions = append(versions, commonVersionStrategies...)
 			return versions, cobra.ShellCompDirectiveNoFileComp
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
