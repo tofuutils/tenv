@@ -23,7 +23,7 @@ import (
 	"strings"
 )
 
-const versionRegexpRaw string = `(v?[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z\-.]+)?|alpha\-?[0-9]+)`
+const versionRegexpRaw string = `(v?[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z\-.]+)?|alpha\-?[0-9]+|beta\-?[0-9]+)`
 
 var (
 	versionRegexp      = regexp.MustCompilePOSIX(versionRegexpRaw)             //nolint
