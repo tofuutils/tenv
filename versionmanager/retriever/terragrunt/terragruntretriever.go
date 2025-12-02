@@ -61,8 +61,16 @@ func (r TerragruntRetriever) Install(ctx context.Context, versionStr string, tar
 	}
 
 	tag := versionStr
-	// assume that terragrunt tags start with a 'v', except for alpha versions
-	if tag[0] != 'v' && !strings.HasPrefix(tag, "alpha") {
+	specialPrefixes := []string{"alpha", "beta"}
+	hasSpecialPrefix := false
+	for _, prefix := range specialPrefixes {
+		if strings.HasPrefix(tag, prefix) {
+			hasSpecialPrefix = true
+		}
+	}
+
+	// assume that terragrunt tags start with a 'v', except for alpha and beta versions
+	if tag[0] != 'v' && !hasSpecialPrefix {
 		tag = "v" + versionStr
 	}
 
