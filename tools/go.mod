@@ -6,7 +6,7 @@ require (
 	github.com/cloudflare/cloudflare-go v0.112.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/hashicorp/go-changelog v0.0.0-20241111140550-beb7aaabfbd1
-	golang.org/x/oauth2 v0.24.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
