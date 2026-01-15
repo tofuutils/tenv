@@ -364,7 +364,7 @@ If a parameter is passed, available parameter options:
 			if len(args) != 0 {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			}
-
+			    conf := versionManager.Conf 
 			// Initialize config for completion
 			conf.InitDisplayer(true) // quiet mode for completion
 
