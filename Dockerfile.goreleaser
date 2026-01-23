@@ -22,6 +22,7 @@ COPY atmos /usr/local/bin/atmos
 COPY tenv /usr/local/bin/tenv
 COPY terraform /usr/local/bin/terraform
 COPY terragrunt /usr/local/bin/terragrunt
+COPY terramate /usr/local/bin/terramate
 COPY tf /usr/local/bin/tf
 COPY tofu /usr/local/bin/tofu
 
