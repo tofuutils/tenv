@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM golang:1.21 AS builder
+FROM golang:1.24 AS builder
 
 ENV CGO_ENABLED=0 \
     GOOS=linux \
@@ -31,6 +31,7 @@ RUN go get -u ./cmd/atmos \
     && go get -u ./cmd/tenv \
     && go get -u ./cmd/terraform \
     && go get -u ./cmd/terragrunt \
+    && go get -u ./cmd/terramate \
     && go get -u ./cmd/tf \
     && go get -u ./cmd/tofu \
     && go mod tidy
@@ -39,6 +40,7 @@ RUN go build -ldflags="-s -w" -o atmos ./cmd/atmos \
     && go build -ldflags="-s -w" -o tenv ./cmd/tenv \
     && go build -ldflags="-s -w" -o terraform ./cmd/terraform \
     && go build -ldflags="-s -w" -o terragrunt ./cmd/terragrunt \
+    && go build -ldflags="-s -w" -o terramate ./cmd/terramate \
     && go build -ldflags="-s -w" -o tf ./cmd/tf \
     && go build -ldflags="-s -w" -o tofu ./cmd/tofu
 
@@ -51,6 +53,7 @@ COPY --from=builder go/src/github.com/tofuutils/tenv/atmos /usr/local/bin/atmos
 COPY --from=builder go/src/github.com/tofuutils/tenv/tenv /usr/local/bin/tenv
 COPY --from=builder go/src/github.com/tofuutils/tenv/terraform /usr/local/bin/terraform
 COPY --from=builder go/src/github.com/tofuutils/tenv/terragrunt /usr/local/bin/terragrunt
+COPY --from=builder go/src/github.com/tofuutils/tenv/terramate /usr/local/bin/terramate
 COPY --from=builder go/src/github.com/tofuutils/tenv/tf /usr/local/bin/tf
 COPY --from=builder go/src/github.com/tofuutils/tenv/tofu /usr/local/bin/tofu
 

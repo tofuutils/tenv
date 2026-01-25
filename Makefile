@@ -36,6 +36,7 @@ build: get fmt ## Build service binary.
 	go build -o ./build/tofu ./cmd/tofu
 	go build -o ./build/terraform ./cmd/terraform
 	go build -o ./build/terragrunt ./cmd/terragrunt
+	go build -o ./build/terramate ./cmd/terramate
 	go build -o ./build/atmos ./cmd/atmos
 
 ##@ Run
@@ -52,7 +53,7 @@ test: ## Run Go tests
 
 ##@ E2e_test
 e2e_test: build ## Run e2e Go tests
-	TENV_BIN="$(CURDIR)/build/tenv" go test -tags=e2e ./test/e2e/... -v 
+	TENV_BIN="$(CURDIR)/build/tenv" go test -tags=e2e ./test/e2e/... -v
 
 ##@ Clean
 clean:
