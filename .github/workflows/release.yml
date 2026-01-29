@@ -91,7 +91,7 @@ jobs:
           TOFUUTILS_PR_TOKEN: ${{ secrets.TOFUUTILS_PR_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # ratchet:docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # ratchet:docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -130,7 +130,7 @@ jobs:
           echo "All images and manifests pushed successfully to ${docker_registry}!"
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # ratchet:docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # ratchet:docker/login-action@v3
         with:
           registry: registry.hub.docker.com
           username: ${{ secrets.REGISTRY_USER }}
