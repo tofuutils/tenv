@@ -78,6 +78,7 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 
 	skipSum, skipSign := false, false
 	forceInstall, forceNoInstall := false, false
+	noFallback := false
 
 	detectCmd := &cobra.Command{
 		Use:          "detect",
@@ -89,8 +90,13 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
-			detectedVersion, err := versionManager.Detect(context.Background(), false)
+			detectedVersion, err := versionManager.Detect(context.Background(), false, noFallback)
 			if err != nil {
+				if errors.Is(err, versionmanager.ErrNoVersionFilesFound) {
+					loghelper.StdDisplay(loghelper.Concat("No version files found for ", versionManager.FolderName))
+
+					return err
+				}
 				if !errors.Is(err, versionmanager.ErrNoCompatibleLocally) {
 					return err
 				}
@@ -106,6 +112,7 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 	addInstallationFlags(flags, conf, params, &skipSum, &skipSign)
 	addOptionalInstallationFlags(flags, conf, params, &forceInstall, &forceNoInstall)
 	addRemoteFlags(flags, conf, params)
+	flags.BoolVar(&noFallback, "no-fallback", false, "fail if no version files are found instead of using fallback strategy")
 
 	return detectCmd
 }

@@ -179,7 +179,7 @@ func (t Tenv) Detect(ctx context.Context, toolName string) (string, error) {
 		return "", err
 	}
 
-	return t.managers[toolName].Detect(ctx, false)
+	return t.managers[toolName].Detect(ctx, false, false)
 }
 
 // Use the result of Tenv.Detect to call Tenv.Command.
