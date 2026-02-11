@@ -48,6 +48,7 @@ var (
 	errEmptyVersion        = errors.New("empty version")
 	errNoCompatible        = errors.New("no compatible version found")
 	ErrNoCompatibleLocally = errors.New("no compatible version found locally")
+	ErrNoVersionFilesFound = errors.New("no version files found")
 )
 
 type ReleaseRetriever interface {
@@ -74,8 +75,15 @@ func Make(conf *config.Config, envPrefix string, folderName string, iacExts []ia
 }
 
 // Detect version (resolve and evaluate, can install depending on auto install env var).
-func (m VersionManager) Detect(ctx context.Context, proxyCall bool) (string, error) {
-	configVersion, err := m.Resolve(semantic.LatestAllowedKey)
+// When noFallback is true, returns ErrNoVersionFilesFound if no version files are found instead of using fallback strategy.
+func (m VersionManager) Detect(ctx context.Context, proxyCall bool, noFallback bool) (string, error) {
+	var configVersion string
+	var err error
+	if noFallback {
+		configVersion, err = m.ResolveStrict()
+	} else {
+		configVersion, err = m.Resolve(semantic.LatestAllowedKey)
+	}
 	if err != nil {
 		m.Conf.Displayer.Flush(proxyCall)
 
@@ -290,6 +298,35 @@ func (m VersionManager) Resolve(defaultStrategy string) (string, error) {
 	m.Conf.Displayer.Display(loghelper.Concat("No version files found for ", m.FolderName, ", fallback to ", defaultStrategy, " strategy"))
 
 	return defaultStrategy, nil
+}
+
+// ResolveStrict Search the requested version in version files (with fallbacks and env var overloading, but no default strategy fallback).
+// Returns ErrNoVersionFilesFound if no version is found.
+func (m VersionManager) ResolveStrict() (string, error) {
+	versionEnvName := m.EnvNames.Version()
+	version := m.Conf.Getenv(versionEnvName)
+	if version != "" {
+		return types.DisplayDetectionInfo(m.Conf.Displayer, version, versionEnvName), nil
+	}
+
+	version, err := m.ResolveWithVersionFiles()
+	if err != nil {
+		return "", err
+	}
+	if version != "" {
+		return version, nil
+	}
+
+	defaultVersionEnvName := m.EnvNames.defaultVersion()
+	if version = m.Conf.Getenv(defaultVersionEnvName); version != "" {
+		return types.DisplayDetectionInfo(m.Conf.Displayer, version, defaultVersionEnvName), nil
+	}
+
+	if version, err = flatparser.RetrieveVersion(m.RootVersionFilePath(), m.Conf); err != nil || version != "" {
+		return version, err
+	}
+
+	return "", ErrNoVersionFilesFound
 }
 
 // Search the requested version in version files.

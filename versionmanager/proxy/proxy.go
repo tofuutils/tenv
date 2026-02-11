@@ -45,7 +45,7 @@ func Exec(conf *config.Config, builderFunc builder.Func, hclParser *hclparse.Par
 	updateWorkPath(conf, cmdArgs)
 
 	ctx := context.Background()
-	detectedVersion, err := versionManager.Detect(ctx, true)
+	detectedVersion, err := versionManager.Detect(ctx, true, false)
 	if err != nil {
 		fmt.Println("Failed to detect a version allowing to call", execName, ":", err) //nolint
 		os.Exit(cmdconst.EarlyErrorExitCode)
