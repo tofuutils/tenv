@@ -44,7 +44,7 @@ RUN go build -ldflags="-s -w" -o atmos ./cmd/atmos \
     && go build -ldflags="-s -w" -o tf ./cmd/tf \
     && go build -ldflags="-s -w" -o tofu ./cmd/tofu
 
-FROM alpine:3.20
+FROM alpine:3.23
 LABEL maintainer="TofuUtils Core Team"
 
 RUN apk add --no-cache git bash openssh
