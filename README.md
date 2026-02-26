@@ -4,8 +4,7 @@
   <a href="https://github.com/tofuutils/tenv/graphs/contributors"><img src="https://img.shields.io/github/contributors/tofuutils/tenv?style=for-the-badge" alt="Contributors"></a>
   <img src="https://img.shields.io/maintenance/yes/2026.svg?style=for-the-badge" alt="maintenance status">
   <a href="https://goreportcard.com/report/github.com/tofuutils/tenv/"><img src="https://img.shields.io/badge/go%20report-A+-brightgreen.svg?style=for-the-badge" alt="Go report"></a>
-  <a href="https://codecov.io/gh/tofuutils/tenv"><img src="https://img.shields.io/codecov/c/github/tofuutils/tenv?token=BDU9X0BAZV&style=for-the-badge" alt="codecov"></a>
-</p>
+	  <a href="https://codecov.io/gh/tofuutils/tenv"><img src="https://codecov.io/gh/tofuutils/tenv/branch/main/graph/badge.svg" alt="codecov" style="height:25px"></a>a></p>
 
 
 <!-- LOGO -->
