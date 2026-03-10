@@ -29,12 +29,23 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"maps"
+	"slices"
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic"
 )
+
+// Common version strategies used across completion functions
+var commonVersionStrategies = []string{
+	"latest",
+	"latest-stable",
+	"latest-pre",
+	"latest-allowed",
+	"min-required",
+}
 
 func newConstraintCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	var descBuilder strings.Builder
@@ -149,6 +160,21 @@ If a parameter is passed, available options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Initialize config for completion
+			conf.InitDisplayer(true) // quiet mode for completion
+
+			// Get local versions using one-liner
+			localVersions := slices.Collect(maps.Keys(versionManager.LocalSet()))
+
+			// Use global variable 
+			versions := append(commonVersionStrategies, localVersions...)
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
@@ -319,7 +345,7 @@ func newResetCmd(versionManager versionmanager.VersionManager) *cobra.Command {
 	return resetCmd
 }
 
-func newUninstallCmd(versionManager versionmanager.VersionManager) *cobra.Command {
+func newUninstallCmd(versionManager versionmanager.VersionManager, params subCmdParams) *cobra.Command {
 	var descBuilder strings.Builder
 	descBuilder.WriteString("Uninstall versions of ")
 	descBuilder.WriteString(versionManager.FolderName)
@@ -341,6 +367,21 @@ If a parameter is passed, available parameter options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			    conf := versionManager.Conf 
+			// Initialize config for completion
+			conf.InitDisplayer(true) // quiet mode for completion
+
+			// Get locally installed versions using one-liner
+			localVersions := slices.Collect(maps.Keys(versionManager.LocalSet()))
+
+			// Add special uninstall options
+			versions := append(localVersions, "all", "but-last")
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			versionManager.Conf.InitDisplayer(false)
 
@@ -383,6 +424,23 @@ Available parameter options:
 		Long:         descBuilder.String(),
 		Args:         cobra.ExactArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Initialize config for completion
+			conf.InitDisplayer(true) // quiet mode for completion
+
+			// Get locally installed versions using one-liner
+			localVersions := slices.Collect(maps.Keys(versionManager.LocalSet()))
+
+			// Combine local versions and strategies
+			versions := make([]string, 0, len(localVersions)+len(commonVersionStrategies))
+			versions = append(versions, localVersions...)
+			versions = append(versions, commonVersionStrategies...)
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
