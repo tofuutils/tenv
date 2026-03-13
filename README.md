@@ -148,7 +148,7 @@ sudo pacman -S cosign
 
 </details>
 
-<details markdown="1"><summary><b>Linux: RPM</b></summary><br>
+<details markdown="1"><summary><b>Linux: CentOS/Fedora</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
@@ -157,12 +157,45 @@ sudo rpm -ivh cosign-${LATEST_VERSION}-1.x86_64.rpm
 ```
 
 </details>
-<details markdown="1"><summary><b>Linux: dkpg</b></summary><br>
+<details markdown="1"><summary><b>Linux: Debian/Ubuntu</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
 curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_VERSION}_amd64.deb"
 sudo dpkg -i cosign_${LATEST_VERSION}_amd64.deb
+```
+
+</details>
+
+<details markdown="1"><summary><b>Linux: Manual Installation Prerequisites</b></summary><br>
+
+For manual installation on Linux, you'll need the following tools:
+
+```sh
+# Install required tools (choose based on your distribution)
+
+# For Debian/Ubuntu-based distributions:
+sudo apt update
+sudo apt install curl
+
+# For RHEL/CentOS/Fedora-based distributions:
+sudo yum install curl
+# or for newer versions:
+sudo dnf install curl
+
+# For Arch Linux:
+sudo pacman -S curl
+
+# For Alpine Linux:
+sudo apk add curl
+```
+
+If you want to install cosign for verification (optional):
+
+```sh
+BINDIR=${HOME}/bin
+mkdir -p ${BINDIR}
+curl -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64" -o ${BINDIR}/cosign && chmod 700 ${BINDIR}/cosign
 ```
 
 </details>
@@ -320,7 +353,95 @@ nix-shell -p tenv
 
 <a id="manual-installation"></a>
 #### Manual Installation
+
+<details markdown="1"><summary><b>Linux Manual Installation</b></summary><br>
+
+For Linux systems, you have two main installation options: system-wide installation (requires root privileges) or user-local installation.
+
+##### Option 1: System-wide Installation
+
+If you can escalate to `root` privileges (with `su` or `sudo` or by logging in as `root`), you can make a system-wide installation of the `tenv` tool.
+
+```sh
+# Download and install tenv system-wide
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | sudo tar xfz - -C /usr/local/bin
+
+# Verify installation
+tenv --version
+```
+
+Alternatively, you can download to any directory in your `$PATH`:
+
+```sh
+# Download to /usr/bin (requires sudo)
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | sudo tar xfz - -C /usr/bin
+```
+
+Or install to a custom directory and create symlinks:
+
+```sh
+# Install to /usr/local/tenv and create symlinks
+sudo mkdir -p /usr/local/tenv
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | sudo tar xfz - -C /usr/local/tenv
+
+# Create symlinks to a directory in PATH
+sudo ln -sf /usr/local/tenv/tenv /usr/local/bin/tenv
+sudo ln -sf /usr/local/tenv/terraform /usr/local/bin/terraform
+sudo ln -sf /usr/local/tenv/tofu /usr/local/bin/tofu
+sudo ln -sf /usr/local/tenv/terragrunt /usr/local/bin/terragrunt
+sudo ln -sf /usr/local/tenv/atmos /usr/local/bin/atmos
+sudo ln -sf /usr/local/tenv/terramate /usr/local/bin/terramate
+sudo ln -sf /usr/local/tenv/tf /usr/local/bin/tf
+```
+
+##### Option 2: User-local Installation
+
+If you cannot escalate to `root` privileges, you can install tenv in your home directory. This method installs tenv only for the current user.
+
+```sh
+# Create a local bin directory
+BINDIR=${HOME}/bin
+mkdir -p ${BINDIR}
+
+# Download and install tenv locally
+curl -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_Linux_x86_64.tar.gz" | tar xfz - -C ${BINDIR}
+
+# Add to PATH if not already done (add to ~/.profile, ~/.bashrc, or ~/.zshrc)
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.profile
+
+# Reload your shell configuration or run:
+source ~/.profile
+
+# Verify installation
+tenv --version
+```
+
+For other shell configurations:
+
+```sh
+# For bash users
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# For zsh users
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+##### Notes
+
+- Any subsequent call to `tenv` will refer to the calling user's `$HOME` directory, thus installing, running and listing whatever binaries are present in the local directory (`~/.tenv` by default).
+- All commands above use `curl` which is widely available across Linux distributions.
+- The installation uses a single pipeline which is more efficient than command concatenation.
+- These commands can be easily automated for CI/CD scenarios.
+
+</details>
+
+<details markdown="1"><summary><b>Other Platforms</b></summary><br>
+
 Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
+
+</details>
 
 <a id="docker-installation"></a>
 
