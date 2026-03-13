@@ -92,15 +92,15 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 
 			detectedVersion, err := versionManager.Detect(context.Background(), false, noFallback)
 			if err != nil {
-				if errors.Is(err, versionmanager.ErrNoVersionFilesFound) {
+				switch {
+				case errors.Is(err, versionmanager.ErrNoCompatibleLocally):
+					loghelper.StdDisplay(versionmanager.ErrNoCompatibleLocally.Error())
+				case errors.Is(err, versionmanager.ErrNoVersionFilesFound):
 					loghelper.StdDisplay(loghelper.Concat("No version files found for ", versionManager.FolderName))
-
+					return err
+				default:
 					return err
 				}
-				if !errors.Is(err, versionmanager.ErrNoCompatibleLocally) {
-					return err
-				}
-				loghelper.StdDisplay(err.Error())
 			}
 			loghelper.StdDisplay(loghelper.Concat(versionManager.FolderName, " ", detectedVersion, " will be run from this directory."))
 

@@ -145,12 +145,12 @@ func Make(options ...TenvOption) (Tenv, error) {
 
 // return an exec.Cmd in order to call the specified tool version (need to have it installed for the Cmd call to work).
 func (t Tenv) Command(ctx context.Context, toolName string, requestedVersion string, cmdArgs ...string) (*exec.Cmd, error) {
-	err := t.init(toolName)
+	manager, err := t.getManager(toolName)
 	if err != nil {
 		return nil, err
 	}
 
-	installPath, err := t.managers[toolName].InstallPath()
+	installPath, err := manager.InstallPath()
 	if err != nil {
 		return nil, err
 	}
@@ -174,12 +174,12 @@ func (t Tenv) CommandProxy(ctx context.Context, toolName string, requestedVersio
 
 // Detect version (resolve and evaluate, can install depending on configuration).
 func (t Tenv) Detect(ctx context.Context, toolName string) (string, error) {
-	err := t.init(toolName)
+	manager, err := t.getManager(toolName)
 	if err != nil {
 		return "", err
 	}
 
-	return t.managers[toolName].Detect(ctx, false, false)
+	return manager.Detect(ctx, false, false)
 }
 
 // Use the result of Tenv.Detect to call Tenv.Command.
@@ -214,113 +214,126 @@ func (t Tenv) DetectedCommandProxy(ctx context.Context, toolName string, cmdArgs
 
 // Evaluate version resolution strategy or version constraint (can install depending on configuration).
 func (t Tenv) Evaluate(ctx context.Context, toolName string, requestedVersion string) (string, error) {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return "", err
 	}
 
-	return t.managers[toolName].Evaluate(ctx, requestedVersion, false)
+	return manager.Evaluate(ctx, requestedVersion, false)
 }
 
 func (t Tenv) Install(ctx context.Context, toolName string, requestedVersion string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].Install(ctx, requestedVersion)
+	return manager.Install(ctx, requestedVersion)
 }
 
 func (t Tenv) InstallMultiple(ctx context.Context, toolName string, versions []string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].InstallMultiple(ctx, versions)
+	return manager.InstallMultiple(ctx, versions)
 }
 
 func (t Tenv) ListLocal(_ context.Context, toolName string, reverseOrder bool) ([]versionmanager.DatedVersion, error) {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return nil, err
 	}
 
-	return t.managers[toolName].ListLocal(reverseOrder)
+	return manager.ListLocal(reverseOrder)
 }
 
 func (t Tenv) ListRemote(ctx context.Context, toolName string, reverseOrder bool) ([]string, error) {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return nil, err
 	}
 
-	return t.managers[toolName].ListRemote(ctx, reverseOrder)
+	return manager.ListRemote(ctx, reverseOrder)
 }
 
 func (t Tenv) LocallyInstalled(_ context.Context, toolName string) (map[string]struct{}, error) {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return nil, err
 	}
 
-	return t.managers[toolName].LocalSet(), nil
+	return manager.LocalSet(), nil
 }
 
 func (t Tenv) ResetDefaultConstraint(_ context.Context, toolName string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].ResetConstraint()
+	return manager.ResetConstraint()
 }
 
 func (t Tenv) ResetDefaultVersion(_ context.Context, toolName string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].ResetVersion()
+	return manager.ResetVersion()
 }
 
 func (t Tenv) SetDefaultConstraint(_ context.Context, toolName string, constraint string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].SetConstraint(constraint)
+	return manager.SetConstraint(constraint)
 }
 
 func (t Tenv) SetDefaultVersion(ctx context.Context, toolName string, requestedVersion string, workingDir bool) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].Use(ctx, requestedVersion, workingDir)
+	return manager.Use(ctx, requestedVersion, workingDir)
 }
 
 // Does not handle special behavior.
 func (t Tenv) Uninstall(_ context.Context, toolName string, requestedVersion string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].UninstallMultiple([]string{requestedVersion})
+	return manager.UninstallMultiple([]string{requestedVersion})
 }
 
 func (t Tenv) UninstallMultiple(_ context.Context, toolName string, versions []string) error {
-	if err := t.init(toolName); err != nil {
+	manager, err := t.getManager(toolName)
+	if err != nil {
 		return err
 	}
 
-	return t.managers[toolName].UninstallMultiple(versions)
+	return manager.UninstallMultiple(versions)
 }
 
-func (t Tenv) init(toolName string) error {
-	if _, ok := t.managers[toolName]; ok {
-		return nil
+func (t Tenv) getManager(toolName string) (versionmanager.VersionManager, error) {
+	if manager, ok := t.managers[toolName]; ok {
+		return manager, nil
 	}
 
 	builderFunc := t.builders[toolName]
 	if builderFunc == nil {
-		return errNoBuilder
+		return versionmanager.VersionManager{}, errNoBuilder
 	}
 
-	t.managers[toolName] = builderFunc(t.conf, t.hclParser)
+	manager := builderFunc(t.conf, t.hclParser)
+	t.managers[toolName] = manager
 
-	return nil
+	return manager, nil
 }
