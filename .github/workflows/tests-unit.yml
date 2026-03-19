@@ -29,7 +29,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # ratchet:codecov/codecov-action@v5
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # ratchet:codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           files: ./coverage.out
