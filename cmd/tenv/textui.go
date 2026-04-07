@@ -131,8 +131,6 @@ func (m itemSelector) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint
 
 		return m, nil
 	case tea.KeyMsg:
-		version := m.list.SelectedItem().FilterValue()
-
 		switch keypress := msg.String(); keypress {
 		case "ctrl+c", "esc", "q":
 			m.quitting = true
@@ -143,16 +141,20 @@ func (m itemSelector) Update(msg tea.Msg) (tea.Model, tea.Cmd) { //nolint
 		case "enter":
 			m.quitting = true
 
-			if len(m.choices) == 0 {
-				m.choices[version] = struct{}{}
+			selectedItem := m.list.SelectedItem()
+			if len(m.choices) == 0 && selectedItem != nil {
+				m.choices[selectedItem.FilterValue()] = struct{}{}
 			}
 
 			return m, tea.Quit
 		case " ":
-			if _, ok := m.choices[version]; ok {
-				delete(m.choices, version)
-			} else {
-				m.choices[version] = struct{}{}
+			if selectedItem := m.list.SelectedItem(); selectedItem != nil {
+				version := selectedItem.FilterValue()
+				if _, ok := m.choices[version]; ok {
+					delete(m.choices, version)
+				} else {
+					m.choices[version] = struct{}{}
+				}
 			}
 
 			return m, nil
