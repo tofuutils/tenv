@@ -1,7 +1,8 @@
 announce:
   slack:
-    enabled: true
-    message_template: ":tada: tenv {{.Tag}} is available! See what's new here - https://github.com/tofuutils/tenv/releases/tag/{{.Tag}}"
+    enabled: false
+    message_template: ":tada: tenv {{.Tag}} is available! See what's new here -
+      https://github.com/tofuutils/tenv/releases/tag/{{.Tag}}"
     channel: "#tofuutils"
     username: "tofuutils-notifications"
     icon_emoji: ""
@@ -12,7 +13,9 @@ announce:
   telegram:
     enabled: true
     chat_id: -4020097127
-    message_template: '🎉 tenv {{ mdv2escape .Tag}} is available{{ mdv2escape "!" }} See what is new here {{ mdv2escape "-" }} https://github{{ mdv2escape "." }}com/tofuutils/tenv/releases/tag/{{ mdv2escape .Tag}}'
+    message_template: "🎉 tenv {{ mdv2escape .Tag}} is available{{ mdv2escape \"!\"
+      }} See what is new here {{ mdv2escape \"-\" }} https://github{{ mdv2escape
+      \".\" }}com/tofuutils/tenv/releases/tag/{{ mdv2escape .Tag}}"
     parse_mode: MarkdownV2
 
 cloudsmiths:
@@ -38,7 +41,8 @@ aurs:
     # Empty means all IDs (no filter).
     ids: []
     homepage: "https://tofuutils.github.io/tenv/"
-    description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
+    description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version
+      manager, written in Go"
     maintainers:
       - "Alexander Sharov <kvendingoldo@gmail.com>"
       - "chaseme <aur@chase.ninja>"
@@ -112,13 +116,15 @@ aurs:
     # Default: 'ssh -i {{ .KeyPath }} -o StrictHostKeyChecking=accept-new -F /dev/null'
     # git_ssh_command: "ssh -i {{ .Env.KEY }} -o SomeOption=yes"
 
-    url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{
+      .ArtifactName }}"
     directory: "."
 
 snapcrafts:
   - name: tenv
     publish: true
-    summary: OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go
+    summary: OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager,
+      written in Go
     description: |
       tenv is a versatile version manager for OpenTofu, Terraform, Terragrunt and Atmos, written in Go.
       Our tool simplifies the complexity of handling different versions of these powerful tools,
@@ -133,33 +139,33 @@ snapcrafts:
     base: core22
     apps:
       tenv:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: tenv
-        aliases: [tenv]
+        aliases: [ tenv ]
       tofu:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: tofu
-        aliases: [tofu]
+        aliases: [ tofu ]
       terraform:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: terraform
-        aliases: [terraform]
+        aliases: [ terraform ]
       terragrunt:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: terragrunt
-        aliases: [terragrunt]
+        aliases: [ terragrunt ]
       terramate:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: terramate
-        aliases: [terramate]
+        aliases: [ terramate ]
       tf:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: tf
-        aliases: [tf]
+        aliases: [ tf ]
       atmos:
-        plugs: ["home", "network", "network-bind"]
+        plugs: [ "home", "network", "network-bind" ]
         command: atmos
-        aliases: [atmos]
+        aliases: [ atmos ]
 
 dmg:
   - id: tenv
@@ -168,7 +174,7 @@ dmg:
     # Empty means all IDs.
     ids: []
     use: binary
-    if: '{{ eq .Os "Darwin" }}'
+    if: "{{ eq .Os \"Darwin\" }}"
     goamd64: v1
     extra_files: []
     templated_extra_files: []
@@ -183,7 +189,8 @@ scoops:
       token_type: "github"
     directory: bucket
     homepage: "https://github.com/tofuutils/tenv"
-    description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
+    description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version
+      manager, written in Go"
     license: "Apache-2.0"
 
     commit_author:
@@ -193,7 +200,8 @@ scoops:
 winget:
   - name: tenv
     publisher: Tofuutils
-    short_description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager, written in Go"
+    short_description: "OpenTofu, Terraform, Terragrunt, Terramate and Atmos version
+      manager, written in Go"
     license: "Apache-2.0"
     publisher_url: "https://tofuutils.github.io/tenv/"
     publisher_support_url: "https://github.com/tofuutils/tenv/issues/new/choose"
@@ -202,19 +210,22 @@ winget:
     #    ids:
     #      - tenv
     use: archive
-    url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/tofuutils/tenv/releases/download/{{ .Tag }}/{{
+      .ArtifactName }}"
     commit_msg_template: "{{ .PackageIdentifier }}: {{ .Tag }}"
     path: "manifests/t/Tofuutils/Tenv/{{ .Version }}"
     homepage: "https://github.com/tofuutils/tenv"
-    description: "Tenv helps you install and switch versions of OpenTofu/Terraform, Terragrunt, and Atmos with simple commands."
+    description: "Tenv helps you install and switch versions of OpenTofu/Terraform,
+      Terragrunt, and Atmos with simple commands."
     license_url: "https://github.com/tofuutils/tenv/blob/{{ .Tag }}/LICENSE"
     copyright: "Tofuutils"
     skip_upload: auto
     release_notes: "{{ .Changelog }}"
     release_notes_url: "https://github.com/tofuutils/tenv/releases/tag/{{ .Tag }}"
     installation_notes: >
-      If other Terraform/OpenTofu binaries appear earlier on PATH, they may shadow
-      Tenv-managed shims. Uninstall those or adjust PATH so Tenv shims take precedence.
+      If other Terraform/OpenTofu binaries appear earlier on PATH, they may
+      shadow Tenv-managed shims. Uninstall those or adjust PATH so Tenv shims
+      take precedence.
     tags:
       - golang
       - cli
