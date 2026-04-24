@@ -207,7 +207,7 @@ nix-env -i tenv
 
 </details>
 
-<details markdown="1"><summary><b>Windows (Chocolatey, Scoop, Nix)</b></summary><br>
+<details markdown="1"><summary><b>Windows (Chocolatey, Scoop etc.)</b></summary><br>
 
 Installation via Chocolatey:
 ```console
@@ -222,6 +222,11 @@ scoop install tenv
 Installation via Nix package manager:
 ```console
 nix-env -i tenv
+```
+
+Installation via WinGet package manager:
+```console
+winget install Tofuutils.Tenv
 ```
 
 </details>
