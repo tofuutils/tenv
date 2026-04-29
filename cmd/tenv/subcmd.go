@@ -149,6 +149,19 @@ If a parameter is passed, available options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			return []string{
+				semantic.LatestKey,
+				semantic.LatestStableKey,
+				semantic.LatestPreKey,
+				semantic.LatestAllowedKey,
+				semantic.MinRequiredKey,
+			}, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 
@@ -341,6 +354,22 @@ If a parameter is passed, available parameter options:
 		Long:         descBuilder.String(),
 		Args:         cobra.MaximumNArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			versionManager.Conf.InitDisplayer(false)
+			datedVersions, err := versionManager.ListLocal(false)
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			versions := make([]string, 0, len(datedVersions))
+			for _, dv := range datedVersions {
+				versions = append(versions, dv.Version)
+			}
+
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			versionManager.Conf.InitDisplayer(false)
 
@@ -383,6 +412,22 @@ Available parameter options:
 		Long:         descBuilder.String(),
 		Args:         cobra.ExactArgs(1),
 		SilenceUsage: true,
+		ValidArgsFunction: func(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+			if len(args) != 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			conf.InitDisplayer(false)
+			datedVersions, err := versionManager.ListLocal(false)
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			versions := make([]string, 0, len(datedVersions))
+			for _, dv := range datedVersions {
+				versions = append(versions, dv.Version)
+			}
+
+			return versions, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
 			conf.InitInstall(forceInstall, forceNoInstall)
