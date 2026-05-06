@@ -97,6 +97,7 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 					loghelper.StdDisplay(versionmanager.ErrNoCompatibleLocally.Error())
 				case errors.Is(err, versionmanager.ErrNoVersionFilesFound):
 					loghelper.StdDisplay(loghelper.Concat("No version files found for ", versionManager.FolderName))
+
 					return err
 				default:
 					return err
