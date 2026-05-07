@@ -222,12 +222,12 @@ jobs:
           release_tag=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
           release_version="${release_tag#v}"
 
-          mkdir -p /tmp/tenv
+          mkdir -p ${{ github.workspace }}/tenv-tarball
 
           echo "[INFO] Download release's tarballs"
           curl \
             -SsL \
-            -o /tmp/tenv/tenv_${release_tag}_Linux_x86_64.tar.gz \
+            -o ${{ github.workspace }}/tenv-tarball/tenv_${release_tag}_Linux_x86_64.tar.gz \
             https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz
 
       - name: Publish PPA
@@ -236,6 +236,6 @@ jobs:
           repository: "kvendingoldo/tenv"
           gpg_private_key: ${{ secrets.PPA_GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.PPA_GPG_PASSPHRASE }}
-          tarball: /tmp/tenv/tenv*.tar.gz
+          tarball: ${{ github.workspace }}/tenv-tarball/tenv*.tar.gz
           deb_email: "kvendingoldo@gmail.com"
           deb_fullname: "tenv"
