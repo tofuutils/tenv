@@ -1828,6 +1828,14 @@ TOFUENV_LIST_URL=https://api.github.com/repos/opentofu/opentofu/releases
 
 Example 3 & 4, does not create a rewrite rule (the direct install mode build correct download URLs).
 
+Example 5 : Install Terragrunt directly from GitHub release downloads, bypassing the GitHub REST API to avoid rate limits without needing a GitHub token.
+
+```console
+TG_REMOTE=https://github.com
+```
+
+Pointing TG_REMOTE at https://github.com switches TG_INSTALL_MODE to "direct" and TG_LIST_MODE to "html" automatically, so `tenv tg install <version>` resolves the download URL as `https://github.com/gruntwork-io/terragrunt/releases/download/v<version>/terragrunt_<os>_<arch>` directly.
+
 Example 1 & 4 can be merged in a remote.yaml :
 
 ```yaml
