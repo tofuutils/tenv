@@ -19,7 +19,9 @@
 package config
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -33,6 +35,7 @@ import (
 	"github.com/tofuutils/tenv/v4/config/envname"
 	configutils "github.com/tofuutils/tenv/v4/config/utils"
 	githuburl "github.com/tofuutils/tenv/v4/pkg/github/url"
+	"github.com/tofuutils/tenv/v4/pkg/githubapp"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	atmosurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/atmos/url"
 	terraformurl "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/url"
@@ -156,6 +159,22 @@ func InitConfigFromEnv() (Config, error) {
 		return Config{}, err
 	}
 
+	githubToken := getenv.Fallback(envname.TenvToken, envname.TofuToken)
+	if githubToken == "" {
+		if appID := getenv(envname.TenvGithubAppID); appID != "" {
+			githubToken, err = githubapp.InstallationToken(
+				context.Background(),
+				appID,
+				getenv(envname.TenvGithubAppInstallationID),
+				getenv(envname.TenvGithubAppPEM),
+				getenv(envname.TenvGithubAppPEMFile),
+			)
+			if err != nil {
+				return Config{}, fmt.Errorf("GitHub App authentication: %w", err)
+			}
+		}
+	}
+
 	return Config{
 		Arch:             arch,
 		Atmos:            makeRemoteConfig(getenv, envname.AtmosRemoteURL, envname.AtmosListURL, envname.AtmosInstallMode, envname.AtmosListMode, atmosurl.Github, githuburl.Base),
@@ -163,7 +182,7 @@ func InitConfigFromEnv() (Config, error) {
 		ForceRemote:      forceRemote,
 		Getenv:           getenv,
 		GithubActions:    getenv.Present(envname.GithubActions),
-		GithubToken:      getenv.Fallback(envname.TenvToken, envname.TofuToken),
+		GithubToken:      githubToken,
 		LockPath:         lockPath,
 		RemoteConfPath:   getenv(envname.TenvRemoteConf),
 		RootPath:         rootPath,

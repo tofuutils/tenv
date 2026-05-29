@@ -41,6 +41,11 @@ const (
 	GithubOutput  = githubPrefix + "OUTPUT"
 	token         = githubPrefix + "TOKEN"
 
+	TenvGithubAppID             = tenvPrefix + githubPrefix + "APP_ID"
+	TenvGithubAppInstallationID = tenvPrefix + githubPrefix + "APP_INSTALLATION_ID"
+	TenvGithubAppPEM            = tenvPrefix + githubPrefix + "APP_PEM"
+	TenvGithubAppPEMFile        = tenvPrefix + githubPrefix + "APP_PEM_FILE"
+
 	AtmosPrefix      = "ATMOS_"
 	AtmosInstallMode = AtmosPrefix + installMode
 	AtmosListMode    = AtmosPrefix + listMode
