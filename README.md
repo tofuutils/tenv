@@ -738,6 +738,42 @@ Allow to specify a GitHub token to increase [GitHub Rate limits for the REST API
 </details>
 
 
+<details markdown="1"><summary><b>TENV_GITHUB_APP_ID</b></summary><br>
+
+String (Default: "")
+
+The numeric ID of a [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps). When set (and `TENV_GITHUB_TOKEN` is not), **tenv** generates a short-lived installation access token from the App credentials and uses it as the bearer token for GitHub API calls. This is useful in CI systems (e.g. Atlantis) that already authenticate via a GitHub App, and raises the rate limit to 15,000 requests/hour per installation. Requires one of `TENV_GITHUB_APP_PEM` or `TENV_GITHUB_APP_PEM_FILE` to also be set.
+
+</details>
+
+
+<details markdown="1"><summary><b>TENV_GITHUB_APP_INSTALLATION_ID</b></summary><br>
+
+String (Default: "")
+
+The numeric installation ID of the GitHub App. Optional: when omitted, **tenv** auto-discovers it by querying the App's installations with the App JWT and using the first one returned. Set it explicitly when the App has more than one installation. Only used when `TENV_GITHUB_APP_ID` is set.
+
+</details>
+
+
+<details markdown="1"><summary><b>TENV_GITHUB_APP_PEM</b></summary><br>
+
+String (Default: "")
+
+The GitHub App's RSA private key as an inline PEM string. Alternative to `TENV_GITHUB_APP_PEM_FILE`; takes precedence over it when both are set. Only used when `TENV_GITHUB_APP_ID` is set.
+
+</details>
+
+
+<details markdown="1"><summary><b>TENV_GITHUB_APP_PEM_FILE</b></summary><br>
+
+String (Default: "")
+
+Path to a file containing the GitHub App's RSA private key in PEM format. Alternative to `TENV_GITHUB_APP_PEM`. Only used when `TENV_GITHUB_APP_ID` is set.
+
+</details>
+
+
 <details markdown="1"><summary><b>TENV_QUIET</b></summary><br>
 
 String (Default: false)
