@@ -18,12 +18,13 @@ LABEL maintainer="TofuUtils Core Team"
 
 RUN apk add --no-cache git bash openssh
 
-COPY atmos /usr/local/bin/atmos
-COPY tenv /usr/local/bin/tenv
-COPY terraform /usr/local/bin/terraform
-COPY terragrunt /usr/local/bin/terragrunt
-COPY terramate /usr/local/bin/terramate
-COPY tf /usr/local/bin/tf
-COPY tofu /usr/local/bin/tofu
+ARG TARGETPLATFORM
+COPY $TARGETPLATFORM/atmos /usr/local/bin/atmos
+COPY $TARGETPLATFORM/tenv /usr/local/bin/tenv
+COPY $TARGETPLATFORM/terraform /usr/local/bin/terraform
+COPY $TARGETPLATFORM/terragrunt /usr/local/bin/terragrunt
+COPY $TARGETPLATFORM/terramate /usr/local/bin/terramate
+COPY $TARGETPLATFORM/tf /usr/local/bin/tf
+COPY $TARGETPLATFORM/tofu /usr/local/bin/tofu
 
 ENTRYPOINT ["/usr/local/bin/tenv"]

@@ -233,106 +233,41 @@ builds:
       - goos: solaris
         goarch: arm64
 
-dockers:
-  - use: buildx
-    goarch: amd64
-    dockerfile: Dockerfile.goreleaser
-    build_flag_templates:
+dockers_v2:
+  - dockerfile: Dockerfile.goreleaser
+    ids:
+      - tenv
+      - tofu
+      - terraform
+      - terragrunt
+      - terramate
+      - tf
+      - atmos
+    images:
+      - "ghcr.io/tofuutils/tenv"
+      - "registry.hub.docker.com/tofuutils/tenv"
+    tags:
+      - "latest"
+      - "{{ .Version }}"
+      - "{{ .Major }}.{{ .Minor }}"
+    platforms:
+      - linux/amd64
+      - linux/arm64
+      - linux/arm
+      - linux/386
+    labels:
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.vendor: "tofuutils"
+      org.opencontainers.image.description: "tenv {{ .Version }}"
+      org.opencontainers.image.url: "https://github.com/tofuutils/tenv"
+      org.opencontainers.image.documentation: "https://github.com/tofuutils/tenv/blob/main/README.md"
+      org.opencontainers.image.source: "https://github.com/tofuutils/tenv"
+      org.opencontainers.image.licenses: "Apache-2.0"
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.created: '{{ time "2006-01-02T15:04:05Z07:00" }}'
+    flags:
       - "--pull"
-      - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=tofuutils"
-      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.licenses=Apache-2.0"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
-    image_templates:
-      - "ghcr.io/tofuutils/tenv:latest-amd64"
-      - "ghcr.io/tofuutils/tenv:{{ .Version }}-amd64"
-      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-amd64"
-      - "registry.hub.docker.com/tofuutils/tenv:latest-amd64"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-amd64"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-amd64"
-    skip_push: true
-
-  - use: buildx
-    goarch: arm64
-    dockerfile: Dockerfile.goreleaser
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=tofuutils"
-      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.licenses=Apache-2.0"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
-    image_templates:
-      - "ghcr.io/tofuutils/tenv:latest-arm64"
-      - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm64"
-      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm64"
-      - "registry.hub.docker.com/tofuutils/tenv:latest-arm64"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm64"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm64"
-    skip_push: true
-
-  - use: buildx
-    goarch: arm
-    dockerfile: Dockerfile.goreleaser
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=tofuutils"
-      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.licenses=Apache-2.0"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
-    image_templates:
-      - "ghcr.io/tofuutils/tenv:latest-arm"
-      - "ghcr.io/tofuutils/tenv:{{ .Version }}-arm"
-      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm"
-      - "registry.hub.docker.com/tofuutils/tenv:latest-arm"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-arm"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-arm"
-    skip_push: true
-
-  - use: buildx
-    goarch: "386"
-    dockerfile: Dockerfile.goreleaser
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/386"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.vendor=tofuutils"
-      - "--label=org.opencontainers.image.description=tenv {{ .Version }}"
-      - "--label=org.opencontainers.image.url=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.documentation=https://github.com/tofuutils/tenv/blob/main/README.md"
-      - "--label=org.opencontainers.image.source=https://github.com/tofuutils/tenv"
-      - "--label=org.opencontainers.image.licenses=Apache-2.0"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
-    image_templates:
-      - "ghcr.io/tofuutils/tenv:latest-386"
-      - "ghcr.io/tofuutils/tenv:{{ .Version }}-386"
-      - "ghcr.io/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-386"
-      - "registry.hub.docker.com/tofuutils/tenv:latest-386"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Version }}-386"
-      - "registry.hub.docker.com/tofuutils/tenv:{{ .Major }}.{{ .Minor }}-386"
-    skip_push: true
 
 docker_signs:
   - cmd: cosign
