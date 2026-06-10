@@ -257,7 +257,6 @@ dockers_v2:
       - terramate
       - tf
       - atmos
-    skip_push: true
     images:
       - "ghcr.io/tofuutils/tenv"
       - "registry.hub.docker.com/tofuutils/tenv"
