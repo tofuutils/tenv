@@ -72,5 +72,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           new_tag="${{ steps.increment_version.outputs.new_tag }}"
-          git tag "${new_tag}"
+          git config --replace-all --global user.name "github-actions[bot]"
+          git config --replace-all --global user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${new_tag}" -m "${new_tag}"
           git push origin "${new_tag}"
