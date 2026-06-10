@@ -19,6 +19,8 @@ builds:
     binary: tenv
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     ldflags:
       - -s -w -X main.version={{.Tag}}
     goos:
@@ -52,6 +54,8 @@ builds:
     main: ./cmd/tofu
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     goos:
       - linux
       - windows
@@ -83,6 +87,8 @@ builds:
     main: ./cmd/terraform
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     goos:
       - linux
       - windows
@@ -114,6 +120,8 @@ builds:
     main: ./cmd/terragrunt
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     goos:
       - linux
       - windows
@@ -145,6 +153,8 @@ builds:
     main: ./cmd/terramate
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     goos:
       - linux
       - windows
@@ -176,6 +186,8 @@ builds:
     main: ./cmd/tf
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     goos:
       - linux
       - windows
@@ -207,6 +219,8 @@ builds:
     main: ./cmd/atmos
     env:
       - CGO_ENABLED=0
+    goarm:
+      - 7
     goos:
       - linux
       - windows
