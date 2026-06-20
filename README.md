@@ -1139,6 +1139,40 @@ Allow to override the remote url only for the releases listing.
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
+
+<details markdown="1"><summary><b>Offline Release Lists (file:// URLs)</b></summary><br>
+
+The `*_LIST_URL` variables now support the `file://` scheme for reading release lists from local files. This is useful for air-gapped environments, restricted CI runners, or prebuilt container images.
+
+**Supported URL schemes:**
+- `https://...` - Remote HTTPS URL (default, requires network)
+- `http://...` - Remote HTTP URL (requires network)  
+- `file:///...` - Local absolute path
+- `file://./...` - Local relative path
+
+**Example - Local file releases:**
+
+```bash
+# Create a directory with release information
+mkdir -p /opt/releases/terraform
+# Copy existing release index to local directory
+cp /path/to/releases.json /opt/releases/terraform/index.json
+
+# Use file:// URL for offline version resolution
+export TFENV_LIST_URL=file:///opt/releases
+tenv tf list-remote
+
+# Works with all tools
+export TOFUENV_LIST_URL=file:///opt/releases
+export TG_LIST_URL=file:///opt/releases
+tenv tofu list-remote
+tenv tg list-remote
+```
+
+The `file://` scheme uses the same JSON structure as the remote releases API, so you can simply copy an existing `index.json` or `releases.json` from a public mirror to your local directory for offline usage.
+
+</details>
+
 </details>
 
 
