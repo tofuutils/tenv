@@ -157,7 +157,7 @@ sudo rpm -ivh cosign-${LATEST_VERSION}-1.x86_64.rpm
 ```
 
 </details>
-<details markdown="1"><summary><b>Linux: dkpg</b></summary><br>
+<details markdown="1"><summary><b>Linux: dpkg</b></summary><br>
 
 ```sh
 LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
@@ -325,7 +325,59 @@ nix-shell -p tenv
 
 <a id="manual-installation"></a>
 #### Manual Installation
-Get the most recent packaged binaries (`.deb`, `.rpm`, `.apk`, `pkg.tar.zst `, `.zip` or `.tar.gz` format) by visiting the [release page](https://github.com/tofuutils/tenv/releases). After downloading, unzip the folder and seamlessly integrate it into your system's `PATH`.
+
+Download the latest packaged binaries from the [release page](https://github.com/tofuutils/tenv/releases) (`.tar.gz` for Linux/macOS, `.zip` for Windows, or distro packages like `.deb`, `.rpm`, `.apk`, `pkg.tar.zst`).
+
+<details markdown="1"><summary><b>Linux: system-wide installation (requires root)</b></summary><br>
+
+If you have root access via `sudo` or `su`, you can install tenv for all users on the system.
+
+Determine your architecture (`x86_64`, `arm64`, `armv6`, or `i386`) and run:
+
+```sh
+LATEST_VERSION=$(curl --silent "https://api.github.com/repos/tofuutils/tenv/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_Linux_x86_64.tar.gz"
+sudo tar xzf "tenv_${LATEST_VERSION}_Linux_x86_64.tar.gz" -C /usr/local/bin
+```
+
+This extracts the binaries directly into `/usr/local/bin`, which is typically already in `$PATH`.
+
+Alternatively, install to a dedicated directory and create symlinks:
+
+```sh
+sudo mkdir -p /usr/local/tenv
+sudo tar xzf "tenv_${LATEST_VERSION}_Linux_x86_64.tar.gz" -C /usr/local/tenv
+sudo ln -sf /usr/local/tenv/tenv /usr/local/bin/tenv
+```
+
+</details>
+
+<details markdown="1"><summary><b>Linux: user-local installation (no root required)</b></summary><br>
+
+If you do not have root access, install tenv into your home directory:
+
+```sh
+LATEST_VERSION=$(curl --silent "https://api.github.com/repos/tofuutils/tenv/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_VERSION}_Linux_x86_64.tar.gz"
+mkdir -p ~/bin
+tar xzf "tenv_${LATEST_VERSION}_Linux_x86_64.tar.gz" -C ~/bin
+```
+
+Then ensure `~/bin` is on your `PATH`. Add the following to `~/.profile` (or `~/.bashrc`):
+
+```sh
+export PATH="$HOME/bin:$PATH"
+```
+
+Reload your shell:
+
+```sh
+source ~/.profile
+```
+
+> **Note:** tenv stores managed tool versions under `~/.tenv` by default. Without root, all installed tools are local to your user account.
+
+</details>
 
 <a id="docker-installation"></a>
 
