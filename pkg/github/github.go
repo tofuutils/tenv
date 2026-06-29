@@ -21,6 +21,7 @@ package github
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -56,7 +57,7 @@ func AssetDownloadURL(ctx context.Context, tag string, searchedAssetNames []stri
 	object, _ := value.(map[string]any)
 	baseAssetsURL, ok := object["assets_url"].(string)
 	if !ok {
-		return nil, apimsg.ErrReturn
+		return nil, fmt.Errorf("%w: missing or non-string 'assets_url' field in release response: %v", apimsg.ErrReturn, value)
 	}
 
 	waited := len(searchedAssetNames)
@@ -142,7 +143,7 @@ func buildAuthorizationHeader(token string) string {
 func extractAssets(assets map[string]string, searchedAssetNameSet map[string]struct{}, waited int, value any) error {
 	values, ok := value.([]any)
 	if !ok {
-		return apimsg.ErrReturn
+		return fmt.Errorf("%w: expected a JSON array of assets, got %T: %v", apimsg.ErrReturn, value, value)
 	}
 
 	if len(values) == 0 {
@@ -153,7 +154,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 		object, _ := value.(map[string]any)
 		assetName, ok := object["name"].(string) //nolint
 		if !ok {
-			return apimsg.ErrReturn
+			return fmt.Errorf("%w: missing or non-string 'name' field in asset: %v", apimsg.ErrReturn, object)
 		}
 
 		if _, ok := searchedAssetNameSet[assetName]; !ok {
@@ -162,7 +163,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 
 		downloadURL, ok := object["browser_download_url"].(string)
 		if !ok {
-			return apimsg.ErrReturn
+			return fmt.Errorf("%w: missing or non-string 'browser_download_url' field for asset %q: %v", apimsg.ErrReturn, assetName, object)
 		}
 		assets[assetName] = downloadURL
 
@@ -177,7 +178,7 @@ func extractAssets(assets map[string]string, searchedAssetNameSet map[string]str
 func extractReleases(releases []string, value any) ([]string, error) {
 	values, ok := value.([]any)
 	if !ok {
-		return nil, apimsg.ErrReturn
+		return nil, fmt.Errorf("%w: expected a JSON array of releases, got %T: %v", apimsg.ErrReturn, value, value)
 	}
 
 	if len(values) == 0 {
@@ -187,7 +188,7 @@ func extractReleases(releases []string, value any) ([]string, error) {
 	for _, value := range values {
 		version := extractVersion(value)
 		if version == "" {
-			return nil, apimsg.ErrReturn
+			return nil, fmt.Errorf("%w: could not extract a version from release entry: %v", apimsg.ErrReturn, value)
 		}
 		releases = append(releases, version)
 	}

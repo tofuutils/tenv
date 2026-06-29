@@ -18,7 +18,10 @@
 
 package releaseapi
 
-import "github.com/tofuutils/tenv/v4/pkg/apimsg"
+import (
+	"fmt"
+	"github.com/tofuutils/tenv/v4/pkg/apimsg"
+)
 
 func ExtractAssetURLs(searchedOs string, searchedArch string, value any) (string, string, string, string, error) {
 	object, _ := value.(map[string]any)
@@ -26,7 +29,7 @@ func ExtractAssetURLs(searchedOs string, searchedArch string, value any) (string
 	shaFileName, ok2 := object["shasums"].(string)
 	shaSigFileName, ok3 := object["shasums_signature"].(string)
 	if !ok || !ok2 || !ok3 {
-		return "", "", "", "", apimsg.ErrReturn
+		return "", "", "", "", fmt.Errorf("%w: missing or invalid 'builds', 'shasums', or 'shasums_signature' field in release response: %v", apimsg.ErrReturn, object)
 	}
 
 	for _, build := range builds {
@@ -36,7 +39,7 @@ func ExtractAssetURLs(searchedOs string, searchedArch string, value any) (string
 		downloadURL, ok3 := object["url"].(string)
 		fileName, ok4 := object["filename"].(string)
 		if !ok || !ok2 || !ok3 || !ok4 {
-			return "", "", "", "", apimsg.ErrReturn
+			return "", "", "", "", fmt.Errorf("%w: missing or invalid os/arch/url/filename field in build entry: %v", apimsg.ErrReturn, object)
 		}
 
 		if osStr != searchedOs || archStr != searchedArch {
@@ -53,7 +56,7 @@ func ExtractReleases(value any) ([]string, error) {
 	object, _ := value.(map[string]any)
 	versions, ok := object["versions"].(map[string]any)
 	if !ok {
-		return nil, apimsg.ErrReturn
+		return nil, fmt.Errorf("%w: missing or non-object 'versions' field in response: %v", apimsg.ErrReturn, object)
 	}
 
 	releases := make([]string, 0, len(object))

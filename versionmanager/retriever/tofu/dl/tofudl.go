@@ -19,6 +19,7 @@
 package tofudlmirroring
 
 import (
+	"fmt"
 	"strings"
 	"text/template"
 
@@ -58,7 +59,7 @@ func ExtractReleases(value any) ([]string, error) {
 	object, _ := value.(map[string]any)
 	versions, ok := object["versions"].([]any)
 	if !ok {
-		return nil, apimsg.ErrReturn
+		return nil, fmt.Errorf("%w: missing or non-array 'versions' field in response: %v", apimsg.ErrReturn, object)
 	}
 
 	releases := make([]string, 0, len(object))
@@ -67,7 +68,7 @@ func ExtractReleases(value any) ([]string, error) {
 		versionID := castedVersionDesc["id"]
 		version, ok := versionID.(string)
 		if !ok {
-			return nil, apimsg.ErrReturn
+			return nil, fmt.Errorf("%w: missing or non-string 'id' field in version entry: %v", apimsg.ErrReturn, castedVersionDesc)
 		}
 
 		releases = append(releases, version)
