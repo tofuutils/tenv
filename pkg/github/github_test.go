@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"errors"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
@@ -153,4 +154,94 @@ func TestExtractVersion(t *testing.T) {
 	if version != "1.6.0" {
 		t.Error("Unmatching result, get :", version)
 	}
+}
+
+// new test func's for MalformedData
+func TestExtractAssetsMalformedData(t *testing.T) {
+	t.Parallel()
+
+	t.Run("NotAnArray", func(t *testing.T) {
+		t.Parallel()
+
+		assets := map[string]string{}
+		searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": {}}
+		err := extractAssets(assets, searchedAssetNames, 1, "not an array")
+		if err == nil {
+			t.Fatal("Should fail on non-array value")
+		}
+		if !errors.Is(err, apimsg.ErrReturn) {
+			t.Error("Expected wrapped apimsg.ErrReturn, got :", err)
+		}
+		if !strings.Contains(err.Error(), "not an array") {
+			t.Error("Expected error message to contain the unexpected value, got :", err)
+		}
+	})
+
+	t.Run("MissingNameField", func(t *testing.T) {
+		t.Parallel()
+
+		assets := map[string]string{}
+		searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": {}}
+		badValue := []any{map[string]any{"browser_download_url": "https://example.com/file"}}
+		err := extractAssets(assets, searchedAssetNames, 1, badValue)
+		if err == nil {
+			t.Fatal("Should fail on missing 'name' field")
+		}
+		if !errors.Is(err, apimsg.ErrReturn) {
+			t.Error("Expected wrapped apimsg.ErrReturn, got :", err)
+		}
+		if !strings.Contains(err.Error(), "name") {
+			t.Error("Expected error message to mention the missing 'name' field, got :", err)
+		}
+	})
+
+	t.Run("MissingDownloadURLField", func(t *testing.T) {
+		t.Parallel()
+
+		assets := map[string]string{}
+		searchedAssetNames := map[string]struct{}{"tofu_1.6.0_386.deb": {}}
+		badValue := []any{map[string]any{"name": "tofu_1.6.0_386.deb"}}
+		err := extractAssets(assets, searchedAssetNames, 1, badValue)
+		if err == nil {
+			t.Fatal("Should fail on missing 'browser_download_url' field")
+		}
+		if !errors.Is(err, apimsg.ErrReturn) {
+			t.Error("Expected wrapped apimsg.ErrReturn, got :", err)
+		}
+		if !strings.Contains(err.Error(), "browser_download_url") {
+			t.Error("Expected error message to mention the missing field, got :", err)
+		}
+	})
+}
+
+func TestExtractReleasesMalformedData(t *testing.T) {
+	t.Parallel()
+
+	t.Run("NotAnArray", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := extractReleases(nil, 42)
+		if err == nil {
+			t.Fatal("Should fail on non-array value")
+		}
+		if !errors.Is(err, apimsg.ErrReturn) {
+			t.Error("Expected wrapped apimsg.ErrReturn, got :", err)
+		}
+		if !strings.Contains(err.Error(), "42") {
+			t.Error("Expected error message to contain the unexpected value, got :", err)
+		}
+	})
+
+	t.Run("UnparseableVersion", func(t *testing.T) {
+		t.Parallel()
+
+		badValue := []any{map[string]any{"tag_name": ""}}
+		_, err := extractReleases(nil, badValue)
+		if err == nil {
+			t.Fatal("Should fail when no version can be extracted")
+		}
+		if !errors.Is(err, apimsg.ErrReturn) {
+			t.Error("Expected wrapped apimsg.ErrReturn, got :", err)
+		}
+	})
 }
