@@ -88,6 +88,7 @@ func newDetectCmd(versionManager versionmanager.VersionManager, params subCmdPar
 		SilenceUsage: true,
 		RunE: func(_ *cobra.Command, _ []string) error {
 			conf.InitDisplayer(false)
+			conf.InitValidation(skipSum, skipSign)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
 			detectedVersion, err := versionManager.Detect(context.Background(), false, noFallback)
@@ -165,6 +166,7 @@ If a parameter is passed, available options:
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
+			conf.InitValidation(skipSum, skipSign)
 
 			ctx := context.Background()
 			if len(args) == 0 {
@@ -431,6 +433,7 @@ Available parameter options:
 		},
 		RunE: func(_ *cobra.Command, args []string) error {
 			conf.InitDisplayer(false)
+			conf.InitValidation(skipSum, skipSign)
 			conf.InitInstall(forceInstall, forceNoInstall)
 
 			return versionManager.Use(context.Background(), args[0], workingDir)
