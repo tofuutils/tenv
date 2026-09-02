@@ -30,7 +30,7 @@ import (
 
 var errArchive = errors.New("unknown archive kind")
 
-// ensure the directory exists with a MkdirAll call.
+// ToDir ensures the directory exists with a MkdirAll call.
 func ToDir(data []byte, filePath string, dirPath string, filter func(string) bool) error {
 	err := os.MkdirAll(dirPath, fileperm.RWE)
 	if err != nil {

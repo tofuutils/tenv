@@ -25,14 +25,13 @@ import (
 	"os/exec"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	cmdproxy "github.com/tofuutils/tenv/v4/pkg/cmdproxy"
 	"github.com/tofuutils/tenv/v4/versionmanager/builder"
 )
 
-// Always call os.Exit.
+// ExecAgnostic always calls os.Exit.
 func ExecAgnostic(conf *config.Config, hclParser *hclparse.Parser, cmdArgs []string) {
 	conf.InitDisplayer(true)
 	manager := builder.BuildTofuManager(conf, hclParser)

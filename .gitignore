@@ -26,12 +26,12 @@ bin/terraform-*
 .idea
 .DS_Store
 
-tenv
-terraform
-terragrunt
-terramate
-tofu
-atmos
+/tenv
+/terraform
+/terragrunt
+/terramate
+/tofu
+/atmos
 
 build/
 

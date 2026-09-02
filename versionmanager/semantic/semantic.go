@@ -24,7 +24,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-version"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	iacparser "github.com/tofuutils/tenv/v4/versionmanager/semantic/parser/iac"

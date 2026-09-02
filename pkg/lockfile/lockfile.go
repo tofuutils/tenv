@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-hclog"
-
 	"github.com/tofuutils/tenv/v4/config/cmdconst"
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
@@ -37,9 +36,9 @@ const (
 	msgDelete = "can not remove .lock file"
 )
 
-// WriteWithCustomLockPath allows specifying a custom lock file path.
-// ! lockDir must already exist (no mkdir here).
-// the returned function must be used to delete the lock.
+// WriteWithCustomLockPath creates a lock file in the given directory and returns a cleanup function.
+// The lockDir must already exist (no mkdir here).
+// The returned function must be used to delete the lock.
 func WriteWithCustomLockPath(lockDir string, folderName string, displayer loghelper.Displayer) func() {
 	// Ensure the lock directory exists before attempting to create the lock file
 	if _, err := os.Stat(lockDir); os.IsNotExist(err) {
@@ -69,7 +68,8 @@ func WriteWithCustomLockPath(lockDir string, folderName string, displayer loghel
 	})
 }
 
-// the returned function may be used to avoid goroutine leak
+// CleanAndExitOnInterrupt sets up signal handling for interrupt and returns a cleanup function.
+// The returned function may be used to avoid goroutine leak
 // (also avoid conflicting behavior with versionmanager/proxy.transmitIncreasingSignal).
 func CleanAndExitOnInterrupt(clean func()) func() {
 	signalChan := make(chan os.Signal, 1)

@@ -23,13 +23,50 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/hashicorp/go-hclog"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/lockfile"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
+
+// recordingDisplayer captures Log calls so tests can assert on them.
+// Safe for concurrent use since WriteWithCustomLockPath's retry loop logs from the caller goroutine only,
+// but TestParallelWriteRead exercises several goroutines against a shared displayer.
+type recordingDisplayer struct {
+	mu   sync.Mutex
+	logs []logCall
+}
+
+type logCall struct {
+	Level hclog.Level
+	Msg   string
+	Args  []any
+}
+
+func (d *recordingDisplayer) Display(string) {}
+
+func (d *recordingDisplayer) IsDebug() bool { return false }
+
+func (d *recordingDisplayer) Log(level hclog.Level, msg string, args ...any) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	d.logs = append(d.logs, logCall{Level: level, Msg: msg, Args: args})
+}
+
+func (d *recordingDisplayer) Flush(bool) {}
+
+func (d *recordingDisplayer) Calls() []logCall {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	return slices.Clone(d.logs)
+}
 
 //go:embed testdata/data1.txt
 var data1 []byte
@@ -92,4 +129,87 @@ func writeReadFile(dirPath string, filePath string, data []byte, displayer loghe
 	time.Sleep(100 * time.Millisecond)
 
 	return os.ReadFile(filePath)
+}
+
+func TestCleanAndExitOnInterrupt(t *testing.T) {
+	t.Parallel()
+
+	var cleaned bool
+	disableExit := lockfile.CleanAndExitOnInterrupt(func() { cleaned = true })
+
+	// No signal was sent, so disabling must return without invoking clean and without hanging.
+	disableExit()
+
+	assert.False(t, cleaned, "clean should not run unless an interrupt signal is received")
+}
+
+func TestWriteWithCustomLockPath_CreatesAndRemovesLockFile(t *testing.T) {
+	t.Parallel()
+
+	lockDir := t.TempDir()
+	displayer := &recordingDisplayer{}
+
+	deleteLock := lockfile.WriteWithCustomLockPath(lockDir, "terraform", displayer)
+
+	lockPath := filepath.Join(lockDir, "terraform.lock")
+	_, err := os.Stat(lockPath)
+	require.NoError(t, err, "lock file should exist after WriteWithCustomLockPath")
+
+	deleteLock()
+
+	_, err = os.Stat(lockPath)
+	assert.True(t, os.IsNotExist(err), "lock file should be removed after calling the cleanup function")
+}
+
+func TestWriteWithCustomLockPath_CleanupIsIdempotent(t *testing.T) {
+	t.Parallel()
+
+	lockDir := t.TempDir()
+	displayer := &recordingDisplayer{}
+
+	deleteLock := lockfile.WriteWithCustomLockPath(lockDir, "tofu", displayer)
+
+	assert.NotPanics(t, func() {
+		deleteLock()
+		deleteLock()
+	}, "cleanup function must be safe to call more than once")
+}
+
+func TestWriteWithCustomLockPath_MissingLockDir(t *testing.T) {
+	t.Parallel()
+
+	missingDir := filepath.Join(t.TempDir(), "does-not-exist")
+	displayer := &recordingDisplayer{}
+
+	deleteLock := lockfile.WriteWithCustomLockPath(missingDir, "terraform", displayer)
+
+	// No lock file must be created when the lock directory itself is missing.
+	_, err := os.Stat(filepath.Join(missingDir, "terraform.lock"))
+	assert.True(t, os.IsNotExist(err))
+
+	calls := displayer.Calls()
+	require.Len(t, calls, 1)
+	assert.Equal(t, hclog.Error, calls[0].Level)
+	assert.Equal(t, "lock directory does not exist", calls[0].Msg)
+	assert.Equal(t, []any{"dir", missingDir}, calls[0].Args)
+
+	// The returned cleanup function must still be safe to call (no-op).
+	assert.NotPanics(t, deleteLock)
+}
+
+func TestWriteWithCustomLockPath_SeparateFoldersDoNotConflict(t *testing.T) {
+	t.Parallel()
+
+	lockDir := t.TempDir()
+	displayer := &recordingDisplayer{}
+
+	// Two different folder names in the same lock directory must not block each other,
+	// since the lock file name is scoped by folderName.
+	deleteTerraformLock := lockfile.WriteWithCustomLockPath(lockDir, "terraform", displayer)
+	deleteTofuLock := lockfile.WriteWithCustomLockPath(lockDir, "tofu", displayer)
+
+	assert.Empty(t, displayer.Calls(), "acquiring locks for distinct folders should not retry or log")
+
+	deleteTerraformLock()
+	deleteTofuLock()
 }

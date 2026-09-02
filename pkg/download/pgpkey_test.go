@@ -19,7 +19,6 @@
 package download
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -67,7 +66,7 @@ func TestGetPGPKey(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Helper()
 
-			got, err := GetPGPKey(context.Background(), pathOrUrl, NoDisplay)
+			got, err := GetPGPKey(t.Context(), pathOrUrl, NoDisplay)
 			switch {
 			case wantErr:
 				if err == nil {

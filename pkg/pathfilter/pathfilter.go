@@ -20,7 +20,8 @@ package pathfilter
 
 import "strings"
 
-// Handle '/' and '\' separated path.
+// NameEqual returns a function that checks if the name part of a path equals the target name.
+// It handles '/' and '\' separated paths.
 func NameEqual(targetName string) func(string) bool {
 	return func(path string) bool {
 		separatorIndex := strings.LastIndexByte(path, '/')

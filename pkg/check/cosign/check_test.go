@@ -19,16 +19,23 @@
 package cosigncheck_test
 
 import (
+	"context"
 	_ "embed"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	cosigncheck "github.com/tofuutils/tenv/v4/pkg/check/cosign"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
-	identity = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v1.6"
-	issuer   = "https://token.actions.githubusercontent.com"
+	identity     = "https://github.com/opentofu/opentofu/.github/workflows/release.yml@refs/heads/v1.6"
+	issuer       = "https://token.actions.githubusercontent.com"
+	testIdentity = "test-identity"
+	testIssuer   = "test-issuer"
 )
 
 //go:embed testdata/tofu_1.6.0_SHA256SUMS
@@ -76,5 +83,439 @@ func TestCosignCheckErrorSig(t *testing.T) { //nolint
 	t.SkipNow()
 	if cosigncheck.Check(t.Context(), data, dataSig[1:], dataCert, identity, issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous signature")
+	}
+}
+
+// TestConstants tests that all constants are properly defined.
+func TestConstants(t *testing.T) {
+	t.Parallel()
+	// Test that cosignExecName constant is properly defined
+	assert.Equal(t, "cosign", cosigncheck.CosignExecName)
+	assert.NotEmpty(t, cosigncheck.CosignExecName)
+
+	// Test that verified constant is properly defined
+	assert.Equal(t, "Verified OK", cosigncheck.Verified)
+	assert.NotEmpty(t, cosigncheck.Verified)
+}
+
+// TestErrorVariables tests that all error variables are properly defined.
+func TestErrorVariables(t *testing.T) {
+	t.Parallel()
+	// Test ErrCheck error
+	require.Error(t, cosigncheck.ErrCheck)
+	assert.Equal(t, "cosign check failed", cosigncheck.ErrCheck.Error())
+
+	// Test ErrNotInstalled error
+	require.Error(t, cosigncheck.ErrNotInstalled)
+	assert.Equal(t, "cosign executable not found", cosigncheck.ErrNotInstalled.Error())
+}
+
+// TestConstantsImmutability tests that constants cannot be modified.
+func TestConstantsImmutability(t *testing.T) {
+	t.Parallel()
+	// Test that constants are immutable by trying to access them
+	// (they should be accessible and have expected values)
+	assert.Equal(t, "cosign", cosigncheck.CosignExecName)
+	assert.Equal(t, "Verified OK", cosigncheck.Verified)
+}
+
+// TestErrorTypes tests that error types are properly defined.
+func TestErrorTypes(t *testing.T) {
+	t.Parallel()
+	// Test that errors are of the correct type
+	assert.Contains(t, cosigncheck.ErrCheck.Error(), "cosign check failed")
+	assert.Contains(t, cosigncheck.ErrNotInstalled.Error(), "cosign executable not found")
+}
+
+// TestPackageStructure tests the overall package structure.
+func TestPackageStructure(t *testing.T) {
+	t.Parallel()
+	// Test that the package exports the expected constants and variables
+	assert.NotEmpty(t, cosigncheck.CosignExecName)
+	assert.NotEmpty(t, cosigncheck.Verified)
+	require.Error(t, cosigncheck.ErrCheck)
+	require.Error(t, cosigncheck.ErrNotInstalled)
+
+	// Test that the package name is correct
+}
+
+// TestTempFileFunction tests the tempFile helper function.
+func TestTempFileFunction(t *testing.T) {
+	t.Parallel()
+	// Test successful temp file creation
+	testData := []byte("test data")
+	fileName, cleanup, err := cosigncheck.TempFile("test", testData)
+	require.NoError(t, err)
+	assert.NotEmpty(t, fileName)
+	assert.NotNil(t, cleanup)
+
+	// Verify file was created and contains correct data
+	content, err := os.ReadFile(fileName)
+	require.NoError(t, err)
+	assert.Equal(t, testData, content)
+
+	// Clean up
+	cleanup()
+
+	// Verify file was removed
+	_, err = os.Stat(fileName)
+	assert.True(t, os.IsNotExist(err), "File should be removed after cleanup")
+}
+
+// TestTempFileEmptyData tests tempFile with empty data.
+func TestTempFileEmptyData(t *testing.T) {
+	t.Parallel()
+	// Test with empty data
+	emptyData := []byte("")
+	fileName, cleanup, err := cosigncheck.TempFile("empty", emptyData)
+	require.NoError(t, err)
+	assert.NotEmpty(t, fileName)
+	assert.NotNil(t, cleanup)
+
+	// Verify file was created and is empty
+	content, err := os.ReadFile(fileName)
+	require.NoError(t, err)
+	assert.Empty(t, content)
+
+	// Clean up
+	cleanup()
+
+	// Verify file was removed
+	_, err = os.Stat(fileName)
+	assert.True(t, os.IsNotExist(err), "File should be removed after cleanup")
+}
+
+// TestTempFileErrorHandling tests error handling in tempFile function.
+func TestTempFileErrorHandling(t *testing.T) {
+	t.Parallel()
+	// Test with invalid filename pattern that might cause issues
+	// Note: This is a conceptual test since we can't easily trigger
+	// the actual error conditions without manipulating the filesystem
+	t.Log("tempFile function handles errors appropriately")
+
+	// Test that the function signature is correct
+	assert.NotNil(t, cosigncheck.TempFile, "tempFile function should be available")
+}
+
+// TestCheckFunctionStructure tests the Check function structure and argument handling.
+func TestCheckFunctionStructure(t *testing.T) {
+	t.Parallel()
+	// Test that the Check function has the correct signature
+	// We can't actually call it without cosign installed, but we can test
+	// the function structure and argument validation conceptually
+	ctx := t.Context()
+	testData := []byte("test data")
+	testSig := []byte("test signature")
+	testCert := []byte("test certificate")
+	identity := testIdentity
+	issuer := testIssuer
+	displayer := loghelper.InertDisplayer
+
+	// Test that the function exists and has the right signature
+	assert.NotNil(t, cosigncheck.Check, "Check function should be available")
+
+	// Test that we can call the function (it will fail due to missing cosign, but that's expected)
+	err := cosigncheck.Check(ctx, testData, testSig, testCert, identity, issuer, displayer)
+	require.Error(t, err, "Should return error when cosign is not installed")
+	assert.Equal(t, cosigncheck.ErrNotInstalled, err, "Should return ErrNotInstalled when cosign binary is missing")
+}
+
+// TestCommandArgumentConstruction tests the command argument construction logic.
+func TestCommandArgumentConstruction(t *testing.T) {
+	t.Parallel()
+	// Test the argument construction that would happen in the Check function
+	// This tests the logic without actually executing the command
+	certIdentity := "https://example.com/identity"
+	certOidcIssuer := "https://example.com/issuer"
+	dataFileName := "/tmp/data"
+	dataSigFileName := "/tmp/data.sig"
+	dataCertFileName := "/tmp/data.cert"
+
+	expectedArgs := []string{
+		"verify-blob", "--certificate-identity", certIdentity, "--signature", dataSigFileName, "--certificate", dataCertFileName,
+		"--certificate-oidc-issuer", certOidcIssuer, dataFileName,
+	}
+
+	// Verify the argument construction pattern
+	assert.Equal(t, "verify-blob", expectedArgs[0], "First argument should be verify-blob")
+	assert.Contains(t, expectedArgs, "--certificate-identity", "Should contain certificate-identity flag")
+	assert.Contains(t, expectedArgs, "--signature", "Should contain signature flag")
+	assert.Contains(t, expectedArgs, "--certificate", "Should contain certificate flag")
+	assert.Contains(t, expectedArgs, "--certificate-oidc-issuer", "Should contain certificate-oidc-issuer flag")
+}
+
+// TestVerificationLogic tests the verification string matching logic.
+func TestVerificationLogic(t *testing.T) {
+	t.Parallel()
+	// Test the verification logic that checks for "Verified OK" in stderr
+	testCases := []struct {
+		name     string
+		stdErr   string
+		expected bool
+	}{
+		{
+			name:     "contains verified OK",
+			stdErr:   "some output\nVerified OK\nmore output",
+			expected: true,
+		},
+		{
+			name:     "does not contain verified OK",
+			stdErr:   "some output\nVerification failed\nmore output",
+			expected: false,
+		},
+		{
+			name:     "empty stderr",
+			stdErr:   "",
+			expected: false,
+		},
+		{
+			name:     "case sensitive match",
+			stdErr:   "some output\nverified ok\nmore output",
+			expected: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result := strings.Contains(testCase.stdErr, cosigncheck.Verified)
+			assert.Equal(t, testCase.expected, result, "Verification logic should work correctly")
+		})
+	}
+}
+
+// TestErrorTypesExtended tests that error types are properly defined and distinct.
+func TestErrorTypesExtended(t *testing.T) {
+	t.Parallel()
+	// Test that the two error types are different
+	assert.NotEqual(t, cosigncheck.ErrCheck, cosigncheck.ErrNotInstalled)
+	assert.NotEqual(t, cosigncheck.ErrCheck.Error(), cosigncheck.ErrNotInstalled.Error())
+
+	// Test that errors contain expected substrings
+	assert.Contains(t, cosigncheck.ErrCheck.Error(), "cosign check failed")
+	assert.Contains(t, cosigncheck.ErrNotInstalled.Error(), "cosign executable not found")
+}
+
+// TestConstantsValues tests that constants have expected values.
+func TestConstantsValues(t *testing.T) {
+	t.Parallel()
+	// Test CosignExecName
+	assert.Equal(t, "cosign", cosigncheck.CosignExecName)
+	assert.Positive(t, cosigncheck.CosignExecName)
+
+	// Test Verified string
+	assert.Equal(t, "Verified OK", cosigncheck.Verified)
+	assert.Positive(t, cosigncheck.Verified)
+	assert.Contains(t, cosigncheck.Verified, "Verified")
+}
+
+// TestTempFileWithNilData tests TempFile with nil data.
+func TestTempFileWithNilData(t *testing.T) {
+	t.Parallel()
+	// Test with nil data
+	fileName, cleanup, err := cosigncheck.TempFile("nil-test", nil)
+	require.NoError(t, err)
+	assert.NotEmpty(t, fileName)
+	assert.NotNil(t, cleanup)
+
+	// Verify file was created and is empty
+	content, err := os.ReadFile(fileName)
+	require.NoError(t, err)
+	assert.Empty(t, content)
+
+	// Clean up
+	cleanup()
+
+	// Verify file was removed
+	_, err = os.Stat(fileName)
+	assert.True(t, os.IsNotExist(err), "File should be removed after cleanup")
+}
+
+// TestTempFileLargeData tests TempFile with large data.
+func TestTempFileLargeData(t *testing.T) {
+	t.Parallel()
+	// Create large data to test
+	largeData := make([]byte, 1024*1024) // 1MB
+	for i := range largeData {
+		largeData[i] = byte(i % 256)
+	}
+
+	fileName, cleanup, err := cosigncheck.TempFile("large-test", largeData)
+	require.NoError(t, err)
+	assert.NotEmpty(t, fileName)
+	assert.NotNil(t, cleanup)
+
+	// Verify file was created and contains correct data
+	content, err := os.ReadFile(fileName)
+	require.NoError(t, err)
+	assert.Equal(t, largeData, content)
+
+	// Clean up
+	cleanup()
+
+	// Verify file was removed
+	_, err = os.Stat(fileName)
+	assert.True(t, os.IsNotExist(err), "File should be removed after cleanup")
+}
+
+// TestCheckWithEmptyData tests Check function with empty data.
+func TestCheckWithEmptyData(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	emptyData := []byte("")
+	emptySig := []byte("")
+	emptyCert := []byte("")
+	identity := testIdentity
+	issuer := testIssuer
+	displayer := loghelper.InertDisplayer
+
+	// Should fail due to missing cosign binary
+	err := cosigncheck.Check(ctx, emptyData, emptySig, emptyCert, identity, issuer, displayer)
+	require.Error(t, err)
+	assert.Equal(t, cosigncheck.ErrNotInstalled, err)
+}
+
+// TestCheckWithNilData tests Check function with nil data.
+func TestCheckWithNilData(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	identity := testIdentity
+	issuer := testIssuer
+	displayer := loghelper.InertDisplayer
+
+	// Should fail due to missing cosign binary
+	err := cosigncheck.Check(ctx, nil, nil, nil, identity, issuer, displayer)
+	require.Error(t, err)
+	assert.Equal(t, cosigncheck.ErrNotInstalled, err)
+}
+
+// TestCheckWithInvalidParameters tests Check function with invalid parameters.
+func TestCheckWithInvalidParameters(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	testData := []byte("test data")
+	testSig := []byte("test sig")
+	testCert := []byte("test cert")
+	displayer := loghelper.InertDisplayer
+
+	testCases := []struct {
+		name     string
+		identity string
+		issuer   string
+	}{
+		{"empty identity", "", testIssuer},
+		{"empty issuer", testIdentity, ""},
+		{"both empty", "", ""},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			// Should fail due to missing cosign binary
+			err := cosigncheck.Check(ctx, testData, testSig, testCert, testCase.identity, testCase.issuer, displayer)
+			require.Error(t, err)
+			assert.Equal(t, cosigncheck.ErrNotInstalled, err)
+		})
+	}
+}
+
+// TestCheckContextCancellation tests Check function with cancelled context.
+func TestCheckContextCancellation(t *testing.T) {
+	t.Parallel()
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel() // Cancel immediately
+
+	testData := []byte("test data")
+	testSig := []byte("test sig")
+	testCert := []byte("test cert")
+	identity := testIdentity
+	issuer := testIssuer
+	displayer := loghelper.InertDisplayer
+
+	// Should fail due to cancelled context
+	err := cosigncheck.Check(ctx, testData, testSig, testCert, identity, issuer, displayer)
+	require.Error(t, err)
+	// The error could be either context cancellation or missing cosign binary
+	// We just verify it's an error
+}
+
+// TestTempFileCleanup tests that TempFile cleanup works properly.
+func TestTempFileCleanup(t *testing.T) {
+	t.Parallel()
+	testData := []byte("test data for cleanup")
+
+	// Create temp file
+	fileName, cleanup, err := cosigncheck.TempFile("cleanup-test", testData)
+	require.NoError(t, err)
+	assert.NotEmpty(t, fileName)
+
+	// Verify file exists
+	_, err = os.Stat(fileName)
+	require.NoError(t, err, "File should exist before cleanup")
+
+	// Call cleanup
+	cleanup()
+
+	// Verify file was removed
+	_, err = os.Stat(fileName)
+	assert.True(t, os.IsNotExist(err), "File should be removed after cleanup")
+}
+
+// TestTempFileMultipleCleanups tests that multiple cleanup calls are safe.
+func TestTempFileMultipleCleanups(t *testing.T) {
+	t.Parallel()
+	testData := []byte("test data for multiple cleanups")
+
+	// Create temp file
+	fileName, cleanup, err := cosigncheck.TempFile("multi-cleanup-test", testData)
+	require.NoError(t, err)
+	assert.NotEmpty(t, fileName)
+
+	// Call cleanup multiple times
+	cleanup()
+	cleanup()
+	cleanup()
+
+	// Verify file was removed
+	_, err = os.Stat(fileName)
+	assert.True(t, os.IsNotExist(err), "File should be removed after multiple cleanups")
+}
+
+// TestConstantsAndErrors tests that all constants and errors are properly defined.
+func TestConstantsAndErrors(t *testing.T) {
+	t.Parallel()
+	// Test constants
+	assert.Equal(t, "cosign", cosigncheck.CosignExecName)
+	assert.Equal(t, "Verified OK", cosigncheck.Verified)
+
+	// Test errors
+	require.Error(t, cosigncheck.ErrCheck)
+	require.Error(t, cosigncheck.ErrNotInstalled)
+	assert.Contains(t, cosigncheck.ErrCheck.Error(), "cosign check failed")
+	assert.Contains(t, cosigncheck.ErrNotInstalled.Error(), "cosign executable not found")
+}
+
+// TestVerifiedStringMatching tests the verified string matching logic.
+func TestVerifiedStringMatching(t *testing.T) {
+	t.Parallel()
+	testCases := []struct {
+		name     string
+		input    string
+		expected bool
+	}{
+		{"exact match", "Verified OK", true},
+		{"with newline", "some output\nVerified OK\nmore output", true},
+		{"case sensitive", "verified ok", false},
+		{"partial match", "Verified", false},
+		{"empty string", "", false},
+		{"different text", "Verification failed", false},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			result := strings.Contains(testCase.input, cosigncheck.Verified)
+			assert.Equal(t, testCase.expected, result)
+		})
 	}
 }

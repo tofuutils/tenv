@@ -24,7 +24,6 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 	"github.com/tofuutils/tenv/v4/versionmanager/semantic/types"
@@ -40,15 +39,18 @@ func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
 		return "", nil
 	}
 
-	var parsed map[string]string
+	var parsed map[string]interface{}
 	if _, err = toml.Decode(string(data), &parsed); err != nil {
 		return "", err
 	}
 
-	resolvedVersion := parsed[versionName]
-	if resolvedVersion == "" {
-		return "", nil
+	if val, ok := parsed[versionName]; ok {
+		if str, ok := val.(string); ok {
+			return types.DisplayDetectionInfo(conf.Displayer, str, filePath), nil
+		} else {
+			return "", errors.New("version field must be a string")
+		}
 	}
 
-	return types.DisplayDetectionInfo(conf.Displayer, resolvedVersion, filePath), nil
+	return "", nil
 }

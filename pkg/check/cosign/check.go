@@ -26,14 +26,13 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-
 	"github.com/tofuutils/tenv/v4/pkg/fileperm"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
 const (
-	cosignExecName = "cosign"
-	verified       = "Verified OK"
+	CosignExecName = "cosign"
+	Verified       = "Verified OK"
 )
 
 var (
@@ -42,24 +41,24 @@ var (
 )
 
 func Check(ctx context.Context, data []byte, dataSig []byte, dataCert []byte, certIdentity string, certOidcIssuer string, displayer loghelper.Displayer) error {
-	_, err := exec.LookPath(cosignExecName)
+	_, err := exec.LookPath(CosignExecName)
 	if err != nil {
 		return ErrNotInstalled
 	}
 
-	dataFileName, remove, err := tempFile("data", data)
+	dataFileName, remove, err := TempFile("data", data)
 	if err != nil {
 		return err
 	}
 	defer remove()
 
-	dataSigFileName, remove, err := tempFile("data.sig", dataSig)
+	dataSigFileName, remove, err := TempFile("data.sig", dataSig)
 	if err != nil {
 		return err
 	}
 	defer remove()
 
-	dataCertFileName, remove, err := tempFile("data.cert", dataCert)
+	dataCertFileName, remove, err := TempFile("data.cert", dataCert)
 	if err != nil {
 		return err
 	}
@@ -71,7 +70,7 @@ func Check(ctx context.Context, data []byte, dataSig []byte, dataCert []byte, ce
 	}
 
 	var outBuffer, errBuffer strings.Builder
-	cmd := exec.CommandContext(ctx, cosignExecName, cmdArgs...)
+	cmd := exec.CommandContext(ctx, CosignExecName, cmdArgs...)
 	cmd.Stdout = &outBuffer
 	cmd.Stderr = &errBuffer
 
@@ -81,14 +80,14 @@ func Check(ctx context.Context, data []byte, dataSig []byte, dataCert []byte, ce
 
 	displayer.Log(hclog.Debug, "cosign output", "stdOut", stdOutContent, "stdErr", stdErrContent)
 
-	if !strings.Contains(stdErrContent, verified) {
+	if !strings.Contains(stdErrContent, Verified) {
 		return ErrCheck
 	}
 
 	return nil
 }
 
-func tempFile(name string, data []byte) (string, func(), error) {
+func TempFile(name string, data []byte) (string, func(), error) {
 	tmpFile, err := os.CreateTemp("", name)
 	if err != nil {
 		return "", nil, err
@@ -96,10 +95,14 @@ func tempFile(name string, data []byte) (string, func(), error) {
 
 	tmpFileName := tmpFile.Name()
 	if err = os.WriteFile(tmpFileName, data, fileperm.RW); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpFileName)
+
 		return "", nil, err
 	}
 
 	return tmpFileName, func() {
+		tmpFile.Close()
 		os.Remove(tmpFileName)
 	}, nil
 }
