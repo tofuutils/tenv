@@ -310,7 +310,7 @@ func (t Tenv) Uninstall(_ context.Context, toolName string, requestedVersion str
 		return err
 	}
 
-	return manager.UninstallMultiple([]string{requestedVersion})
+	return manager.Uninstall(requestedVersion)
 }
 
 func (t Tenv) UninstallMultiple(_ context.Context, toolName string, versions []string) error {
