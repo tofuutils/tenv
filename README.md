@@ -2054,11 +2054,11 @@ tenv is based on [tofuenv](https://github.com/tofuutils/tofuenv) and [gotofuenv]
 </a>
 
 
-<a href="https://star-history.com/#tofuutils/tenv&Date">
+<a href="https://star-history.dera.page/#tofuutils/tenv&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=tofuutils/tenv&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=tofuutils/tenv&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=tofuutils/pre-commit-opentofu&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=tofuutils/tenv&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=tofuutils/tenv&type=Date" />
+    <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=tofuutils/pre-commit-opentofu&type=Date" />
   </picture>
 </a>
 
