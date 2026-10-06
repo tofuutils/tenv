@@ -92,6 +92,7 @@ tools work differently in a lot of ways. The author of asdf did a great writeup 
     <li><a href="#usage">Usage</a></li>
     <li><a href="#environment-variables">Environment variables</a></li>
     <li><a href="#version-files">Version files</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
     <li><a href="#technical-details">Technical details</a></li>
     <li><a href="#verifying-signature">Verifying tenv Signatures</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -1660,6 +1661,24 @@ version = ">= 1.2.0, < 2.0.0"
 This would identify the latest version at or above 1.2.0 and below 2.0.0
 
 </details>
+
+<a id="troubleshooting"></a>
+## Troubleshooting
+
+<a id="terragrunt-tofu-path"></a>
+### Terragrunt >= 1.1.4 fails because it selects the OpenTofu proxy from PATH
+
+Since [Terragrunt v1.1.4](https://github.com/gruntwork-io/terragrunt/releases), when `--tf-path` is not set, Terragrunt picks the binary it wraps by looking for `tofu` on your PATH and falls back to `terraform` when it isn't there (it no longer probes with `tofu -version` first).
+
+tenv installs proxy binaries for OpenTofu in `~/.tenv/bin` even when OpenTofu is not installed. If that directory is on your PATH, Terragrunt will select the OpenTofu proxy and run `tofu -version`. If OpenTofu is not installed and `TENV_AUTO_INSTALL` is not set, the proxy exits with code `42`, and Terragrunt reports the failure instead of falling back to Terraform.
+
+Solutions:
+
+- Set `TG_TF_PATH` (or `--tf-path`) to point to the binary you want Terragrunt to use, for example:
+  ```sh
+  export TG_TF_PATH=$(which terraform)
+  ```
+- Or install the OpenTofu version that matches your project (`tenv opentofu install` / `tenv opentofu use`), or set `TENV_AUTO_INSTALL=true` to let the proxy install it on demand.
 
 <a id="technical-details"></a>
 ## Technical details

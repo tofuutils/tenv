@@ -431,7 +431,7 @@ func (m VersionManager) alreadyInstalledMsg(version string, proxyCall bool) {
 func (m VersionManager) autoInstallDisabledMsg(version string) error {
 	cmdName := strings.ToLower(m.FolderName)
 	m.Conf.Displayer.Flush(false) // Always normal display when installation is missing
-	m.Conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", m.FolderName, " version ", version, ", you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'"))
+	m.Conf.Displayer.Display(loghelper.Concat("Auto-install is disabled. To install ", m.FolderName, " version ", version, ", you can set environment variable TENV_AUTO_INSTALL=true, or install it via any of the following command: 'tenv ", cmdName, " install', 'tenv ", cmdName, " install ", version, "'. If you are using Terragrunt (>= 1.1.4) which picked this proxy from PATH, set TG_TF_PATH (or --tf-path) to point to the binary you want to use instead, e.g. TG_TF_PATH=$(which terraform)"))
 
 	return ErrNoCompatibleLocally
 }
