@@ -1,0 +1,3 @@
+```release-note:enhancement
+Add Windows MSI installer built with WiX Toolset (installs tenv and proxy commands to %ProgramFiles%\tenv and adds it to PATH)
+```
