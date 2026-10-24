@@ -20,6 +20,7 @@ package cosigncheck_test
 
 import (
 	_ "embed"
+	"errors"
 	"testing"
 
 	cosigncheck "github.com/tofuutils/tenv/v4/pkg/check/cosign"
@@ -76,5 +77,23 @@ func TestCosignCheckErrorSig(t *testing.T) { //nolint
 	t.SkipNow()
 	if cosigncheck.Check(t.Context(), data, dataSig[1:], dataCert, identity, issuer, loghelper.InertDisplayer) == nil {
 		t.Error("Should fail on erroneous signature")
+	}
+}
+
+func TestCosignCheckNotInstalled(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+
+	err := cosigncheck.Check(
+		t.Context(),
+		data,
+		dataSig,
+		dataCert,
+		identity,
+		issuer,
+		loghelper.InertDisplayer,
+	)
+
+	if !errors.Is(err, cosigncheck.ErrNotInstalled) {
+		t.Fatalf("Check() error = %v, want %v", err, cosigncheck.ErrNotInstalled)
 	}
 }
