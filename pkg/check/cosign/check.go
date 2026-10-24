@@ -95,6 +95,10 @@ func tempFile(name string, data []byte) (string, func(), error) {
 	}
 
 	tmpFileName := tmpFile.Name()
+	if err = tmpFile.Close(); err != nil {
+		return "", nil, err
+	}
+
 	if err = os.WriteFile(tmpFileName, data, fileperm.RW); err != nil {
 		return "", nil, err
 	}
