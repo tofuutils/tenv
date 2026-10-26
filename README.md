@@ -148,6 +148,14 @@ sudo pacman -S cosign
 
 </details>
 
+<details markdown="1"><summary><b>Gentoo (Portage)</b></summary><br>
+
+```sh
+emerge --ask app-containers/cosign
+```
+
+</details>
+
 <details markdown="1"><summary><b>Linux: RPM</b></summary><br>
 
 ```sh
@@ -321,6 +329,21 @@ environment.systemPackages = [
 ```sh
 nix-shell -p tenv
 ```
+</details>
+
+<details markdown="1"><summary><b>Gentoo (Portage)</b></summary><br>
+
+tenv is not yet packaged in the official Gentoo repository or in the [GURU](https://gitlab.com/gentoo-ci/guru) community overlay, so install the binaries from the release archive:
+
+```sh
+TENV_VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
+curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${TENV_VERSION}_Linux_x86_64.tar.gz"
+tar -xzf "tenv_${TENV_VERSION}_Linux_x86_64.tar.gz"
+sudo install -m 0755 tenv tf tofu terraform terragrunt terramate atmos -t /usr/local/bin
+```
+
+On Gentoo, Portage manages a single system version of Terraform (`app-admin/terraform`): **tenv** complements it by managing multiple OpenTofu, Terraform, Terragrunt, Terramate and Atmos versions per project in the `TENV_ROOT` directory (`~/.tenv` by default).
+
 </details>
 
 <a id="manual-installation"></a>
