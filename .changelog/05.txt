@@ -1,0 +1,3 @@
+```release-note:bug
+Improve auto-install disabled message with Terragrunt TG_TF_PATH workaround and add README Troubleshooting section for Terragrunt >= 1.1.4 selecting the OpenTofu proxy from PATH
+```
