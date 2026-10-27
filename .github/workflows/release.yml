@@ -71,14 +71,14 @@ jobs:
           fi
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # ratchet:docker/login-action@v4.3.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # ratchet:docker/login-action@v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # ratchet:docker/login-action@v4.3.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # ratchet:docker/login-action@v4.7.0
         with:
           registry: registry.hub.docker.com
           username: ${{ secrets.REGISTRY_USER }}
