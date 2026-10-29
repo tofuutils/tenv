@@ -134,9 +134,11 @@ func checkRateLimit(resp *http.Response) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		// 非 200 响应（如 GitHub 瞬时 5xx 或 HTML 错误页）此前会被当作 JSON 解析，
-		// 随后字段断言失败只返回无上下文的 "unexpected value returned by API"。
-		// 这里带上状态码和响应体摘要，让真实失败原因在 verbose/trace 日志中可见。
+		// Non-200 responses (e.g., transient GitHub 5xx or HTML error pages) were
+		// previously parsed as JSON, and a failed field assertion then only returned
+		// the context-less "unexpected value returned by API". Include the status
+		// code and a response body summary here so the real failure reason is
+		// visible in verbose/trace logs.
 		body, readErr := io.ReadAll(io.LimitReader(resp.Body, maxErrorBodySize))
 		if readErr != nil {
 			return fmt.Errorf("GitHub API returned HTTP %d (failed to read response body: %w)", resp.StatusCode, readErr)
