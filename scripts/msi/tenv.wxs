@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  tenv Windows Installer (MSI) definition built with WiX Toolset v3.
+
+  Build (from the directory containing the seven tenv binaries, e.g. the
+  extracted tenv_<tag>_Windows_x86_64.zip):
+    candle.exe -dVersion=4.15.1 -out tenv.wixobj tenv.wxs
+    light.exe -ext WixUIExtension -out tenv.msi tenv.wixobj
+
+  The MSI installs the tenv launcher and its proxy commands
+  (tofu, terraform, terragrunt, terramate, tf, atmos) to
+  "%ProgramFiles%\tenv" and appends that directory to the system PATH,
+  so all seven commands are available right after installation.
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Name="tenv"
+           Language="1033"
+           Version="$(var.Version)"
+           Manufacturer="tofuutils"
+           UpgradeCode="A47E400D-F7F0-487E-8773-D4F4CB11120C">
+    <Package InstallerVersion="500"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Platform="x64"
+             Manufacturer="tofuutils"
+             Description="tenv - OpenTofu, Terraform, Terragrunt, Terramate and Atmos version manager"
+             Comments="tenv $(var.Version)"
+             Keywords="terraform,opentofu,terragrunt,terramate,atmos,tenv,version,manager" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <Media Id="1" Cabinet="tenv.cab" EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLDIR" Name="tenv">
+          <Component Id="MainExecutables" Guid="F2A0F8E4-221E-4CA0-9C67-0EB6772B43EE" Win64="yes">
+            <File Id="tenv.exe" Name="tenv.exe" Source="tenv.exe" KeyPath="yes" />
+            <File Id="tofu.exe" Name="tofu.exe" Source="tofu.exe" />
+            <File Id="terraform.exe" Name="terraform.exe" Source="terraform.exe" />
+            <File Id="terragrunt.exe" Name="terragrunt.exe" Source="terragrunt.exe" />
+            <File Id="terramate.exe" Name="terramate.exe" Source="terramate.exe" />
+            <File Id="tf.exe" Name="tf.exe" Source="tf.exe" />
+            <File Id="atmos.exe" Name="atmos.exe" Source="atmos.exe" />
+            <!-- Append the install directory to the system PATH so the proxy
+                 commands are available without manual configuration. -->
+            <Environment Id="UpdatePath"
+                         Name="PATH"
+                         Value="[INSTALLDIR]"
+                         Permanent="no"
+                         Part="last"
+                         Action="set"
+                         System="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="DefaultFeature" Title="tenv" Level="1">
+      <ComponentRef Id="MainExecutables" />
+    </Feature>
+  </Product>
+</Wix>
