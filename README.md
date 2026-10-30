@@ -949,7 +949,7 @@ String (the default depend on TOFUENV_REMOTE, without change on it, it is "api" 
 
 - "api" install mode retrieve download url of OpenTofu from [Github REST API](https://docs.github.com/en/rest?apiVersion=2022-11-28) (TOFUENV_REMOTE must comply with it).
 - "direct" install mode generate download url of OpenTofu based on TOFUENV_REMOTE.
-- "mirror" install mode generate download url with TOFUENV_URL_TEMPLATE (as specified in [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/mirror-spec/MIRROR-SPECIFICATION.md))
+- "mirror" install mode generate download url with TOFUENV_URL_TEMPLATE (as specified in [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/main/MIRROR-SPECIFICATION.md))
 
 See [advanced remote configuration](#advanced-remote-configuration) for more details.
 
@@ -1033,7 +1033,7 @@ Same as TENV_ROOT (compatibility with [tofuenv](https://github.com/tofuutils/tof
 
 String (Default: `https://github.com/opentofu/opentofu/releases/download/v{{ .Version }}/{{ .Artifact }}`)
 
-Used when TOFUENV_INSTALL_MODE is "mirror" (see [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/mirror-spec/MIRROR-SPECIFICATION.md)).
+Used when TOFUENV_INSTALL_MODE is "mirror" (see [TofuDL mirror specification](https://github.com/opentofu/tofudl/blob/main/MIRROR-SPECIFICATION.md)).
 
 </details>
 
@@ -1621,7 +1621,7 @@ Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by 
 
 Recognize same values as `tenv tf use` command.
 
-See [required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) docs.
+See [required_version](https://developer.hashicorp.com/terraform/language/block/terraform#required_version) docs.
 
 </details>
 
@@ -1673,7 +1673,7 @@ Recognize same values as `tenv atmos use` command.
 
 the `latest-allowed` or `min-required` strategies scan through your IAC files (see list in [project binaries](#project-binaries)) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files and no default constraint are found, and can optionally be used with a default constraint as detailed in [project binaries](#project-binaries).
 
-Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/settings#specifying-a-required-terraform-version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
+Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/block/terraform#required_version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
 example:
 
