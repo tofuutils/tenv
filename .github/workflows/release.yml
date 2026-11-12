@@ -111,7 +111,7 @@ jobs:
       - goreleaser
     steps:
       - name: "Checkout tofuutils/chocolatey-packages"
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           repository: tofuutils/chocolatey-packages
           ssh-key: ${{ secrets.CHOCOLATEY_SSH_KEY }}
