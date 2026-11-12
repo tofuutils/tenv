@@ -21,9 +21,12 @@ package github
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
 	"github.com/tofuutils/tenv/v4/pkg/download"
@@ -35,6 +38,8 @@ const (
 	Releases = "releases"
 
 	pageQuery = "?page="
+
+	maxErrorBodySize = 512
 )
 
 var errContinue = errors.New("continue")
@@ -126,6 +131,20 @@ func checkRateLimit(resp *http.Response) error {
 	rateLimitRemaining := resp.Header.Get("X-Ratelimit-Remaining")
 	if rateLimitRemaining == "0" {
 		return apimsg.ErrRateLimit
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		// Non-200 responses (e.g., transient GitHub 5xx or HTML error pages) were
+		// previously parsed as JSON, and a failed field assertion then only returned
+		// the context-less "unexpected value returned by API". Include the status
+		// code and a response body summary here so the real failure reason is
+		// visible in verbose/trace logs.
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, maxErrorBodySize))
+		if readErr != nil {
+			return fmt.Errorf("GitHub API returned HTTP %d (failed to read response body: %w)", resp.StatusCode, readErr)
+		}
+
+		return fmt.Errorf("GitHub API returned HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
 	return nil

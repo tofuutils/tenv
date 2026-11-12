@@ -1,0 +1,3 @@
+```release-note:bug
+Include HTTP status code and response body snippet in GitHub API error diagnostics (instead of the generic "unexpected value returned by API")
+```
