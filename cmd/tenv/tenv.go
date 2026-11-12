@@ -227,7 +227,7 @@ func newUpdatePathCmd(gha bool) *cobra.Command {
 			if gha {
 				pathfilePath := os.Getenv("GITHUB_PATH")
 				if pathfilePath != "" {
-					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm)
+					pathfile, err := os.OpenFile(pathfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, rwPerm) //nolint:gosec // GITHUB_PATH is set by the GitHub Actions runner
 					if err != nil {
 						return err
 					}
