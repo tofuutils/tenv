@@ -43,7 +43,13 @@ func TestGatherRequiredVersionHiddenFile(t *testing.T) {
 
 	parser := hclparse.NewParser()
 	exts := []iacparser.ExtDescription{{Value: ".tf", Parser: parser.ParseHCLFile}}
-	conf := config.Config{Displayer: loghelper.InertDisplayer, WorkPath: dir}
+	conf, err := config.DefaultConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	conf.Displayer = loghelper.InertDisplayer
+	conf.WorkPath = dir
+
 	versions, err := iacparser.GatherRequiredVersion(&conf, exts)
 	if err != nil {
 		t.Fatal("Unexpected error : ", err)
