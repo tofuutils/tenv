@@ -164,7 +164,10 @@ func TestCheckRateLimit(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		t.Parallel()
 
-		err := checkRateLimit(newTestResponse(t, http.StatusOK, `{"tag_name":"v1.6.0"}`, ""))
+		resp := newTestResponse(t, http.StatusOK, `{"tag_name":"v1.6.0"}`, "")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
 		if err != nil {
 			t.Error("Unexpected error on 200 response : ", err)
 		}
@@ -173,7 +176,10 @@ func TestCheckRateLimit(t *testing.T) {
 	t.Run("ServerError", func(t *testing.T) {
 		t.Parallel()
 
-		err := checkRateLimit(newTestResponse(t, http.StatusBadGateway, "Server Error", ""))
+		resp := newTestResponse(t, http.StatusBadGateway, "Server Error", "")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
 		if err == nil {
 			t.Fatal("Should fail on 502 response")
 		}
@@ -186,7 +192,10 @@ func TestCheckRateLimit(t *testing.T) {
 	t.Run("HTMLErrorPage", func(t *testing.T) {
 		t.Parallel()
 
-		err := checkRateLimit(newTestResponse(t, http.StatusServiceUnavailable, "<html><body>Service Unavailable</body></html>", ""))
+		resp := newTestResponse(t, http.StatusServiceUnavailable, "<html><body>Service Unavailable</body></html>", "")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
 		if err == nil {
 			t.Fatal("Should fail on HTML error page")
 		}
@@ -199,7 +208,10 @@ func TestCheckRateLimit(t *testing.T) {
 	t.Run("RateLimited", func(t *testing.T) {
 		t.Parallel()
 
-		err := checkRateLimit(newTestResponse(t, http.StatusForbidden, `{"message":"API rate limit exceeded"}`, "0"))
+		resp := newTestResponse(t, http.StatusForbidden, `{"message":"API rate limit exceeded"}`, "0")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
 		if err == nil {
 			t.Fatal("Should fail on rate limit")
 		}
@@ -222,11 +234,15 @@ func newTestResponse(t *testing.T, statusCode int, body string, rateLimitRemaini
 	}))
 	t.Cleanup(server.Close)
 
-	resp, err := http.Get(server.URL)
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL, nil)
+	if err != nil {
+		t.Fatal("Unexpected request creation error : ", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal("Unexpected request error : ", err)
 	}
-	t.Cleanup(func() { _ = resp.Body.Close() })
 
 	return resp
 }
