@@ -7,8 +7,11 @@ linters:
     - cyclop
     - err113
     - exhaustruct
+    - exhaustruct_v5
     - funlen
     - gochecknoinits
+    - godoclint
+    - gomodguard
     - gocognit
     - lll
     - mnd
@@ -38,6 +41,10 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
+    rules:
+      - path: _test\.go
+        linters:
+          - goconst
     paths:
       - .*\.pb\.go
       - pkg/client
