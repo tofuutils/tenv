@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/go-version v1.9.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/spf13/cobra v1.10.2
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 	github.com/stretchr/testify v1.12.1
 	github.com/zclconf/go-cty v1.20.0
 	gopkg.in/yaml.v3 v3.0.1
