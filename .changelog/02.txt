@@ -1,0 +1,3 @@
+```release-note:bug
+Fix snap installation: use classic confinement so tenv can write the proxy commands (terraform, terragrunt, tofu, terramate, tf, atmos) to the user directory, fixing "command not found" after installing tools via snap
+```
