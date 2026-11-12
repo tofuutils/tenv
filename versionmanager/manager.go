@@ -21,6 +21,7 @@ package versionmanager
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -46,6 +47,7 @@ import (
 
 var (
 	errEmptyVersion        = errors.New("empty version")
+	errVersionNotInstalled = errors.New("version is not installed")
 	errNoCompatible        = errors.New("no compatible version found")
 	ErrNoCompatibleLocally = errors.New("no compatible version found locally")
 	ErrNoVersionFilesFound = errors.New("no version files found")
@@ -344,9 +346,8 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 
 	if versionfinder.IsValid(requestedVersion) {
 		cleanedVersion := versionfinder.Clean(requestedVersion)
-		m.uninstallSpecificVersion(installPath, cleanedVersion)
 
-		return nil
+		return m.uninstallSpecificVersion(installPath, cleanedVersion)
 	}
 
 	versions, err := m.innerListLocal(installPath, true)
@@ -362,7 +363,7 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 	if len(selected) == 0 {
 		m.Conf.Displayer.Display(loghelper.Concat("No matching ", m.FolderName, " versions"))
 
-		return nil
+		return errVersionNotInstalled
 	}
 
 	m.Conf.Displayer.Display(loghelper.Concat("Selected ", m.FolderName, " versions for uninstallation :"))
@@ -380,11 +381,14 @@ func (m VersionManager) Uninstall(requestedVersion string) error {
 		return nil
 	}
 
+	var errs []error
 	for _, version := range selected {
-		m.uninstallSpecificVersion(installPath, version)
+		if err := m.uninstallSpecificVersion(installPath, version); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	return nil
+	return errors.Join(errs...)
 }
 
 func (m VersionManager) UninstallMultiple(versions []string) error {
@@ -398,11 +402,14 @@ func (m VersionManager) UninstallMultiple(versions []string) error {
 	defer disableExit()
 	defer deleteLock()
 
+	var errs []error
 	for _, version := range versions {
-		m.uninstallSpecificVersion(installPath, version)
+		if err := m.uninstallSpecificVersion(installPath, version); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	return nil
+	return errors.Join(errs...)
 }
 
 func (m VersionManager) Use(ctx context.Context, requestedVersion string, workingDir bool) error {
@@ -550,20 +557,36 @@ func (m VersionManager) searchInstallRemote(ctx context.Context, predicateInfo t
 	return "", errNoCompatible
 }
 
-func (m VersionManager) uninstallSpecificVersion(installPath string, version string) {
+func (m VersionManager) uninstallSpecificVersion(installPath string, version string) error {
 	if version == "" {
 		m.Conf.Displayer.Display(errEmptyVersion.Error())
 
-		return
+		return errEmptyVersion
 	}
 
 	targetPath := filepath.Join(installPath, version)
-	err := os.RemoveAll(targetPath)
-	if err == nil {
-		m.Conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " successful (directory ", targetPath, " removed)"))
-	} else {
+	if _, err := os.Stat(targetPath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			msg := loghelper.Concat(m.FolderName, " ", version, " is not installed")
+			m.Conf.Displayer.Display(msg)
+
+			return fmt.Errorf("%w: %s", errVersionNotInstalled, msg)
+		}
+
 		m.Conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " failed with error : ", err.Error()))
+
+		return err
 	}
+
+	if err := os.RemoveAll(targetPath); err != nil {
+		m.Conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " failed with error : ", err.Error()))
+
+		return err
+	}
+
+	m.Conf.Displayer.Display(loghelper.Concat("Uninstallation of ", m.FolderName, " ", version, " successful (directory ", targetPath, " removed)"))
+
+	return nil
 }
 
 func removeFile(filePath string, conf *config.Config) error {
