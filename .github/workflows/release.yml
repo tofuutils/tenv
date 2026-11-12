@@ -175,3 +175,55 @@ jobs:
           tarball: ${{ github.workspace }}/tenv-tarball/tenv*.tar.gz
           deb_email: "kvendingoldo@gmail.com"
           deb_fullname: "tenv"
+
+  publish-msi:
+    name: "Publish MSI installer"
+    runs-on: windows-latest
+    needs:
+      - goreleaser
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.0
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF -replace 'refs/tags/',''
+          $version = $tag -replace '^v',''
+          "TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Download Windows x86_64 zip
+        shell: pwsh
+        run: |
+          curl.exe -sSL -o tenv.zip "https://github.com/tofuutils/tenv/releases/download/${{ env.TAG }}/tenv_${{ env.TAG }}_Windows_x86_64.zip"
+          Expand-Archive -Path tenv.zip -DestinationPath staging
+
+      - name: Install WiX Toolset
+        shell: pwsh
+        run: choco install wixtoolset --yes --no-progress
+
+      - name: Build MSI
+        shell: pwsh
+        run: |
+          $candle = Get-ChildItem "${env:ProgramFiles(x86)}\WiX Toolset*\bin\candle.exe" | Select-Object -First 1
+          $light = Get-ChildItem "${env:ProgramFiles(x86)}\WiX Toolset*\bin\light.exe" | Select-Object -First 1
+          if (-not $candle -or -not $light) {
+            throw "WiX Toolset (candle/light) not found"
+          }
+          Push-Location staging
+          & $candle.FullName "-dVersion=${{ env.VERSION }}" -out ..\tenv.wixobj ..\scripts\msi\tenv.wxs
+          if ($LASTEXITCODE -ne 0) { throw "candle failed" }
+          & $light.FullName -out ..\tenv_${{ env.TAG }}_Windows_x86_64.msi ..\tenv.wixobj
+          if ($LASTEXITCODE -ne 0) { throw "light failed" }
+          Pop-Location
+          Get-Item tenv_${{ env.TAG }}_Windows_x86_64.msi | Select-Object Name, Length
+
+      - name: Upload MSI to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ env.TAG }}" tenv_${{ env.TAG }}_Windows_x86_64.msi
