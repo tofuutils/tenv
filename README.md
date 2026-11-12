@@ -1673,6 +1673,8 @@ Recognize same values as `tenv atmos use` command.
 
 the `latest-allowed` or `min-required` strategies scan through your IAC files (see list in [project binaries](#project-binaries)) and identify a version conforming to the constraint in the relevant files. They fallback to `latest` when no IAC files and no default constraint are found, and can optionally be used with a default constraint as detailed in [project binaries](#project-binaries).
 
+Hidden files (name starting with a dot, like `.terraform.tf` or the `._main.tf` files macOS can leave behind) are ignored during the scan, as Terraform and OpenTofu do.
+
 Currently the format for [Terraform required_version](https://developer.hashicorp.com/terraform/language/block/terraform#required_version) and [OpenTofu required_version](https://opentofu.org/docs/language/settings#specifying-a-required-opentofu-version) are very similar, however this may change over time, always refer to docs for the latest format specification.
 
 example:
