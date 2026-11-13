@@ -1619,7 +1619,7 @@ See [required_version](https://opentofu.org/docs/language/settings#specifying-a-
 If you put a `.terraform-version` or `.tfswitchrc` file in the working directory, one of its parent directory, or user home directory, **tenv** detects it and uses the version written in it.
 Note, that TFENV_TERRAFORM_VERSION can be used to override version specified by those files.
 
-Recognize same values as `tenv tf use` command.
+Recognize same values as `tenv tf use` command. As with tfenv, `#` starts a comment and blank lines are skipped: the first remaining line is used.
 
 See [required_version](https://developer.hashicorp.com/terraform/language/block/terraform#required_version) docs.
 
