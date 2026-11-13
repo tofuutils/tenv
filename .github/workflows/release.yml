@@ -14,6 +14,7 @@ jobs:
       id-token: write # For cosign
       packages: write # For GHCR
       contents: read # Not required for public repositories, but for clarity
+      attestations: write # for attestations
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
@@ -103,6 +104,19 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
           TOFUUTILS_PR_TOKEN: ${{ secrets.TOFUUTILS_PR_TOKEN }}
+
+      - name: Locate checksums file
+        id: checksums
+        # goreleaser keeps the default versioned name (<project>_<version>_checksums.txt),
+        # so resolve it at runtime instead of pinning a fixed path.
+        run: |
+          file=$(ls dist/*checksums.txt)
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # ratchet:actions/attest-build-provenance@v4.2.2
+        with:
+          subject-checksums: ${{ steps.checksums.outputs.file }}
 
   publish-chocolatey:
     name: "Publish Chocolatey package"
