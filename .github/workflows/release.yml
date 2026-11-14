@@ -121,6 +121,7 @@ jobs:
   publish-chocolatey:
     name: "Publish Chocolatey package"
     runs-on: ubuntu-24.04
+    permissions: {}
     needs:
       - goreleaser
     steps:
