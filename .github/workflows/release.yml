@@ -164,6 +164,7 @@ jobs:
   publish-ppa:
     name: "Publish PPA package"
     runs-on: ubuntu-24.04
+    permissions: {}
     needs:
       - goreleaser
     steps:
