@@ -33,7 +33,15 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
 )
 
-const requiredVersionName = "required_version"
+const (
+	jsonExt             = ".json"
+	requiredVersionName = "required_version"
+)
+
+type similarKey struct {
+	name string
+	json bool
+}
 
 type ExtDescription struct {
 	Value  string
@@ -71,7 +79,9 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		return nil, err
 	}
 
-	similar := map[string]int{}
+	// files sharing a base name only shadow each other within the same syntax :
+	// foo.tofu hides foo.tf and foo.tofu.json hides foo.tf.json, but foo.tf and foo.tf.json are both read.
+	similar := map[similarKey]int{}
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -81,7 +91,8 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		for index, extDesc := range exts {
 			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found {
 				extFlag := 1 << index
-				similar[cleanedName] |= extFlag
+				key := similarKey{name: cleanedName, json: strings.HasSuffix(extDesc.Value, jsonExt)}
+				similar[key] |= extFlag
 
 				break
 			}
@@ -92,9 +103,9 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 	var parsedFile *hcl.File
 	var diags hcl.Diagnostics
 	foundFiles = make([]string, 0, len(similar))
-	for cleanedName, fileExts := range similar {
+	for key, fileExts := range similar {
 		ext := filterExts(fileExts, exts)
-		name := cleanedName + ext.Value
+		name := key.name + ext.Value
 		foundFiles = append(foundFiles, name)
 
 		parsedFile, diags = ext.Parser(filepath.Join(conf.WorkPath, name))
