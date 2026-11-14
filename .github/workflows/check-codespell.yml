@@ -10,6 +10,9 @@ on:
       - "main"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   codespell:
     name: "Check for spelling errors"
