@@ -1,0 +1,70 @@
+---
+name: "Check: Flox install"
+
+on:
+  release:
+    types:
+      - published
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flox:
+    name: "Install tenv via Flox"
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
+
+      - name: Install Flox
+        uses: flox/install-flox-action@5bb9eaaffbeaa699a8251a1ae21ecf4c8e0e37d4 # ratchet:flox/install-flox-action@v2.7.0
+
+      - name: Install tenv with Flox
+        run: |
+          set -euo pipefail
+
+          env_dir="${RUNNER_TEMP}/flox-tenv"
+          mkdir -p "${env_dir}"
+
+          flox init -d "${env_dir}"
+          flox install -d "${env_dir}" tenv
+          flox list -d "${env_dir}"
+
+      - name: Verify tenv runs
+        run: |
+          set -euo pipefail
+
+          env_dir="${RUNNER_TEMP}/flox-tenv"
+          version="$(flox activate -d "${env_dir}" -c 'tenv --version')"
+
+          echo "${version}"
+          [[ "${version}" == tenv\ version* ]]
+
+          {
+            echo "### tenv via Flox"
+            echo '```'
+            echo "${version}"
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Report catalog version
+        if: github.event_name == 'release'
+        env:
+          RELEASED_VERSION: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+
+          env_dir="${RUNNER_TEMP}/flox-tenv"
+          installed_version="$(flox activate -d "${env_dir}" -c 'tenv --version' | awk '{print $3}')"
+
+          echo "Flox catalog version: ${installed_version}"
+          echo "Released version: ${RELEASED_VERSION}"
+
+          if [[ "${installed_version}" != "${RELEASED_VERSION}" ]]; then
+            echo "::notice::Flox Base Catalog has not picked up ${RELEASED_VERSION} yet (installed ${installed_version}). The catalog is updated from nixos-unstable on its own schedule."
+          fi
