@@ -138,7 +138,7 @@ jobs:
 
           echo "[INFO] Download release's checksums"
           curl \
-            -SsL \
+            -fSsL \
             -o /tmp/checksums.txt \
             https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_checksums.txt
 
@@ -171,16 +171,15 @@ jobs:
     steps:
       - name: Download tenv tarballs
         run: |
-          release_tag=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          release_tag="${GITHUB_REF#refs/tags/}"
           release_version="${release_tag#v}"
-
-          mkdir -p ${{ github.workspace }}/tenv-tarball
-
-          echo "[INFO] Download release's tarballs"
-          curl \
-            -SsL \
-            -o ${{ github.workspace }}/tenv-tarball/tenv_${release_tag}_Linux_x86_64.tar.gz \
-            https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz
+          tmp=$(mktemp -d)
+          curl -fSsL -o "$tmp/tenv.tar.gz" \
+            "https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz"
+          mkdir -p "$tmp/tenv-${release_version}"
+          tar -xzf "$tmp/tenv.tar.gz" -C "$tmp/tenv-${release_version}"
+          mkdir -p "${{ github.workspace }}/tenv-tarball"
+          tar -czf "${{ github.workspace }}/tenv-tarball/tenv-${release_version}.tar.gz" -C "$tmp" "tenv-${release_version}"
 
       - name: Publish PPA
         uses: yuezk/publish-ppa-package@aef2cd26952551ca7d7f7ed15d75d067364cfa45 # ratchet:yuezk/publish-ppa-package@v2
