@@ -8,7 +8,7 @@ Homepage: https://github.com/tofuutils/tenv
 Rules-Requires-Root: no
 
 Package: tenv
-Architecture: amd64
+Architecture: amd64 arm64 armhf
 Depends: ${misc:Depends}
 Description: version manager for OpenTofu, Terraform, Terragrunt and Atmos
  tenv is a versatile version manager for OpenTofu, Terraform,

@@ -182,10 +182,14 @@ jobs:
           release_tag="${GITHUB_REF#refs/tags/}"
           release_version="${release_tag#v}"
           tmp=$(mktemp -d)
-          curl -fSsL -o "$tmp/tenv.tar.gz" \
-            "https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_x86_64.tar.gz"
-          mkdir -p "$tmp/tenv-${release_version}"
-          tar -xzf "$tmp/tenv.tar.gz" -C "$tmp/tenv-${release_version}"
+          for pair in amd64:x86_64 arm64:arm64 armhf:armv7; do
+            deb_arch="${pair%%:*}"
+            release_arch="${pair#*:}"
+            curl -fSsL -o "$tmp/tenv_${release_arch}.tar.gz" \
+              "https://github.com/tofuutils/tenv/releases/download/${release_tag}/tenv_${release_tag}_Linux_${release_arch}.tar.gz"
+            mkdir -p "$tmp/tenv-${release_version}/${deb_arch}"
+            tar -xzf "$tmp/tenv_${release_arch}.tar.gz" -C "$tmp/tenv-${release_version}/${deb_arch}"
+          done
           mkdir -p "${{ github.workspace }}/tenv-tarball"
           tar -czf "${{ github.workspace }}/tenv-tarball/tenv-${release_version}.tar.gz" -C "$tmp" "tenv-${release_version}"
 

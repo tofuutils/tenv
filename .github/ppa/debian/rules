@@ -1,6 +1,13 @@
 #!/usr/bin/make -f
+include /usr/share/dpkg/architecture.mk
+
+BINARIES := tenv tofu terraform terragrunt terramate tf atmos
+
 %:
 	dh $@
+
+override_dh_install:
+	dh_install $(addprefix $(DEB_HOST_ARCH)/,$(BINARIES)) usr/bin
 
 override_dh_auto_build:
 override_dh_auto_test:

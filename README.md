@@ -270,6 +270,14 @@ apk add tenv
 
 <details markdown="1"><summary><b>Ubuntu</b></summary><br>
 
+#### Install via PPA
+Add the [Launchpad PPA](https://launchpad.net/~kvendingoldo/+archive/ubuntu/tenv) (amd64, arm64, armhf):
+```sh
+sudo add-apt-repository ppa:kvendingoldo/tenv
+sudo apt update
+sudo apt install tenv
+```
+
 #### Install via dpkg
 
 ```sh
