@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Alexander Sharov <kvendingoldo@gmail.com>
 Build-Depends: debhelper (>= 12)
-Standards-Version: 4.6.2
+Standards-Version: 4.5.0
 Homepage: https://github.com/tofuutils/tenv
 Rules-Requires-Root: no
 
