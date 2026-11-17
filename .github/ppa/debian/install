@@ -1,0 +1,7 @@
+tenv usr/bin
+tofu usr/bin
+terraform usr/bin
+terragrunt usr/bin
+terramate usr/bin
+tf usr/bin
+atmos usr/bin

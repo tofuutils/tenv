@@ -131,7 +131,7 @@ jobs:
           repository: tofuutils/chocolatey-packages
           ssh-key: ${{ secrets.CHOCOLATEY_SSH_KEY }}
 
-      - name: Update chocolatey checksums
+      - name: "Update chocolatey checksums"
         run: |
           release_tag=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
           release_version="${release_tag#v}"
@@ -162,6 +162,11 @@ jobs:
           git tag -a ${release_version} -m "${release_version}"
           git push origin --tags main
 
+      - name: Package location
+        run: |
+          echo "[INFO] Check package: https://community.chocolatey.org/packages/tenv"
+          echo "Check package: https://community.chocolatey.org/packages/tenv" >> "$GITHUB_STEP_SUMMARY"
+
   publish-ppa:
     name: "Publish PPA package"
     runs-on: ubuntu-24.04
@@ -169,6 +174,9 @@ jobs:
     needs:
       - goreleaser
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+
       - name: Download tenv tarballs
         run: |
           release_tag="${GITHUB_REF#refs/tags/}"
@@ -190,3 +198,9 @@ jobs:
           tarball: ${{ github.workspace }}/tenv-tarball/tenv*.tar.gz
           deb_email: "kvendingoldo@gmail.com"
           deb_fullname: "tenv"
+          debian_dir: ${{ github.workspace }}/.github/ppa/debian
+
+      - name: Package location
+        run: |
+          echo "[INFO] Check package: https://code.launchpad.net/tenv"
+          echo "Check package: https://code.launchpad.net/tenv" >> "$GITHUB_STEP_SUMMARY"

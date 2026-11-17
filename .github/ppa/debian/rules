@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_build:
+override_dh_auto_test:
+override_dh_dwz:
+override_dh_strip:
