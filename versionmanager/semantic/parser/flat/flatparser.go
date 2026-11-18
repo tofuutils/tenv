@@ -19,10 +19,10 @@
 package flatparser
 
 import (
-	"bytes"
 	"errors"
 	"io/fs"
 	"os"
+	"strings"
 
 	"github.com/tofuutils/tenv/v4/config"
 	"github.com/tofuutils/tenv/v4/pkg/loghelper"
@@ -41,12 +41,25 @@ func Retrieve(filePath string, conf *config.Config, displayMsg func(loghelper.Di
 		return "", nil
 	}
 
-	resolvedVersion := string(bytes.TrimSpace(data))
+	resolvedVersion := parseContent(string(data))
 	if resolvedVersion == "" {
 		return "", nil
 	}
 
 	return displayMsg(conf.Displayer, resolvedVersion, filePath), nil
+}
+
+// parseContent returns the first line that is not empty once comments are removed,
+// like tfenv and tgenv do with their version files.
+func parseContent(content string) string {
+	for line := range strings.Lines(content) {
+		line, _, _ = strings.Cut(line, "#")
+		if line = strings.TrimSpace(line); line != "" {
+			return line
+		}
+	}
+
+	return ""
 }
 
 func RetrieveVersion(filePath string, conf *config.Config) (string, error) {
