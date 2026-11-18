@@ -1,0 +1,3 @@
+```release-note:bug
+Ignore hidden files when reading required_version from IAC files
+```

@@ -78,6 +78,10 @@ func GatherRequiredVersion(conf *config.Config, exts []ExtDescription) ([]string
 		}
 
 		name := entry.Name()
+		if strings.HasPrefix(name, ".") {
+			continue
+		}
+
 		for index, extDesc := range exts {
 			if cleanedName, found := strings.CutSuffix(name, extDesc.Value); found {
 				extFlag := 1 << index
