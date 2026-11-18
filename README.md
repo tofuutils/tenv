@@ -340,6 +340,30 @@ nix-shell -p tenv
 ```
 </details>
 
+<details markdown="1"><summary><b>Flox (Linux, macOS)</b></summary>
+
+Install [Flox](https://flox.dev), then add tenv to a project environment:
+
+```sh
+flox init
+flox install tenv
+```
+
+To install tenv into your default environment instead:
+
+```sh
+flox install tenv
+```
+
+tenv is available from the Flox Base Catalog, which is built from nixpkgs. It can also be declared in a Flox `manifest.toml`:
+
+```toml
+[install]
+tenv.pkg-path = "tenv"
+```
+
+</details>
+
 <details markdown="1"><summary><b>Gentoo (Portage)</b></summary><br>
 
 tenv is not yet packaged in the official Gentoo repository or in the [GURU](https://gitlab.com/gentoo-ci/guru) community overlay, so install the binaries from the release archive:
