@@ -134,36 +134,38 @@ snapcrafts:
     channel_templates:
       - "latest/stable"
     grade: "stable"
-    confinement: strict
+    # The snap is published with classic confinement: under strict confinement
+    # the snap cannot write the proxy binaries (terraform/terragrunt/tofu/...)
+    # and their directory into the user's $HOME/.tenv, so these commands are
+    # reported as "command not found" (see issue #223). Classic confinement
+    # lifts the sandbox and allows tenv to manage binaries in the user
+    # directory, matching the behavior of the apt/deb and tarball installs.
+    # NOTE: classic snaps require manual approval from the Snapcraft store
+    # before they can be published:
+    # https://snapcraft.io/docs/reviewing-classic-confinement-snaps
+    confinement: classic
     license: Apache-2.0
     base: core22
     apps:
       tenv:
-        plugs: [ "home", "network", "network-bind" ]
         command: tenv
         aliases: [ tenv ]
       tofu:
-        plugs: [ "home", "network", "network-bind" ]
         command: tofu
         aliases: [ tofu ]
       terraform:
-        plugs: [ "home", "network", "network-bind" ]
         command: terraform
         aliases: [ terraform ]
       terragrunt:
-        plugs: [ "home", "network", "network-bind" ]
         command: terragrunt
         aliases: [ terragrunt ]
       terramate:
-        plugs: [ "home", "network", "network-bind" ]
         command: terramate
         aliases: [ terramate ]
       tf:
-        plugs: [ "home", "network", "network-bind" ]
         command: tf
         aliases: [ tf ]
       atmos:
-        plugs: [ "home", "network", "network-bind" ]
         command: atmos
         aliases: [ atmos ]
 
