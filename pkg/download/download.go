@@ -21,9 +21,12 @@ package download
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 )
 
 type RequestOption = func(*http.Request)
@@ -44,10 +47,17 @@ func ApplyURLTransformer(urlTransformer URLTransformer, baseURLs ...string) ([]s
 	return transformedURLs, nil
 }
 
-func Bytes(ctx context.Context, url string, display func(string), checker ResponseChecker, requestOptions ...RequestOption) ([]byte, error) {
-	display("Downloading " + url)
+func Bytes(ctx context.Context, urlStr string, display func(string), checker ResponseChecker, requestOptions ...RequestOption) ([]byte, error) {
+	//Handle file:// URLs
+	//renaming urlstr to url to avoid shadowing the package name (net/url)
+	scheme, _, ok := strings.Cut(urlStr, "://")
+	if ok && scheme == "file" {
+		return bytesFromFile(urlStr)
+	}
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
+	display("Downloading " + urlStr)
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, urlStr, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -69,8 +79,8 @@ func Bytes(ctx context.Context, url string, display func(string), checker Respon
 	return io.ReadAll(response.Body)
 }
 
-func JSON(ctx context.Context, url string, display func(string), checker ResponseChecker, requestOptions ...RequestOption) (any, error) {
-	data, err := Bytes(ctx, url, display, checker, requestOptions...)
+func JSON(ctx context.Context, urlStr string, display func(string), checker ResponseChecker, requestOptions ...RequestOption) (any, error) {
+	data, err := Bytes(ctx, urlStr, display, checker, requestOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +118,19 @@ func WithBasicAuth(username string, password string) RequestOption {
 
 func NoTransform(value string) (string, error) {
 	return value, nil
+}
+
+func bytesFromFile(fileURL string) ([]byte, error) {
+	//parse file:// URL to get the path
+	//file://path/to/file -> /path/to/file
+	//file://./relative/path/to/file -> ./relative/path/to/file
+
+	filePath := strings.TrimPrefix(fileURL, "file://")
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file from %s: %w", fileURL, err)
+	}
+	return data, nil
 }
 
 func NoCheck(*http.Response) error {

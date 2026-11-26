@@ -38,6 +38,7 @@ import (
 	"github.com/tofuutils/tenv/v4/pkg/winbin"
 	htmlretriever "github.com/tofuutils/tenv/v4/versionmanager/retriever/html"
 	releaseapi "github.com/tofuutils/tenv/v4/versionmanager/retriever/terraform/api"
+	"path/filepath"
 )
 
 const (
@@ -140,9 +141,20 @@ func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) 
 		return nil, err
 	}
 
-	baseURL, err := url.JoinPath(r.conf.Tf.GetListURL(), cmdconst.TerraformName)
-	if err != nil {
-		return nil, err
+	listURL := r.conf.Tf.GetListURL()
+	var baseURL string
+	if strings.HasPrefix(listURL, "file://") {
+		// For file:// URLs, use filepath joining
+		filePath := strings.TrimPrefix(listURL, "file://")
+		filePath = filepath.Join(filePath, cmdconst.TerraformName)
+		baseURL = "file://" + filePath
+	} else {
+		// For HTTP URLs, use url.JoinPath
+		var err error
+		baseURL, err = url.JoinPath(listURL, cmdconst.TerraformName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	requestOptions := config.GetBasicAuthOption(r.conf.Getenv, envname.TfRemoteUser, envname.TfRemotePass)
@@ -153,9 +165,21 @@ func (r TerraformRetriever) ListVersions(ctx context.Context) ([]string, error) 
 
 		return htmlretriever.ListReleases(ctx, baseURL, r.conf.Tf.Data, requestOptions)
 	case config.ModeAPI:
-		releasesURL, err := url.JoinPath(baseURL, indexJSON)
-		if err != nil {
-			return nil, err
+		// releasesURL, err := url.JoinPath(baseURL, indexJSON)
+		// if err != nil {
+		// 	return nil, err
+		// }
+		var releasesURL string
+		if strings.HasPrefix(baseURL, "file://") {
+			filePath := strings.TrimPrefix(baseURL, "file://")
+			filePath = filepath.Join(filePath, indexJSON)
+			releasesURL = "file://" + filePath
+		} else {
+			var err error
+			releasesURL, err = url.JoinPath(baseURL, indexJSON)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		r.conf.Displayer.Display(apimsg.MsgFetchAllReleases + releasesURL)
