@@ -9,7 +9,8 @@ import (
 // Sanitize archive file pathing from "G305" (file traversal).
 func ArchivePath(dirPath string, fileName string) (string, error) {
 	destPath := filepath.Join(dirPath, fileName)
-	if strings.HasPrefix(destPath, filepath.Clean(dirPath)) {
+	relPath, err := filepath.Rel(filepath.Clean(dirPath), destPath)
+	if err == nil && relPath != ".." && !strings.HasPrefix(relPath, ".."+string(filepath.Separator)) {
 		return destPath, nil
 	}
 
