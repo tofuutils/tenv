@@ -215,3 +215,27 @@ func TestCleanTerragruntAlphaDash(t *testing.T) {
 		t.Error("Unexpected result, get :", version)
 	}
 }
+
+func TestIsValidTerragruntBetaDash(t *testing.T) {
+	t.Parallel()
+
+	if !versionfinder.IsValid("beta-2025111101") {
+		t.Error("Should be valid")
+	}
+}
+
+func TestCleanTerragruntBeta(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("beta2025111101"); version != "beta2025111101" {
+		t.Error("Unexpected result, get :", version)
+	}
+}
+
+func TestCleanTerragruntBetaDash(t *testing.T) {
+	t.Parallel()
+
+	if version := versionfinder.Clean("beta-2025111101"); version != "beta-2025111101" {
+		t.Error("Unexpected result, get :", version)
+	}
+}

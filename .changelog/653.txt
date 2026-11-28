@@ -1,0 +1,3 @@
+```release-note:bug
+Read the terramate part of the remote configuration file
+```

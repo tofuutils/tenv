@@ -46,7 +46,7 @@ func IsValid(versionStr string) bool {
 
 // IsValid(versionStr) must be true.
 func Clean(versionStr string) string {
-	if strings.HasPrefix(versionStr, "alpha") {
+	if strings.HasPrefix(versionStr, "alpha") || strings.HasPrefix(versionStr, "beta") {
 		return versionStr
 	}
 

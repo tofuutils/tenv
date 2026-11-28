@@ -36,13 +36,13 @@ func TestNameEqual(t *testing.T) {
 		{name: "trailing slash", path: "/usr/bin/", want: false},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
 			check := NameEqual("terraform")
-			if got := check(tc.path); got != tc.want {
-				t.Errorf("path %q: got %v, want %v", tc.path, got, tc.want)
+			if got := check(testCase.path); got != testCase.want {
+				t.Errorf("path %q: got %v, want %v", testCase.path, got, testCase.want)
 			}
 		})
 	}

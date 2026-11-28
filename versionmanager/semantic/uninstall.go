@@ -57,6 +57,9 @@ func SelectVersionsToUninstall(behaviourOrConstraint string, installPath string,
 		return versions[1:], nil // allowed by descending order
 	case strings.HasPrefix(behaviourOrConstraint, notUsedForPrefix):
 		forStr := behaviourOrConstraint[notUsedForPrefixLen:]
+		if forStr == "" {
+			return nil, errDurationParsing
+		}
 
 		var err error
 		daysInt, monthsInt := 0, 0

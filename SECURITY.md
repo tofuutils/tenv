@@ -8,7 +8,7 @@ Thank you for taking the time to contribute to the security of [tofuutils/tenv](
 
 If you discover a vulnerability, please follow these steps:
 
-1. Contact us directly via the secure channels listed below.
+1. Report it privately through GitHub: use the ["Report a vulnerability"](https://github.com/tofuutils/tenv/security/advisories/new) button on the repository's [security page](https://github.com/tofuutils/tenv/security).
 2. Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
   * Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
   * Full paths of source file(s) related to the manifestation of the issue
@@ -26,7 +26,8 @@ This information will help us triage your report more quickly.
 We prefer all communications to be in English.
 
 ## Contact
-To contact us, use [OpenTofu Community](https://opentofucommunity.slack.com/) slack, `#tofuutils` channel. You can ping Alexander Sharov or Denis Vaumoron there to discuss any issues.
+
+Use GitHub [private vulnerability reporting](https://github.com/tofuutils/tenv/security/advisories/new). The report is visible only to the maintainers, and all further discussion happens in the resulting security advisory.
 
 ## Disclosure Policy
 

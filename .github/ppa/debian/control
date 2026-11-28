@@ -1,0 +1,15 @@
+Source: tenv
+Section: utils
+Priority: optional
+Maintainer: Alexander Sharov <kvendingoldo@gmail.com>
+Build-Depends: debhelper (>= 12)
+Standards-Version: 4.5.0
+Homepage: https://github.com/tofuutils/tenv
+Rules-Requires-Root: no
+
+Package: tenv
+Architecture: amd64 arm64 armhf
+Depends: ${misc:Depends}
+Description: version manager for OpenTofu, Terraform, Terragrunt and Atmos
+ tenv is a versatile version manager for OpenTofu, Terraform,
+ Terragrunt and Atmos, written in Go.

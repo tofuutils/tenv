@@ -270,6 +270,7 @@ func (conf *Config) InitRemoteConf() error {
 
 	conf.Tf.Data = remoteConf[cmdconst.TerraformName]
 	conf.Tg.Data = remoteConf[cmdconst.TerragruntName]
+	conf.Tm.Data = remoteConf[cmdconst.TerramateName]
 	conf.Tofu.Data = remoteConf[cmdconst.TofuName]
 	conf.Atmos.Data = remoteConf[cmdconst.AtmosName]
 

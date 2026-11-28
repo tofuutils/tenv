@@ -21,6 +21,7 @@ package tenvlib
 import (
 	"context"
 	"errors"
+	"maps"
 	"os/exec"
 
 	"github.com/hashicorp/hcl/v2/hclparse"
@@ -95,9 +96,7 @@ type Tenv struct {
 // The returned wrapper is not concurrent safe.
 func Make(options ...TenvOption) (Tenv, error) {
 	builders := map[string]builder.Func{}
-	for toolName, builderFunc := range builder.Builders {
-		builders[toolName] = builderFunc
-	}
+	maps.Copy(builders, builder.Builders)
 
 	wrapperConf := tenvConfig{
 		builders:       builders,

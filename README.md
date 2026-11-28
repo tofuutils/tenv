@@ -270,6 +270,14 @@ apk add tenv
 
 <details markdown="1"><summary><b>Ubuntu</b></summary><br>
 
+#### Install via PPA
+Add the [Launchpad PPA](https://launchpad.net/~kvendingoldo/+archive/ubuntu/tenv) (amd64, arm64, armhf):
+```sh
+sudo add-apt-repository ppa:kvendingoldo/tenv
+sudo apt update
+sudo apt install tenv
+```
+
 #### Install via dpkg
 
 ```sh
@@ -1863,7 +1871,7 @@ Because the OpenTofu pass covers the whole search path before Terraform is consi
 
 This advanced configuration is meant to call artifact mirror (like [JFrog Artifactory](https://jfrog.com/artifactory)).
 
-The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : `tofu`, `terraform`, `terragrunt` and `atmos`.
+The yaml file from TENV_REMOTE_CONF path can have one part for each supported proxy : `tofu`, `terraform`, `terragrunt`, `terramate` and `atmos`.
 
 <details markdown="1"><summary><b>yaml fields description</b></summary><br>
 

@@ -22,7 +22,10 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/tofuutils/tenv/v4/pkg/apimsg"
@@ -153,4 +156,93 @@ func TestExtractVersion(t *testing.T) {
 	if version != "1.6.0" {
 		t.Error("Unmatching result, get :", version)
 	}
+}
+
+func TestCheckRateLimit(t *testing.T) {
+	t.Parallel()
+
+	t.Run("OK", func(t *testing.T) {
+		t.Parallel()
+
+		resp := newTestResponse(t, http.StatusOK, `{"tag_name":"v1.6.0"}`, "")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
+		if err != nil {
+			t.Error("Unexpected error on 200 response : ", err)
+		}
+	})
+
+	t.Run("ServerError", func(t *testing.T) {
+		t.Parallel()
+
+		resp := newTestResponse(t, http.StatusBadGateway, "Server Error", "")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
+		if err == nil {
+			t.Fatal("Should fail on 502 response")
+		}
+
+		if !strings.Contains(err.Error(), "HTTP 502") || !strings.Contains(err.Error(), "Server Error") {
+			t.Error("Error should contain the status code and the response body, get :", err)
+		}
+	})
+
+	t.Run("HTMLErrorPage", func(t *testing.T) {
+		t.Parallel()
+
+		resp := newTestResponse(t, http.StatusServiceUnavailable, "<html><body>Service Unavailable</body></html>", "")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
+		if err == nil {
+			t.Fatal("Should fail on HTML error page")
+		}
+
+		if !strings.Contains(err.Error(), "HTTP 503") || !strings.Contains(err.Error(), "Service Unavailable") {
+			t.Error("Error should contain the status code and the response body, get :", err)
+		}
+	})
+
+	t.Run("RateLimited", func(t *testing.T) {
+		t.Parallel()
+
+		resp := newTestResponse(t, http.StatusForbidden, `{"message":"API rate limit exceeded"}`, "0")
+		defer resp.Body.Close()
+
+		err := checkRateLimit(resp)
+		if err == nil {
+			t.Fatal("Should fail on rate limit")
+		}
+
+		if !errors.Is(err, apimsg.ErrRateLimit) {
+			t.Error("Unexpected rate limit error : ", err)
+		}
+	})
+}
+
+func newTestResponse(t *testing.T, statusCode int, body string, rateLimitRemaining string) *http.Response {
+	t.Helper()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if rateLimitRemaining != "" {
+			w.Header().Set("X-Ratelimit-Remaining", rateLimitRemaining)
+		}
+		w.WriteHeader(statusCode)
+		_, _ = w.Write([]byte(body))
+	}))
+	t.Cleanup(server.Close)
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL, nil)
+	if err != nil {
+		t.Fatal("Unexpected request creation error : ", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal("Unexpected request error : ", err)
+	}
+
+	return resp
 }
